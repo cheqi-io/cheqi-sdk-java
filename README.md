@@ -40,6 +40,18 @@ implementation 'com.cheqi:cheqi-sdk:1.0-SNAPSHOT'
 
 ## Quick Start
 
+
+## Environment Configuration
+
+The SDK supports multiple environments:
+
+| Environment | URL | Description |
+|-------------|-----|-------------|
+| `Environment.SANDBOX` | `https://sandbox.api.cheqi.io` | Development and testing |
+| `Environment.TEST` | `https://test.api.cheqi.io` | Pre-production testing |
+| `Environment.PRODUCTION` | `https://api.cheqi.io` | Live production environment |
+| `Environment.LOCAL` | `localhost:8080` | Local development |
+
 ### 1. Initialize the SDK
 
 ```java
@@ -107,17 +119,6 @@ if (result.isSuccess()) {
 3. **Creates encrypted receipts** for all customer devices
 4. **Sends the receipts** to the Cheqi backend for delivery
 
-
-## Environment Configuration
-
-The SDK supports multiple environments:
-
-| Environment | URL | Description |
-|-------------|-----|-------------|
-| `Environment.SANDBOX` | `https://sandbox.api.cheqi.io` | Development and testing |
-| `Environment.TEST` | `https://test.api.cheqi.io` | Pre-production testing |
-| `Environment.PRODUCTION` | `https://api.cheqi.io` | Live production environment |
-| `Environment.LOCAL` | `localhost:8080` | Local development |
 
 ## Advanced Usage
 
@@ -219,7 +220,6 @@ The SDK includes the following key dependencies:
 - **Jackson**: JSON processing and serialization
 - **OkHttp**: HTTP client for API communication  
 - **SLF4J**: Logging framework
-- **Lombok**: Code generation (compile-time only)
 - **JAXB**: XML binding for UBL processing
 
 ## Building from Source

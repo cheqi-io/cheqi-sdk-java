@@ -1,11 +1,5 @@
 package com.cheqi.sdk.matching;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
 public class CustomerIdentifier {
     private final IdentifierType type;
     private final String value;
