@@ -232,36 +232,9 @@ cd cheqi-sdk-java
 # Build the project
 mvn clean compile
 
-# Run tests
-mvn test
-
 # Create JAR with dependencies
 mvn package
 ```
-
-## Testing
-
-The SDK includes comprehensive unit tests:
-
-```bash
-# Run all tests
-mvn test
-
-# Run specific test class
-mvn test -Dtest=EncryptionServiceTest
-
-# Generate test coverage report
-mvn jacoco:report
-```
-
-## Examples
-
-Check out the [examples](examples/) directory for complete working examples:
-
-- [Basic Receipt Processing](examples/BasicReceiptProcessing.java)
-- [Customer Matching](examples/CustomerMatching.java)
-- [Batch Processing](examples/BatchProcessing.java)
-- [Error Handling](examples/ErrorHandling.java)
 
 ## API Reference
 
@@ -274,9 +247,7 @@ mvn javadoc:javadoc
 ## Support
 
 - **Documentation**: [https://docs.cheqi.io](https://docs.cheqi.io)
-- **API Reference**: [https://api.cheqi.io/docs](https://api.cheqi.io/docs)
-- **Support Email**: support@cheqi.io
-- **Developer Portal**: [https://developer.cheqi.io](https://developer.cheqi.io)
+- **Support Email**: info@cheqi.io
 
 ## Contributing
 
@@ -289,20 +260,5 @@ mvn javadoc:javadoc
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Changelog
-
-### Version 1.0-SNAPSHOT
-
-- Initial release
-- End-to-end encryption support
-- Customer matching capabilities
-- Receipt template generation
-- Multi-environment configuration
-- Comprehensive error handling
-- RFC8785 canonicalization
-- Builder pattern API design
-
----
 
 **Cheqi** - Secure Digital Receipt Platform
