@@ -3,8 +3,7 @@ package com.cheqi.sdk.config;
 public enum Environment {
     SANDBOX("https://sandbox.api.cheqi.io"),
     TEST("https://test.api.cheqi.io"),
-    PRODUCTION("https://api.cheqi.io"),
-    LOCAL("localhost:8080");
+    PRODUCTION("https://api.cheqi.io");
 
     private final String baseUrl;
 

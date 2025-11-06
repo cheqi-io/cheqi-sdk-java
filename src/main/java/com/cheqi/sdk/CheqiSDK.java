@@ -22,10 +22,18 @@ import com.cheqi.sdk.utils.RFC8785Canonicalizer;
  * 3. Create encrypted receipts for matched customers
  * 4. Communicate with Cheqi backend through encrypted channels
  *
- * Example usage:
+ * Example usage with predefined environment:
  * <pre>
  * CheqiSDK sdk = CheqiSDK.builder()
- *     .apiEndpoint("https://api.cheqi.io")
+ *     .apiEndpoint(Environment.PRODUCTION)
+ *     .supplierCredentials("client_id", "client_secret")
+ *     .build();
+ * </pre>
+ * 
+ * Example usage with custom URL:
+ * <pre>
+ * CheqiSDK sdk = CheqiSDK.builder()
+ *     .customApiEndpoint("https://custom.api.example.com")
  *     .supplierCredentials("client_id", "client_secret")
  *     .build();
  *
@@ -166,8 +174,26 @@ public class CheqiSDK {
     public static class CheqiSDKBuilder {
         private final CheqiSDKConfig.Builder configBuilder = CheqiSDKConfig.builder();
 
+        /**
+         * Sets the API endpoint using a predefined environment.
+         *
+         * @param apiEndpoint the predefined environment (SANDBOX, TEST, PRODUCTION, LOCAL)
+         * @return this builder instance
+         */
         public CheqiSDKBuilder apiEndpoint(Environment apiEndpoint) {
             configBuilder.apiEndpoint(apiEndpoint);
+            return this;
+        }
+
+        /**
+         * Sets a custom API endpoint URL.
+         * Use this method when you need to connect to a custom or self-hosted Cheqi API instance.
+         *
+         * @param customUrl the custom API base URL (e.g., "https://custom.api.example.com")
+         * @return this builder instance
+         */
+        public CheqiSDKBuilder customApiEndpoint(String customUrl) {
+            configBuilder.customApiEndpoint(customUrl);
             return this;
         }
 

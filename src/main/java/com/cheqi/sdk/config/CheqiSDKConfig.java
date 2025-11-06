@@ -64,8 +64,25 @@ public class CheqiSDKConfig {
         private int timeoutSeconds = 30;
         private int maxRetries = 3;
 
+        /**
+         * Sets the API endpoint using a predefined environment.
+         *
+         * @param apiEndpoint the predefined environment
+         * @return this builder instance
+         */
         public Builder apiEndpoint(Environment apiEndpoint) {
             this.apiEndpoint = apiEndpoint.getBaseUrl();
+            return this;
+        }
+
+        /**
+         * Sets a custom API endpoint URL.
+         *
+         * @param customUrl the custom API base URL
+         * @return this builder instance
+         */
+        public Builder customApiEndpoint(String customUrl) {
+            this.apiEndpoint = customUrl;
             return this;
         }
 
@@ -91,6 +108,9 @@ public class CheqiSDKConfig {
         }
 
         public CheqiSDKConfig build() {
+            if (apiEndpoint == null || apiEndpoint.trim().isEmpty()) {
+                throw new IllegalStateException("API endpoint must be set using either apiEndpoint(Environment) or customApiEndpoint(String)");
+            }
             if (encryptionConfig == null) {
                 encryptionConfig = EncryptionConfig.builder().build();
             }

@@ -48,9 +48,7 @@ The SDK supports multiple environments:
 | Environment | URL | Description |
 |-------------|-----|-------------|
 | `Environment.SANDBOX` | `https://sandbox.api.cheqi.io` | Development and testing |
-| `Environment.TEST` | `https://test.api.cheqi.io` | Pre-production testing |
 | `Environment.PRODUCTION` | `https://api.cheqi.io` | Live production environment |
-| `Environment.LOCAL` | `localhost:8080` | Local development |
 
 ### 1. Initialize the SDK
 
@@ -59,7 +57,7 @@ import com.cheqi.sdk.CheqiSDK;
 import com.cheqi.sdk.config.Environment;
 
 CheqiSDK sdk = CheqiSDK.builder()
-    .apiEndpoint(Environment.SANDBOX)  // or Environment.TEST, Environment.PRODUCTION
+    .apiEndpoint(Environment.SANDBOX)  // or Environment.PRODUCTION
     .supplierCredentials("your-client-id", "your-client-secret")
     .timeout(30)  // seconds
     .maxRetries(3)
@@ -82,7 +80,6 @@ PaymentDetails paymentDetails = PaymentDetails.builder()
         .paymentAccountReference("PAR123456")
         .cardProvider(CardProvider.VISA)
         .build())
-    .customerEmail("customer@example.com")
     .build();
 
 // Create receipt template request
