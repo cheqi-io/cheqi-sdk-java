@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -19,6 +21,12 @@ import java.math.BigDecimal;
  * JacksonConfig to ensure consistent JSON serialization across the entire SDK,
  * particularly for BigDecimal and Double values.
  * 
+ * Key features:
+ * - Strips trailing zeros from BigDecimal and Double values
+ * - Excludes null and empty values from JSON output
+ * - Supports Java 8+ types (Optional, LocalDateTime, etc.)
+ * - Thread-safe singleton pattern
+ * 
  * Usage:
  * <pre>
  * ObjectMapper mapper = ObjectMapperConfig.getInstance();
@@ -26,6 +34,7 @@ import java.math.BigDecimal;
  * </pre>
  */
 public final class ObjectMapperConfig {
+    private static final Logger logger = LoggerFactory.getLogger(ObjectMapperConfig.class);
 
     private static final ObjectMapper INSTANCE = createConfiguredObjectMapper();
 
@@ -48,6 +57,8 @@ public final class ObjectMapperConfig {
      * This ensures consistent JSON serialization across backend and SDK.
      */
     private static ObjectMapper createConfiguredObjectMapper() {
+        logger.debug("Initializing ObjectMapper with custom serialization rules");
+        
         SimpleModule trailingZeroRemovalModule = new SimpleModule("TrailingZeroRemovalModule");
         
         // Configure to strip trailing zeros from BigDecimal values
@@ -72,11 +83,14 @@ public final class ObjectMapperConfig {
             }
         });
 
-        return new ObjectMapper()
+        ObjectMapper mapper = new ObjectMapper()
                 .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
                 .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
                 .registerModule(trailingZeroRemovalModule)
                 .registerModule(new Jdk8Module())      // Handles Optional, Stream, etc.
                 .registerModule(new JavaTimeModule()); // Handles LocalDateTime, LocalDate, etc.
+        
+        logger.info("ObjectMapper initialized with trailing zero removal and Java 8+ support");
+        return mapper;
     }
 }

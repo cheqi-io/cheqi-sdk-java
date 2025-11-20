@@ -107,4 +107,36 @@ public interface CheqiApiClient {
      * @since 1.0
      */
     void sendEncryptedReceipts(Set<EncryptedReceiptDto> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException;
+
+    /**
+     * Sends a receipt directly to a customer via email.
+     *
+     * This method provides a simpler alternative to the encrypted receipt flow when:
+     * - The customer is not registered in the Cheqi system
+     * - Email delivery is preferred over app-based delivery
+     * - No end-to-end encryption is required
+     *
+     * The backend will:
+     * 1. Validate the provided access token and required 'write_receipts' scope
+     * 2. Process the receipt data
+     * 3. Send the receipt to the specified email address
+     * 4. Return 201 Created status for successful email delivery
+     *
+     * @param customerEmail Email address to send the receipt to. Must be a valid email format.
+     * @param purchaseReceipt The PurchaseReceipt object containing the receipt data to send.
+     * @param accessToken Pre-provided OAuth2 access token from the merchant.
+     *                   Must have 'write_receipts' scope for receipt submission permissions.
+     * @throws CheqiApiException if the API call fails due to:
+     *         <ul>
+     *         <li><strong>400 Bad Request</strong>: Invalid email format or receipt data</li>
+     *         <li><strong>401 Unauthorized</strong>: Invalid or expired access token</li>
+     *         <li><strong>403 Forbidden</strong>: Access token missing required 'write_receipts' scope</li>
+     *         <li><strong>429 Too Many Requests</strong>: Rate limit exceeded</li>
+     *         <li><strong>5xx Server Errors</strong>: Backend server errors or email delivery failure</li>
+     *         <li><strong>Network Errors</strong>: Connection timeouts or network connectivity issues</li>
+     *         </ul>
+     *
+     * @since 1.0
+     */
+    void sendReceiptViaEmail(String customerEmail, com.cheqi.commons.UBL.PurchaseReceipt purchaseReceipt, String accessToken) throws CheqiApiException;
 }

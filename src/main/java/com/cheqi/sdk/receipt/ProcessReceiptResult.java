@@ -1,6 +1,7 @@
 package com.cheqi.sdk.receipt;
 
 import com.cheqi.commons.DTOs.RecipientResolutionResponse;
+import com.cheqi.commons.UBL.PurchaseReceipt;
 
 public class ProcessReceiptResult {
     private final boolean success;
@@ -9,6 +10,8 @@ public class ProcessReceiptResult {
     private final int recipientsFound;
     private final RecipientResolutionResponse matchResponse;
     private final Exception error;
+    private final DeliveryStatus deliveryStatus;
+    private final String emailAddress;
 
     private ProcessReceiptResult(
             boolean success,
@@ -16,13 +19,17 @@ public class ProcessReceiptResult {
             int encryptedReceiptsCreated,
             int recipientsFound,
             RecipientResolutionResponse matchResponse,
-            Exception error) {
+            Exception error,
+            DeliveryStatus deliveryStatus,
+            String emailAddress) {
         this.success = success;
         this.message = message;
         this.encryptedReceiptsCreated = encryptedReceiptsCreated;
         this.recipientsFound = recipientsFound;
         this.matchResponse = matchResponse;
         this.error = error;
+        this.deliveryStatus = deliveryStatus;
+        this.emailAddress = emailAddress;
     }
 
     /**
@@ -39,6 +46,8 @@ public class ProcessReceiptResult {
                 receiptsCreated,
                 recipients,
                 null,
+                null,
+                DeliveryStatus.DELIVERED_DIGITAL,
                 null
         );
     }
@@ -57,6 +66,8 @@ public class ProcessReceiptResult {
                 receiptsCreated,
                 matchResponse != null ? matchResponse.getRecipients().size() : 0,
                 matchResponse,
+                null,
+                DeliveryStatus.DELIVERED_DIGITAL,
                 null
         );
     }
@@ -73,7 +84,28 @@ public class ProcessReceiptResult {
                 0,
                 0,
                 null,
+                null,
+                DeliveryStatus.CUSTOMER_NOT_FOUND,
                 null
+        );
+    }
+    
+    /**
+     * Creates a successful result for email delivery.
+     *
+     * @param emailAddress Email address where receipt was sent
+     * @return Success result for email delivery
+     */
+    public static ProcessReceiptResult emailSent(String emailAddress) {
+        return new ProcessReceiptResult(
+                true,
+                "Receipt sent via email to " + emailAddress,
+                0,
+                0,
+                null,
+                null,
+                DeliveryStatus.DELIVERED_EMAIL,
+                emailAddress
         );
     }
 
@@ -91,7 +123,9 @@ public class ProcessReceiptResult {
                 0,
                 0,
                 null,
-                error
+                error,
+                DeliveryStatus.FAILED,
+                null
         );
     }
 
@@ -108,6 +142,8 @@ public class ProcessReceiptResult {
                 0,
                 0,
                 null,
+                null,
+                DeliveryStatus.FAILED,
                 null
         );
     }
@@ -169,15 +205,44 @@ public class ProcessReceiptResult {
     public boolean isCustomerFound() {
         return matchResponse != null && matchResponse.isCustomerFound();
     }
+    
+    /**
+     * @return true if customer was not found (POS should ask for email)
+     */
+    public boolean isCustomerNotFound() {
+        return deliveryStatus == DeliveryStatus.CUSTOMER_NOT_FOUND;
+    }
+    
+    /**
+     * @return Delivery status for easy POS handling
+     */
+    public DeliveryStatus getDeliveryStatus() {
+        return deliveryStatus;
+    }
+    
+    /**
+     * @return Email address (suggested or where receipt was sent)
+     */
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    /**
+     * @return true if email fallback is recommended
+     */
+    public boolean requiresEmailFallback() {
+        return deliveryStatus == DeliveryStatus.CUSTOMER_NOT_FOUND;
+    }
 
     @Override
     public String toString() {
         return "ProcessReceiptResult{" +
                 "success=" + success +
                 ", message='" + message + '\'' +
+                ", deliveryStatus=" + deliveryStatus +
                 ", encryptedReceiptsCreated=" + encryptedReceiptsCreated +
                 ", recipientsFound=" + recipientsFound +
-                ", customerFound=" + isCustomerFound() +
+                ", emailAddress='" + emailAddress + '\'' +
                 '}';
     }
 }

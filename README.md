@@ -56,15 +56,20 @@ The SDK supports multiple environments:
 import com.cheqi.sdk.CheqiSDK;
 import com.cheqi.sdk.config.Environment;
 
+// Initialize SDK with your credentials
 CheqiSDK sdk = CheqiSDK.builder()
-    .apiEndpoint(Environment.SANDBOX)  // or Environment.PRODUCTION
-    .supplierCredentials("your-client-id", "your-client-secret")
-    .timeout(30)  // seconds
-    .maxRetries(3)
+    .apiEndpoint(Environment.SANDBOX)  // Use SANDBOX for testing
+    .timeout(30)  // Request timeout in seconds
+    .maxRetries(3)  // Number of retry attempts
     .build();
 ```
 
-### 2. Complete Receipt Processing (Recommended)
+**Environments:**
+- `Environment.SANDBOX` - `https://sandbox.api.cheqi.io` (for development/testing)
+- `Environment.PRODUCTION` - `https://api.cheqi.io` (for live transactions)
+- `.customApiEndpoint("https://custom.url")` - For local development
+
+### Step 4: Process a Receipt
 
 **This is the simplest way to process receipts** - one method handles everything:
 

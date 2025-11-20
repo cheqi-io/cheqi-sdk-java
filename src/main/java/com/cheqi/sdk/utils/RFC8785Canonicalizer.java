@@ -1,9 +1,12 @@
 package com.cheqi.sdk.utils;
 
+import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -16,46 +19,96 @@ import java.util.List;
 
 /**
  * RFC 8785 compliant JSON canonicalization implementation.
- * Provides deterministic JSON serialization for consistent hashing.
+ * 
+ * Provides deterministic JSON serialization for consistent hashing and signing.
+ * This implementation follows the RFC 8785 specification which defines:
+ * - Lexicographic ordering of object keys
+ * - Specific string escaping rules
+ * - Consistent number representation
+ * - No insignificant whitespace
+ * 
+ * Thread-safe and can be reused across multiple canonicalization operations.
  */
 public class RFC8785Canonicalizer {
+    private static final Logger logger = LoggerFactory.getLogger(RFC8785Canonicalizer.class);
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * Creates a new RFC8785Canonicalizer instance.
+     * Uses the shared ObjectMapper configuration for consistency.
+     */
     public RFC8785Canonicalizer() {
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = ObjectMapperConfig.getInstance();
+        logger.debug("RFC8785Canonicalizer initialized");
     }
 
     /**
-     * Canonicalizes JSON string according to RFC 8785
+     * Canonicalizes JSON string according to RFC 8785.
+     * 
+     * @param json JSON string to canonicalize
+     * @return Canonicalized JSON string
+     * @throws IOException if JSON parsing fails
+     * @throws IllegalArgumentException if json is null or empty
      */
     public String canonicalize(String json) throws IOException {
+        if (json == null || json.trim().isEmpty()) {
+            throw new IllegalArgumentException("JSON string cannot be null or empty");
+        }
+        
+        logger.debug("Canonicalizing JSON string");
         JsonNode node = objectMapper.readTree(json);
-        return canonicalizeNode(node);
+        String canonical = canonicalizeNode(node);
+        logger.debug("JSON canonicalization complete");
+        return canonical;
     }
 
     /**
-     * Canonicalizes an object directly by first converting to JSON
+     * Canonicalizes an object directly by first converting to JSON.
+     * 
+     * @param object Object to canonicalize
+     * @return Canonicalized JSON string
+     * @throws IOException if JSON serialization or parsing fails
+     * @throws IllegalArgumentException if object is null
      */
     public String canonicalize(Object object) throws IOException {
+        if (object == null) {
+            throw new IllegalArgumentException("Object cannot be null");
+        }
+        
+        logger.debug("Canonicalizing object of type: {}", object.getClass().getSimpleName());
         String json = objectMapper.writeValueAsString(object);
         return canonicalize(json);
     }
 
     /**
-     * Calculates SHA-256 hash of canonicalized JSON
+     * Calculates SHA-256 hash of canonicalized JSON.
+     * 
+     * @param json JSON string to hash
+     * @return Hex-encoded SHA-256 hash
+     * @throws IOException if JSON parsing fails
      */
     public String calculateHash(String json) throws IOException {
+        logger.debug("Calculating hash for JSON string");
         String canonical = canonicalize(json);
-        return calculateSHA256(canonical);
+        String hash = calculateSHA256(canonical);
+        logger.debug("Hash calculated: {}", hash.substring(0, 8) + "...");
+        return hash;
     }
 
     /**
-     * Calculates SHA-256 hash of canonicalized object
+     * Calculates SHA-256 hash of canonicalized object.
+     * 
+     * @param object Object to hash
+     * @return Hex-encoded SHA-256 hash
+     * @throws IOException if JSON serialization or parsing fails
      */
     public String calculateHash(Object object) throws IOException {
+        logger.debug("Calculating hash for object of type: {}", object.getClass().getSimpleName());
         String canonical = canonicalize(object);
-        return calculateSHA256(canonical);
+        String hash = calculateSHA256(canonical);
+        logger.debug("Hash calculated: {}", hash.substring(0, 8) + "...");
+        return hash;
     }
 
     private String canonicalizeNode(JsonNode node) {
