@@ -25,12 +25,15 @@ jobs:
 
       - name: Publish to Maven Central
         run: |
-          ./gradlew publishAllPublicationsToCentralPortal --no-daemon
+          # Decode base64 GPG key
+          export SIGNING_KEY=$(echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d)
+          
+          ./gradlew publishAllPublicationsToCentralPortal --no-daemon \
+            -PsigningKey="$SIGNING_KEY" \
+            -PsigningPassword="${{ secrets.GPG_PASSPHRASE }}"
         env:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_PRIVATE_KEY }}
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Summary
         run: |
