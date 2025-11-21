@@ -30,7 +30,7 @@ jobs:
 
       - name: Publish to Maven Central
         run: |
-          ./gradlew publishAllPublicationsToMavenCentralRepository --no-daemon
+          ./gradlew publishAllPublicationsToCentralPortal --no-daemon
         env:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
