@@ -24,7 +24,7 @@ Add the following dependency to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.cheqi</groupId>
+    <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
@@ -35,7 +35,7 @@ Add the following dependency to your `pom.xml`:
 Add to your `build.gradle`:
 
 ```gradle
-implementation 'com.cheqi:cheqi-sdk:1.0-SNAPSHOT'
+implementation 'io.cheqi:cheqi-sdk:1.0-SNAPSHOT'
 ```
 
 ## Quick Start
@@ -45,10 +45,12 @@ implementation 'com.cheqi:cheqi-sdk:1.0-SNAPSHOT'
 
 The SDK supports multiple environments:
 
-| Environment | URL | Description |
-|-------------|-----|-------------|
-| `Environment.SANDBOX` | `https://sandbox.api.cheqi.io` | Development and testing |
-| `Environment.PRODUCTION` | `https://api.cheqi.io` | Live production environment |
+| Environment              | URL                            | Description                 |
+|--------------------------|--------------------------------|-----------------------------|
+| `Environment.SANDBOX`    | `https://sandbox.api.cheqi.io` | Development                 |
+| `Environment.TEST`       | `https://test.api.cheqi.io`    | Test environment            |
+| `Environment.PRODUCTION` | `https://api.cheqi.io`         | Live production environment |
+
 
 ### 1. Initialize the SDK
 
@@ -65,7 +67,8 @@ CheqiSDK sdk = CheqiSDK.builder()
 ```
 
 **Environments:**
-- `Environment.SANDBOX` - `https://sandbox.api.cheqi.io` (for development/testing)
+- `Environment.SANDBOX` - `https://sandbox.api.cheqi.io` (for development)
+- `Environment.TEST` - `https://test.api.cheqi.io` (for testing)
 - `Environment.PRODUCTION` - `https://api.cheqi.io` (for live transactions)
 - `.customApiEndpoint("https://custom.url")` - For local development
 
@@ -74,52 +77,103 @@ CheqiSDK sdk = CheqiSDK.builder()
 **This is the simplest way to process receipts** - one method handles everything:
 
 ```java
-import com.cheqi.commons.DTOs.PaymentDetails;
-import com.cheqi.commons.DTOs.ReceiptTemplateRequestDto;
+import com.cheqi.sdk.models.IdentificationDetails;
+import com.cheqi.sdk.models.CardDetails;
+import com.cheqi.sdk.models.PaymentType;
+import com.cheqi.sdk.models.ReceiptTemplateRequest;
+import com.cheqi.sdk.models.Product;
+import com.cheqi.sdk.models.TaxBreakDown;
 import com.cheqi.sdk.receipt.ProcessReceiptResult;
+import com.cheqi.commons.enums.CardProvider;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
 
-// Create payment details for customer matching
-PaymentDetails paymentDetails = PaymentDetails.builder()
+// Create identification details for customer matching
+IdentificationDetails identificationDetails = IdentificationDetails.builder()
     .paymentType(PaymentType.CARD_PAYMENT)
-    .card(CardDetails.builder()
+    .cardDetails(CardDetails.builder()
         .paymentAccountReference("PAR123456")
         .cardProvider(CardProvider.VISA)
         .build())
     .build();
 
 // Create receipt template request
-ReceiptTemplateRequestDto receiptRequest = ReceiptTemplateRequestDto.builder()
+ReceiptTemplateRequest receiptRequest = ReceiptTemplateRequest.builder()
     .receiptId("INV-001")
     .issueDate(Instant.now())
     .documentCurrencyCode("EUR")
     .invoiceSubtotal(new BigDecimal("100.00"))
     .totalBeforeTax(new BigDecimal("100.00"))
     .totalAmount(new BigDecimal("121.00"))
-    .products(productList)
-    .taxBreakDown(taxBreakdown)
+    .products(productList)  // List<Product>
+    .taxBreakDown(taxBreakdown)  // TaxBreakDown
     .build();
 
 // Process complete receipt (match + generate + encrypt + send)
 ProcessReceiptResult result = sdk.getReceiptService().processCompleteReceipt(
-    paymentDetails,     // Payment details for matching
-    receiptRequest,     // Receipt template data
-    merchantId,         // UUID of the merchant who sold the goods (obtained when merchant grants OAuth access to your system)
-    accessToken         // OAuth access token
+    identificationDetails,  // Customer identification details
+    receiptRequest,         // Receipt template data
+    merchantId,             // UUID of the merchant
+    accessToken             // OAuth access token
 );
 
 if (result.isSuccess()) {
-    System.out.println("Receipt processed successfully!");
+    System.out.println("Receipt delivered successfully!");
     System.out.println("Receipts created: " + result.getReceiptCount());
+} else if (result.isCustomerNotFound()) {
+    // Customer not found - prompt for email and send request with email included
+    System.out.println("Customer not found. Prompt user for email to send receipt.");
+    // See 'Email Fallback' section below for how to include email
 } else {
-    System.out.println("Processing failed: " + result.getErrorMessage());
+    System.out.println("Processing failed: " + result.getMessage());
 }
 ```
 
 **This method automatically:**
-1. **Matches the customer** using the provided payment details
-2. **Generates a receipt template** from the request data
+1. **Matches the customer** using the provided identification details (card PAR, IBAN, email, etc.)
+2. **Generates a receipt template** from the request data (only if customer is found)
 3. **Creates encrypted receipts** for all customer devices
 4. **Sends the receipts** to the Cheqi backend for delivery
+
+### Email Fallback
+
+**You can include an email address in your initial request** for automatic fallback if the customer is not found:
+
+```java
+// Add email to identification details for fallback
+IdentificationDetails identificationDetails = IdentificationDetails.builder()
+    .paymentType(PaymentType.CARD_PAYMENT)
+    .cardDetails(CardDetails.builder()
+        .paymentAccountReference("PAR123456")
+        .cardProvider(CardProvider.VISA)
+        .build())
+    .customerEmail("customer@example.com")  // Email fallback
+    .build();
+
+// Process receipt - email will be used if customer not found
+ProcessReceiptResult result = sdk.getReceiptService().processCompleteReceipt(
+    identificationDetails,
+    receiptRequest,
+    merchantId,
+    accessToken
+);
+
+if (result.isSuccess()) {
+    System.out.println("Receipt delivered successfully!");
+} else if (result.isCustomerNotFound()) {
+    System.out.println("Customer not found - please collect email for receipt delivery");
+} else {
+    System.out.println("Failed: " + result.getMessage());
+}
+```
+
+**Email Fallback Behavior:**
+- ✅ Customer **found** → Encrypted digital receipt delivered to their Cheqi app (email is ignored)
+- ✅ Customer **not found** + **email provided** → PDF receipt sent via email (handled by Cheqi)
+- ❌ Customer **not found** + **no email** → Returns `isCustomerNotFound() = true`
+
+**Tip:** If you collect email at checkout, include it in the initial request to avoid a second API call.
 
 
 ## Advanced Usage

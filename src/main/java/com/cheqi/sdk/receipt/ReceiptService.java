@@ -1,10 +1,8 @@
 package com.cheqi.sdk.receipt;
 
 import com.cheqi.commons.DTOs.EncryptedReceiptDto;
-import com.cheqi.commons.DTOs.PaymentDetails;
 import com.cheqi.commons.DTOs.Recipient;
 import com.cheqi.commons.DTOs.RecipientResolutionResponse;
-import com.cheqi.commons.DTOs.ReceiptTemplateRequestDto;
 import com.cheqi.commons.UBL.PurchaseReceipt;
 import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.encryption.EncryptionService;
@@ -12,6 +10,8 @@ import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.matching.MatchingService;
+import com.cheqi.sdk.models.PaymentDetails;
+import com.cheqi.sdk.models.ReceiptTemplateRequest;
 import com.cheqi.sdk.utils.HashUtils;
 import com.cheqi.sdk.utils.RFC8785Canonicalizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +37,7 @@ import java.util.UUID;
  * Example usage:
  * <pre>
  * // Generate a receipt template
- * ReceiptTemplateRequestDto request = ReceiptTemplateRequestDto.builder()
+ * ReceiptTemplateRequest request = ReceiptTemplateRequest.builder()
  *     .receiptId("INV-001")
  *     .issueDate(Instant.now())
  *     .documentCurrencyCode("EUR")
@@ -95,7 +95,7 @@ public class ReceiptService {
      */
     public ProcessReceiptResult processCompleteReceipt(
             PaymentDetails paymentDetails,
-            ReceiptTemplateRequestDto receiptRequest,
+            ReceiptTemplateRequest receiptRequest,
             UUID merchantId,
             String accessToken) throws CheqiSDKException {
 
@@ -106,7 +106,7 @@ public class ReceiptService {
         }
         
         if (receiptRequest == null) {
-            throw new CheqiSDKException("ReceiptTemplateRequestDto cannot be null", 
+            throw new CheqiSDKException("ReceiptTemplateRequest cannot be null", 
                 CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
         
@@ -190,7 +190,7 @@ public class ReceiptService {
      * @throws CheqiSDKException if validation fails or API call encounters an error
      */
     public String generateReceiptTemplate(
-            ReceiptTemplateRequestDto request, 
+            ReceiptTemplateRequest request, 
             String accessToken) throws CheqiSDKException {
         
         // Validate request data
@@ -395,7 +395,7 @@ public class ReceiptService {
      * @param request Receipt template request to validate
      * @return ValidationResult containing validation status and any errors
      */
-    public ValidationResult validateReceiptRequest(ReceiptTemplateRequestDto request) {
+    public ValidationResult validateReceiptRequest(ReceiptTemplateRequest request) {
         if (request == null) {
             return ValidationResult.invalid("Receipt template request cannot be null");
         }

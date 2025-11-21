@@ -4,6 +4,8 @@ import com.cheqi.commons.DTOs.*;
 import com.cheqi.commons.UBL.PurchaseReceipt;
 import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
+import com.cheqi.sdk.models.PaymentDetails;
+import com.cheqi.sdk.models.ReceiptTemplateRequest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -47,7 +49,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public String generateReceiptTemplate(ReceiptTemplateRequestDto request, String accessToken) throws CheqiApiException {
+    public String generateReceiptTemplate(ReceiptTemplateRequest request, String accessToken) throws CheqiApiException {
         logger.info("Generating receipt template for receipt ID: {}", request.getReceiptId());
 
         if (accessToken == null || accessToken.trim().isEmpty()) {

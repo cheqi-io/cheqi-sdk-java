@@ -1,20 +1,21 @@
 package com.cheqi.sdk.matching;
 
-import com.cheqi.commons.DTOs.*;
+import com.cheqi.commons.DTOs.RecipientResolutionResponse;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
+import com.cheqi.sdk.models.CardDetails;
+import com.cheqi.sdk.models.PaymentAccountDetails;
+import com.cheqi.sdk.models.PaymentDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Service for secure customer matching using payment details.
- * 
  * This service sends PaymentDetails to the backend for recipient resolution.
  * The backend determines the best matching strategy based on available identifiers:
  * - Card details (PAN, PAR)
  * - Payment account details (IBAN)
  * - Customer email
- *
  * Thread-safe and designed for high-throughput matching operations.
  */
 public class MatchingService {

@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.cheqi</groupId>
+    <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>Cheqi SDK</name>
@@ -129,6 +129,35 @@
                     <source>11</source>
                     <target>11</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <!-- Include private members in documentation -->
+                    <show>private</show>
+                    <!-- Fail build on Javadoc warnings (optional - set to false if too strict) -->
+                    <failOnWarnings>false</failOnWarnings>
+                    <!-- Disable strict HTML checking for Java 8+ -->
+                    <doclint>none</doclint>
+                    <!-- Source encoding -->
+                    <encoding>UTF-8</encoding>
+                    <!-- Charset for generated HTML -->
+                    <charset>UTF-8</charset>
+                    <!-- Document encoding -->
+                    <docencoding>UTF-8</docencoding>
+                </configuration>
+                <executions>
+                    <!-- Attach Javadoc JAR during package phase -->
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>

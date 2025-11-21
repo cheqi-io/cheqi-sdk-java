@@ -1,7 +1,10 @@
 package com.cheqi.sdk.http;
 
-import com.cheqi.commons.DTOs.*;
+import com.cheqi.commons.DTOs.EncryptedReceiptDto;
+import com.cheqi.commons.DTOs.RecipientResolutionResponse;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
+import com.cheqi.sdk.models.PaymentDetails;
+import com.cheqi.sdk.models.ReceiptTemplateRequest;
 
 import java.util.Set;
 
@@ -32,7 +35,7 @@ public interface CheqiApiClient {
      * @return PurchaseReceipt with placeholders for personal data injection
      * @throws CheqiApiException if the API call fails
      */
-    String generateReceiptTemplate(ReceiptTemplateRequestDto request, String accessToken) throws CheqiApiException;
+    String generateReceiptTemplate(ReceiptTemplateRequest request, String accessToken) throws CheqiApiException;
 
     /**
      * Calls the customer matching endpoint to find a customer using payment identifiers.
