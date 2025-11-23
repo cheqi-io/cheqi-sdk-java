@@ -10,7 +10,7 @@ import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.matching.MatchingService;
-import com.cheqi.sdk.models.PaymentDetails;
+import com.cheqi.sdk.models.IdentificationDetails;
 import com.cheqi.sdk.models.ReceiptTemplateRequest;
 import com.cheqi.sdk.utils.HashUtils;
 import com.cheqi.sdk.utils.RFC8785Canonicalizer;
@@ -82,25 +82,23 @@ public class ReceiptService {
     /**
      * Complete receipt processing workflow:
      * 1. Matches customer using payment details
-     * 2. If customer not found, returns early (saves template generation API call)
-     * 3. Generates receipt template (only if customer found)
-     * 4. Attaches payment means from matching
-     * 5. Creates encrypted receipts for all recipients
-     * 6. Sends receipts to backend
-     *
-     * @param paymentDetails Payment information for customer matching
+     * 2. If customer not found AND no email provided, returns early (saves template generation)
+     * 3. Generates receipt template (only if deliverable via app or email)
+     * 4. If customer found: creates encrypted receipts and sends to backend
+     * 5. If customer not found but email provided: sends receipt via email
+     * @param identificationDetails Payment information for customer matching
      * @param receiptRequest Receipt template generation request
      * @param accessToken Valid OAuth access token
      * @return ProcessReceiptResult with success status and details
      */
     public ProcessReceiptResult processCompleteReceipt(
-            PaymentDetails paymentDetails,
+            IdentificationDetails identificationDetails,
             ReceiptTemplateRequest receiptRequest,
             UUID merchantId,
             String accessToken) throws CheqiSDKException {
 
         // Input validation
-        if (paymentDetails == null) {
+        if (identificationDetails == null) {
             throw new CheqiSDKException("PaymentDetails cannot be null", 
                 CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
@@ -132,41 +130,46 @@ public class ReceiptService {
         try {
             // Step 1: Match customer FIRST (saves template generation API call if customer not found)
             logger.debug("Matching customer using payment details");
-            RecipientResolutionResponse matchResponse = matchingService.matchCustomer(paymentDetails, accessToken);
+            RecipientResolutionResponse matchResponse = matchingService.matchCustomer(identificationDetails, accessToken);
 
-            // Step 2: If customer not found, return early (no template generation needed)
-            if (!matchResponse.isCustomerFound()) {
-                logger.info("Customer not found");
+            // Step 2: Early return if customer not found and no email provided (saves template generation API call)
+            if (!matchResponse.isCustomerFound() && identificationDetails.getRecipientEmail().isEmpty()) {
+                logger.info("Customer not found and no email provided - skipping template generation");
                 return ProcessReceiptResult.customerNotFound();
             }
 
-            // Step 3: Customer found - generate receipt template
-            logger.info("Customer found with {} recipients", matchResponse.getRecipients().size());
-            logger.debug("Generating receipt template for receiptId: {}", receiptRequest.getReceiptId());
+            // Step 3: Generate receipt template (only if customer found OR email provided)
+            logger.debug("Generating receipt template");
             String receiptTemplate = generateReceiptTemplate(receiptRequest, accessToken);
 
             // Step 4: Parse and attach payment means
             PurchaseReceipt receipt = objectMapper.readValue(receiptTemplate, PurchaseReceipt.class);
             receipt.setPaymentMeans(matchResponse.getPaymentMeans());
-            String receiptTemplateJson = objectMapper.writeValueAsString(receipt);
-            String canonicalReceiptJson = canonicalizer.canonicalize(receiptTemplateJson);
-            String templateHash = HashUtils.sha256Hex(canonicalReceiptJson);
 
-            // Step 5: Create encrypted receipts
-            logger.debug("Creating encrypted receipts for {} recipients", matchResponse.getRecipients().size());
-            Set<EncryptedReceiptDto> encryptedReceipts = createEncryptedReceipts(
-                    canonicalReceiptJson,
-                    matchResponse.getRecipients(),
-                    merchantId
-            );
+            // Step 5: Handle customer found case - create and send encrypted receipts
+            if (matchResponse.isCustomerFound()) {
+                String receiptTemplateJson = objectMapper.writeValueAsString(receipt);
+                String canonicalReceiptJson = canonicalizer.canonicalize(receiptTemplateJson);
+                String templateHash = HashUtils.sha256Hex(canonicalReceiptJson);
 
-            // Step 6: Send receipts
-            logger.debug("Sending {} encrypted receipts to backend", encryptedReceipts.size());
-            sendEncryptedReceipts(encryptedReceipts, templateHash, matchResponse, accessToken);
+                logger.debug("Creating encrypted receipts for {} recipients", matchResponse.getRecipients().size());
+                Set<EncryptedReceiptDto> encryptedReceipts = createEncryptedReceipts(
+                        canonicalReceiptJson,
+                        matchResponse.getRecipients(),
+                        merchantId
+                );
 
-            logger.info("Receipt processing completed successfully: {} receipts created for {} recipients", 
-                    encryptedReceipts.size(), matchResponse.getRecipients().size());
-            return ProcessReceiptResult.success(encryptedReceipts.size(), matchResponse.getRecipients().size());
+                logger.debug("Sending {} encrypted receipts to backend", encryptedReceipts.size());
+                sendEncryptedReceipts(encryptedReceipts, templateHash, matchResponse, accessToken);
+
+                logger.info("Receipt processing completed successfully: {} receipts created for {} recipients", 
+                        encryptedReceipts.size(), matchResponse.getRecipients().size());
+                return ProcessReceiptResult.success(encryptedReceipts.size(), matchResponse.getRecipients().size());
+            }
+
+            // Step 6: Customer not found but email provided - send via email
+            logger.info("Customer not found, sending receipt via email");
+            return sendReceiptViaEmail(identificationDetails.getRecipientEmail().get(), receipt, accessToken);
 
         } catch (CheqiSDKException e) {
             logger.error("Receipt processing failed: {}", e.getMessage(), e);

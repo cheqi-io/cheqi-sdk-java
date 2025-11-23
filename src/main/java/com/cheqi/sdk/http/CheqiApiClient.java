@@ -3,7 +3,7 @@ package com.cheqi.sdk.http;
 import com.cheqi.commons.DTOs.EncryptedReceiptDto;
 import com.cheqi.commons.DTOs.RecipientResolutionResponse;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
-import com.cheqi.sdk.models.PaymentDetails;
+import com.cheqi.sdk.models.IdentificationDetails;
 import com.cheqi.sdk.models.ReceiptTemplateRequest;
 
 import java.util.Set;
@@ -66,7 +66,7 @@ public interface CheqiApiClient {
      *         - Network connectivity issues
      *         - Backend server errors (5xx)
      */
-    RecipientResolutionResponse matchCustomer(PaymentDetails request, String accessToken) throws CheqiApiException;
+    RecipientResolutionResponse matchCustomer(IdentificationDetails request, String accessToken) throws CheqiApiException;
 
     /**
      * Sends encrypted receipts to the backend for delivery to customer devices.

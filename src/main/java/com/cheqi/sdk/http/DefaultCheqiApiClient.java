@@ -4,7 +4,7 @@ import com.cheqi.commons.DTOs.*;
 import com.cheqi.commons.UBL.PurchaseReceipt;
 import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
-import com.cheqi.sdk.models.PaymentDetails;
+import com.cheqi.sdk.models.IdentificationDetails;
 import com.cheqi.sdk.models.ReceiptTemplateRequest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -97,7 +97,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public RecipientResolutionResponse matchCustomer(PaymentDetails request, String accessToken) throws CheqiApiException {
+    public RecipientResolutionResponse matchCustomer(IdentificationDetails request, String accessToken) throws CheqiApiException {
         logger.info("Matching customer with payment identifiers");
 
         if (accessToken == null || accessToken.trim().isEmpty()) {
@@ -128,8 +128,11 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             // Execute request with retry logic
             Response response = retryHandler.executeWithRetry(httpRequest, "matchCustomer");
-            return responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
 
+            RecipientResolutionResponse result = responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
+
+            logger.info("Customer match successful: customerFound={}", result.isCustomerFound());
+            return result;
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {

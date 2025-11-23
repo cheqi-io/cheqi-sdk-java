@@ -20,7 +20,7 @@ import java.util.Optional;
  *   <li><strong>cardDetails</strong>: Card details for card-based payments</li>
  *   <li><strong>paymentAccountDetails</strong>: Payment account details for direct debit payments</li>
  *   <li><strong>paymentIds</strong>: List of payment identifiers</li>
- *   <li><strong>customerEmail</strong>: Customer email for identification</li>
+ *   <li><strong>recipientEmail</strong>: Customer email for identification</li>
  * </ul>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -42,8 +42,8 @@ public final class IdentificationDetails {
     @JsonProperty("paymentIds")
     private final Optional<List<String>> paymentIds;
 
-    @JsonProperty("customerEmail")
-    private final Optional<String> customerEmail;
+    @JsonProperty("recipientEmail")
+    private final Optional<String> recipientEmail;
 
     // ===== CONSTRUCTOR =====
     private IdentificationDetails(
@@ -51,12 +51,12 @@ public final class IdentificationDetails {
             Optional<CardDetails> cardDetails,
             Optional<PaymentAccountDetails> paymentAccountDetails,
             Optional<List<String>> paymentIds,
-            Optional<String> customerEmail) {
+            Optional<String> recipientEmail) {
         this.paymentType = paymentType;
         this.cardDetails = cardDetails;
         this.paymentAccountDetails = paymentAccountDetails;
         this.paymentIds = paymentIds;
-        this.customerEmail = customerEmail;
+        this.recipientEmail = recipientEmail;
     }
 
     // ===== MANDATORY FIELD ACCESSORS =====
@@ -81,8 +81,8 @@ public final class IdentificationDetails {
     }
 
     @JsonIgnore
-    public Optional<String> getCustomerEmail() {
-        return customerEmail != null ? customerEmail : Optional.empty();
+    public Optional<String> getRecipientEmail() {
+        return recipientEmail != null ? recipientEmail : Optional.empty();
     }
 
     @Override
@@ -96,12 +96,12 @@ public final class IdentificationDetails {
                 && Objects.equals(this.cardDetails, other.cardDetails)
                 && Objects.equals(this.paymentAccountDetails, other.paymentAccountDetails)
                 && Objects.equals(this.paymentIds, other.paymentIds)
-                && Objects.equals(this.customerEmail, other.customerEmail);
+                && Objects.equals(this.recipientEmail, other.recipientEmail);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.paymentType, this.cardDetails, this.paymentAccountDetails, this.paymentIds, this.customerEmail);
+        return Objects.hash(this.paymentType, this.cardDetails, this.paymentAccountDetails, this.paymentIds, this.recipientEmail);
     }
 
     @Override
@@ -111,7 +111,7 @@ public final class IdentificationDetails {
                 ", cardDetails=" + cardDetails +
                 ", paymentAccountDetails=" + paymentAccountDetails +
                 ", paymentIds=" + paymentIds +
-                ", customerEmail=" + customerEmail +
+                ", recipientEmail=" + recipientEmail +
                 '}';
     }
 
@@ -125,7 +125,7 @@ public final class IdentificationDetails {
         private Optional<CardDetails> cardDetails = Optional.empty();
         private Optional<PaymentAccountDetails> paymentAccountDetails = Optional.empty();
         private Optional<List<String>> paymentIds = Optional.empty();
-        private Optional<String> customerEmail = Optional.empty();
+        private Optional<String> recipientEmail = Optional.empty();
 
         private Builder() {
         }
@@ -135,7 +135,7 @@ public final class IdentificationDetails {
             cardDetails(other.getCardDetails().orElse(null));
             paymentAccountDetails(other.getPaymentAccountDetails().orElse(null));
             paymentIds(other.getPaymentIds().orElse(null));
-            customerEmail(other.getCustomerEmail().orElse(null));
+            recipientEmail(other.getrecipientEmail().orElse(null));
             return this;
         }
 
@@ -163,14 +163,14 @@ public final class IdentificationDetails {
             return this;
         }
 
-        @JsonSetter(value = "customerEmail", nulls = Nulls.SKIP)
-        public IdentificationDetails.Builder customerEmail(String customerEmail) {
-            this.customerEmail = Optional.ofNullable(customerEmail);
+        @JsonSetter(value = "recipientEmail", nulls = Nulls.SKIP)
+        public IdentificationDetails.Builder recipientEmail(String recipientEmail) {
+            this.recipientEmail = Optional.ofNullable(recipientEmail);
             return this;
         }
 
         public IdentificationDetails build() {
-            return new IdentificationDetails(paymentType, cardDetails, paymentAccountDetails, paymentIds, customerEmail);
+            return new IdentificationDetails(paymentType, cardDetails, paymentAccountDetails, paymentIds, recipientEmail);
         }
     }
 }

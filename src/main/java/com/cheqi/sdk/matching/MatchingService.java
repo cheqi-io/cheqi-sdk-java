@@ -4,8 +4,8 @@ import com.cheqi.commons.DTOs.RecipientResolutionResponse;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.models.CardDetails;
+import com.cheqi.sdk.models.IdentificationDetails;
 import com.cheqi.sdk.models.PaymentAccountDetails;
-import com.cheqi.sdk.models.PaymentDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,29 +35,29 @@ public class MatchingService {
      * - Payment account details (IBAN)
      * - Customer email
      * 
-     * @param paymentDetails Payment details containing customer identifiers
+     * @param identificationDetails Payment details containing customer identifiers
      * @param accessToken OAuth access token for API calls
      * @return RecipientResolutionResponse with matched recipients or empty if not found
      * @throws CheqiApiException if matching operation fails
      * @throws IllegalArgumentException if paymentDetails contains no valid identifiers
      */
     public RecipientResolutionResponse matchCustomer(
-            PaymentDetails paymentDetails,
+            IdentificationDetails identificationDetails,
             String accessToken) throws CheqiApiException {
         
         logger.debug("Starting customer matching");
         
         // Validate request has at least one identifier
-        if (!hasValidIdentifiers(paymentDetails)) {
+        if (!hasValidIdentifiers(identificationDetails)) {
             String error = "PaymentDetails must contain at least one identifier (card details, payment account details, or email)";
             logger.error(error);
             throw new IllegalArgumentException(error);
         }
-        
-        logAvailableIdentifiers(paymentDetails);
+
+        logAvailableIdentifiers(identificationDetails);
         
         try {
-            RecipientResolutionResponse response = apiClient.matchCustomer(paymentDetails, accessToken);
+            RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, accessToken);
             
             if (response.isCustomerFound()) {
                 logger.info("Customer matched successfully: {} recipients found", response.getRecipients().size());
@@ -85,25 +85,25 @@ public class MatchingService {
     /**
      * Validates that the payment details contain at least one identifier.
      */
-    private boolean hasValidIdentifiers(PaymentDetails paymentDetails) {
-        if (paymentDetails == null) {
+    private boolean hasValidIdentifiers(IdentificationDetails identificationDetails) {
+        if (identificationDetails == null) {
             return false;
         }
         
-        return hasCardDetails(paymentDetails) ||
-               hasPaymentAccountDetails(paymentDetails) ||
-               hasEmail(paymentDetails);
+        return hasCardDetails(identificationDetails) ||
+               hasPaymentAccountDetails(identificationDetails) ||
+               hasEmail(identificationDetails);
     }
     
     /**
      * Checks if card details (PAN or PAR) are present.
      */
-    private boolean hasCardDetails(PaymentDetails paymentDetails) {
-        if (!paymentDetails.getCardDetails().isPresent()) {
+    private boolean hasCardDetails(IdentificationDetails identificationDetails) {
+        if (identificationDetails.getCardDetails().isEmpty()) {
             return false;
         }
         
-        CardDetails card = paymentDetails.getCardDetails().get();
+        CardDetails card = identificationDetails.getCardDetails().get();
         return (card.getPaymentAccountNumber().isPresent() && isNotEmpty(card.getPaymentAccountNumber().get())) ||
                (card.getPaymentAccountReference().isPresent() && isNotEmpty(card.getPaymentAccountReference().get()));
     }
@@ -111,27 +111,27 @@ public class MatchingService {
     /**
      * Checks if payment account details (IBAN) are present.
      */
-    private boolean hasPaymentAccountDetails(PaymentDetails paymentDetails) {
-        if (!paymentDetails.getPaymentAccountDetails().isPresent()) {
+    private boolean hasPaymentAccountDetails(IdentificationDetails identificationDetails) {
+        if (identificationDetails.getPaymentAccountDetails().isEmpty()) {
             return false;
         }
         
-        PaymentAccountDetails details = paymentDetails.getPaymentAccountDetails().get();
+        PaymentAccountDetails details = identificationDetails.getPaymentAccountDetails().get();
         return isNotEmpty(details.getIdentifier());
     }
     
     /**
      * Checks if customer email is present.
      */
-    private boolean hasEmail(PaymentDetails paymentDetails) {
-        return paymentDetails.getCustomerEmail().isPresent() && 
-               isNotEmpty(paymentDetails.getCustomerEmail().get());
+    private boolean hasEmail(IdentificationDetails identificationDetails) {
+        return identificationDetails.getrecipientEmail().isPresent() &&
+               isNotEmpty(identificationDetails.getrecipientEmail().get());
     }
     
     /**
      * Logs which identifiers are available for matching.
      */
-    private void logAvailableIdentifiers(PaymentDetails paymentDetails) {
+    private void logAvailableIdentifiers(IdentificationDetails paymentDetails) {
         StringBuilder identifiers = new StringBuilder("Available identifiers: ");
         
         if (hasCardDetails(paymentDetails)) {
