@@ -135,7 +135,7 @@ public final class IdentificationDetails {
             cardDetails(other.getCardDetails().orElse(null));
             paymentAccountDetails(other.getPaymentAccountDetails().orElse(null));
             paymentIds(other.getPaymentIds().orElse(null));
-            recipientEmail(other.getrecipientEmail().orElse(null));
+            recipientEmail(other.getRecipientEmail().orElse(null));
             return this;
         }
 

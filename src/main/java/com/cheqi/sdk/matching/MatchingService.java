@@ -124,8 +124,8 @@ public class MatchingService {
      * Checks if customer email is present.
      */
     private boolean hasEmail(IdentificationDetails identificationDetails) {
-        return identificationDetails.getrecipientEmail().isPresent() &&
-               isNotEmpty(identificationDetails.getrecipientEmail().get());
+        return identificationDetails.getRecipientEmail().isPresent() &&
+               isNotEmpty(identificationDetails.getRecipientEmail().get());
     }
     
     /**
