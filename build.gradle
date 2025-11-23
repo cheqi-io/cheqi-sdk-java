@@ -31,7 +31,7 @@ dependencies {
 }
 
 group = 'io.cheqi'
-version = '1.0.0'
+version = '1.0.1'
 description = 'Cheqi SDK'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
