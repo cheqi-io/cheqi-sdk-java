@@ -213,7 +213,7 @@ public class ReceiptService {
                 CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
         }
         
-        logger.debug("Generating receipt template for receiptId: {}", request.getReceiptId());
+        logger.debug("Generating receipt template for receiptId: {}", request.getDocumentNumber());
         
         try {
             String template = apiClient.generateReceiptTemplate(request, accessToken);

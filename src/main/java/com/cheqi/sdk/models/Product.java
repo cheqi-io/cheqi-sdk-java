@@ -1,6 +1,5 @@
 package com.cheqi.sdk.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,737 +9,571 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
 /**
- * Product DTO representing a product line item in a receipt.
+ * Simple product line item used in Cheqi receipts.
+ * This is intentionally "dumb":
+ * - No UBL/PEPPOL types
+ * - No Optional
+ * - POS/backend just fills in what it already knows
+ * The Cheqi backend handles UBL/PEPPOL mapping and validation.
  *
- * <h3>Mandatory Fields:</h3>
- * <ul>
- *   <li><strong>productName</strong>: Name of the product</li>
- *   <li><strong>brandName</strong>: Brand name(s) of the product</li>
- *   <li><strong>articleNumber</strong>: Unique product identifier</li>
- *   <li><strong>invoicedQuantity</strong>: Quantity included in invoice</li>
- *   <li><strong>listPrice</strong>: Price per unit</li>
- *   <li><strong>lineSubtotal</strong>: Subtotal before taxes</li>
- *   <li><strong>lineTotal</strong>: Total amount charged for this line</li>
- * </ul>
- *
- * <h3>Optional Fields:</h3>
- * <ul>
- *   <li><strong>productDescription</strong>: Product description</li>
- *   <li><strong>productPeriod</strong>: Subscription or service period</li>
- *   <li><strong>currency</strong>: Currency for pricing</li>
- *   <li><strong>taxRates</strong>: Applied tax rates</li>
- *   <li><strong>allowanceCharges</strong>: Discounts or extra charges</li>
- *   <li><strong>itemClassifications</strong>: Product classifications</li>
- *   <li><strong>note</strong>: Additional seller notes</li>
- *   <li><strong>totalAllowanceCharges</strong>: Sum of allowance charges</li>
- * </ul>
+ * <h3>Typical usage:</h3>
+ * <pre>
+ * Product product = Product.builder()
+ *     .name("Laptop 13\"")
+ *     .sku("LAP-001")
+ *     .description("13\" Ultrabook, 16GB RAM, 512GB SSD")
+ *     .quantity(1.0)
+ *     .unitCode(UnitCode.ONE)  // Type-safe enum
+ *     .unitPrice("1000.00")
+ *     .addDiscount("50.00", "Black Friday")
+ *     .addCharge("5.00", "Shipping")
+ *     .addTax(21.0, "VAT", "199.95")
+ *     .subtotal("950.00")      // net line total (before tax)
+ *     .total("1149.95")       // gross line total (after tax)
+ *     .build();
+ * </pre>
  */
-@JsonInclude(JsonInclude.Include.NON_ABSENT)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(builder = Product.Builder.class)
 public final class Product {
 
-    // ===== MANDATORY FIELDS =====
+    // ===== BASIC INFO =====
 
     /**
-     * The name of the product.
+     * Human-readable product name shown on the receipt.
      */
-    @JsonProperty("productName")
-    private final String productName;
+    @JsonProperty("name")
+    private final String name;
 
     /**
-     * The brand name(s) of the product.
+     * SKU or article number (merchant-defined).
      */
-    @JsonProperty("brandName")
-    private final Set<String> brandName;
+    @JsonProperty("sku")
+    private final String sku;
 
     /**
-     * The unique identifier of the product.
+     * Optional longer description.
      */
-    @JsonProperty("articleNumber")
-    private final String articleNumber;
+    @JsonProperty("description")
+    private final String description;
 
     /**
-     * Quantity of the product that is included in the invoice.
-     *
-     * @see <a href="https://docs.peppol.eu/poacc/billing/3.0/codelist/UNECERec20/">List of codes</a>
+     * Optional brand name.
      */
-    @JsonProperty("invoicedQuantity")
-    private final Quantity invoicedQuantity;
+    @JsonProperty("brand")
+    private final String brand;
+
+    // ===== QUANTITY & PRICE =====
 
     /**
-     * List price of the product per unit.
+     * Quantity of this item (e.g., 1, 2.5, etc.).
      */
-    @JsonProperty("listPrice")
-    private final ItemPrice listPrice;
+    @JsonProperty("quantity")
+    private final Double quantity;
 
     /**
-     * The subtotal before taxes.
+     * Unit of measure code (mandatory).
+     * Uses UN/ECE Recommendation 20 standard codes.
+     * Examples: ONE (C62), KILOGRAM (KGM), LITER (LTR), HOUR (HUR)
+     * 
+     * @see UnitCode
      */
-    @JsonProperty("lineSubtotal")
-    private final BigDecimal lineSubtotal;
+    @JsonProperty("unitCode")
+    private final UnitCode unitCode;
 
     /**
-     * The total amount that is charged to the customer for this line.
-     * This price should be lineSubtotal + taxes.
+     * Unit price (net, before tax) as seen in the POS.
      */
-    @JsonProperty("lineTotal")
-    private final BigDecimal lineTotal;
+    @JsonProperty("unitPrice")
+    private final BigDecimal unitPrice;
 
-    // ===== OPTIONAL FIELDS =====
+    // ===== DISCOUNTS & CHARGES =====
 
     /**
-     * The description of the product.
+     * Discounts applied to this line (POS-calculated).
      */
-    private final Optional<String> productDescription;
+    @JsonProperty("discounts")
+    private final List<Discount> discounts;
 
     /**
-     * The period of the product, for example the subscription period.
+     * Extra charges applied to this line (POS-calculated).
      */
-    private final Optional<Period> productPeriod;
+    @JsonProperty("charges")
+    private final List<Charge> charges;
+
+    // ===== TAXES =====
 
     /**
-     * Currency for the product.
+     * Taxes applied to this line.
+     * For many countries there will be exactly one tax (e.g. 21% VAT),
+     * but multiple entries are allowed for flexibility.
      */
-    private final Optional<String> currency;
+    @JsonProperty("taxes")
+    private final List<Tax> taxes;
+
+    // ===== TOTALS (FROM POS) =====
 
     /**
-     * The list of tax rates that are applied to the product.
-     * For now UBL doesn't support multiple taxes on a single product, so this list should contain only one tax rate.
+     * Line subtotal, before tax.
+     * Typically: quantity * unitPrice - discounts + charges (net).
      */
-    private final Optional<List<TaxRate>> taxRates;
+    @JsonProperty("subtotal")
+    private final BigDecimal subtotal;
 
     /**
-     * Allowance charges for the product, these are for examples discounts or extra charges.
+     * Line total, after tax.
+     * Typically: subtotal + tax amounts (gross).
      */
-    private final Optional<List<AllowanceCharge>> allowanceCharges;
-
-    /**
-     * The list of item classifications that are assigned to the product.
-     *
-     * @see <a href="https://docs.peppol.eu/poacc/billing/3.0/codelist/UNCL7143/">Peppol list of codes</a>
-     */
-    private final Optional<Set<ItemClassification>> itemClassifications;
-
-    /**
-     * Additional information that is provided by the seller.
-     */
-    private final Optional<List<String>> note;
-
-    /**
-     * The total sum of the allowance charges that are applied to the product.
-     */
-    private final Optional<BigDecimal> totalAllowanceCharges;
-
-    private final Map<String, Object> additionalProperties;
+    @JsonProperty("total")
+    private final BigDecimal total;
 
     // ===== CONSTRUCTOR =====
 
     private Product(
-            String productName,
-            Set<String> brandName,
-            String articleNumber,
-            Quantity invoicedQuantity,
-            ItemPrice listPrice,
-            BigDecimal lineSubtotal,
-            BigDecimal lineTotal,
-            Optional<String> productDescription,
-            Optional<Period> productPeriod,
-            Optional<String> currency,
-            Optional<List<TaxRate>> taxRates,
-            Optional<List<AllowanceCharge>> allowanceCharges,
-            Optional<Set<ItemClassification>> itemClassifications,
-            Optional<List<String>> note,
-            Optional<BigDecimal> totalAllowanceCharges,
-            Map<String, Object> additionalProperties) {
-        this.productName = productName;
-        this.brandName = brandName;
-        this.articleNumber = articleNumber;
-        this.invoicedQuantity = invoicedQuantity;
-        this.listPrice = listPrice;
-        this.lineSubtotal = lineSubtotal;
-        this.lineTotal = lineTotal;
-        this.productDescription = productDescription;
-        this.productPeriod = productPeriod;
-        this.currency = currency;
-        this.taxRates = taxRates;
-        this.allowanceCharges = allowanceCharges;
-        this.itemClassifications = itemClassifications;
-        this.note = note;
-        this.totalAllowanceCharges = totalAllowanceCharges;
-        this.additionalProperties = additionalProperties;
+            String name,
+            String sku,
+            String description,
+            String brand,
+            Double quantity,
+            UnitCode unitCode,
+            BigDecimal unitPrice,
+            List<Discount> discounts,
+            List<Charge> charges,
+            List<Tax> taxes,
+            BigDecimal subtotal,
+            BigDecimal total) {
+
+        this.name = name;
+        this.sku = sku;
+        this.description = description;
+        this.brand = brand;
+        this.quantity = quantity;
+        this.unitCode = unitCode;
+        this.unitPrice = unitPrice;
+        // defensive copies: keep internal lists immutable
+        this.discounts = discounts != null ? List.copyOf(discounts) : List.of();
+        this.charges   = charges   != null ? List.copyOf(charges)   : List.of();
+        this.taxes     = taxes     != null ? List.copyOf(taxes)     : List.of();
+        this.subtotal = subtotal;
+        this.total = total;
     }
 
-    // ===== MANDATORY FIELD ACCESSORS =====
+    // ===== GETTERS =====
 
-    /**
-     * @return The name of the product
-     */
-    @JsonIgnore
-    public String getProductName() {
-        return productName;
+    public String getName() {
+        return name;
     }
 
-    /**
-     * @return The brand name(s) of the product
-     */
-    @JsonIgnore
-    public Set<String> getBrandName() {
-        return brandName;
+    public String getSku() {
+        return sku;
     }
 
-    /**
-     * @return The unique identifier of the product
-     */
-    @JsonIgnore
-    public String getArticleNumber() {
-        return articleNumber;
+    public String getDescription() {
+        return description;
     }
 
-    /**
-     * @return Quantity of the product that is included in the invoice
-     */
-    @JsonIgnore
-    public Quantity getInvoicedQuantity() {
-        return invoicedQuantity;
+    public String getBrand() {
+        return brand;
     }
 
-    /**
-     * @return List price of the product per unit
-     */
-    @JsonIgnore
-    public ItemPrice getListPrice() {
-        return listPrice;
+    public Double getQuantity() {
+        return quantity;
     }
 
-    /**
-     * @return The subtotal before taxes
-     */
-    @JsonIgnore
-    public BigDecimal getLineSubtotal() {
-        return lineSubtotal;
+    public UnitCode getUnitCode() {
+        return unitCode;
     }
 
-    /**
-     * @return The total amount that is charged to the customer for this line
-     */
-    @JsonIgnore
-    public BigDecimal getLineTotal() {
-        return lineTotal;
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
     }
 
-    // ===== OPTIONAL FIELD ACCESSORS =====
+    public List<Discount> getDiscounts() {
+        return discounts;
+    }
 
-    /**
-     * @return The product description if provided
-     */
-    @JsonIgnore
-    public Optional<String> getProductDescription() {
-        if (productDescription == null) {
-            return Optional.empty();
+    public List<Charge> getCharges() {
+        return charges;
+    }
+
+    public List<Tax> getTaxes() {
+        return taxes;
+    }
+
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    // ===== BUILDER =====
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static final class Builder {
+        private String name;
+        private String sku;
+        private String description;
+        private String brand;
+        private Double quantity;
+        private UnitCode unitCode;
+        private BigDecimal unitPrice;
+        private List<Discount> discounts = new ArrayList<>();
+        private List<Charge> charges = new ArrayList<>();
+        private List<Tax> taxes = new ArrayList<>();
+        private BigDecimal subtotal;
+        private BigDecimal total;
+
+        private Builder() {}
+
+        public Builder from(Product other) {
+            this.name = other.name;
+            this.sku = other.sku;
+            this.description = other.description;
+            this.brand = other.brand;
+            this.quantity = other.quantity;
+            this.unitCode = other.unitCode;
+            this.unitPrice = other.unitPrice;
+            this.discounts = new ArrayList<>(other.discounts);
+            this.charges = new ArrayList<>(other.charges);
+            this.taxes = new ArrayList<>(other.taxes);
+            this.subtotal = other.subtotal;
+            this.total = other.total;
+            return this;
         }
-        return productDescription;
-    }
 
-    /**
-     * @return The product period if provided
-     */
-    @JsonIgnore
-    public Optional<Period> getProductPeriod() {
-        if (productPeriod == null) {
-            return Optional.empty();
+        @JsonSetter(value = "name", nulls = Nulls.SKIP)
+        public Builder name(String name) {
+            this.name = name;
+            return this;
         }
-        return productPeriod;
-    }
 
-    /**
-     * @return The currency if provided
-     */
-    @JsonIgnore
-    public Optional<String> getCurrency() {
-        if (currency == null) {
-            return Optional.empty();
+        @JsonSetter(value = "sku", nulls = Nulls.SKIP)
+        public Builder sku(String sku) {
+            this.sku = sku;
+            return this;
         }
-        return currency;
-    }
 
-    /**
-     * @return The tax rates if provided
-     */
-    @JsonIgnore
-    public Optional<List<TaxRate>> getTaxRates() {
-        if (taxRates == null) {
-            return Optional.empty();
+        @JsonSetter(value = "description", nulls = Nulls.SKIP)
+        public Builder description(String description) {
+            this.description = description;
+            return this;
         }
-        return taxRates;
-    }
 
-    /**
-     * @return The allowance charges if provided
-     */
-    @JsonIgnore
-    public Optional<List<AllowanceCharge>> getAllowanceCharges() {
-        if (allowanceCharges == null) {
-            return Optional.empty();
+        @JsonSetter(value = "brand", nulls = Nulls.SKIP)
+        public Builder brand(String brand) {
+            this.brand = brand;
+            return this;
         }
-        return allowanceCharges;
-    }
 
-    /**
-     * @return The item classifications if provided
-     */
-    @JsonIgnore
-    public Optional<Set<ItemClassification>> getItemClassifications() {
-        if (itemClassifications == null) {
-            return Optional.empty();
+        @JsonSetter(value = "quantity", nulls = Nulls.SKIP)
+        public Builder quantity(Double quantity) {
+            this.quantity = quantity;
+            return this;
         }
-        return itemClassifications;
-    }
 
-    /**
-     * @return The seller notes if provided
-     */
-    @JsonIgnore
-    public Optional<List<String>> getNote() {
-        if (note == null) {
-            return Optional.empty();
+        /**
+         * Sets the unit code using the UnitCode enum (recommended).
+         * @param unitCode The unit code enum value
+         * @return This builder
+         */
+        public Builder unitCode(UnitCode unitCode) {
+            this.unitCode = unitCode;
+            return this;
         }
-        return note;
-    }
 
-    /**
-     * @return The total allowance charges if provided
-     */
-    @JsonIgnore
-    public Optional<BigDecimal> getTotalAllowanceCharges() {
-        if (totalAllowanceCharges == null) {
-            return Optional.empty();
+        /**
+         * Sets the unit code using a string code.
+         * The string will be parsed to a UnitCode enum.
+         * Used for JSON deserialization.
+         * 
+         * @param unitCode The UN/ECE unit code string (e.g., "C62", "KGM")
+         * @return This builder
+         * @throws IllegalArgumentException if the code is not recognized
+         */
+        @JsonSetter(value = "unitCode", nulls = Nulls.SKIP)
+        public Builder unitCode(String unitCode) {
+            this.unitCode = unitCode != null ? UnitCode.fromCode(unitCode) : null;
+            return this;
         }
-        return totalAllowanceCharges;
+
+        @JsonSetter(value = "unitPrice", nulls = Nulls.SKIP)
+        public Builder unitPrice(BigDecimal unitPrice) {
+            this.unitPrice = unitPrice;
+            return this;
+        }
+
+        public Builder unitPrice(String unitPrice) {
+            this.unitPrice = new BigDecimal(unitPrice);
+            return this;
+        }
+
+        @JsonSetter(value = "discounts", nulls = Nulls.SKIP)
+        public Builder discounts(List<Discount> discounts) {
+            this.discounts = discounts != null ? discounts : new ArrayList<>();
+            return this;
+        }
+
+        public Builder addDiscount(Discount discount) {
+            this.discounts.add(discount);
+            return this;
+        }
+
+        public Builder addDiscount(BigDecimal amount, String label) {
+            this.discounts.add(
+                    Discount.builder()
+                            .amount(amount)
+                            .label(label)
+                            .build()
+            );
+            return this;
+        }
+
+        public Builder addDiscount(String amount, String label) {
+            return addDiscount(new BigDecimal(amount), label);
+        }
+
+        public Builder addDiscount(BigDecimal amount, Double percentage, String label) {
+            this.discounts.add(
+                    Discount.builder()
+                            .amount(amount)
+                            .percentage(percentage)
+                            .label(label)
+                            .build()
+            );
+            return this;
+        }
+
+        public Builder addDiscount(String amount, Double percentage, String label) {
+            return addDiscount(new BigDecimal(amount), percentage, label);
+        }
+
+        @JsonSetter(value = "charges", nulls = Nulls.SKIP)
+        public Builder charges(List<Charge> charges) {
+            this.charges = charges != null ? charges : new ArrayList<>();
+            return this;
+        }
+
+        public Builder addCharge(Charge charge) {
+            this.charges.add(charge);
+            return this;
+        }
+
+        public Builder addCharge(BigDecimal amount, String label) {
+            this.charges.add(
+                    Charge.builder()
+                            .amount(amount)
+                            .label(label)
+                            .build()
+            );
+            return this;
+        }
+
+        public Builder addCharge(String amount, String label) {
+            return addCharge(new BigDecimal(amount), label);
+        }
+
+        public Builder addCharge(BigDecimal amount, Double percentage, String label) {
+            this.charges.add(
+                    Charge.builder()
+                            .amount(amount)
+                            .percentage(percentage)
+                            .label(label)
+                            .build()
+            );
+            return this;
+        }
+
+        public Builder addCharge(String amount, Double percentage, String label) {
+            return addCharge(new BigDecimal(amount), percentage, label);
+        }
+
+        @JsonSetter(value = "taxes", nulls = Nulls.SKIP)
+        public Builder taxes(List<Tax> taxes) {
+            this.taxes = taxes != null ? taxes : new ArrayList<>();
+            return this;
+        }
+
+        public Builder addTax(Tax tax) {
+            this.taxes.add(tax);
+            return this;
+        }
+
+        public Builder addTax(Double rate, String type) {
+            this.taxes.add(Tax.builder()
+                    .rate(rate)
+                    .type(type)
+                    .build());
+            return this;
+        }
+
+        public Builder addTax(Double rate, String type, BigDecimal amount) {
+            this.taxes.add(Tax.builder()
+                    .rate(rate)
+                    .type(type)
+                    .amount(amount)
+                    .build());
+            return this;
+        }
+
+        public Builder addTax(Double rate, String type, String amount) {
+            this.taxes.add(Tax.builder()
+                    .rate(rate)
+                    .type(type)
+                    .amount(amount)
+                    .build());
+            return this;
+        }
+
+        @JsonSetter(value = "subtotal", nulls = Nulls.SKIP)
+        public Builder subtotal(BigDecimal subtotal) {
+            this.subtotal = subtotal;
+            return this;
+        }
+
+        public Builder subtotal(String subtotal) {
+            this.subtotal = new BigDecimal(subtotal);
+            return this;
+        }
+
+        @JsonSetter(value = "total", nulls = Nulls.SKIP)
+        public Builder total(BigDecimal total) {
+            this.total = total;
+            return this;
+        }
+
+        public Builder total(String total) {
+            this.total = new BigDecimal(total);
+            return this;
+        }
+
+        public Product build() {
+            return new Product(
+                    name,
+                    sku,
+                    description,
+                    brand,
+                    quantity,
+                    unitCode,
+                    unitPrice,
+                    discounts,
+                    charges,
+                    taxes,
+                    subtotal,
+                    total
+            );
+        }
+    }
+
+    // ===== SIMPLE VALIDATION (OPTIONAL) =====
+
+    /**
+     * @return true if required fields are present and non-negative.
+     */
+    public boolean isValid() {
+        return getValidationErrors().isEmpty();
     }
 
     /**
-     * @return Additional properties map
+     * Very lightweight validation meant as a helper for integrators.
      */
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
+    public List<String> getValidationErrors() {
+        List<String> errors = new ArrayList<>();
+
+        if (name == null || name.trim().isEmpty()) {
+            errors.add("name is required");
+        }
+        if (quantity == null) {
+            errors.add("quantity is required");
+        }
+        if (unitCode == null) {
+            errors.add("unitCode is required (e.g., UnitCode.ONE, UnitCode.KILOGRAM)");
+        }
+        if (unitPrice == null) {
+            errors.add("unitPrice is required");
+        }
+        if (subtotal == null) {
+            errors.add("subtotal is required");
+        }
+        if (total == null) {
+            errors.add("total is required");
+        }
+
+        if (quantity != null && quantity < 0) {
+            errors.add("quantity cannot be negative");
+        }
+        if (unitPrice != null && unitPrice.compareTo(BigDecimal.ZERO) < 0) {
+            errors.add("unitPrice cannot be negative");
+        }
+        if (subtotal != null && subtotal.compareTo(BigDecimal.ZERO) < 0) {
+            errors.add("subtotal cannot be negative");
+        }
+        if (total != null && total.compareTo(BigDecimal.ZERO) < 0) {
+            errors.add("total cannot be negative");
+        }
+
+        return errors;
     }
 
+    // ===== EQUALS, HASHCODE, TOSTRING =====
     @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        return other instanceof Product && equalTo((Product) other);
-    }
-
-    private boolean equalTo(Product other) {
-        return Objects.equals(this.productName, other.productName)
-                && Objects.equals(this.brandName, other.brandName)
-                && Objects.equals(this.articleNumber, other.articleNumber)
-                && Objects.equals(this.invoicedQuantity, other.invoicedQuantity)
-                && Objects.equals(this.listPrice, other.listPrice)
-                && Objects.equals(this.lineSubtotal, other.lineSubtotal)
-                && Objects.equals(this.lineTotal, other.lineTotal)
-                && Objects.equals(this.productDescription, other.productDescription)
-                && Objects.equals(this.productPeriod, other.productPeriod)
-                && Objects.equals(this.currency, other.currency)
-                && Objects.equals(this.taxRates, other.taxRates)
-                && Objects.equals(this.allowanceCharges, other.allowanceCharges)
-                && Objects.equals(this.itemClassifications, other.itemClassifications)
-                && Objects.equals(this.note, other.note)
-                && Objects.equals(this.totalAllowanceCharges, other.totalAllowanceCharges);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product)) return false;
+        Product product = (Product) o;
+        return Objects.equals(name, product.name)
+                && Objects.equals(sku, product.sku)
+                && Objects.equals(description, product.description)
+                && Objects.equals(brand, product.brand)
+                && Objects.equals(quantity, product.quantity)
+                && Objects.equals(unitCode, product.unitCode)
+                && Objects.equals(unitPrice, product.unitPrice)
+                && Objects.equals(discounts, product.discounts)
+                && Objects.equals(charges, product.charges)
+                && Objects.equals(taxes, product.taxes)
+                && Objects.equals(subtotal, product.subtotal)
+                && Objects.equals(total, product.total);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-                this.productName,
-                this.brandName,
-                this.articleNumber,
-                this.invoicedQuantity,
-                this.listPrice,
-                this.lineSubtotal,
-                this.lineTotal,
-                this.productDescription,
-                this.productPeriod,
-                this.currency,
-                this.taxRates,
-                this.allowanceCharges,
-                this.itemClassifications,
-                this.note,
-                this.totalAllowanceCharges
+                name,
+                sku,
+                description,
+                brand,
+                quantity,
+                unitCode,
+                unitPrice,
+                discounts,
+                charges,
+                taxes,
+                subtotal,
+                total
         );
     }
 
     @Override
     public String toString() {
         return "Product{" +
-                "productName='" + productName + '\'' +
-                ", brandName=" + brandName +
-                ", articleNumber='" + articleNumber + '\'' +
-                ", invoicedQuantity=" + invoicedQuantity +
-                ", listPrice=" + listPrice +
-                ", lineSubtotal=" + lineSubtotal +
-                ", lineTotal=" + lineTotal +
-                ", productDescription=" + productDescription +
-                ", productPeriod=" + productPeriod +
-                ", currency=" + currency +
-                ", taxRates=" + taxRates +
-                ", allowanceCharges=" + allowanceCharges +
-                ", itemClassifications=" + itemClassifications +
-                ", note=" + note +
-                ", totalAllowanceCharges=" + totalAllowanceCharges +
+                "name='" + name + '\'' +
+                ", sku='" + sku + '\'' +
+                ", quantity=" + quantity +
+                ", unitPrice=" + unitPrice +
+                ", discounts=" + (discounts != null ? discounts.size() : 0) +
+                ", charges=" + (charges != null ? charges.size() : 0) +
+                ", taxes=" + (taxes != null ? taxes.size() : 0) +
+                ", subtotal=" + subtotal +
+                ", total=" + total +
                 '}';
-    }
-
-    public static Product.Builder builder() {
-        return new Product.Builder();
-    }
-
-    /**
-     * Convenience method to get validation errors.
-     * Returns a list of error messages if the product has invalid mandatory fields.
-     */
-    @JsonIgnore
-    public List<String> getValidationErrors() {
-        List<String> errors = new ArrayList<>();
-
-        // Check mandatory fields
-        if (productName == null || productName.trim().isEmpty()) {
-            errors.add("Product name is required and cannot be blank");
-        }
-
-        if (brandName == null || brandName.isEmpty()) {
-            errors.add("Brand name is required and cannot be empty");
-        } else {
-            // Check if any brand name in the set is null or blank
-            int index = 0;
-            for (String brand : brandName) {
-                if (brand == null || brand.trim().isEmpty()) {
-                    errors.add("Brand name at index " + index + " cannot be null or blank");
-                }
-                index++;
-            }
-        }
-
-        if (articleNumber == null || articleNumber.trim().isEmpty()) {
-            errors.add("Article number is required and cannot be blank");
-        }
-
-        if (invoicedQuantity == null) {
-            errors.add("Invoiced quantity is required");
-        }
-
-        if (listPrice == null) {
-            errors.add("List price is required");
-        }
-
-        if (lineSubtotal == null) {
-            errors.add("Line subtotal is required");
-        }
-
-        if (lineTotal == null) {
-            errors.add("Line total is required");
-        }
-
-        // Validate nested objects if present
-        if (invoicedQuantity != null && invoicedQuantity instanceof Object) {
-            // Note: Quantity would need its own getValidationErrors() method for full validation
-        }
-
-        if (listPrice != null && listPrice instanceof Object) {
-            // Note: ItemPrice would need its own getValidationErrors() method for full validation
-        }
-
-        // Validate optional nested objects if present
-        if (productPeriod != null && productPeriod.isPresent()) {
-            Period period = productPeriod.get();
-            if (period != null) {
-                List<String> periodErrors = period.getValidationErrors();
-                for (String error : periodErrors) {
-                    errors.add("Product period: " + error);
-                }
-            }
-        }
-
-        if (allowanceCharges != null && allowanceCharges.isPresent()) {
-            List<AllowanceCharge> charges = allowanceCharges.get();
-            if (charges != null) {
-                for (int i = 0; i < charges.size(); i++) {
-                    AllowanceCharge charge = charges.get(i);
-                    if (charge == null) {
-                        errors.add("Allowance charge at index " + i + " cannot be null");
-                    }
-                    // Note: AllowanceCharge would need its own getValidationErrors() method for full validation
-                }
-            }
-        }
-
-        if (taxRates != null && taxRates.isPresent()) {
-            List<TaxRate> rates = taxRates.get();
-            if (rates != null) {
-                for (int i = 0; i < rates.size(); i++) {
-                    TaxRate rate = rates.get(i);
-                    if (rate == null) {
-                        errors.add("Tax rate at index " + i + " cannot be null");
-                    }
-                    // Note: TaxRate would need its own getValidationErrors() method for full validation
-                }
-            }
-        }
-
-        if (itemClassifications != null && itemClassifications.isPresent()) {
-            Set<ItemClassification> classifications = itemClassifications.get();
-            if (classifications != null) {
-                for (ItemClassification classification : classifications) {
-                    if (classification == null) {
-                        errors.add("Item classification cannot be null");
-                    }
-                    // Note: ItemClassification would need its own getValidationErrors() method for full validation
-                }
-            }
-        }
-
-        return errors;
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Builder {
-        private String productName;
-        private Set<String> brandName;
-        private String articleNumber;
-        private Quantity invoicedQuantity;
-        private ItemPrice listPrice;
-        private BigDecimal lineSubtotal;
-        private BigDecimal lineTotal;
-        private Optional<String> productDescription = Optional.empty();
-        private Optional<Period> productPeriod = Optional.empty();
-        private Optional<String> currency = Optional.empty();
-        private Optional<List<TaxRate>> taxRates = Optional.empty();
-        private Optional<List<AllowanceCharge>> allowanceCharges = Optional.empty();
-        private Optional<Set<ItemClassification>> itemClassifications = Optional.empty();
-        private Optional<List<String>> note = Optional.empty();
-        private Optional<BigDecimal> totalAllowanceCharges = Optional.empty();
-        private Map<String, Object> additionalProperties = new HashMap<>();
-
-        private Builder() {}
-
-        public Product.Builder from(Product other) {
-            productName(other.getProductName());
-            brandName(other.getBrandName());
-            articleNumber(other.getArticleNumber());
-            invoicedQuantity(other.getInvoicedQuantity());
-            listPrice(other.getListPrice());
-            lineSubtotal(other.getLineSubtotal());
-            lineTotal(other.getLineTotal());
-            productDescription(other.getProductDescription());
-            productPeriod(other.getProductPeriod());
-            currency(other.getCurrency());
-            taxRates(other.getTaxRates());
-            allowanceCharges(other.getAllowanceCharges());
-            itemClassifications(other.getItemClassifications());
-            note(other.getNote());
-            totalAllowanceCharges(other.getTotalAllowanceCharges());
-            return this;
-        }
-
-        @JsonSetter(value = "productName", nulls = Nulls.SKIP)
-        public Product.Builder productName(String productName) {
-            this.productName = productName;
-            return this;
-        }
-
-        @JsonSetter(value = "brandName", nulls = Nulls.SKIP)
-        public Product.Builder brandName(Set<String> brandName) {
-            this.brandName = brandName;
-            return this;
-        }
-
-        @JsonSetter(value = "articleNumber", nulls = Nulls.SKIP)
-        public Product.Builder articleNumber(String articleNumber) {
-            this.articleNumber = articleNumber;
-            return this;
-        }
-
-        @JsonSetter(value = "invoicedQuantity", nulls = Nulls.SKIP)
-        public Product.Builder invoicedQuantity(Quantity invoicedQuantity) {
-            this.invoicedQuantity = invoicedQuantity;
-            return this;
-        }
-
-        @JsonSetter(value = "listPrice", nulls = Nulls.SKIP)
-        public Product.Builder listPrice(ItemPrice listPrice) {
-            this.listPrice = listPrice;
-            return this;
-        }
-
-        @JsonSetter(value = "lineSubtotal", nulls = Nulls.SKIP)
-        public Product.Builder lineSubtotal(BigDecimal lineSubtotal) {
-            this.lineSubtotal = lineSubtotal;
-            return this;
-        }
-
-        @JsonSetter(value = "lineTotal", nulls = Nulls.SKIP)
-        public Product.Builder lineTotal(BigDecimal lineTotal) {
-            this.lineTotal = lineTotal;
-            return this;
-        }
-
-        @JsonSetter(value = "description", nulls = Nulls.SKIP)
-        public Product.Builder productDescription(Optional<String> productDescription) {
-            this.productDescription = productDescription;
-            return this;
-        }
-
-        public Product.Builder productDescription(String productDescription) {
-            this.productDescription = Optional.ofNullable(productDescription);
-            return this;
-        }
-
-        @JsonSetter(value = "productPeriod", nulls = Nulls.SKIP)
-        public Product.Builder productPeriod(Optional<Period> productPeriod) {
-            this.productPeriod = productPeriod;
-            return this;
-        }
-
-        public Product.Builder productPeriod(Period productPeriod) {
-            this.productPeriod = Optional.ofNullable(productPeriod);
-            return this;
-        }
-
-        @JsonSetter(value = "currency", nulls = Nulls.SKIP)
-        public Product.Builder currency(Optional<String> currency) {
-            this.currency = currency;
-            return this;
-        }
-
-        public Product.Builder currency(String currency) {
-            this.currency = Optional.ofNullable(currency);
-            return this;
-        }
-
-        @JsonSetter(value = "taxRates", nulls = Nulls.SKIP)
-        public Product.Builder taxRates(Optional<List<TaxRate>> taxRates) {
-            this.taxRates = taxRates;
-            return this;
-        }
-
-        public Product.Builder taxRates(List<TaxRate> taxRates) {
-            this.taxRates = Optional.ofNullable(taxRates);
-            return this;
-        }
-
-        @JsonSetter(value = "allowanceCharges", nulls = Nulls.SKIP)
-        public Product.Builder allowanceCharges(Optional<List<AllowanceCharge>> allowanceCharges) {
-            this.allowanceCharges = allowanceCharges;
-            return this;
-        }
-
-        public Product.Builder allowanceCharges(List<AllowanceCharge> allowanceCharges) {
-            this.allowanceCharges = Optional.ofNullable(allowanceCharges);
-            return this;
-        }
-
-        @JsonSetter(value = "itemClassifications", nulls = Nulls.SKIP)
-        public Product.Builder itemClassifications(Optional<Set<ItemClassification>> itemClassifications) {
-            this.itemClassifications = itemClassifications;
-            return this;
-        }
-
-        public Product.Builder itemClassifications(Set<ItemClassification> itemClassifications) {
-            this.itemClassifications = Optional.ofNullable(itemClassifications);
-            return this;
-        }
-
-        @JsonSetter(value = "note", nulls = Nulls.SKIP)
-        public Product.Builder note(Optional<List<String>> note) {
-            this.note = note;
-            return this;
-        }
-
-        public Product.Builder note(List<String> note) {
-            this.note = Optional.ofNullable(note);
-            return this;
-        }
-
-        @JsonSetter(value = "totalAllowanceCharges", nulls = Nulls.SKIP)
-        public Product.Builder totalAllowanceCharges(Optional<BigDecimal> totalAllowanceCharges) {
-            this.totalAllowanceCharges = totalAllowanceCharges;
-            return this;
-        }
-
-        public Product.Builder totalAllowanceCharges(BigDecimal totalAllowanceCharges) {
-            this.totalAllowanceCharges = Optional.ofNullable(totalAllowanceCharges);
-            return this;
-        }
-
-        public Product build() {
-            return new Product(
-                    productName,
-                    brandName,
-                    articleNumber,
-                    invoicedQuantity,
-                    listPrice,
-                    lineSubtotal,
-                    lineTotal,
-                    productDescription,
-                    productPeriod,
-                    currency,
-                    taxRates,
-                    allowanceCharges,
-                    itemClassifications,
-                    note,
-                    totalAllowanceCharges,
-                    additionalProperties
-            );
-        }
-    }
-
-    // ===== PRIVATE JSON SERIALIZATION METHODS =====
-
-    @JsonProperty("description")
-    private Optional<String> _getProductDescription() {
-        return productDescription;
-    }
-
-    @JsonProperty("productPeriod")
-    private Optional<Period> _getProductPeriod() {
-        return productPeriod;
-    }
-
-    @JsonProperty("currency")
-    private Optional<String> _getCurrency() {
-        return currency;
-    }
-
-    @JsonProperty("taxRates")
-    private Optional<List<TaxRate>> _getTaxRates() {
-        return taxRates;
-    }
-
-    @JsonProperty("allowanceCharges")
-    private Optional<List<AllowanceCharge>> _getAllowanceCharges() {
-        return allowanceCharges;
-    }
-
-    @JsonProperty("itemClassifications")
-    private Optional<Set<ItemClassification>> _getItemClassifications() {
-        return itemClassifications;
-    }
-
-    @JsonProperty("note")
-    private Optional<List<String>> _getNote() {
-        return note;
-    }
-
-    @JsonProperty("totalAllowanceCharges")
-    private Optional<BigDecimal> _getTotalAllowanceCharges() {
-        return totalAllowanceCharges;
     }
 }

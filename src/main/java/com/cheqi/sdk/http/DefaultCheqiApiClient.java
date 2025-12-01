@@ -50,7 +50,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
     @Override
     public String generateReceiptTemplate(ReceiptTemplateRequest request, String accessToken) throws CheqiApiException {
-        logger.info("Generating receipt template for receipt ID: {}", request.getReceiptId());
+        logger.info("Generating receipt template for receipt ID: {}", request.getDocumentNumber());
 
         if (accessToken == null || accessToken.trim().isEmpty()) {
             throw new CheqiApiException(

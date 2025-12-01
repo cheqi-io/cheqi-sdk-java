@@ -82,7 +82,8 @@ import com.cheqi.sdk.models.CardDetails;
 import com.cheqi.sdk.models.PaymentType;
 import com.cheqi.sdk.models.ReceiptTemplateRequest;
 import com.cheqi.sdk.models.Product;
-import com.cheqi.sdk.models.TaxBreakDown;
+import com.cheqi.sdk.models.UnitCode;
+import com.cheqi.sdk.models.Tax;
 import com.cheqi.sdk.receipt.ProcessReceiptResult;
 import com.cheqi.commons.enums.CardProvider;
 import java.math.BigDecimal;
@@ -100,14 +101,28 @@ IdentificationDetails identificationDetails = IdentificationDetails.builder()
 
 // Create receipt template request
 ReceiptTemplateRequest receiptRequest = ReceiptTemplateRequest.builder()
-    .receiptId("INV-001")
+    .documentNumber("INV-001")  // Invoice/receipt number
     .issueDate(Instant.now())
-    .documentCurrencyCode("EUR")
+    .currency("EUR")  // ISO 4217 currency code
     .invoiceSubtotal(new BigDecimal("100.00"))
     .totalBeforeTax(new BigDecimal("100.00"))
     .totalAmount(new BigDecimal("121.00"))
-    .products(productList)  // List<Product>
-    .taxBreakDown(taxBreakdown)  // TaxBreakDown
+    .totalTaxAmount(new BigDecimal("21.00"))  // Total tax (POS calculated)
+    .addProduct(Product.builder()
+        .name("Laptop")
+        .quantity(1.0)
+        .unitCode(UnitCode.ONE)  // Type-safe unit codes
+        .unitPrice("100.00")
+        .subtotal("100.00")
+        .total("121.00")
+        .addTax(21.0, "VAT", "21.00")
+        .build())
+    .addTax(Tax.builder()  // Receipt-level tax breakdown
+        .rate(21.0)
+        .type("VAT")
+        .amount("21.00")
+        .label("VAT 21%")
+        .build())
     .build();
 
 // Process complete receipt (match + generate + encrypt + send)
@@ -188,6 +203,65 @@ CheqiSDK sdk = CheqiSDK.builder()
     .maxRetries(5)      // Custom retry count
     .build();
 ```
+
+### Building Products
+
+The SDK provides a fluent API for building product line items with type-safe unit codes:
+
+```java
+import com.cheqi.sdk.models.Product;
+import com.cheqi.sdk.models.UnitCode;
+import com.cheqi.sdk.models.Discount;
+import com.cheqi.sdk.models.Charge;
+
+// Simple product
+Product laptop = Product.builder()
+    .name("MacBook Pro 14\"")
+    .sku("MBP-14-2024")
+    .quantity(1.0)
+    .unitCode(UnitCode.ONE)  // Type-safe: ONE, KILOGRAM, LITER, HOUR, etc.
+    .unitPrice("2499.00")
+    .subtotal("2499.00")
+    .total("3023.79")
+    .addTax(21.0, "VAT", "524.79")
+    .build();
+
+// Product with discounts and charges
+Product groceries = Product.builder()
+    .name("Organic Apples")
+    .sku("APPLE-ORG")
+    .quantity(2.5)
+    .unitCode(UnitCode.KILOGRAM)  // Weight-based
+    .unitPrice("3.99")
+    .addDiscount("1.00", "Loyalty discount")  // Simple factory method
+    .addCharge("0.50", "Packaging fee")
+    .subtotal("9.48")
+    .total("11.47")
+    .addTax(21.0, "VAT", "1.99")
+    .build();
+
+// Service-based product
+Product consulting = Product.builder()
+    .name("Software Consulting")
+    .quantity(8.0)
+    .unitCode(UnitCode.HOUR)  // Time-based
+    .unitPrice("150.00")
+    .subtotal("1200.00")
+    .total("1452.00")
+    .addTax(21.0, "VAT", "252.00")
+    .build();
+```
+
+**Available Unit Codes:**
+- **Common**: `ONE`, `EACH`, `SET`, `PAIR`, `DOZEN`
+- **Weight**: `KILOGRAM`, `GRAM`, `POUND`, `OUNCE`
+- **Volume**: `LITER`, `MILLILITER`, `GALLON_US`, `GALLON_UK`
+- **Length**: `METER`, `CENTIMETER`, `INCH`, `FOOT`
+- **Time**: `SECOND`, `MINUTE`, `HOUR`, `DAY`, `WEEK`, `MONTH`, `YEAR`
+- **Packaging**: `BOX`, `CARTON`, `BOTTLE`, `CAN`, `BAG`, `PALLET`
+- **Service**: `SERVICE_UNIT`, `ACTIVITY`, `JOB`
+
+See `UnitCode` enum for the complete list of 70+ Peppol-compliant codes.
 
 ### Direct Service Access
 
@@ -298,6 +372,231 @@ For detailed API documentation, see the [JavaDoc](docs/javadoc/) or generate it 
 
 ```bash
 mvn javadoc:javadoc
+```
+
+## Complete Example
+
+Here's a complete example showing the entire receipt processing flow:
+
+```java
+import com.cheqi.sdk.CheqiSDK;
+import com.cheqi.sdk.config.Environment;
+import com.cheqi.sdk.models.*;
+import com.cheqi.sdk.receipt.ProcessReceiptResult;
+import com.cheqi.commons.enums.CardProvider;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
+public class ReceiptExample {
+    public static void main(String[] args) {
+        // 1. Initialize SDK
+        CheqiSDK sdk = CheqiSDK.builder()
+            .apiEndpoint(Environment.PRODUCTION)
+            .timeout(30)
+            .maxRetries(3)
+            .build();
+        
+        // 2. Create customer identification
+        IdentificationDetails customer = IdentificationDetails.builder()
+            .paymentType(PaymentType.CARD_PAYMENT)
+            .cardDetails(CardDetails.builder()
+                .paymentAccountReference("PAR_1234567890")
+                .cardProvider(CardProvider.VISA)
+                .build())
+            .customerEmail("customer@example.com")  // Optional fallback
+            .build();
+        
+        // 3. Build products
+        Product laptop = Product.builder()
+            .name("MacBook Pro 14\"")
+            .sku("MBP-14-2024")
+            .quantity(1.0)
+            .unitCode(UnitCode.ONE)
+            .unitPrice("2499.00")
+            .addDiscount("100.00", "Black Friday")
+            .subtotal("2399.00")
+            .total("2902.79")
+            .addTax(21.0, "VAT", "503.79")
+            .build();
+        
+        Product apples = Product.builder()
+            .name("Organic Apples")
+            .sku("APPLE-ORG")
+            .quantity(2.5)
+            .unitCode(UnitCode.KILOGRAM)
+            .unitPrice("3.99")
+            .subtotal("9.98")
+            .total("12.08")
+            .addTax(21.0, "VAT", "2.10")
+            .build();
+        
+        // 4. Create receipt
+        ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
+            .documentNumber("INV-2024-001")
+            .issueDate(Instant.now())
+            .currency("EUR")
+            .invoiceSubtotal(new BigDecimal("2408.98"))
+            .totalBeforeTax(new BigDecimal("2408.98"))
+            .totalAmount(new BigDecimal("2914.87"))
+            .totalTaxAmount(new BigDecimal("505.89"))
+            .addProduct(laptop)
+            .addProduct(apples)
+            .addTax(Tax.builder()
+                .rate(21.0)
+                .type("VAT")
+                .amount("505.89")
+                .label("VAT 21%")
+                .build())
+            .note("Thank you for your purchase!")
+            .build();
+        
+        // 5. Process receipt (one method does everything)
+        try {
+            ProcessReceiptResult result = sdk.getReceiptService()
+                .processCompleteReceipt(
+                    customer,
+                    receipt,
+                    UUID.fromString("merchant-uuid"),
+                    "access-token"
+                );
+            
+            if (result.isSuccess()) {
+                System.out.println("✅ Receipt delivered successfully!");
+                System.out.println("Receipts created: " + result.getReceiptCount());
+            } else if (result.isCustomerNotFound()) {
+                System.out.println("⚠️ Customer not found - email receipt sent");
+            } else {
+                System.err.println("❌ Failed: " + result.getMessage());
+            }
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+## Migration Guide
+
+If you're upgrading from an earlier version, here are the key changes:
+
+### Breaking Changes
+
+#### 1. Tax Structure Simplified
+
+**Before (v1.0.0):**
+```java
+TaxBreakDown taxBreakdown = TaxBreakDown.builder()
+    .taxTotal(new BigDecimal("21.00"))
+    .addTaxSubTotal(TaxSubTotal.builder()
+        .taxableAmount(new BigDecimal("100.00"))
+        .taxAmount(new BigDecimal("21.00"))
+        .taxCategoryId("S")
+        .percent(21.0)
+        .build())
+    .build();
+
+ReceiptTemplateRequest.builder()
+    .taxBreakDown(taxBreakdown)
+    .build();
+```
+
+**After (v1.1.0+):**
+```java
+ReceiptTemplateRequest.builder()
+    .totalTaxAmount("21.00")  // Simple!
+    .addTax(Tax.builder()
+        .rate(21.0)
+        .type("VAT")
+        .amount("21.00")
+        .build())
+    .build();
+```
+
+#### 2. Field Renames
+
+| Old Field | New Field | Reason |
+|-----------|-----------|--------|
+| `receiptId` | `documentNumber` | Clearer naming |
+| `documentCurrencyCode` | `currency` | Simpler |
+
+**Migration:**
+```java
+// Before
+.receiptId("INV-001")
+.documentCurrencyCode("EUR")
+
+// After
+.documentNumber("INV-001")
+.currency("EUR")
+```
+
+#### 3. Unit Codes Now Type-Safe
+
+**Before:**
+```java
+Product.builder()
+    .unitCode("PCS")  // String - error-prone
+    .build();
+```
+
+**After:**
+```java
+Product.builder()
+    .unitCode(UnitCode.ONE)  // Enum - type-safe!
+    .build();
+```
+
+**Note:** String codes are still accepted for JSON deserialization and will be automatically converted to the enum.
+
+#### 4. Unit Code Now Mandatory
+
+`unitCode` is now a required field for `Product`. This prevents validation issues and ensures Peppol compliance.
+
+```java
+// This will fail validation
+Product.builder()
+    .name("Product")
+    .quantity(1.0)
+    // .unitCode(UnitCode.ONE)  // ❌ Missing - will fail!
+    .build();
+```
+
+### New Features
+
+#### 1. Receipt-Level Discounts and Charges
+
+```java
+ReceiptTemplateRequest.builder()
+    .addDiscount("10.00", "Loyalty discount")
+    .addCharge("5.00", "Delivery fee")
+    .build();
+```
+
+#### 2. Factory Methods for Discounts and Charges
+
+```java
+// Cleaner syntax
+Discount discount = Discount.of("10.00", "Sale");
+Charge charge = Charge.of("5.00", "Fee");
+
+Product.builder()
+    .addDiscount(discount)
+    .addCharge(charge)
+    .build();
+```
+
+#### 3. Period Support
+
+```java
+ReceiptTemplateRequest.builder()
+    .period(Period.builder()
+        .startDate(LocalDate.of(2024, 1, 1))
+        .endDate(LocalDate.of(2024, 1, 31))
+        .description("January 2024 subscription")
+        .build())
+    .build();
 ```
 
 ## Support

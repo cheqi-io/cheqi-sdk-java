@@ -21,7 +21,6 @@ import com.cheqi.sdk.utils.RFC8785Canonicalizer;
  * 2. Generate receipt templates from transaction data
  * 3. Create encrypted receipts for matched customers
  * 4. Communicate with Cheqi backend through encrypted channels
- *
  * Example usage with predefined environment:
  * <pre>
  * CheqiSDK sdk = CheqiSDK.builder()
@@ -29,7 +28,7 @@ import com.cheqi.sdk.utils.RFC8785Canonicalizer;
  *     .supplierCredentials("client_id", "client_secret")
  *     .build();
  * </pre>
- * 
+ *
  * Example usage with custom URL:
  * <pre>
  * CheqiSDK sdk = CheqiSDK.builder()
@@ -50,25 +49,38 @@ import com.cheqi.sdk.utils.RFC8785Canonicalizer;
  * RecipientResolutionResponse matchResponse = sdk.getMatchingService()
  *     .matchCustomer(matchRequest, accessToken);
  *
- * // Generate receipt template
- * ReceiptTemplateRequestDto receiptRequest = ReceiptTemplateRequestDto.builder()
- *     .receiptId("INV-001")
+ * // Create receipt with simplified API
+ * ReceiptTemplateRequest receiptRequest = ReceiptTemplateRequest.builder()
+ *     .documentNumber("INV-001")
  *     .issueDate(Instant.now())
- *     .documentCurrencyCode("EUR")
+ *     .currency("EUR")
  *     .invoiceSubtotal(new BigDecimal("100.00"))
  *     .totalBeforeTax(new BigDecimal("100.00"))
  *     .totalAmount(new BigDecimal("121.00"))
- *     .products(productList)
- *     .taxBreakDown(taxBreakdown)
+ *     .totalTaxAmount(new BigDecimal("21.00"))
+ *     .addProduct(Product.builder()
+ *         .name("Laptop")
+ *         .quantity(1.0)
+ *         .unitCode(UnitCode.ONE)
+ *         .unitPrice("100.00")
+ *         .subtotal("100.00")
+ *         .total("121.00")
+ *         .addTax(21.0, "VAT", "21.00")
+ *         .build())
+ *     .addTax(Tax.builder()
+ *         .rate(21.0)
+ *         .type("VAT")
+ *         .amount("21.00")
+ *         .build())
  *     .build();
  *
- * PurchaseReceipt template = sdk.getReceiptService()
- *     .generateReceiptTemplate(receiptRequest, accessToken);
+ * // Process complete receipt (one method handles everything)
+ * ProcessReceiptResult result = sdk.getReceiptService()
+ *     .processCompleteReceipt(matchRequest, receiptRequest, merchantId, accessToken);
  *
- * // Create encrypted receipts for customer devices
- * List<EncryptedReceiptDto> encryptedReceipts = sdk.getReceiptService()
- *     .createEncryptedReceipts(template, matchResponse.getDeviceKeys(),
- *                             UUID.randomUUID(), supplierPartyId);
+ * if (result.isSuccess()) {
+ *     System.out.println("Receipt delivered to " + result.getReceiptCount() + " devices");
+ * }
  * </pre>
  */
 public class CheqiSDK {
