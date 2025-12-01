@@ -26,7 +26,7 @@ Add the following dependency to your `pom.xml`:
 <dependency>
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ Add the following dependency to your `pom.xml`:
 Add to your `build.gradle`:
 
 ```gradle
-implementation 'io.cheqi:cheqi-sdk:1.0-SNAPSHOT'
+implementation 'io.cheqi:cheqi-sdk:1.0.2'
 ```
 
 ## Quick Start
