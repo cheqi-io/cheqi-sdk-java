@@ -1,16 +1,13 @@
 package com.cheqi.sdk.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Simple product line item used in Cheqi receipts.
@@ -22,18 +19,79 @@ import java.util.Objects;
  *
  * <h3>Typical usage:</h3>
  * <pre>
- * Product product = Product.builder()
+ * // Simple product (1 laptop)
+ * Product laptop = Product.builder()
  *     .name("Laptop 13\"")
  *     .sku("LAP-001")
- *     .description("13\" Ultrabook, 16GB RAM, 512GB SSD")
  *     .quantity(1.0)
- *     .unitCode(UnitCode.ONE)  // Type-safe enum
+ *     .baseQuantity(1.0)        // Always required (1.0 for simple items)
+ *     .unitCode(UnitCode.ONE)
  *     .unitPrice("1000.00")
- *     .addDiscount("50.00", "Black Friday")
- *     .addCharge("5.00", "Shipping")
- *     .addTax(21.0, "VAT", "199.95")
- *     .subtotal("950.00")      // net line total (before tax)
- *     .total("1149.95")       // gross line total (after tax)
+ *     .subtotal("1000.00")
+ *     .total("1210.00")
+ *     .addTax(21.0, "VAT", "210.00")
+ *     .build();
+ *
+ * // Pre-packaged product (10 packages × 500g cheese)
+ * Product cheese = Product.builder()
+ *     .name("Gouda Cheese")
+ *     .sku("CHEESE-500G")
+ *     .quantity(10.0)           // 10 packages
+ *     .baseQuantity(500.0)      // 500g per package (total: 5000g)
+ *     .unitCode(UnitCode.GRAM)
+ *     .unitPrice("4.99")        // Price per package
+ *     .subtotal("49.90")
+ *     .total("60.38")
+ *     .addTax(21.0, "VAT", "10.48")
+ *     .build();
+ *
+ * // Weight-based product (2.5kg apples)
+ * Product apples = Product.builder()
+ *     .name("Organic Apples")
+ *     .sku("APPLE-ORG")
+ *     .quantity(2.5)
+ *     .baseQuantity(1.0)
+ *     .unitCode(UnitCode.KILOGRAM)
+ *     .unitPrice("3.99")        // Price per kg
+ *     .subtotal("9.98")
+ *     .total("12.08")
+ *     .addTax(21.0, "VAT", "2.10")
+ *     .build();
+ *
+ * // Time-based product (monthly subscription) - Easy with LocalDate!
+ * Product subscription = Product.builder()
+ *     .name("Premium Subscription")
+ *     .sku("SUB-PREMIUM-M")
+ *     .quantity(1.0)
+ *     .baseQuantity(1.0)
+ *     .unitCode(UnitCode.MONTH)
+ *     .unitPrice("29.99")
+ *     .subtotal("29.99")
+ *     .total("36.29")
+ *     .addTax(21.0, "VAT", "6.30")
+ *     .period(Period.builder()
+ *         .startDate(LocalDate.of(2024, 1, 1))      // Easy!
+ *         .endDate(LocalDate.of(2024, 1, 31))       // Easy!
+ *         .description("January 2024")
+ *         .build())
+ *     .build();
+ *
+ * // Hourly rental with precise times - Easy with LocalDateTime!
+ * Product carRental = Product.builder()
+ *     .name("Tesla Model 3 Rental")
+ *     .sku("RENTAL-TESLA-M3")
+ *     .quantity(3.0)
+ *     .baseQuantity(1.0)
+ *     .unitCode(UnitCode.HOUR)
+ *     .unitPrice("25.00")
+ *     .subtotal("75.00")
+ *     .total("90.75")
+ *     .addTax(21.0, "VAT", "15.75")
+ *     .period(Period.builder()
+ *         .startDate(LocalDateTime.of(2024, 12, 1, 14, 0))  // 2:00 PM - Easy!
+ *         .endDate(LocalDateTime.of(2024, 12, 1, 17, 0))    // 5:00 PM - Easy!
+ *         .description("3-hour rental")
+ *         .build())
  *     .build();
  * </pre>
  */
@@ -74,6 +132,27 @@ public final class Product {
      */
     @JsonProperty("quantity")
     private final Double quantity;
+
+    /**
+     * Base quantity per unit (mandatory).
+     * 
+     * <p>For pre-packaged products sold in fixed quantities:</p>
+     * <ul>
+     *   <li>10 packages × 500g cheese → quantity=10, baseQuantity=500, unitCode=GRAM</li>
+     *   <li>6 bottles × 0.33L water → quantity=6, baseQuantity=0.33, unitCode=LITER</li>
+     *   <li>3 boxes × 12 eggs → quantity=3, baseQuantity=12, unitCode=ONE</li>
+     * </ul>
+     * 
+     * <p>For simple items, set baseQuantity to 1.0:</p>
+     * <ul>
+     *   <li>2.5 kg apples → quantity=2.5, baseQuantity=1.0, unitCode=KILOGRAM</li>
+     *   <li>1 laptop → quantity=1, baseQuantity=1.0, unitCode=ONE</li>
+     * </ul>
+     * 
+     * <p><strong>Total quantity = quantity × baseQuantity</strong></p>
+     */
+    @JsonProperty("baseQuantity")
+    private final Double baseQuantity;
 
     /**
      * Unit of measure code (mandatory).
@@ -131,6 +210,26 @@ public final class Product {
     @JsonProperty("total")
     private final BigDecimal total;
 
+    // ===== OPTIONAL FIELDS =====
+
+    /**
+     * Optional period for time-based products.
+     * 
+     * <p>Use this for products that represent services over a time range:</p>
+     * <ul>
+     *   <li>Subscriptions (e.g., monthly SaaS from Jan 1 - Jan 31)</li>
+     *   <li>Rentals (e.g., car rental from Dec 1 - Dec 7)</li>
+     *   <li>Utilities (e.g., electricity usage from Nov 1 - Nov 30)</li>
+     *   <li>Service contracts (e.g., maintenance from Q1 2024)</li>
+     * </ul>
+     * 
+     * <p>Leave empty for one-time purchases or instant transactions.</p>
+     * 
+     * @see Period
+     */
+    @JsonProperty("period")
+    private final Optional<Period> period;
+
     // ===== CONSTRUCTOR =====
 
     private Product(
@@ -139,19 +238,22 @@ public final class Product {
             String description,
             String brand,
             Double quantity,
+            Double baseQuantity,
             UnitCode unitCode,
             BigDecimal unitPrice,
             List<Discount> discounts,
             List<Charge> charges,
             List<Tax> taxes,
             BigDecimal subtotal,
-            BigDecimal total) {
+            BigDecimal total,
+            Optional<Period> period) {
 
         this.name = name;
         this.sku = sku;
         this.description = description;
         this.brand = brand;
         this.quantity = quantity;
+        this.baseQuantity = baseQuantity;
         this.unitCode = unitCode;
         this.unitPrice = unitPrice;
         // defensive copies: keep internal lists immutable
@@ -160,6 +262,7 @@ public final class Product {
         this.taxes     = taxes     != null ? List.copyOf(taxes)     : List.of();
         this.subtotal = subtotal;
         this.total = total;
+        this.period = period;
     }
 
     // ===== GETTERS =====
@@ -182,6 +285,10 @@ public final class Product {
 
     public Double getQuantity() {
         return quantity;
+    }
+
+    public Double getBaseQuantity() {
+        return baseQuantity;
     }
 
     public UnitCode getUnitCode() {
@@ -212,6 +319,14 @@ public final class Product {
         return total;
     }
 
+    /**
+     * @return The period if this product represents a time-based service
+     */
+    @JsonIgnore
+    public Optional<Period> getPeriod() {
+        return period != null ? period : Optional.empty();
+    }
+
     // ===== BUILDER =====
 
     public static Builder builder() {
@@ -225,6 +340,7 @@ public final class Product {
         private String description;
         private String brand;
         private Double quantity;
+        private Double baseQuantity;
         private UnitCode unitCode;
         private BigDecimal unitPrice;
         private List<Discount> discounts = new ArrayList<>();
@@ -232,6 +348,7 @@ public final class Product {
         private List<Tax> taxes = new ArrayList<>();
         private BigDecimal subtotal;
         private BigDecimal total;
+        private Optional<Period> period = Optional.empty();
 
         private Builder() {}
 
@@ -241,6 +358,7 @@ public final class Product {
             this.description = other.description;
             this.brand = other.brand;
             this.quantity = other.quantity;
+            this.baseQuantity = other.baseQuantity;
             this.unitCode = other.unitCode;
             this.unitPrice = other.unitPrice;
             this.discounts = new ArrayList<>(other.discounts);
@@ -248,6 +366,7 @@ public final class Product {
             this.taxes = new ArrayList<>(other.taxes);
             this.subtotal = other.subtotal;
             this.total = other.total;
+            this.period = other.period;
             return this;
         }
 
@@ -278,6 +397,19 @@ public final class Product {
         @JsonSetter(value = "quantity", nulls = Nulls.SKIP)
         public Builder quantity(Double quantity) {
             this.quantity = quantity;
+            return this;
+        }
+
+        /**
+         * Sets the base quantity per unit (mandatory).
+         * Use 1.0 for simple items, or the package size for pre-packaged items.
+         * 
+         * @param baseQuantity Base quantity (e.g., 1.0 for simple items, 500 for 500g packages)
+         * @return This builder
+         */
+        @JsonSetter(value = "baseQuantity", nulls = Nulls.SKIP)
+        public Builder baseQuantity(Double baseQuantity) {
+            this.baseQuantity = baseQuantity;
             return this;
         }
 
@@ -456,6 +588,18 @@ public final class Product {
             return this;
         }
 
+        /**
+         * Sets the period for time-based products (subscriptions, rentals, etc.).
+         * 
+         * @param period The period this product covers
+         * @return This builder
+         */
+        @JsonSetter(value = "period", nulls = Nulls.SKIP)
+        public Builder period(Period period) {
+            this.period = Optional.ofNullable(period);
+            return this;
+        }
+
         public Product build() {
             return new Product(
                     name,
@@ -463,13 +607,15 @@ public final class Product {
                     description,
                     brand,
                     quantity,
+                    baseQuantity,
                     unitCode,
                     unitPrice,
                     discounts,
                     charges,
                     taxes,
                     subtotal,
-                    total
+                    total,
+                    period
             );
         }
     }
@@ -495,6 +641,9 @@ public final class Product {
         if (quantity == null) {
             errors.add("quantity is required");
         }
+        if (baseQuantity == null) {
+            errors.add("baseQuantity is required (use 1.0 for simple items, or the package size for pre-packaged items)");
+        }
         if (unitCode == null) {
             errors.add("unitCode is required (e.g., UnitCode.ONE, UnitCode.KILOGRAM)");
         }
@@ -508,8 +657,11 @@ public final class Product {
             errors.add("total is required");
         }
 
-        if (quantity != null && quantity < 0) {
-            errors.add("quantity cannot be negative");
+        if (quantity != null && quantity <= 0) {
+            errors.add("quantity must be greater than 0");
+        }
+        if (baseQuantity != null && baseQuantity <= 0) {
+            errors.add("baseQuantity must be greater than 0");
         }
         if (unitPrice != null && unitPrice.compareTo(BigDecimal.ZERO) < 0) {
             errors.add("unitPrice cannot be negative");
@@ -535,13 +687,15 @@ public final class Product {
                 && Objects.equals(description, product.description)
                 && Objects.equals(brand, product.brand)
                 && Objects.equals(quantity, product.quantity)
+                && Objects.equals(baseQuantity, product.baseQuantity)
                 && Objects.equals(unitCode, product.unitCode)
                 && Objects.equals(unitPrice, product.unitPrice)
                 && Objects.equals(discounts, product.discounts)
                 && Objects.equals(charges, product.charges)
                 && Objects.equals(taxes, product.taxes)
                 && Objects.equals(subtotal, product.subtotal)
-                && Objects.equals(total, product.total);
+                && Objects.equals(total, product.total)
+                && Objects.equals(period, product.period);
     }
 
     @Override
@@ -552,13 +706,15 @@ public final class Product {
                 description,
                 brand,
                 quantity,
+                baseQuantity,
                 unitCode,
                 unitPrice,
                 discounts,
                 charges,
                 taxes,
                 subtotal,
-                total
+                total,
+                period
         );
     }
 

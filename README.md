@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 # Cheqi Java SDK
 
 [![Java](https://img.shields.io/badge/Java-11+-orange.svg)](https://www.oracle.com/java/)
@@ -120,7 +121,8 @@ ReceiptTemplateRequest receiptRequest = ReceiptTemplateRequest.builder()
     .addTax(Tax.builder()  // Receipt-level tax breakdown
         .rate(21.0)
         .type("VAT")
-        .amount("21.00")
+        .taxableAmount("100.00")  // Amount before tax
+        .amount("21.00")          // Tax amount (100 × 0.21)
         .label("VAT 21%")
         .build())
     .build();
@@ -211,45 +213,111 @@ The SDK provides a fluent API for building product line items with type-safe uni
 ```java
 import com.cheqi.sdk.models.Product;
 import com.cheqi.sdk.models.UnitCode;
-import com.cheqi.sdk.models.Discount;
-import com.cheqi.sdk.models.Charge;
+import com.cheqi.sdk.models.Period;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 // Simple product
 Product laptop = Product.builder()
     .name("MacBook Pro 14\"")
     .sku("MBP-14-2024")
     .quantity(1.0)
-    .unitCode(UnitCode.ONE)  // Type-safe: ONE, KILOGRAM, LITER, HOUR, etc.
+    .baseQuantity(1.0)        // Mandatory: 1.0 for simple items
+    .unitCode(UnitCode.ONE)   // Type-safe enum
     .unitPrice("2499.00")
     .subtotal("2499.00")
     .total("3023.79")
     .addTax(21.0, "VAT", "524.79")
     .build();
 
-// Product with discounts and charges
-Product groceries = Product.builder()
+// Pre-packaged product (10 packages × 500g cheese)
+Product cheese = Product.builder()
+    .name("Gouda Cheese")
+    .sku("CHEESE-500G")
+    .quantity(10.0)           // 10 packages
+    .baseQuantity(500.0)      // 500g per package (total: 5000g)
+    .unitCode(UnitCode.GRAM)
+    .unitPrice("4.99")        // Price per package
+    .subtotal("49.90")
+    .total("60.38")
+    .addTax(21.0, "VAT", "10.48")
+    .build();
+
+// Weight-based product
+Product apples = Product.builder()
     .name("Organic Apples")
     .sku("APPLE-ORG")
     .quantity(2.5)
-    .unitCode(UnitCode.KILOGRAM)  // Weight-based
+    .baseQuantity(1.0)        // Always 1.0 for weight-based
+    .unitCode(UnitCode.KILOGRAM)
     .unitPrice("3.99")
-    .addDiscount("1.00", "Loyalty discount")  // Simple factory method
+    .addDiscount("1.00", "Loyalty discount")
     .addCharge("0.50", "Packaging fee")
     .subtotal("9.48")
     .total("11.47")
     .addTax(21.0, "VAT", "1.99")
     .build();
 
-// Service-based product
-Product consulting = Product.builder()
-    .name("Software Consulting")
-    .quantity(8.0)
-    .unitCode(UnitCode.HOUR)  // Time-based
-    .unitPrice("150.00")
-    .subtotal("1200.00")
-    .total("1452.00")
-    .addTax(21.0, "VAT", "252.00")
+// Time-based product (subscription with period) - Easy with LocalDate!
+Product subscription = Product.builder()
+    .name("Premium Subscription")
+    .sku("SUB-PREMIUM-M")
+    .quantity(1.0)
+    .baseQuantity(1.0)
+    .unitCode(UnitCode.MONTH)
+    .unitPrice("29.99")
+    .subtotal("29.99")
+    .total("36.29")
+    .addTax(21.0, "VAT", "6.30")
+    .period(Period.builder()      // Optional: for subscriptions, rentals
+        .startDate(LocalDate.of(2024, 1, 1))      // Easy!
+        .endDate(LocalDate.of(2024, 1, 31))       // Easy!
+        .description("January 2024")
+        .build())
     .build();
+
+// Hourly rental with precise times - Easy with LocalDateTime!
+Product carRental = Product.builder()
+    .name("Tesla Model 3 Rental")
+    .quantity(3.0)
+    .baseQuantity(1.0)
+    .unitCode(UnitCode.HOUR)
+    .unitPrice("25.00")
+    .subtotal("75.00")
+    .total("90.75")
+    .addTax(21.0, "VAT", "15.75")
+    .period(Period.builder()
+        .startDate(LocalDateTime.of(2024, 12, 1, 14, 0))  // 2:00 PM - Easy!
+        .endDate(LocalDateTime.of(2024, 12, 1, 17, 0))    // 5:00 PM - Easy!
+        .description("3-hour rental")
+        .build())
+    .build();
+```
+
+**Base Quantity Rules:**
+- **Simple items**: Set `baseQuantity` to `1.0` (e.g., 1 laptop, 2.5kg apples)
+- **Pre-packaged items**: Set `baseQuantity` to package size (e.g., 500 for 500g packages)
+- **Total quantity**: `quantity × baseQuantity` (e.g., 10 × 500g = 5000g)
+
+**Period Support:**
+- Use `Period` for time-based products: subscriptions, rentals, utilities, service contracts
+- Leave empty for one-time purchases
+- **Easy to use**: Accepts `LocalDate` for date-only or `LocalDateTime` for precise times
+- Automatically converts to `Instant` (ISO-8601 with timezone) internally
+- Includes `startDate`, `endDate`, and optional `description`
+
+**Period Helper Methods:**
+```java
+// Date-only (easiest for subscriptions, monthly billing)
+.startDate(LocalDate.of(2024, 1, 1))
+.endDate(LocalDate.of(2024, 1, 31))
+
+// With specific times (for hourly rentals, events)
+.startDate(LocalDateTime.of(2024, 12, 1, 14, 0))  // 2:00 PM
+.endDate(LocalDateTime.of(2024, 12, 1, 17, 0))    // 5:00 PM
+
+// With timezone (for international events)
+.startDate(LocalDateTime.of(2024, 6, 15, 19, 0), ZoneId.of("Europe/Amsterdam"))
 ```
 
 **Available Unit Codes:**
@@ -262,6 +330,63 @@ Product consulting = Product.builder()
 - **Service**: `SERVICE_UNIT`, `ACTIVITY`, `JOB`
 
 See `UnitCode` enum for the complete list of 70+ Peppol-compliant codes.
+
+**Product Use Cases:**
+- 🛒 **Simple items**: Laptops, books, clothing (baseQuantity = 1.0)
+- 📦 **Pre-packaged**: Cheese packages, bottled water, egg cartons (baseQuantity = package size)
+- ⚖️ **Weight-based**: Fruits, vegetables, bulk items (baseQuantity = 1.0)
+- 📅 **Time-based**: Subscriptions, rentals, utilities (with Period)
+
+### Tax Breakdown
+
+The `Tax` model supports detailed tax reporting with taxable amounts:
+
+```java
+import com.cheqi.sdk.models.Tax;
+
+// Single tax rate
+Tax vat = Tax.builder()
+    .rate(21.0)                    // 21% VAT
+    .type("VAT")
+    .taxableAmount("100.00")       // €100 taxable amount
+    .amount("21.00")               // €21 tax (100 × 0.21)
+    .label("VAT 21%")
+    .build();
+
+// Multiple tax rates on a receipt
+ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
+    .documentNumber("INV-001")
+    .currency("EUR")
+    .totalBeforeTax("10000.00")
+    .totalTaxAmount("1865.00")
+    .totalAmount("11865.00")
+    
+    // Tax breakdown by rate
+    .addTax(Tax.builder()
+        .rate(19.0)
+        .type("VAT")
+        .taxableAmount("8500.00")  // €8500 @ 19%
+        .amount("1615.00")         // = €1615
+        .label("VAT 19%")
+        .build())
+    
+    .addTax(Tax.builder()
+        .rate(9.0)
+        .type("VAT")
+        .taxableAmount("1500.00")  // €1500 @ 9% (reduced)
+        .amount("135.00")          // = €135
+        .label("VAT 9% (reduced)")
+        .build())
+    
+    .build();
+```
+
+**Tax Fields:**
+- **`rate`** (required): Tax percentage (e.g., 21.0 for 21%)
+- **`type`** (required): Tax type (e.g., "VAT", "GST", "Sales Tax")
+- **`taxableAmount`** (optional): Base amount before tax - useful for tax reporting
+- **`amount`** (optional): Calculated tax amount
+- **`label`** (optional): Display label (e.g., "VAT 21%")
 
 ### Direct Service Access
 
@@ -412,6 +537,7 @@ public class ReceiptExample {
             .name("MacBook Pro 14\"")
             .sku("MBP-14-2024")
             .quantity(1.0)
+            .baseQuantity(1.0)        // Mandatory
             .unitCode(UnitCode.ONE)
             .unitPrice("2499.00")
             .addDiscount("100.00", "Black Friday")
@@ -424,6 +550,7 @@ public class ReceiptExample {
             .name("Organic Apples")
             .sku("APPLE-ORG")
             .quantity(2.5)
+            .baseQuantity(1.0)        // Mandatory
             .unitCode(UnitCode.KILOGRAM)
             .unitPrice("3.99")
             .subtotal("9.98")
@@ -445,7 +572,8 @@ public class ReceiptExample {
             .addTax(Tax.builder()
                 .rate(21.0)
                 .type("VAT")
-                .amount("505.89")
+                .taxableAmount("2408.98")  // Total taxable amount
+                .amount("505.89")          // Total tax (2408.98 × 0.21)
                 .label("VAT 21%")
                 .build())
             .note("Thank you for your purchase!")
@@ -509,7 +637,8 @@ ReceiptTemplateRequest.builder()
     .addTax(Tax.builder()
         .rate(21.0)
         .type("VAT")
-        .amount("21.00")
+        .taxableAmount("100.00")  // Optional: base amount
+        .amount("21.00")          // Tax amount
         .build())
     .build();
 ```

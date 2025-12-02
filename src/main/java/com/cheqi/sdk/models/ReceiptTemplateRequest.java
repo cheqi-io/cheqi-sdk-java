@@ -495,8 +495,24 @@ public final class ReceiptTemplateRequest {
             return this;
         }
 
+        /**
+         * Sets the currency code (ISO 4217).
+         * 
+         * @param currency ISO 4217 currency code (e.g., "EUR", "USD", "GBP")
+         * @return This builder
+         * @throws IllegalArgumentException if the currency code is invalid
+         */
         @JsonSetter(value = "currency", nulls = Nulls.SKIP)
-        public ReceiptTemplateRequest.Builder currency(String currency) {
+        public Builder currency(String currency) {
+            if (currency != null) {
+                try {
+                    // Validate using Java's built-in Currency class
+                    java.util.Currency.getInstance(currency);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(
+                        "Invalid currency code: '" + currency + "'. Must be a valid ISO 4217 code (e.g., EUR, USD, GBP)", e);
+                }
+            }
             this.currency = currency;
             return this;
         }

@@ -8,7 +8,11 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +30,30 @@ import java.util.Optional;
  *   <li>Utility billing periods (e.g., electricity from Nov 1 - Nov 30)</li>
  *   <li>Service contracts (e.g., maintenance from Q1 2024)</li>
  * </ul>
+ * 
+ * <h3>Easy Usage Examples:</h3>
+ * <pre>
+ * // Simple date-only period (uses LocalDate - easiest!)
+ * Period monthlyPeriod = Period.builder()
+ *     .startDate(LocalDate.of(2024, 1, 1))
+ *     .endDate(LocalDate.of(2024, 1, 31))
+ *     .description("January 2024")
+ *     .build();
+ * 
+ * // With specific times (uses LocalDateTime)
+ * Period rentalPeriod = Period.builder()
+ *     .startDate(LocalDateTime.of(2024, 12, 1, 14, 0))  // 2:00 PM
+ *     .endDate(LocalDateTime.of(2024, 12, 1, 17, 0))    // 5:00 PM
+ *     .description("3-hour rental")
+ *     .build();
+ * 
+ * // With timezone support
+ * Period eventPeriod = Period.builder()
+ *     .startDate(LocalDateTime.of(2024, 6, 15, 19, 0), ZoneId.of("Europe/Amsterdam"))
+ *     .endDate(LocalDateTime.of(2024, 6, 15, 22, 0), ZoneId.of("Europe/Amsterdam"))
+ *     .description("Concert")
+ *     .build();
+ * </pre>
  * 
  * <h3>Mandatory Fields:</h3>
  * <ul>
@@ -45,18 +73,20 @@ public final class Period {
     // ===== MANDATORY FIELDS =====
 
     /**
-     * The start date of the period (local date, no timezone).
-     * Example: "2024-01-01"
+     * The start date/time of the period.
+     * Uses ISO-8601 format with timezone (e.g., "2024-01-01T00:00:00Z").
+     * For date-only periods, use midnight UTC (e.g., "2024-01-01T00:00:00Z").
      */
     @JsonProperty("startDate")
-    private final LocalDate startDate;
+    private final Instant startDate;
 
     /**
-     * The end date of the period (local date, no timezone).
-     * Example: "2024-01-31"
+     * The end date/time of the period.
+     * Uses ISO-8601 format with timezone (e.g., "2024-01-31T23:59:59Z").
+     * For date-only periods, use end of day UTC (e.g., "2024-01-31T23:59:59Z").
      */
     @JsonProperty("endDate")
-    private final LocalDate endDate;
+    private final Instant endDate;
 
     // ===== OPTIONAL FIELDS =====
 
@@ -72,8 +102,8 @@ public final class Period {
     // ===== CONSTRUCTOR =====
 
     private Period(
-            LocalDate startDate,
-            LocalDate endDate,
+            Instant startDate,
+            Instant endDate,
             Optional<String> description,
             Map<String, Object> additionalProperties) {
         this.startDate = startDate;
@@ -85,12 +115,12 @@ public final class Period {
     // ===== MANDATORY FIELD ACCESSORS =====
 
     @JsonIgnore
-    public LocalDate getStartDate() {
+    public Instant getStartDate() {
         return startDate;
     }
 
     @JsonIgnore
-    public LocalDate getEndDate() {
+    public Instant getEndDate() {
         return endDate;
     }
 
@@ -140,8 +170,8 @@ public final class Period {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
-        private LocalDate startDate;
-        private LocalDate endDate;
+        private Instant startDate;
+        private Instant endDate;
         private Optional<String> description = Optional.empty();
         private Map<String, Object> additionalProperties = new HashMap<>();
 
@@ -154,15 +184,95 @@ public final class Period {
             return this;
         }
 
+        /**
+         * Sets the start date/time of the period.
+         * @param startDate Start timestamp
+         * @return This builder
+         */
         @JsonSetter(value = "startDate", nulls = Nulls.SKIP)
-        public Period.Builder startDate(LocalDate startDate) {
+        public Period.Builder startDate(Instant startDate) {
             this.startDate = startDate;
             return this;
         }
 
+        /**
+         * Sets the start date (at midnight UTC).
+         * Convenient method for date-only periods.
+         * 
+         * @param startDate Start date (will be converted to midnight UTC)
+         * @return This builder
+         */
+        public Period.Builder startDate(LocalDate startDate) {
+            this.startDate = startDate.atStartOfDay(ZoneOffset.UTC).toInstant();
+            return this;
+        }
+
+        /**
+         * Sets the start date/time in UTC.
+         * 
+         * @param startDateTime Start date/time (will be converted to UTC)
+         * @return This builder
+         */
+        public Period.Builder startDate(LocalDateTime startDateTime) {
+            this.startDate = startDateTime.atZone(ZoneOffset.UTC).toInstant();
+            return this;
+        }
+
+        /**
+         * Sets the start date/time with a specific timezone.
+         * 
+         * @param startDateTime Start date/time
+         * @param zoneId Timezone (e.g., ZoneId.of("Europe/Amsterdam"))
+         * @return This builder
+         */
+        public Period.Builder startDate(LocalDateTime startDateTime, ZoneId zoneId) {
+            this.startDate = startDateTime.atZone(zoneId).toInstant();
+            return this;
+        }
+
+        /**
+         * Sets the end date/time of the period.
+         * @param endDate End timestamp
+         * @return This builder
+         */
         @JsonSetter(value = "endDate", nulls = Nulls.SKIP)
-        public Period.Builder endDate(LocalDate endDate) {
+        public Period.Builder endDate(Instant endDate) {
             this.endDate = endDate;
+            return this;
+        }
+
+        /**
+         * Sets the end date (at end of day - 23:59:59 UTC).
+         * Convenient method for date-only periods.
+         * 
+         * @param endDate End date (will be converted to 23:59:59 UTC)
+         * @return This builder
+         */
+        public Period.Builder endDate(LocalDate endDate) {
+            this.endDate = endDate.atTime(23, 59, 59).atZone(ZoneOffset.UTC).toInstant();
+            return this;
+        }
+
+        /**
+         * Sets the end date/time in UTC.
+         * 
+         * @param endDateTime End date/time (will be converted to UTC)
+         * @return This builder
+         */
+        public Period.Builder endDate(LocalDateTime endDateTime) {
+            this.endDate = endDateTime.atZone(ZoneOffset.UTC).toInstant();
+            return this;
+        }
+
+        /**
+         * Sets the end date/time with a specific timezone.
+         * 
+         * @param endDateTime End date/time
+         * @param zoneId Timezone (e.g., ZoneId.of("Europe/Amsterdam"))
+         * @return This builder
+         */
+        public Period.Builder endDate(LocalDateTime endDateTime, ZoneId zoneId) {
+            this.endDate = endDateTime.atZone(zoneId).toInstant();
             return this;
         }
 
@@ -181,7 +291,7 @@ public final class Period {
 
     /**
      * Validates this period.
-     * @return true if both start and end dates are present and start is before or equal to end
+     * @return true if both start and end timestamps are present and start is before or equal to end
      */
     @JsonIgnore
     public boolean isValid() {
@@ -197,14 +307,14 @@ public final class Period {
         List<String> errors = new ArrayList<>();
 
         if (startDate == null) {
-            errors.add("Start date is required");
+            errors.add("Start date/time is required");
         }
         if (endDate == null) {
-            errors.add("End date is required");
+            errors.add("End date/time is required");
         }
         
         if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
-            errors.add("Start date must be before or equal to end date");
+            errors.add("Start date/time must be before or equal to end date/time");
         }
 
         return errors;
