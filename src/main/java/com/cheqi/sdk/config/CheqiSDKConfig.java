@@ -20,6 +20,7 @@ public class CheqiSDKConfig {
     private final String apiEndpoint;
     private final String supplierClientId;
     private final String supplierClientSecret;
+    private final String privateKeyBase64;
     private final EncryptionConfig encryptionConfig;
     private final int timeoutSeconds;
     private final int maxRetries;
@@ -28,6 +29,7 @@ public class CheqiSDKConfig {
         this.apiEndpoint = builder.apiEndpoint;
         this.supplierClientId = builder.supplierClientId;
         this.supplierClientSecret = builder.supplierClientSecret;
+        this.privateKeyBase64 = builder.privateKeyBase64;
         this.encryptionConfig = builder.encryptionConfig;
         this.timeoutSeconds = builder.timeoutSeconds;
         this.maxRetries = builder.maxRetries;
@@ -61,10 +63,15 @@ public class CheqiSDKConfig {
         return maxRetries;
     }
 
+    public String getPrivateKeyBase64() {
+        return privateKeyBase64;
+    }
+
     public static class Builder {
         private String apiEndpoint;
         private String supplierClientId;
         private String supplierClientSecret;
+        private String privateKeyBase64;
         private EncryptionConfig encryptionConfig;
         private int timeoutSeconds = 30;
         private int maxRetries = 3;
@@ -109,6 +116,17 @@ public class CheqiSDKConfig {
 
         public Builder maxRetries(int maxRetries) {
             this.maxRetries = maxRetries;
+            return this;
+        }
+
+        /**
+         * Sets the issuer's private key for decrypting credit note requests.
+         *
+         * @param privateKeyBase64 RSA private key in Base64 PKCS#8 format
+         * @return this builder instance
+         */
+        public Builder privateKey(String privateKeyBase64) {
+            this.privateKeyBase64 = privateKeyBase64;
             return this;
         }
 

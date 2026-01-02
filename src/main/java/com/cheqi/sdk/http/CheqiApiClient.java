@@ -1,12 +1,21 @@
 package com.cheqi.sdk.http;
 
+import com.cheqi.commons.DTOs.EncryptedCreditNoteDto;
 import com.cheqi.commons.DTOs.EncryptedReceiptDto;
 import com.cheqi.commons.DTOs.RecipientResolutionResponse;
+import com.cheqi.commons.UBL.PurchaseReceipt;
+import com.cheqi.sdk.creditNote.CreditNoteTemplateRequest;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.models.IdentificationDetails;
 import com.cheqi.sdk.models.ReceiptTemplateRequest;
+import com.cheqi.sdk.models.company.CreateStoreRequest;
+import com.cheqi.sdk.models.company.ProvisionCompanyRequest;
+import com.cheqi.sdk.models.company.ProvisionCompanyResponse;
+import com.cheqi.sdk.models.company.Store;
 
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Interface for communicating with Cheqi backend APIs.
@@ -26,7 +35,7 @@ public interface CheqiApiClient {
      * The backend will:
      * 1. Validate the provided access token
      * 2. Process the business data (products, amounts, company info)
-     * 3. Generate a UBL-compliant PurchaseReceipt template
+     * 3. Generate a PurchaseReceipt template
      * 4. Insert placeholders for personal customer data in relevant fields
      * 5. Return the PurchaseReceipt template for personal data injection
      *
@@ -36,6 +45,34 @@ public interface CheqiApiClient {
      * @throws CheqiApiException if the API call fails
      */
     String generateReceiptTemplate(ReceiptTemplateRequest request, String accessToken) throws CheqiApiException;
+
+    /**
+     * Generate receipt template using API credentials (client ID and secret).
+     * For companies that want to use API key/secret instead of OAuth access tokens.
+     */
+    String generateReceiptTemplate(ReceiptTemplateRequest request, String clientId, String clientSecret) throws CheqiApiException;
+
+    /**
+     * Calls the template endpoint to generate a Credit Note template without personal data.
+     * The backend will:
+     * 1. Validate the provided access token
+     * 2. Process the business data (products, amounts, company info)
+     * 3. Generate a CreditNote template
+     * 4. Insert placeholders for personal customer data in relevant fields
+     * 5. Return the CreditNote template for personal data injection
+     *
+     * @param request CreditNoteTemplateRequest containing business data
+     * @param accessToken Pre-provided access token from the merchant
+     * @return CreditNote with placeholders for personal data injection
+     * @throws CheqiApiException if the API call fails
+     */
+    String generateCreditNoteTemplate(CreditNoteTemplateRequest request, String accessToken) throws CheqiApiException;
+
+    /**
+     * Generate credit note template using API credentials (client ID and secret).
+     * For companies that want to use API key/secret instead of OAuth access tokens.
+     */
+    String generateCreditNoteTemplate(CreditNoteTemplateRequest request, String clientId, String clientSecret) throws CheqiApiException;
 
     /**
      * Calls the customer matching endpoint to find a customer using payment identifiers.
@@ -67,6 +104,12 @@ public interface CheqiApiClient {
      *         - Backend server errors (5xx)
      */
     RecipientResolutionResponse matchCustomer(IdentificationDetails request, String accessToken) throws CheqiApiException;
+
+    /**
+     * Match customer using API credentials (client ID and secret).
+     * For companies that want to use API key/secret instead of OAuth access tokens.
+     */
+    RecipientResolutionResponse matchCustomer(IdentificationDetails request, String clientId, String clientSecret) throws CheqiApiException;
 
     /**
      * Sends encrypted receipts to the backend for delivery to customer devices.
@@ -112,6 +155,22 @@ public interface CheqiApiClient {
     void sendEncryptedReceipts(Set<EncryptedReceiptDto> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException;
 
     /**
+     * Send encrypted receipts using API credentials (client ID and secret).
+     * For companies that want to use API key/secret instead of OAuth access tokens.
+     */
+    void sendEncryptedReceipts(Set<EncryptedReceiptDto> encryptedReceipts, String templateHash, String clientId, String clientSecret) throws CheqiApiException;
+
+
+    void sendEncryptedCreditNotes(Set<EncryptedCreditNoteDto> encryptedCreditNotes, String templateHash, String accessToken) throws CheqiApiException;
+
+    /**
+     * Send encrypted receipts using API credentials (client ID and secret).
+     * For companies that want to use API key/secret instead of OAuth access tokens.
+     */
+    void sendEncryptedCreditNotes(Set<EncryptedCreditNoteDto> encryptedCreditNotes, String templateHash, String clientId, String clientSecret) throws CheqiApiException;
+
+
+    /**
      * Sends a receipt directly to a customer via email.
      *
      * This method provides a simpler alternative to the encrypted receipt flow when:
@@ -141,5 +200,19 @@ public interface CheqiApiClient {
      *
      * @since 1.0
      */
-    void sendReceiptViaEmail(String customerEmail, com.cheqi.commons.UBL.PurchaseReceipt purchaseReceipt, String accessToken) throws CheqiApiException;
+    void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt, String accessToken) throws CheqiApiException;
+
+    void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt, String clientId, String clientSecret) throws CheqiApiException;
+
+    // Company provisioning
+    ProvisionCompanyResponse provisionCompany(ProvisionCompanyRequest request, String clientId, String clientSecret) throws CheqiApiException;
+
+    // Store management
+    Store createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiApiException;
+    List<Store> getStores(UUID companyId, Boolean activeOnly, String accessToken) throws CheqiApiException;
+    Store getStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
+    Store updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, String accessToken) throws CheqiApiException;
+    void deleteStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
+    void activateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
+    void deactivateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
 }

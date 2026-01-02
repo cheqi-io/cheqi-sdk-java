@@ -32,16 +32,19 @@ import java.util.Optional;
  *     .currency("EUR")
  *     
  *     // Totals (POS-calculated)
- *     .invoiceSubtotal(new BigDecimal("100.00"))
- *     .totalBeforeTax(new BigDecimal("95.00"))  // After receipt-level discount
- *     .totalTaxAmount(new BigDecimal("19.95"))  // Total tax
- *     .totalAmount(new BigDecimal("114.95"))    // Final amount
+ *     .invoiceSubtotal(new BigDecimal("250.00"))
+ *     .totalBeforeTax(new BigDecimal("245.00"))  // After receipt-level discount
+ *     .totalTaxAmount(new BigDecimal("51.45"))   // Total tax
+ *     .totalAmount(new BigDecimal("296.45"))     // Final amount
  *     
- *     // Products with type-safe unit codes
+ *     // Simple product addition (POS provides all amounts)
+ *     .addProduct("Nike", "AirMax", "125.00", "250.00", 21.0, "52.50", "302.50", 2.0)
+ *     
+ *     // Or use full Product builder for complex cases
  *     .addProduct(Product.builder()
  *         .name("Laptop")
  *         .quantity(1.0)
- *         .unitCode(UnitCode.ONE)  // Type-safe enum
+ *         .unitCode(UnitCode.ONE)
  *         .unitPrice("100.00")
  *         .subtotal("100.00")
  *         .total("121.00")
@@ -560,6 +563,52 @@ public final class ReceiptTemplateRequest {
         public ReceiptTemplateRequest.Builder products(List<Product> products) {
             this.products = products;
             return this;
+        }
+
+        /**
+         * Convenience method to add a single product to the receipt.
+         */
+        public ReceiptTemplateRequest.Builder addProduct(Product product) {
+            if (this.products == null) {
+                this.products = new ArrayList<>();
+            }
+            this.products.add(product);
+            return this;
+        }
+
+        /**
+         * Convenience method to add a simple product with basic details.
+         * All amounts must be pre-calculated by the POS system.
+         *
+         * @param brand Product brand/manufacturer
+         * @param name Product name/model
+         * @param unitPrice Price per unit
+         * @param subtotal Subtotal (unitPrice × quantity, pre-calculated)
+         * @param taxRate Tax rate as percentage (e.g., 21.0 for 21%)
+         * @param taxAmount Tax amount (pre-calculated)
+         * @param total Total amount including tax (pre-calculated)
+         * @param quantity Number of units
+         * @return This builder
+         */
+        public ReceiptTemplateRequest.Builder addProduct(String brand, String name, String unitPrice, String subtotal, Double taxRate, String taxAmount, String total, Double quantity) {
+            return addProduct(Product.builder()
+                    .brand(brand)
+                    .name(name)
+                    .quantity(quantity)
+                    .baseQuantity(1.0)
+                    .unitCode(UnitCode.ONE)
+                    .unitPrice(unitPrice)
+                    .subtotal(subtotal)
+                    .total(total)
+                    .addTax(taxRate, "VAT", taxAmount)
+                    .build());
+        }
+
+        /**
+         * Convenience method with BigDecimal amounts.
+         */
+        public ReceiptTemplateRequest.Builder addProduct(String brand, String name, BigDecimal unitPrice, BigDecimal subtotal, Double taxRate, BigDecimal taxAmount, BigDecimal total, Double quantity) {
+            return addProduct(brand, name, unitPrice.toString(), subtotal.toString(), taxRate, taxAmount.toString(), total.toString(), quantity);
         }
 
         @JsonSetter(value = "discounts", nulls = Nulls.SKIP)

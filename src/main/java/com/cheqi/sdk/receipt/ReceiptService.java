@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Service for handling receipt operations in the Cheqi SDK.
@@ -94,7 +93,6 @@ public class ReceiptService {
     public ProcessReceiptResult processCompleteReceipt(
             IdentificationDetails identificationDetails,
             ReceiptTemplateRequest receiptRequest,
-            UUID merchantId,
             String accessToken) throws CheqiSDKException {
 
         // Input validation
@@ -105,11 +103,6 @@ public class ReceiptService {
         
         if (receiptRequest == null) {
             throw new CheqiSDKException("ReceiptTemplateRequest cannot be null", 
-                CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-        
-        if (merchantId == null) {
-            throw new CheqiSDKException("Merchant ID cannot be null", 
                 CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
         
@@ -124,8 +117,6 @@ public class ReceiptService {
             throw new CheqiSDKException("Receipt request validation failed: " + String.join(", ", validation.getErrors()), 
                 CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
-
-        logger.debug("Starting complete receipt processing for merchant: {}", merchantId);
         
         try {
             // Step 1: Match customer FIRST (saves template generation API call if customer not found)
@@ -155,8 +146,7 @@ public class ReceiptService {
                 logger.debug("Creating encrypted receipts for {} recipients", matchResponse.getRecipients().size());
                 Set<EncryptedReceiptDto> encryptedReceipts = createEncryptedReceipts(
                         canonicalReceiptJson,
-                        matchResponse.getRecipients(),
-                        merchantId
+                        matchResponse.getRecipients()
                 );
 
                 logger.debug("Sending {} encrypted receipts to backend", encryptedReceipts.size());
@@ -177,6 +167,221 @@ public class ReceiptService {
         } catch (Exception e) {
             logger.error("Unexpected error during receipt processing: {}", e.getMessage(), e);
             throw new CheqiSDKException("Receipt processing failed: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Generates a receipt template using API credentials (client ID and secret).
+     * For companies that want to use API key/secret instead of OAuth access tokens.
+     */
+    public String generateReceiptTemplate(
+            ReceiptTemplateRequest request,
+            String clientId,
+            String clientSecret) throws CheqiSDKException {
+
+        if (request == null) {
+            throw new CheqiSDKException("Receipt template request cannot be null",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        if (!request.isValid()) {
+            List<String> errors = request.getValidationErrors();
+            throw new CheqiSDKException("Invalid receipt template request: " + String.join(", ", errors),
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        if (clientId == null || clientId.trim().isEmpty() || clientSecret == null || clientSecret.trim().isEmpty()) {
+            throw new CheqiSDKException("Client ID and secret are required for receipt template generation",
+                    CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
+        }
+
+        logger.debug("Generating receipt template with API credentials for receiptId: {}", request.getDocumentNumber());
+
+        try {
+            String template = apiClient.generateReceiptTemplate(request, clientId, clientSecret);
+            logger.debug("Receipt template generated successfully");
+            return template;
+        } catch (Exception e) {
+            logger.error("Unexpected error generating receipt template: {}", e.getMessage(), e);
+            throw new CheqiSDKException("Failed to generate receipt template: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Complete receipt processing workflow using API credentials.
+     * For companies that want to use API key/secret instead of OAuth access tokens.
+     */
+    public ProcessReceiptResult processCompleteReceipt(
+            IdentificationDetails identificationDetails,
+            ReceiptTemplateRequest receiptRequest,
+            String clientId,
+            String clientSecret) throws CheqiSDKException {
+
+        if (identificationDetails == null) {
+            throw new CheqiSDKException("PaymentDetails cannot be null",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        if (receiptRequest == null) {
+            throw new CheqiSDKException("ReceiptTemplateRequest cannot be null",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        if (clientId == null || clientId.trim().isEmpty() || clientSecret == null || clientSecret.trim().isEmpty()) {
+            throw new CheqiSDKException("Client ID and secret cannot be null or empty",
+                    CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
+        }
+
+        ValidationResult validation = validateReceiptRequest(receiptRequest);
+        if (!validation.isValid()) {
+            throw new CheqiSDKException("Receipt request validation failed: " + String.join(", ", validation.getErrors()),
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        try {
+            // Step 1: Match customer
+            logger.debug("Matching customer using payment details with API credentials");
+            RecipientResolutionResponse matchResponse = matchingService.matchCustomer(identificationDetails, clientId, clientSecret);
+
+            // Step 2: Early return if customer not found and no email
+            if (!matchResponse.isCustomerFound() && identificationDetails.getRecipientEmail().isEmpty()) {
+                logger.info("Customer not found and no email provided - skipping template generation");
+                return ProcessReceiptResult.customerNotFound();
+            }
+
+            // Step 3: Generate receipt template
+            logger.debug("Generating receipt template with API credentials");
+            String receiptTemplate = generateReceiptTemplate(receiptRequest, clientId, clientSecret);
+
+            // Step 4: Parse and attach payment means
+            PurchaseReceipt receipt = objectMapper.readValue(receiptTemplate, PurchaseReceipt.class);
+            receipt.setPaymentMeans(matchResponse.getPaymentMeans());
+
+            // Step 5: Handle customer found case
+            if (matchResponse.isCustomerFound()) {
+                String receiptTemplateJson = objectMapper.writeValueAsString(receipt);
+                String canonicalReceiptJson = canonicalizer.canonicalize(receiptTemplateJson);
+                String templateHash = HashUtils.sha256Hex(canonicalReceiptJson);
+
+                logger.debug("Creating encrypted receipts for {} recipients", matchResponse.getRecipients().size());
+                Set<EncryptedReceiptDto> encryptedReceipts = createEncryptedReceipts(
+                        canonicalReceiptJson,
+                        matchResponse.getRecipients()
+                );
+
+                logger.debug("Sending {} encrypted receipts to backend with API credentials", encryptedReceipts.size());
+                sendEncryptedReceipts(encryptedReceipts, templateHash, matchResponse, clientId, clientSecret);
+
+                logger.info("Receipt processing completed successfully: {} receipts created for {} recipients",
+                        encryptedReceipts.size(), matchResponse.getRecipients().size());
+                return ProcessReceiptResult.success(encryptedReceipts.size(), matchResponse.getRecipients().size());
+            }
+
+            // Step 6: Customer not found but email provided
+            logger.info("Customer not found, sending receipt via email");
+            return sendReceiptViaEmail(identificationDetails.getRecipientEmail().get(), receipt, clientId, clientSecret);
+
+        } catch (CheqiSDKException e) {
+            logger.error("Receipt processing failed: {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error during receipt processing: {}", e.getMessage(), e);
+            throw new CheqiSDKException("Receipt processing failed: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Sends encrypted receipts using API credentials.
+     */
+    public void sendEncryptedReceipts(
+            Set<EncryptedReceiptDto> encryptedReceipts,
+            String templateHash,
+            RecipientResolutionResponse recipientResolutionResponse,
+            String clientId,
+            String clientSecret) throws CheqiSDKException {
+
+        if (encryptedReceipts == null || encryptedReceipts.isEmpty()) {
+            throw new CheqiSDKException("Encrypted receipts cannot be null or empty",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        if (templateHash == null || templateHash.trim().isEmpty()) {
+            throw new CheqiSDKException("Template hash cannot be null or empty",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        if (recipientResolutionResponse == null) {
+            throw new CheqiSDKException("Customer match response cannot be null",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        if (!recipientResolutionResponse.isCustomerFound()) {
+            throw new CheqiSDKException("Cannot send receipts: customer was not found during matching",
+                    CheqiSDKException.ErrorCodes.CUSTOMER_NOT_FOUND, 400, null);
+        }
+
+        if (clientId == null || clientId.trim().isEmpty() || clientSecret == null || clientSecret.trim().isEmpty()) {
+            throw new CheqiSDKException("Client ID and secret cannot be null or empty",
+                    CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
+        }
+
+        logger.debug("Sending {} encrypted receipts to backend with API credentials", encryptedReceipts.size());
+
+        try {
+            apiClient.sendEncryptedReceipts(
+                    encryptedReceipts,
+                    templateHash,
+                    clientId,
+                    clientSecret
+            );
+            logger.info("Successfully sent {} encrypted receipts", encryptedReceipts.size());
+        } catch (CheqiApiException e) {
+            logger.error("Failed to send encrypted receipts: {}", e.getMessage());
+            throw new CheqiSDKException("Failed to send encrypted receipts: {}" + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Unexpected error sending encrypted receipts: {}", e.getMessage(), e);
+            throw new CheqiSDKException("Failed to send encrypted receipts: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Sends receipt via email using API credentials.
+     */
+    public ProcessReceiptResult sendReceiptViaEmail(
+            String customerEmail,
+            PurchaseReceipt purchaseReceipt,
+            String clientId,
+            String clientSecret) throws CheqiSDKException {
+
+        if (customerEmail == null || customerEmail.trim().isEmpty() || !customerEmail.contains("@")) {
+            throw new CheqiSDKException("Valid email address is required",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        if (clientId == null || clientId.trim().isEmpty() || clientSecret == null || clientSecret.trim().isEmpty()) {
+            throw new CheqiSDKException("Client ID and secret are required",
+                    CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
+        }
+
+        logger.info("Sending receipt via email to: {} with API credentials", maskEmail(customerEmail));
+
+        try {
+            apiClient.sendReceiptViaEmail(
+                    customerEmail,
+                    purchaseReceipt,
+                    clientId,
+                    clientSecret
+            );
+
+            logger.info("Receipt sent successfully via email to: {}", maskEmail(customerEmail));
+            return ProcessReceiptResult.emailSent(customerEmail);
+
+        } catch (CheqiApiException e) {
+            logger.error("Failed to send receipt via email: {}", e.getMessage());
+            throw new CheqiSDKException("Failed to send receipt via email: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Unexpected error sending receipt via email: {}", e.getMessage(), e);
+            throw new CheqiSDKException("Failed to send receipt via email: " + e.getMessage(), e);
         }
     }
 
@@ -234,14 +439,12 @@ public class ReceiptService {
      *
      * @param purchaseReceipt The receipt template in JSON format
      * @param recipients Map of device IDs to their public key information
-     * @param supplierPartyId Identifier of the supplier creating the receipt
      * @return List of encrypted receipts, one per device
      * @throws CheqiSDKException if encryption fails or parameters are invalid
      */
     public Set<EncryptedReceiptDto> createEncryptedReceipts(
             String purchaseReceipt,
-            List<Recipient> recipients,
-            UUID supplierPartyId) throws CheqiSDKException {
+            List<Recipient> recipients ) throws CheqiSDKException {
         
         if (purchaseReceipt == null || purchaseReceipt.trim().isEmpty()) {
             throw new CheqiSDKException("Purchase receipt cannot be null or empty", 
@@ -253,18 +456,12 @@ public class ReceiptService {
                 CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
         
-        if (supplierPartyId == null) {
-            throw new CheqiSDKException("Supplier party ID cannot be null", 
-                CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-        
         logger.debug("Creating encrypted receipts for {} recipients", recipients.size());
         
         try {
             Set<EncryptedReceiptDto> encryptedReceipts = encryptionService.encryptReceiptForRecipients(
                 purchaseReceipt,
-                recipients,
-                supplierPartyId
+                recipients
             );
             logger.debug("Successfully created {} encrypted receipts", encryptedReceipts.size());
             return encryptedReceipts;

@@ -12,6 +12,8 @@ The Cheqi Java SDK provides end-to-end encrypted receipt processing capabilities
 - 🔐 **End-to-End Encryption**: Hybrid RSA+AES encryption for secure receipt delivery
 - 🎯 **Customer Matching**: Match customers using payment identifiers (cards, IBANs, etc.)
 - 📄 **Receipt Generation**: Create UBL-compliant receipt templates from transaction data
+- 🏢 **Company Provisioning**: Provision companies and receive immediate API access
+- 🏪 **Store Management**: Full CRUD operations for store/location management
 - 🌐 **Multi-Environment Support**: Sandbox, Test, and Production environments
 - 🔄 **Automatic Retry Logic**: Built-in retry mechanisms for network operations
 - 📊 **RFC8785 Canonicalization**: Consistent JSON canonicalization for integrity verification
@@ -41,6 +43,56 @@ implementation 'io.cheqi:cheqi-sdk:1.0.2'
 
 ## Quick Start
 
+```java
+import com.cheqi.sdk.CheqiSDK;
+import com.cheqi.sdk.config.Environment;
+import com.cheqi.sdk.models.*;
+import com.cheqi.sdk.receipt.ProcessReceiptResult;
+import com.cheqi.commons.enums.CardProvider;
+
+// 1. Initialize the SDK
+CheqiSDK sdk = CheqiSDK.builder()
+    .apiEndpoint(Environment.SANDBOX)
+    .build();
+
+// 2. Identify the customer (using card payment details)
+IdentificationDetails customer = IdentificationDetails.builder()
+    .paymentType(PaymentType.CARD_PAYMENT)
+    .cardDetails(CardDetails.builder()
+        .paymentAccountReference("PAR123456789")  // From payment terminal
+        .cardProvider(CardProvider.VISA)
+        .build())
+    .customerEmail("customer@example.com")  // Fallback if you don't have a PAR (Payment Account Reference).
+    .build();
+
+// 3. Build the receipt
+ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
+    .documentNumber("INV-001")
+    .currency("EUR")
+    .totalAmount("12.10")
+    .totalTaxAmount("2.10")
+    .addProduct(Product.builder()
+        .name("Coffee")
+        .quantity(1.0)
+        .unitCode(UnitCode.ONE)
+        .unitPrice("10.00")
+        .total("12.10")
+        .addTax(21.0, "VAT", "2.10")
+        .build())
+    .build();
+
+// 4. Send the receipt (one method does everything)
+ProcessReceiptResult result = sdk.getReceiptService()
+    .processCompleteReceipt(customer, receipt, accessToken);
+
+if (result.isSuccess()) {
+    System.out.println("Receipt sent!");
+}
+```
+
+**Prerequisites:**
+- **`companyId`** - Your company UUID (from provisioning or Cheqi dashboard)
+- **`accessToken`** - OAuth token with receipt scopes (see [Authentication](#authentication))
 
 ## Environment Configuration
 
@@ -53,29 +105,27 @@ The SDK supports multiple environments:
 | `Environment.PRODUCTION` | `https://api.cheqi.io`         | Live production environment |
 
 
-### 1. Initialize the SDK
+### SDK Initialization
 
 ```java
 import com.cheqi.sdk.CheqiSDK;
 import com.cheqi.sdk.config.Environment;
 
-// Initialize SDK with your credentials
 CheqiSDK sdk = CheqiSDK.builder()
     .apiEndpoint(Environment.SANDBOX)  // Use SANDBOX for testing
-    .timeout(30)  // Request timeout in seconds
-    .maxRetries(3)  // Number of retry attempts
     .build();
 ```
 
-**Environments:**
-- `Environment.SANDBOX` - `https://sandbox.api.cheqi.io` (for development)
-- `Environment.TEST` - `https://test.api.cheqi.io` (for testing)
-- `Environment.PRODUCTION` - `https://api.cheqi.io` (for live transactions)
-- `.customApiEndpoint("https://custom.url")` - For local development
+**Custom endpoint** (for local development):
+```java
+CheqiSDK sdk = CheqiSDK.builder()
+    .customApiEndpoint("http://localhost:8080")
+    .build();
+```
 
-### Step 4: Process a Receipt
+### Processing Receipts
 
-**This is the simplest way to process receipts** - one method handles everything:
+**One method handles everything** - customer matching, encryption, and delivery:
 
 ```java
 import com.cheqi.sdk.models.IdentificationDetails;
@@ -320,6 +370,69 @@ Product carRental = Product.builder()
 .startDate(LocalDateTime.of(2024, 6, 15, 19, 0), ZoneId.of("Europe/Amsterdam"))
 ```
 
+### Convenience Methods for Products
+
+For simple products, use the convenience `addProduct()` method that accepts all pre-calculated values:
+
+```java
+// Simple syntax - POS provides all calculated amounts
+ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
+    .documentNumber("INV-001")
+    .currency("EUR")
+    .totalAmount("302.50")
+    .totalTaxAmount("52.50")
+    
+    // Add product with all amounts pre-calculated by POS
+    .addProduct(
+        "Nike",        // brand
+        "AirMax",      // name
+        "125.00",      // unitPrice
+        "250.00",      // subtotal (125 × 2)
+        21.0,          // taxRate
+        "52.50",       // taxAmount (250 × 0.21)
+        "302.50",      // total (250 + 52.50)
+        2.0            // quantity
+    )
+    
+    .addTax(Tax.builder()
+        .rate(21.0)
+        .type("VAT")
+        .amount("52.50")
+        .build())
+    .build();
+```
+
+**Key Points:**
+- ✅ **No calculations** - SDK just structures the data
+- ✅ **POS responsibility** - All amounts must be pre-calculated
+- ✅ **Type flexibility** - Accepts `String` or `BigDecimal` amounts
+- ✅ **Still flexible** - Use full `Product.builder()` for complex cases (discounts, periods, custom SKUs)
+
+**When to use convenience method:**
+- Simple products with standard pricing
+- Quick integration for basic POS systems
+- When you already have all calculated values
+
+**When to use Product.builder():**
+- Products with discounts or charges
+- Time-based products with periods (subscriptions, rentals)
+- Products requiring detailed metadata (SKU, description, brand info)
+- Complex tax structures
+
+**BigDecimal overload:**
+```java
+.addProduct(
+    "Nike",
+    "AirMax",
+    new BigDecimal("125.00"),  // unitPrice
+    new BigDecimal("250.00"),  // subtotal
+    21.0,                       // taxRate
+    new BigDecimal("52.50"),   // taxAmount
+    new BigDecimal("302.50"),  // total
+    2.0                         // quantity
+)
+```
+
 **Available Unit Codes:**
 - **Common**: `ONE`, `EACH`, `SET`, `PAIR`, `DOZEN`
 - **Weight**: `KILOGRAM`, `GRAM`, `POUND`, `OUNCE`
@@ -396,8 +509,138 @@ EncryptionService encryption = sdk.getEncryptionService();
 DecryptionService decryption = sdk.getDecryptionService();
 MatchingService matching = sdk.getMatchingService();
 ReceiptService receipts = sdk.getReceiptService();
+CompanyService companies = sdk.getCompanyService();
+StoreService stores = sdk.getStoreService();
 CheqiApiClient apiClient = sdk.getApiClient();
 ```
+
+### Company Provisioning
+
+The `CompanyService` enables trusted POS systems to provision companies and receive immediate API access without waiting for merchant OAuth approval. Requires a ClientApplication with `partnerTier`.
+
+```java
+import com.cheqi.sdk.company.CompanyService;
+import com.cheqi.sdk.models.company.Company;
+import com.cheqi.sdk.models.company.Address;
+import com.cheqi.sdk.models.company.ProvisionCompanyResponse;
+
+// Build company details
+Company company = Company.builder()
+    .companyName("My Store BV")
+    .companyLegalName("My Store B.V.")
+    .chamberOfCommerceNumber("12345678")
+    .companyEmail("info@mystore.nl")
+    .address(Address.builder()
+        .streetName("Hoofdstraat 123")
+        .cityName("Amsterdam")
+        .postalZone("1012AB")
+        .countryIsoCode("NL")
+        .build())
+    .build();
+
+// Provision the company
+ProvisionCompanyResponse response = sdk.getCompanyService()
+    .provisionCompany(company, "owner@mystore.nl", clientApplicationToken);
+
+if (response.isProvisioned()) {
+    // New company created - use tokens immediately
+    String accessToken = response.getAccessToken();
+    UUID companyId = response.getCompanyId();
+    System.out.println("Company provisioned: " + companyId);
+} else if (response.isAlreadyExists()) {
+    // Company exists - initiate OAuth flow for authorization
+    UUID companyId = response.getCompanyId();
+    System.out.println("Company exists, OAuth required: " + companyId);
+}
+```
+
+**Provisioning Response States:**
+- ✅ **`isProvisioned()`** - New company created, tokens returned for immediate use
+- ⚠️ **`isAlreadyExists()`** - Company exists, OAuth flow required for authorization
+
+### Store Management
+
+The `StoreService` provides full CRUD operations for managing stores/locations. Requires `WRITE_STORES` scope.
+
+```java
+import com.cheqi.sdk.company.StoreService;
+import com.cheqi.sdk.models.company.CreateStoreRequest;
+import com.cheqi.sdk.models.company.Store;
+import com.cheqi.sdk.models.company.Address;
+import java.util.List;
+import java.util.UUID;
+
+// Create a new store
+CreateStoreRequest storeRequest = CreateStoreRequest.builder()
+    .storeName("My Store Amsterdam")
+    .storeCode("STORE-001")
+    .address(Address.builder()
+        .streetName("Kalverstraat 1")
+        .cityName("Amsterdam")
+        .postalZone("1012NX")
+        .countryIsoCode("NL")
+        .build())
+    .phoneNumber("+31201234567")
+    .email("amsterdam@mystore.nl")
+    .openingHours("Mon-Sat: 09:00-18:00")
+    .build();
+
+Store store = sdk.getStoreService()
+    .createStore(companyId, storeRequest, accessToken);
+System.out.println("Store created: " + store.getId());
+
+// List all stores for a company
+List<Store> stores = sdk.getStoreService()
+    .getStores(companyId, accessToken);
+
+// Get only active stores
+List<Store> activeStores = sdk.getStoreService()
+    .getActiveStores(companyId, accessToken);
+
+// Get a specific store
+Store store = sdk.getStoreService()
+    .getStore(companyId, storeId, accessToken);
+
+// Update a store
+CreateStoreRequest updateRequest = CreateStoreRequest.builder()
+    .storeName("My Store Amsterdam - Central")
+    .storeCode("STORE-001")
+    .address(Address.builder()
+        .streetName("Kalverstraat 1")
+        .cityName("Amsterdam")
+        .postalZone("1012NX")
+        .countryIsoCode("NL")
+        .build())
+    .build();
+
+Store updatedStore = sdk.getStoreService()
+    .updateStore(companyId, storeId, updateRequest, accessToken);
+
+// Activate/Deactivate a store
+sdk.getStoreService().activateStore(companyId, storeId, accessToken);
+sdk.getStoreService().deactivateStore(companyId, storeId, accessToken);
+
+// Delete a store
+sdk.getStoreService().deleteStore(companyId, storeId, accessToken);
+```
+
+**Store Operations:**
+- **`createStore()`** - Create a new store for a company
+- **`getStores()`** - List all stores for a company
+- **`getActiveStores()`** - List only active stores
+- **`getStore()`** - Get a specific store by ID
+- **`updateStore()`** - Update store details
+- **`activateStore()`** / **`deactivateStore()`** - Toggle store status
+- **`deleteStore()`** - Remove a store
+
+**Address Fields:**
+- **`streetName`** (required): Street name and number
+- **`additionalStreetName`** (optional): Additional address line
+- **`addressLine`** (optional): Full address line
+- **`region`** (optional): State/province/region
+- **`cityName`** (required): City name
+- **`postalZone`** (required): Postal/ZIP code
+- **`countryIsoCode`** (required): 2-letter ISO country code (e.g., "NL", "DE", "US")
 
 ### Processing Encrypted Receipts
 

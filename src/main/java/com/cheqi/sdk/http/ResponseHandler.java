@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -119,6 +120,36 @@ public class ResponseHandler {
         } catch (IOException e) {
             throw new CheqiApiException(
                     "Failed to read response: " + e.getMessage(),
+                    e,
+                    0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR,
+                    null
+            );
+        }
+    }
+
+    public <T> List<T> handleJsonListResponse(Response response, Class<T> elementType, String operationName) throws CheqiApiException {
+        try (ResponseBody responseBody = response.body()) {
+            String responseJson = responseBody != null ? responseBody.string() : "";
+            String correlationId = response.header("X-Correlation-ID");
+
+            if (response.isSuccessful()) {
+                logger.info("{} successful", operationName);
+
+                if (responseJson.trim().isEmpty()) {
+                    return List.of();
+                }
+
+                var listType = objectMapper.getTypeFactory().constructCollectionType(List.class, elementType);
+                return objectMapper.readValue(responseJson, listType);
+            } else {
+                throw buildApiException(response.code(), responseJson, correlationId, operationName);
+            }
+        } catch (CheqiApiException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new CheqiApiException(
+                    "Failed to parse response: " + e.getMessage(),
                     e,
                     0,
                     CheqiApiException.ErrorCodes.UNKNOWN_ERROR,

@@ -45,18 +45,24 @@ public final class IdentificationDetails {
     @JsonProperty("recipientEmail")
     private final Optional<String> recipientEmail;
 
+    @JsonProperty("cheqiReceiptId")
+    private final Optional<String> cheqiReceiptId;
+
     // ===== CONSTRUCTOR =====
     private IdentificationDetails(
             PaymentType paymentType,
             Optional<CardDetails> cardDetails,
             Optional<PaymentAccountDetails> paymentAccountDetails,
             Optional<List<String>> paymentIds,
-            Optional<String> recipientEmail) {
+            Optional<String> recipientEmail,
+            Optional<String> cheqiReceiptId
+    ) {
         this.paymentType = paymentType;
         this.cardDetails = cardDetails;
         this.paymentAccountDetails = paymentAccountDetails;
         this.paymentIds = paymentIds;
         this.recipientEmail = recipientEmail;
+        this.cheqiReceiptId = cheqiReceiptId;
     }
 
     // ===== MANDATORY FIELD ACCESSORS =====
@@ -85,6 +91,11 @@ public final class IdentificationDetails {
         return recipientEmail != null ? recipientEmail : Optional.empty();
     }
 
+    @JsonIgnore
+    public Optional<String> getCheqiReceiptId() {
+        return cheqiReceiptId != null ? cheqiReceiptId : Optional.empty();
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -96,12 +107,13 @@ public final class IdentificationDetails {
                 && Objects.equals(this.cardDetails, other.cardDetails)
                 && Objects.equals(this.paymentAccountDetails, other.paymentAccountDetails)
                 && Objects.equals(this.paymentIds, other.paymentIds)
-                && Objects.equals(this.recipientEmail, other.recipientEmail);
+                && Objects.equals(this.recipientEmail, other.recipientEmail)
+                && Objects.equals(this.cheqiReceiptId, other.cheqiReceiptId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.paymentType, this.cardDetails, this.paymentAccountDetails, this.paymentIds, this.recipientEmail);
+        return Objects.hash(this.paymentType, this.cardDetails, this.paymentAccountDetails, this.paymentIds, this.recipientEmail, this.cheqiReceiptId);
     }
 
     @Override
@@ -112,6 +124,7 @@ public final class IdentificationDetails {
                 ", paymentAccountDetails=" + paymentAccountDetails +
                 ", paymentIds=" + paymentIds +
                 ", recipientEmail=" + recipientEmail +
+                ", cheqiReceiptId=" + cheqiReceiptId +
                 '}';
     }
 
@@ -126,6 +139,7 @@ public final class IdentificationDetails {
         private Optional<PaymentAccountDetails> paymentAccountDetails = Optional.empty();
         private Optional<List<String>> paymentIds = Optional.empty();
         private Optional<String> recipientEmail = Optional.empty();
+        private Optional<String> cheqiReceiptId = Optional.empty();
 
         private Builder() {
         }
@@ -136,6 +150,7 @@ public final class IdentificationDetails {
             paymentAccountDetails(other.getPaymentAccountDetails().orElse(null));
             paymentIds(other.getPaymentIds().orElse(null));
             recipientEmail(other.getRecipientEmail().orElse(null));
+            cheqiReceiptId(other.getCheqiReceiptId().orElse(null));
             return this;
         }
 
@@ -169,8 +184,14 @@ public final class IdentificationDetails {
             return this;
         }
 
+        @JsonSetter(value = "cheqiReceiptId", nulls = Nulls.SKIP)
+        public IdentificationDetails.Builder cheqiReceiptId(String cheqiReceiptId) {
+            this.cheqiReceiptId = Optional.ofNullable(cheqiReceiptId);
+            return this;
+        }
+
         public IdentificationDetails build() {
-            return new IdentificationDetails(paymentType, cardDetails, paymentAccountDetails, paymentIds, recipientEmail);
+            return new IdentificationDetails(paymentType, cardDetails, paymentAccountDetails, paymentIds, recipientEmail, cheqiReceiptId);
         }
     }
 }

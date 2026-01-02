@@ -1,6 +1,8 @@
 package com.cheqi.sdk.decryption;
 
 import com.cheqi.commons.DTOs.EncryptedReceiptDto;
+import com.cheqi.sdk.creditNote.EncryptedCreditNoteRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +80,43 @@ public class DecryptionService {
         } catch (Exception e) {
             logger.error("Failed to decrypt receipt: {}", e.getMessage());
             throw new DecryptionException("Failed to decrypt receipt", e);
+        }
+    }
+
+    /**
+     * Decrypts a hybrid-encrypted credit note request using the issuer's private key.
+     *
+     * This method handles the complete hybrid decryption process:
+     * 1. Decrypts the AES symmetric key using RSA private key
+     * 2. Decrypts the credit note content using the AES key
+     *
+     * @param encryptedCreditNote The encrypted credit note from Cheqi API or webhook
+     * @param privateKeyBase64 The issuer's private key in Base64 PKCS#8 format
+     * @return DecryptedCreditNote containing the credit note request details (JSON)
+     * @throws DecryptionException if decryption fails
+     */
+    public DecryptedCreditNote decryptCreditNote(
+            EncryptedCreditNoteRequest encryptedCreditNote, 
+            String privateKeyBase64) {
+        logger.debug("Decrypting credit note for receipt: {}", encryptedCreditNote.getCheqiReceiptId());
+        
+        try {
+            // Step 1: Decrypt the AES key using RSA private key
+            SecretKey aesKey = rsaKeyDecryptor.decryptKey(
+                    encryptedCreditNote.getEncryptedSymmetricKey(),
+                    privateKeyBase64
+            );
+            // Step 2: Decrypt the credit note content using the AES key
+            String decryptedCreditNoteContent = aesDecryptor.decrypt(
+                    encryptedCreditNote.getEncryptedCreditRequest(), 
+                    aesKey
+            );
+            logger.info("Successfully decrypted credit note for receipt: {}", 
+                    encryptedCreditNote.getCheqiReceiptId());
+            return new DecryptedCreditNote(decryptedCreditNoteContent);
+        } catch (Exception e) {
+            logger.error("Failed to decrypt credit note: {}", e.getMessage());
+            throw new DecryptionException("Failed to decrypt credit note", e);
         }
     }
 

@@ -2,7 +2,7 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-com-cheqi-cheqi-commons = "1.0.0"
+com-cheqi-cheqi-commons = "1.0.3"
 com-fasterxml-jackson-core-jackson-annotations = "2.15.2"
 com-fasterxml-jackson-core-jackson-databind = "2.15.2"
 com-fasterxml-jackson-datatype-jackson-datatype-jdk8 = "2.15.2"

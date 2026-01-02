@@ -31,11 +31,14 @@ dependencies {
 }
 
 group = 'io.cheqi'
-version = '1.0.1'
+version = '1.0.3'
 description = 'Cheqi SDK'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
     withJavadocJar()
     withSourcesJar()
 }

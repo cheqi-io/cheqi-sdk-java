@@ -81,6 +81,48 @@ public class MatchingService {
             );
         }
     }
+
+    public RecipientResolutionResponse matchCustomer(
+            IdentificationDetails identificationDetails,
+            String clientId,
+            String clientSecret) throws CheqiApiException {
+
+        logger.debug("Starting customer matching");
+
+        // Validate request has at least one identifier
+        if (!hasValidIdentifiers(identificationDetails)) {
+            String error = "PaymentDetails must contain at least one identifier (card details, payment account details, or email)";
+            logger.error(error);
+            throw new IllegalArgumentException(error);
+        }
+
+        logAvailableIdentifiers(identificationDetails);
+
+        try {
+            RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, clientId, clientSecret);
+
+            if (response.isCustomerFound()) {
+                logger.info("Customer matched successfully: {} recipients found", response.getRecipients().size());
+            } else {
+                logger.info("No customer match found");
+            }
+
+            return response;
+
+        } catch (CheqiApiException e) {
+            logger.error("Customer matching failed: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error during customer matching: {}", e.getMessage(), e);
+            throw new CheqiApiException(
+                    "Customer matching failed: " + e.getMessage(),
+                    e,
+                    0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR,
+                    null
+            );
+        }
+    }
     
     /**
      * Validates that the payment details contain at least one identifier.

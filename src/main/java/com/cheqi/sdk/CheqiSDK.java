@@ -2,8 +2,11 @@ package com.cheqi.sdk;
 
 import com.cheqi.commons.DTOs.EncryptedReceiptDto;
 import com.cheqi.commons.UBL.PurchaseReceipt;
+import com.cheqi.sdk.company.CompanyService;
+import com.cheqi.sdk.company.StoreService;
 import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.config.Environment;
+import com.cheqi.sdk.creditNote.CreditNoteService;
 import com.cheqi.sdk.decryption.DecryptionService;
 import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.http.CheqiApiClient;
@@ -57,7 +60,7 @@ import com.cheqi.sdk.utils.RFC8785Canonicalizer;
  *     .invoiceSubtotal(new BigDecimal("100.00"))
  *     .totalBeforeTax(new BigDecimal("100.00"))
  *     .totalAmount(new BigDecimal("121.00"))
- *     .totalTaxAmount(new BigDecimal("21.00"))
+ *     .totalTaxAmount(new BigDecimal("21.00"))creditNoteTemplateRequest
  *     .addProduct(Product.builder()
  *         .name("Laptop")
  *         .quantity(1.0)
@@ -92,7 +95,11 @@ public class CheqiSDK {
     private final MatchingService matchingService;
     private final ReceiptService receiptService;
     private final ReceiptProcessor receiptProcessor;
+    private final CompanyService companyService;
+    private final StoreService storeService;
     private final RFC8785Canonicalizer canonicalizer;
+    private final CreditNoteService creditNoteService; // Add this
+
 
     private CheqiSDK(CheqiSDKConfig config) {
         this.config = config;
@@ -103,6 +110,11 @@ public class CheqiSDK {
         this.apiClient = new DefaultCheqiApiClient(config);
         this.matchingService = new MatchingService(apiClient);
         this.receiptService = new ReceiptService(apiClient, encryptionService, matchingService);
+        this.companyService = new CompanyService(apiClient);
+        this.storeService = new StoreService(apiClient);
+        this.creditNoteService = config.getPrivateKeyBase64() != null 
+            ? new CreditNoteService(config.getPrivateKeyBase64(), matchingService, apiClient, encryptionService)
+            : null;
     }
 
     /**
@@ -178,6 +190,40 @@ public class CheqiSDK {
      */
     public CheqiSDKConfig getConfig() {
         return config;
+    }
+
+    /**
+     * Gets the company service for company provisioning.
+     *
+     * @return CompanyService instance
+     */
+    public CompanyService getCompanyService() {
+        return companyService;
+    }
+
+    /**
+     * Gets the store service for store management.
+     *
+     * @return StoreService instance
+     */
+    public StoreService getStoreService() {
+        return storeService;
+    }
+
+    /**
+     * Gets the credit note service for credit note processing.
+     *
+     * @return CreditNoteService instance
+     * @throws IllegalStateException if no private key was configured during SDK initialization
+     */
+    public CreditNoteService getCreditNoteService() {
+        if (creditNoteService == null) {
+            throw new IllegalStateException(
+                "CreditNoteService requires a private key for decryption. " +
+                "Please configure the SDK with .privateKey(String) during initialization. " +
+                "Example: CheqiSDK.builder().privateKey(\"your-base64-key\").build()");
+        }
+        return creditNoteService;
     }
 
     /**
