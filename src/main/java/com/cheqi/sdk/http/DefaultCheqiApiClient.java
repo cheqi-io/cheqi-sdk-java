@@ -1,16 +1,17 @@
 package com.cheqi.sdk.http;
 
-import com.cheqi.commons.DTOs.*;
-import com.cheqi.commons.UBL.PurchaseReceipt;
 import com.cheqi.sdk.config.CheqiSDKConfig;
+import com.cheqi.sdk.creditNote.CreditNoteCreatedResponse;
 import com.cheqi.sdk.creditNote.CreditNoteTemplateRequest;
+import com.cheqi.sdk.creditNote.EncryptedCreditNote;
+import com.cheqi.sdk.creditNote.EncryptedCreditNotesRequest;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
-import com.cheqi.sdk.models.IdentificationDetails;
-import com.cheqi.sdk.models.ReceiptTemplateRequest;
+import com.cheqi.sdk.models.*;
 import com.cheqi.sdk.models.company.CreateStoreRequest;
 import com.cheqi.sdk.models.company.ProvisionCompanyRequest;
 import com.cheqi.sdk.models.company.ProvisionCompanyResponse;
 import com.cheqi.sdk.models.company.Store;
+import com.cheqi.sdk.models.ubl.PurchaseReceipt;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -104,16 +105,14 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public String generateReceiptTemplate(ReceiptTemplateRequest request, String clientId, String clientSecret) throws CheqiApiException {
-        logger.info("Generating receipt template with API credentials for receipt ID: {}", request.getDocumentNumber());
-
-        validateApiCredentials(clientId, clientSecret);
+    public String generateReceiptTemplate(ReceiptTemplateRequest request) throws CheqiApiException {
+        logger.info("Generating receipt template with API key for receipt ID: {}", request.getDocumentNumber());
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Template request JSON: {}", requestJson);
 
-            Request httpRequest = buildPostRequestWithBasicAuth(Endpoints.TEMPLATE_ENDPOINT, requestJson, clientId, clientSecret);
+            Request httpRequest = buildPostRequestWithApiKey(Endpoints.TEMPLATE_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "generateReceiptTemplate");
             return responseHandler.handleStringResponse(response, "Template generation");
 
@@ -185,16 +184,14 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public String generateCreditNoteTemplate(CreditNoteTemplateRequest request, String clientId, String clientSecret) throws CheqiApiException {
-        logger.info("Generating credit note template with API credentials for credit note ID: {}", request.getDocumentNumber());
-
-        validateApiCredentials(clientId, clientSecret);
+    public String generateCreditNoteTemplate(CreditNoteTemplateRequest request) throws CheqiApiException {
+        logger.info("Generating credit note template with API key for credit note ID: {}", request.getDocumentNumber());
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Credit note template request JSON: {}", requestJson);
 
-            Request httpRequest = buildPostRequestWithBasicAuth(Endpoints.CREDIT_NOTE_TEMPLATE_ENDPOINT, requestJson, clientId, clientSecret);
+            Request httpRequest = buildPostRequestWithApiKey(Endpoints.CREDIT_NOTE_TEMPLATE_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "generateCreditNoteTemplate");
             return responseHandler.handleStringResponse(response, "Credit note template generation");
 
@@ -222,10 +219,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public RecipientResolutionResponse matchCustomer(IdentificationDetails request, String clientId, String clientSecret) throws CheqiApiException {
-        logger.info("Matching customer with API credentials");
-
-        validateApiCredentials(clientId, clientSecret);
+    public RecipientResolutionResponse matchCustomer(IdentificationDetails request) throws CheqiApiException {
+        logger.info("Matching customer with API key");
 
         if (request == null) {
             throw new CheqiApiException(
@@ -240,7 +235,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             String requestJson = objectMapper.writeValueAsString(request);
             logger.info("Customer match request JSON: {}", requestJson);
 
-            Request httpRequest = buildPostRequestWithBasicAuth(Endpoints.CUSTOMER_MATCH_ENDPOINT, requestJson, clientId, clientSecret);
+            Request httpRequest = buildPostRequestWithApiKey(Endpoints.CUSTOMER_MATCH_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "matchCustomer");
 
             RecipientResolutionResponse result = responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
@@ -330,14 +325,12 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void sendEncryptedReceipts(Set<EncryptedReceiptDto> encryptedReceipts, String templateHash, String clientId, String clientSecret) throws CheqiApiException {
-        logger.info("Sending {} encrypted receipts with API credentials", encryptedReceipts.size());
-
-        validateApiCredentials(clientId, clientSecret);
+    public ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequestDto> encryptedReceipts, String templateHash) throws CheqiApiException {
+        logger.info("Sending {} encrypted receipts with API key", encryptedReceipts.size());
 
         if (encryptedReceipts == null || encryptedReceipts.isEmpty()) {
             throw new CheqiApiException(
-                    "Encrypted receipts set cannot be null or empty",
+                    "Encrypted receipts cannot be null or empty",
                     400,
                     CheqiApiException.ErrorCodes.INVALID_REQUEST,
                     null
@@ -345,14 +338,19 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
 
         try {
-            EncryptedReceiptsRequest request = new EncryptedReceiptsRequest(encryptedReceipts, templateHash);
+            EncryptedReceiptsRequest request = EncryptedReceiptsRequest.builder()
+                    .matchId(matchId)
+                    .encryptedReceipts(encryptedReceipts)
+                    .templateHash(templateHash)
+                    .build();
+
             String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Encrypted receipts request JSON: {}", requestJson);
 
-            Request httpRequest = buildPostRequestWithBasicAuth(Endpoints.ENCRYPTED_RECEIPT_ENDPOINT, requestJson, clientId, clientSecret);
+            Request httpRequest = buildPostRequestWithApiKey(Endpoints.ENCRYPTED_RECEIPT_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "sendEncryptedReceipts");
-            responseHandler.handleVoidResponse(response, "Send encrypted receipts");
 
+            return responseHandler.handleJsonResponse(response, ReceiptCreatedResponse.class, "Send encrypted receipts");
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {
@@ -377,14 +375,12 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void sendEncryptedCreditNotes(Set<EncryptedCreditNoteDto> encryptedCreditNotes, String templateHash, String clientId, String clientSecret) throws CheqiApiException {
-        logger.info("Sending {} encrypted receipts with API credentials", encryptedCreditNotes.size());
-
-        validateApiCredentials(clientId, clientSecret);
+    public CreditNoteCreatedResponse sendEncryptedCreditNotes(String matchId, String parentCheqiReceiptId, Set<EncryptedCreditNote> encryptedCreditNotes, String templateHash) throws CheqiApiException {
+        logger.info("Sending {} encrypted credit notes with API key", encryptedCreditNotes.size());
 
         if (encryptedCreditNotes == null || encryptedCreditNotes.isEmpty()) {
             throw new CheqiApiException(
-                    "Encrypted receipts set cannot be null or empty",
+                    "Encrypted credit notes cannot be null or empty",
                     400,
                     CheqiApiException.ErrorCodes.INVALID_REQUEST,
                     null
@@ -392,29 +388,30 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
 
         try {
-            EncryptedCreditNotesRequest request = new EncryptedCreditNotesRequest(encryptedCreditNotes, templateHash);
+            EncryptedCreditNotesRequest request = new EncryptedCreditNotesRequest(matchId, parentCheqiReceiptId, encryptedCreditNotes, templateHash);
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Encrypted receipts request JSON: {}", requestJson);
+            logger.debug("Encrypted credit notes request JSON: {}", requestJson);
 
-            Request httpRequest = buildPostRequestWithBasicAuth(Endpoints.ENCRYPTED_RECEIPT_ENDPOINT, requestJson, clientId, clientSecret);
-            Response response = retryHandler.executeWithRetry(httpRequest, "sendEncryptedReceipts");
-            responseHandler.handleVoidResponse(response, "Send encrypted receipts");
+            Request httpRequest = buildPostRequestWithApiKey(Endpoints.ENCRYPTED_CREDIT_NOTE_ENDPOINT, requestJson);
+            Response response = retryHandler.executeWithRetry(httpRequest, "sendEncryptedCreditNotes");
+
+            return responseHandler.handleJsonResponse(response, CreditNoteCreatedResponse.class, "Send encrypted credit notes");
 
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {
-            logger.error("Network error during encrypted receipt submission", e);
+            logger.error("Network error during encrypted credit note submission", e);
             throw new CheqiApiException(
-                    "Network error during encrypted receipt submission: " + e.getMessage(),
+                    "Network error during encrypted credit note submission: " + e.getMessage(),
                     e,
                     0,
                     CheqiApiException.ErrorCodes.NETWORK_ERROR,
                     null
             );
         } catch (Exception e) {
-            logger.error("Unexpected error during encrypted receipt submission", e);
+            logger.error("Unexpected error during encrypted credit note submission", e);
             throw new CheqiApiException(
-                    "Encrypted receipt submission failed due to unexpected error: " + e.getMessage(),
+                    "Encrypted credit note submission failed due to unexpected error: " + e.getMessage(),
                     e,
                     0,
                     CheqiApiException.ErrorCodes.UNKNOWN_ERROR,
@@ -424,7 +421,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void sendEncryptedReceipts(Set<EncryptedReceiptDto> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException {
+    public ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequestDto> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException {
         logger.info("Sending {} encrypted receipts for customer: ", encryptedReceipts.size());
 
         if (accessToken == null || accessToken.trim().isEmpty()) {
@@ -446,7 +443,11 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
 
         try {
-            EncryptedReceiptsRequest request = new EncryptedReceiptsRequest(encryptedReceipts, templateHash);
+            EncryptedReceiptsRequest request = EncryptedReceiptsRequest.builder()
+                    .matchId(matchId)
+                    .encryptedReceipts(encryptedReceipts)
+                    .templateHash(templateHash)
+                    .build();
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Encrypted receipts request JSON: {}", requestJson);
@@ -456,8 +457,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             // Execute request with retry logic
             Response response = retryHandler.executeWithRetry(httpRequest, "sendEncryptedReceipts");
-            responseHandler.handleVoidResponse(response, "Send encrypted receipts");
-
+            return responseHandler.handleJsonResponse(response, ReceiptCreatedResponse.class, "Send encrypted receipts");
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {
@@ -482,7 +482,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void sendEncryptedCreditNotes(Set<EncryptedCreditNoteDto> encryptedCreditNotes, String templateHash, String accessToken) throws CheqiApiException {
+    public CreditNoteCreatedResponse sendEncryptedCreditNotes(String matchId, String parentCheqiReceiptId, Set<EncryptedCreditNote> encryptedCreditNotes, String templateHash, String accessToken) throws CheqiApiException {
         logger.info("Sending {} encrypted credit notes for customer: ", encryptedCreditNotes.size());
 
         if (accessToken == null || accessToken.trim().isEmpty()) {
@@ -504,18 +504,18 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
 
         try {
-            EncryptedCreditNotesRequest request = new EncryptedCreditNotesRequest(encryptedCreditNotes, templateHash);
+            EncryptedCreditNotesRequest request = new EncryptedCreditNotesRequest(matchId, parentCheqiReceiptId, encryptedCreditNotes, templateHash);
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Encrypted credit notes request JSON: {}", requestJson);
 
             // Build HTTP request
-            Request httpRequest = buildJsonPostRequest(Endpoints.ENCRYPTED_RECEIPT_ENDPOINT, requestJson, accessToken);
+            Request httpRequest = buildJsonPostRequest(Endpoints.ENCRYPTED_CREDIT_NOTE_ENDPOINT, requestJson, accessToken);
 
             // Execute request with retry logic
             Response response = retryHandler.executeWithRetry(httpRequest, "sendEncryptedCreditNotes");
             responseHandler.handleVoidResponse(response, "Send encrypted credit notes");
-
+            return responseHandler.handleJsonResponse(response, CreditNoteCreatedResponse.class, "Send encrypted credit notes");
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {
@@ -539,29 +539,10 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
     }
 
-    private void validateApiCredentials(String clientId, String clientSecret) throws CheqiApiException {
-        if (clientId == null || clientId.trim().isEmpty() || clientSecret == null || clientSecret.trim().isEmpty()) {
-            throw new CheqiApiException(
-                    "Client ID and client secret are required for API authentication",
-                    400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST,
-                    null
-            );
-        }
-    }
 
     @Override
-    public void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt, String accessToken) throws CheqiApiException {
+    public void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt) throws CheqiApiException {
         logger.info("Sending receipt via email to: {}", customerEmail);
-
-        if (accessToken == null || accessToken.trim().isEmpty()) {
-            throw new CheqiApiException(
-                    "Access token is required for sending receipt via email",
-                    400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST,
-                    null
-            );
-        }
 
         if (customerEmail == null || customerEmail.trim().isEmpty()) {
             throw new CheqiApiException(
@@ -590,7 +571,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             logger.debug("Email receipt request JSON: {}", requestJson);
 
             // Build HTTP request
-            Request httpRequest = buildJsonPostRequest(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson, accessToken);
+            Request httpRequest = buildPostRequestWithApiKey(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson);
 
             // Execute request with retry logic
             Response response = retryHandler.executeWithRetry(httpRequest, "sendReceiptViaEmail");
@@ -620,10 +601,10 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt, String clientId, String clientSecret) throws CheqiApiException {
+    public void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt, String accessToken) throws CheqiApiException {
         logger.info("Sending receipt via email to: {}", customerEmail);
 
-        validateApiCredentials(clientId, clientSecret);
+        validateAccessToken(accessToken);
 
         if (customerEmail == null || customerEmail.trim().isEmpty()) {
             throw new CheqiApiException(
@@ -652,7 +633,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             logger.debug("Email receipt request JSON: {}", requestJson);
 
             // Build HTTP request
-            Request httpRequest = buildPostRequestWithBasicAuth(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson, clientId, clientSecret);
+            Request httpRequest = buildPostRequestWithApiKey(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson);
 
             // Execute request with retry logic
             Response response = retryHandler.executeWithRetry(httpRequest, "sendReceiptViaEmail");
@@ -696,16 +677,20 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
                 .build();
     }
 
-    private Request buildPostRequestWithBasicAuth(Endpoints endpoint, String requestBody, String clientId, String clientSecret) {
-        // Encode clientId:clientSecret in Base64 for Basic Auth
-        String credentials = clientId + ":" + clientSecret;
-        String basicAuth = "Basic " + java.util.Base64.getEncoder().encodeToString(credentials.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    /**
+     * Builds a POST request with API Key authentication (Bearer token).
+     * Uses the API key from config for direct company access.
+     */
+    private Request buildPostRequestWithApiKey(Endpoints endpoint, String requestBody) {
+        if (config.getApiKey() == null || config.getApiKey().trim().isEmpty()) {
+            throw new IllegalStateException("API key is not configured. Use .apiKey() when building SDK config.");
+        }
         
         RequestBody body = RequestBody.create(requestBody, JSON);
         return new Request.Builder()
                 .url(config.getApiEndpoint() + endpoint.getPath())
                 .post(body)
-                .addHeader("Authorization", basicAuth)
+                .addHeader("Authorization", "Bearer " + config.getApiKey())
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Accept", "application/json")
                 .addHeader("User-Agent", USER_AGENT)
@@ -734,23 +719,14 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public ProvisionCompanyResponse provisionCompany(ProvisionCompanyRequest request, String clientId, String clientSecret) throws CheqiApiException {
+    public ProvisionCompanyResponse provisionCompany(ProvisionCompanyRequest request) throws CheqiApiException {
         logger.info("Provisioning company: {}", request.getCompany().getCompanyName());
-
-        if (clientId.trim().isEmpty() || clientSecret.trim().isEmpty()) {
-            throw new CheqiApiException(
-                    "Client application token is required for company provisioning",
-                    400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST,
-                    null
-            );
-        }
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Provision company request JSON: {}", requestJson);
 
-            Request httpRequest = buildPostRequestWithBasicAuth(Endpoints.COMPANY_PROVISION_ENDPOINT, requestJson, clientId, clientSecret);
+            Request httpRequest = buildPostRequestWithApiKey(Endpoints.COMPANY_PROVISION_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "provisionCompany");
 
             return responseHandler.handleJsonResponse(response, ProvisionCompanyResponse.class, "Company provisioning");

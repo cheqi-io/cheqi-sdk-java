@@ -15,14 +15,14 @@ import java.util.Optional;
  * - No UBL/PEPPOL types
  * - No Optional
  * - POS/backend just fills in what it already knows
- * The Cheqi backend handles UBL/PEPPOL mapping and validation.
+ * Cheqi backend handles UBL mapping and validation.
  *
  * <h3>Typical usage:</h3>
  * <pre>
  * // Simple product (1 laptop)
  * Product laptop = Product.builder()
  *     .name("Laptop 13\"")
- *     .sku("LAP-001")
+ *     .identifier("LAP-001")
  *     .quantity(1.0)
  *     .baseQuantity(1.0)        // Always required (1.0 for simple items)
  *     .unitCode(UnitCode.ONE)
@@ -35,7 +35,7 @@ import java.util.Optional;
  * // Pre-packaged product (10 packages × 500g cheese)
  * Product cheese = Product.builder()
  *     .name("Gouda Cheese")
- *     .sku("CHEESE-500G")
+ *     .identifier("CHEESE-500G")
  *     .quantity(10.0)           // 10 packages
  *     .baseQuantity(500.0)      // 500g per package (total: 5000g)
  *     .unitCode(UnitCode.GRAM)
@@ -48,7 +48,7 @@ import java.util.Optional;
  * // Weight-based product (2.5kg apples)
  * Product apples = Product.builder()
  *     .name("Organic Apples")
- *     .sku("APPLE-ORG")
+ *     .identifier("APPLE-ORG")
  *     .quantity(2.5)
  *     .baseQuantity(1.0)
  *     .unitCode(UnitCode.KILOGRAM)
@@ -61,7 +61,7 @@ import java.util.Optional;
  * // Time-based product (monthly subscription) - Easy with LocalDate!
  * Product subscription = Product.builder()
  *     .name("Premium Subscription")
- *     .sku("SUB-PREMIUM-M")
+ *     .identifier("SUB-PREMIUM-M")
  *     .quantity(1.0)
  *     .baseQuantity(1.0)
  *     .unitCode(UnitCode.MONTH)
@@ -79,7 +79,7 @@ import java.util.Optional;
  * // Hourly rental with precise times - Easy with LocalDateTime!
  * Product carRental = Product.builder()
  *     .name("Tesla Model 3 Rental")
- *     .sku("RENTAL-TESLA-M3")
+ *     .identifier("RENTAL-TESLA-M3")
  *     .quantity(3.0)
  *     .baseQuantity(1.0)
  *     .unitCode(UnitCode.HOUR)
@@ -108,10 +108,10 @@ public final class Product {
     private final String name;
 
     /**
-     * SKU or article number (merchant-defined).
+     * Article identifier, for example article number (merchant-defined).
      */
-    @JsonProperty("sku")
-    private final String sku;
+    @JsonProperty("identifier")
+    private final String identifier;
 
     /**
      * Optional longer description.
@@ -120,10 +120,10 @@ public final class Product {
     private final String description;
 
     /**
-     * Optional brand name.
+     * Optional brandName name.
      */
-    @JsonProperty("brand")
-    private final String brand;
+    @JsonProperty("brandName")
+    private final String brandName;
 
     // ===== QUANTITY & PRICE =====
 
@@ -234,9 +234,9 @@ public final class Product {
 
     private Product(
             String name,
-            String sku,
+            String identifier,
             String description,
-            String brand,
+            String brandName,
             Double quantity,
             Double baseQuantity,
             UnitCode unitCode,
@@ -249,9 +249,9 @@ public final class Product {
             Optional<Period> period) {
 
         this.name = name;
-        this.sku = sku;
+        this.identifier = identifier;
         this.description = description;
-        this.brand = brand;
+        this.brandName = brandName;
         this.quantity = quantity;
         this.baseQuantity = baseQuantity;
         this.unitCode = unitCode;
@@ -271,16 +271,16 @@ public final class Product {
         return name;
     }
 
-    public String getSku() {
-        return sku;
+    public String getIdentifier() {
+        return identifier;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public String getBrand() {
-        return brand;
+    public String getBrandName() {
+        return brandName;
     }
 
     public Double getQuantity() {
@@ -336,9 +336,9 @@ public final class Product {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
         private String name;
-        private String sku;
+        private String identifier;
         private String description;
-        private String brand;
+        private String brandName;
         private Double quantity;
         private Double baseQuantity;
         private UnitCode unitCode;
@@ -354,9 +354,9 @@ public final class Product {
 
         public Builder from(Product other) {
             this.name = other.name;
-            this.sku = other.sku;
+            this.identifier = other.identifier;
             this.description = other.description;
-            this.brand = other.brand;
+            this.brandName = other.brandName;
             this.quantity = other.quantity;
             this.baseQuantity = other.baseQuantity;
             this.unitCode = other.unitCode;
@@ -376,9 +376,9 @@ public final class Product {
             return this;
         }
 
-        @JsonSetter(value = "sku", nulls = Nulls.SKIP)
-        public Builder sku(String sku) {
-            this.sku = sku;
+        @JsonSetter(value = "identifier", nulls = Nulls.SKIP)
+        public Builder identifier(String identifier) {
+            this.identifier = identifier;
             return this;
         }
 
@@ -388,9 +388,9 @@ public final class Product {
             return this;
         }
 
-        @JsonSetter(value = "brand", nulls = Nulls.SKIP)
-        public Builder brand(String brand) {
-            this.brand = brand;
+        @JsonSetter(value = "brandName", nulls = Nulls.SKIP)
+        public Builder brandName(String brandName) {
+            this.brandName = brandName;
             return this;
         }
 
@@ -603,9 +603,9 @@ public final class Product {
         public Product build() {
             return new Product(
                     name,
-                    sku,
+                    identifier,
                     description,
-                    brand,
+                    brandName,
                     quantity,
                     baseQuantity,
                     unitCode,
@@ -663,16 +663,6 @@ public final class Product {
         if (baseQuantity != null && baseQuantity <= 0) {
             errors.add("baseQuantity must be greater than 0");
         }
-        if (unitPrice != null && unitPrice.compareTo(BigDecimal.ZERO) < 0) {
-            errors.add("unitPrice cannot be negative");
-        }
-        if (subtotal != null && subtotal.compareTo(BigDecimal.ZERO) < 0) {
-            errors.add("subtotal cannot be negative");
-        }
-        if (total != null && total.compareTo(BigDecimal.ZERO) < 0) {
-            errors.add("total cannot be negative");
-        }
-
         return errors;
     }
 
@@ -683,9 +673,9 @@ public final class Product {
         if (!(o instanceof Product)) return false;
         Product product = (Product) o;
         return Objects.equals(name, product.name)
-                && Objects.equals(sku, product.sku)
+                && Objects.equals(identifier, product.identifier)
                 && Objects.equals(description, product.description)
-                && Objects.equals(brand, product.brand)
+                && Objects.equals(brandName, product.brandName)
                 && Objects.equals(quantity, product.quantity)
                 && Objects.equals(baseQuantity, product.baseQuantity)
                 && Objects.equals(unitCode, product.unitCode)
@@ -702,9 +692,9 @@ public final class Product {
     public int hashCode() {
         return Objects.hash(
                 name,
-                sku,
+                identifier,
                 description,
-                brand,
+                brandName,
                 quantity,
                 baseQuantity,
                 unitCode,
@@ -722,7 +712,7 @@ public final class Product {
     public String toString() {
         return "Product{" +
                 "name='" + name + '\'' +
-                ", sku='" + sku + '\'' +
+                ", identifier='" + identifier + '\'' +
                 ", quantity=" + quantity +
                 ", unitPrice=" + unitPrice +
                 ", discounts=" + (discounts != null ? discounts.size() : 0) +

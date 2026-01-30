@@ -312,9 +312,9 @@ public enum UnitCode {
     /**
      * Pack.
      * Used for packaged items.
-     * Peppol/UN/ECE Code: NMP
+     * Peppol/UN/ECE Code: XPK
      */
-    PACK("NMP", "Pack"),
+    PACK("XPK", "Pack"),
 
     /**
      * Box.

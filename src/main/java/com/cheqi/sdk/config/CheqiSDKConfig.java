@@ -18,6 +18,7 @@ public class CheqiSDKConfig {
     private static final Logger logger = LoggerFactory.getLogger(CheqiSDKConfig.class);
 
     private final String apiEndpoint;
+    private final String apiKey;
     private final String supplierClientId;
     private final String supplierClientSecret;
     private final String privateKeyBase64;
@@ -27,6 +28,7 @@ public class CheqiSDKConfig {
 
     private CheqiSDKConfig(Builder builder) {
         this.apiEndpoint = builder.apiEndpoint;
+        this.apiKey = builder.apiKey;
         this.supplierClientId = builder.supplierClientId;
         this.supplierClientSecret = builder.supplierClientSecret;
         this.privateKeyBase64 = builder.privateKeyBase64;
@@ -41,6 +43,10 @@ public class CheqiSDKConfig {
 
     public String getApiEndpoint() {
         return apiEndpoint;
+    }
+
+    public String getApiKey() {
+        return apiKey;
     }
 
     public String getSupplierClientId() {
@@ -69,6 +75,7 @@ public class CheqiSDKConfig {
 
     public static class Builder {
         private String apiEndpoint;
+        private String apiKey;
         private String supplierClientId;
         private String supplierClientSecret;
         private String privateKeyBase64;
@@ -98,6 +105,26 @@ public class CheqiSDKConfig {
             return this;
         }
 
+        /**
+         * Sets the API key for direct company access.
+         * Use this for companies accessing their own data.
+         *
+         * @param apiKey API key (starts with sk_live_ or sk_test_)
+         * @return this builder instance
+         */
+        public Builder apiKey(String apiKey) {
+            this.apiKey = apiKey;
+            return this;
+        }
+
+        /**
+         * Sets client credentials for OAuth token generation.
+         * Only needed for client applications using OAuth flow.
+         *
+         * @param clientId OAuth client ID
+         * @param clientSecret OAuth client secret
+         * @return this builder instance
+         */
         public Builder supplierCredentials(String clientId, String clientSecret) {
             this.supplierClientId = clientId;
             this.supplierClientSecret = clientSecret;
@@ -136,12 +163,17 @@ public class CheqiSDKConfig {
                 throw new IllegalStateException("API endpoint must be set using either apiEndpoint(Environment) or customApiEndpoint(String)");
             }
             
-            // Validate supplier credentials
-            if (supplierClientId == null || supplierClientId.trim().isEmpty()) {
-                throw new IllegalStateException("Supplier client ID is required. Use supplierCredentials(clientId, clientSecret)");
+            // Optional authentication validation - log warning if no auth configured
+            boolean hasApiKey = apiKey != null && !apiKey.trim().isEmpty();
+            boolean hasClientCredentials = (supplierClientId != null && !supplierClientId.trim().isEmpty()) 
+                    && (supplierClientSecret != null && !supplierClientSecret.trim().isEmpty());
+            
+            if (!hasApiKey && !hasClientCredentials) {
+                logger.warn("No authentication configured. API calls will fail unless access tokens are provided explicitly.");
             }
-            if (supplierClientSecret == null || supplierClientSecret.trim().isEmpty()) {
-                throw new IllegalStateException("Supplier client secret is required. Use supplierCredentials(clientId, clientSecret)");
+            
+            if (hasApiKey && !isValidApiKeyFormat(apiKey)) {
+                logger.warn("API key does not match expected format (sk_live_* or sk_test_*)");
             }
             
             // Validate timeout
@@ -167,10 +199,15 @@ public class CheqiSDKConfig {
             }
             
             CheqiSDKConfig config = new CheqiSDKConfig(this);
-            logger.info("CheqiSDKConfig created: endpoint={}, timeout={}s, maxRetries={}", 
-                    apiEndpoint, timeoutSeconds, maxRetries);
+            String authMode = hasApiKey ? "API Key" : (hasClientCredentials ? "OAuth Client Credentials" : "None (tokens required per-call)");
+            logger.info("CheqiSDKConfig created: endpoint={}, authMode={}, timeout={}s, maxRetries={}", 
+                    apiEndpoint, authMode, timeoutSeconds, maxRetries);
             
             return config;
+        }
+        
+        private boolean isValidApiKeyFormat(String key) {
+            return key != null && (key.startsWith("sk_live_") || key.startsWith("sk_test_"));
         }
     }
 }

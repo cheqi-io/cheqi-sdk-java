@@ -1,6 +1,5 @@
 package com.cheqi.sdk.models;
 
-import com.cheqi.commons.enums.AccountIdentifierType;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 

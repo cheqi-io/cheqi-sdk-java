@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class EncryptedCreditNoteRequest {
     @JsonProperty("cheqiReceiptId")
     private String cheqiReceiptId;
+    @JsonProperty("parentCheqiReceiptId")
+    private String parentCheqiReceiptId;
     @JsonProperty("publicKey")
     private String publicKey;
     @JsonProperty("encryptedCreditRequest")
@@ -15,9 +17,10 @@ public class EncryptedCreditNoteRequest {
     public EncryptedCreditNoteRequest() {
     }
 
-    public EncryptedCreditNoteRequest(String cheqiReceiptId, String publicKey, 
+    public EncryptedCreditNoteRequest(String cheqiReceiptId, String parentCheqiReceiptId, String publicKey,
                                      String encryptedCreditRequest, String encryptedSymmetricKey) {
         this.cheqiReceiptId = cheqiReceiptId;
+        this.parentCheqiReceiptId = parentCheqiReceiptId;
         this.publicKey = publicKey;
         this.encryptedCreditRequest = encryptedCreditRequest;
         this.encryptedSymmetricKey = encryptedSymmetricKey;
@@ -53,5 +56,13 @@ public class EncryptedCreditNoteRequest {
 
     public void setEncryptedSymmetricKey(String encryptedSymmetricKey) {
         this.encryptedSymmetricKey = encryptedSymmetricKey;
+    }
+
+    public String getParentCheqiReceiptId() {
+        return parentCheqiReceiptId;
+    }
+
+    public void setParentCheqiReceiptId(String parentCheqiReceiptId) {
+        this.parentCheqiReceiptId = parentCheqiReceiptId;
     }
 }

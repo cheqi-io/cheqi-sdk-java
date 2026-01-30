@@ -1,8 +1,13 @@
 package com.cheqi.sdk.creditNote;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class RefundBankAccount {
+    @JsonProperty("iban")
     private String iban;
+    @JsonProperty("bic")
     private String bic;
+    @JsonProperty("accountHolder")
     private String accountHolder;
 
     public RefundBankAccount() {

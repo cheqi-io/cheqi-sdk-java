@@ -1,17 +1,15 @@
 package com.cheqi.sdk.http;
 
-import com.cheqi.commons.DTOs.EncryptedCreditNoteDto;
-import com.cheqi.commons.DTOs.EncryptedReceiptDto;
-import com.cheqi.commons.DTOs.RecipientResolutionResponse;
-import com.cheqi.commons.UBL.PurchaseReceipt;
+import com.cheqi.sdk.creditNote.CreditNoteCreatedResponse;
 import com.cheqi.sdk.creditNote.CreditNoteTemplateRequest;
+import com.cheqi.sdk.creditNote.EncryptedCreditNote;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
-import com.cheqi.sdk.models.IdentificationDetails;
-import com.cheqi.sdk.models.ReceiptTemplateRequest;
+import com.cheqi.sdk.models.*;
 import com.cheqi.sdk.models.company.CreateStoreRequest;
 import com.cheqi.sdk.models.company.ProvisionCompanyRequest;
 import com.cheqi.sdk.models.company.ProvisionCompanyResponse;
 import com.cheqi.sdk.models.company.Store;
+import com.cheqi.sdk.models.ubl.PurchaseReceipt;
 
 import java.util.List;
 import java.util.Set;
@@ -47,10 +45,11 @@ public interface CheqiApiClient {
     String generateReceiptTemplate(ReceiptTemplateRequest request, String accessToken) throws CheqiApiException;
 
     /**
-     * Generate receipt template using API credentials (client ID and secret).
-     * For companies that want to use API key/secret instead of OAuth access tokens.
+     * Generate receipt template using API key from SDK config.
+     * Uses Bearer token authentication with the API key configured during SDK initialization.
+     * For companies accessing their own data directly.
      */
-    String generateReceiptTemplate(ReceiptTemplateRequest request, String clientId, String clientSecret) throws CheqiApiException;
+    String generateReceiptTemplate(ReceiptTemplateRequest request) throws CheqiApiException;
 
     /**
      * Calls the template endpoint to generate a Credit Note template without personal data.
@@ -69,10 +68,11 @@ public interface CheqiApiClient {
     String generateCreditNoteTemplate(CreditNoteTemplateRequest request, String accessToken) throws CheqiApiException;
 
     /**
-     * Generate credit note template using API credentials (client ID and secret).
-     * For companies that want to use API key/secret instead of OAuth access tokens.
+     * Generate credit note template using API key from SDK config.
+     * Uses Bearer token authentication with the API key configured during SDK initialization.
+     * For companies accessing their own data directly.
      */
-    String generateCreditNoteTemplate(CreditNoteTemplateRequest request, String clientId, String clientSecret) throws CheqiApiException;
+    String generateCreditNoteTemplate(CreditNoteTemplateRequest request) throws CheqiApiException;
 
     /**
      * Calls the customer matching endpoint to find a customer using payment identifiers.
@@ -106,10 +106,11 @@ public interface CheqiApiClient {
     RecipientResolutionResponse matchCustomer(IdentificationDetails request, String accessToken) throws CheqiApiException;
 
     /**
-     * Match customer using API credentials (client ID and secret).
-     * For companies that want to use API key/secret instead of OAuth access tokens.
+     * Match customer using API key from SDK config.
+     * Uses Bearer token authentication with the API key configured during SDK initialization.
+     * For companies accessing their own data directly.
      */
-    RecipientResolutionResponse matchCustomer(IdentificationDetails request, String clientId, String clientSecret) throws CheqiApiException;
+    RecipientResolutionResponse matchCustomer(IdentificationDetails request) throws CheqiApiException;
 
     /**
      * Sends encrypted receipts to the backend for delivery to customer devices.
@@ -132,6 +133,7 @@ public interface CheqiApiClient {
      * - The backend acts as a secure delivery mechanism without accessing receipt data
      * - Customer identity is protected through anonymous identifiers
      *
+     * @param matchId The match ID returned from the match customer endpoint.
      * @param encryptedReceipts Set of encrypted receipts, one per customer device.
      *                         Each receipt contains device-specific encrypted data that can only
      *                         be decrypted by the corresponding device's private key.
@@ -152,22 +154,24 @@ public interface CheqiApiClient {
      *
      * @since 1.0
      */
-    void sendEncryptedReceipts(Set<EncryptedReceiptDto> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException;
+    ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequestDto> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException;
 
     /**
-     * Send encrypted receipts using API credentials (client ID and secret).
-     * For companies that want to use API key/secret instead of OAuth access tokens.
+     * Send encrypted receipts using API key from SDK config.
+     * Uses Bearer token authentication with the API key configured during SDK initialization.
+     * For companies accessing their own data directly.
      */
-    void sendEncryptedReceipts(Set<EncryptedReceiptDto> encryptedReceipts, String templateHash, String clientId, String clientSecret) throws CheqiApiException;
+    ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequestDto> encryptedReceipts, String templateHash) throws CheqiApiException;
 
 
-    void sendEncryptedCreditNotes(Set<EncryptedCreditNoteDto> encryptedCreditNotes, String templateHash, String accessToken) throws CheqiApiException;
+    CreditNoteCreatedResponse sendEncryptedCreditNotes(String matchId, String parentCheqiReceiptId, Set<EncryptedCreditNote> encryptedCreditNotes, String templateHash, String accessToken) throws CheqiApiException;
 
     /**
-     * Send encrypted receipts using API credentials (client ID and secret).
-     * For companies that want to use API key/secret instead of OAuth access tokens.
+     * Send encrypted credit notes using API key from SDK config.
+     * Uses Bearer token authentication with the API key configured during SDK initialization.
+     * For companies accessing their own data directly.
      */
-    void sendEncryptedCreditNotes(Set<EncryptedCreditNoteDto> encryptedCreditNotes, String templateHash, String clientId, String clientSecret) throws CheqiApiException;
+    CreditNoteCreatedResponse sendEncryptedCreditNotes(String matchId, String parentCheqiReceiptId, Set<EncryptedCreditNote> encryptedCreditNotes, String templateHash) throws CheqiApiException;
 
 
     /**
@@ -202,10 +206,19 @@ public interface CheqiApiClient {
      */
     void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt, String accessToken) throws CheqiApiException;
 
-    void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt, String clientId, String clientSecret) throws CheqiApiException;
+    /**
+     * Send receipt via email using API key from SDK config.
+     * Uses Bearer token authentication with the API key configured during SDK initialization.
+     * For companies accessing their own data directly.
+     */
+    void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt) throws CheqiApiException;
 
-    // Company provisioning
-    ProvisionCompanyResponse provisionCompany(ProvisionCompanyRequest request, String clientId, String clientSecret) throws CheqiApiException;
+    /**
+     * Provision a new company using API key from SDK config.
+     * Uses Bearer token authentication with the API key configured during SDK initialization.
+     * Only available for partner-tier API keys.
+     */
+    ProvisionCompanyResponse provisionCompany(ProvisionCompanyRequest request) throws CheqiApiException;
 
     // Store management
     Store createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiApiException;

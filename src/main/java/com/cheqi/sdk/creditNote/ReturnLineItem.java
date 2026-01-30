@@ -1,11 +1,17 @@
 package com.cheqi.sdk.creditNote;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 
 public class ReturnLineItem {
+    @JsonProperty("lineItemId")
     private String lineItemId;
+    @JsonProperty("quantityReturned")
     private BigDecimal quantityReturned;
+    @JsonProperty("condition")
     private ReturnCondition condition;
+    @JsonProperty("conditionNotes")
     private String conditionNotes;
 
     public ReturnLineItem() {

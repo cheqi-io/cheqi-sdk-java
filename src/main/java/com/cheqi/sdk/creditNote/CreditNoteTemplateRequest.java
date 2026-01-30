@@ -26,7 +26,7 @@ import java.util.Objects;
  *     .currency("EUR")
  *     
  *     // Totals (POS-calculated, negative for refunds)
- *     .invoiceSubtotal(new BigDecimal("-100.00"))
+ *     .creditNoteSubtotal(new BigDecimal("-100.00"))
  *     .totalBeforeTax(new BigDecimal("-100.00"))
  *     .totalTaxAmount(new BigDecimal("-21.00"))
  *     .totalAmount(new BigDecimal("-121.00"))
@@ -62,7 +62,7 @@ import java.util.Objects;
  *   <li><strong>originatorDocumentReference</strong>: Reference to original receipt</li>
  *   <li><strong>issueDate</strong>: Credit note issue date</li>
  *   <li><strong>currency</strong>: ISO 4217 currency code</li>
- *   <li><strong>invoiceSubtotal</strong>: Sum of all product line totals</li>
+ *   <li><strong>creditNoteSubtotal</strong>: Sum of all product line totals</li>
  *   <li><strong>totalBeforeTax</strong>: Total excluding taxes</li>
  *   <li><strong>totalTaxAmount</strong>: Total tax amount</li>
  *   <li><strong>totalAmount</strong>: Final amount</li>
@@ -88,8 +88,8 @@ public final class CreditNoteTemplateRequest {
     @JsonProperty("currency")
     private final String currency;
 
-    @JsonProperty("invoiceSubtotal")
-    private final BigDecimal invoiceSubtotal;
+    @JsonProperty("creditNoteSubtotal")
+    private final BigDecimal creditNoteSubtotal;
 
     @JsonProperty("totalBeforeTax")
     private final BigDecimal totalBeforeTax;
@@ -120,7 +120,7 @@ public final class CreditNoteTemplateRequest {
             List<Identifier> identifiers,
             Instant issueDate,
             String currency,
-            BigDecimal invoiceSubtotal,
+            BigDecimal creditNoteSubtotal,
             BigDecimal totalBeforeTax,
             BigDecimal totalTaxAmount,
             BigDecimal totalAmount,
@@ -133,7 +133,7 @@ public final class CreditNoteTemplateRequest {
         this.identifiers = identifiers != null ? List.copyOf(identifiers) : List.of();
         this.issueDate = issueDate;
         this.currency = currency;
-        this.invoiceSubtotal = invoiceSubtotal;
+        this.creditNoteSubtotal = creditNoteSubtotal;
         this.totalBeforeTax = totalBeforeTax;
         this.totalTaxAmount = totalTaxAmount;
         this.totalAmount = totalAmount;
@@ -170,8 +170,8 @@ public final class CreditNoteTemplateRequest {
     }
 
     @JsonIgnore
-    public BigDecimal getInvoiceSubtotal() {
-        return invoiceSubtotal;
+    public BigDecimal getCreditNoteSubtotal() {
+        return creditNoteSubtotal;
     }
 
     @JsonIgnore
@@ -221,7 +221,7 @@ public final class CreditNoteTemplateRequest {
                 && Objects.equals(this.identifiers, other.identifiers)
                 && Objects.equals(this.issueDate, other.issueDate)
                 && Objects.equals(this.currency, other.currency)
-                && Objects.equals(this.invoiceSubtotal, other.invoiceSubtotal)
+                && Objects.equals(this.creditNoteSubtotal, other.creditNoteSubtotal)
                 && Objects.equals(this.totalBeforeTax, other.totalBeforeTax)
                 && Objects.equals(this.totalTaxAmount, other.totalTaxAmount)
                 && Objects.equals(this.totalAmount, other.totalAmount)
@@ -234,7 +234,7 @@ public final class CreditNoteTemplateRequest {
     @Override
     public int hashCode() {
         return Objects.hash(this.documentNumber, this.originatorDocumentReference, this.identifiers,
-                this.issueDate, this.currency, this.invoiceSubtotal, this.totalBeforeTax,
+                this.issueDate, this.currency, this.creditNoteSubtotal, this.totalBeforeTax,
                 this.totalTaxAmount, this.totalAmount, this.products, this.discounts,
                 this.taxes, this.note);
     }
@@ -247,7 +247,7 @@ public final class CreditNoteTemplateRequest {
                 ", identifiers=" + identifiers +
                 ", issueDate=" + issueDate +
                 ", currency='" + currency + '\'' +
-                ", invoiceSubtotal=" + invoiceSubtotal +
+                ", creditNoteSubtotal=" + creditNoteSubtotal +
                 ", totalBeforeTax=" + totalBeforeTax +
                 ", totalTaxAmount=" + totalTaxAmount +
                 ", totalAmount=" + totalAmount +
@@ -269,7 +269,7 @@ public final class CreditNoteTemplateRequest {
         private List<Identifier> identifiers;
         private Instant issueDate;
         private String currency;
-        private BigDecimal invoiceSubtotal;
+        private BigDecimal creditNoteSubtotal;
         private BigDecimal totalBeforeTax;
         private BigDecimal totalTaxAmount;
         private BigDecimal totalAmount;
@@ -286,7 +286,7 @@ public final class CreditNoteTemplateRequest {
             identifiers(other.getIdentifiers());
             issueDate(other.getIssueDate());
             currency(other.getCurrency());
-            invoiceSubtotal(other.getInvoiceSubtotal());
+            creditNoteSubtotal(other.getCreditNoteSubtotal());
             totalBeforeTax(other.getTotalBeforeTax());
             totalTaxAmount(other.getTotalTaxAmount());
             totalAmount(other.getTotalAmount());
@@ -335,9 +335,9 @@ public final class CreditNoteTemplateRequest {
             return this;
         }
 
-        @JsonSetter(value = "invoiceSubtotal", nulls = Nulls.SKIP)
-        public Builder invoiceSubtotal(BigDecimal invoiceSubtotal) {
-            this.invoiceSubtotal = invoiceSubtotal;
+        @JsonSetter(value = "creditNoteSubtotal", nulls = Nulls.SKIP)
+        public Builder creditNoteSubtotal(BigDecimal creditNoteSubtotal) {
+            this.creditNoteSubtotal = creditNoteSubtotal;
             return this;
         }
 
@@ -407,7 +407,7 @@ public final class CreditNoteTemplateRequest {
          */
         public CreditNoteTemplateRequest.Builder addProduct(String brand, String name, String unitPrice, String subtotal, Double taxRate, String taxAmount, String total, Double quantity) {
             return addProduct(Product.builder()
-                    .brand(brand)
+                    .brandName(brand)
                     .name(name)
                     .quantity(quantity)
                     .baseQuantity(1.0)
@@ -483,7 +483,7 @@ public final class CreditNoteTemplateRequest {
 
         public CreditNoteTemplateRequest build() {
             return new CreditNoteTemplateRequest(documentNumber, originatorDocumentReference, identifiers,
-                    issueDate, currency, invoiceSubtotal, totalBeforeTax, totalTaxAmount, totalAmount,
+                    issueDate, currency, creditNoteSubtotal, totalBeforeTax, totalTaxAmount, totalAmount,
                     products, discounts, taxes, note);
         }
     }
@@ -506,7 +506,7 @@ public final class CreditNoteTemplateRequest {
         if (currency == null || currency.trim().isEmpty()) {
             errors.add("Currency code is required");
         }
-        if (invoiceSubtotal == null) {
+        if (creditNoteSubtotal == null) {
             errors.add("Invoice subtotal is required");
         }
         if (totalBeforeTax == null) {

@@ -1,21 +1,11 @@
 package com.cheqi.sdk.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Request DTO for generating receipt templates.
@@ -32,7 +22,7 @@ import java.util.Optional;
  *     .currency("EUR")
  *     
  *     // Totals (POS-calculated)
- *     .invoiceSubtotal(new BigDecimal("250.00"))
+ *     .receiptSubtotal(new BigDecimal("250.00"))
  *     .totalBeforeTax(new BigDecimal("245.00"))  // After receipt-level discount
  *     .totalTaxAmount(new BigDecimal("51.45"))   // Total tax
  *     .totalAmount(new BigDecimal("296.45"))     // Final amount
@@ -73,7 +63,7 @@ import java.util.Optional;
  *   <li><strong>documentNumber</strong>: Unique receipt/invoice identifier</li>
  *   <li><strong>issueDate</strong>: Receipt issue date</li>
  *   <li><strong>currency</strong>: ISO 4217 currency code (e.g., "EUR", "USD")</li>
- *   <li><strong>invoiceSubtotal</strong>: Sum of all product line totals</li>
+ *   <li><strong>receiptSubtotal</strong>: Sum of all product line totals</li>
  *   <li><strong>totalBeforeTax</strong>: Total excluding taxes (after receipt-level adjustments)</li>
  *   <li><strong>totalTaxAmount</strong>: Total tax amount (POS-calculated)</li>
  *   <li><strong>totalAmount</strong>: Final amount charged to customer</li>
@@ -92,11 +82,11 @@ import java.util.Optional;
  *   <li><strong>note</strong>: Additional seller notes</li>
  * </ul>
  *
- * <h3>Key Differences from invoiceSubtotal and totalBeforeTax:</h3>
+ * <h3>Key Differences from receiptSubtotal and totalBeforeTax:</h3>
  * <ul>
- *   <li><strong>invoiceSubtotal</strong>: Sum of all product line totals (before receipt-level adjustments)</li>
- *   <li><strong>totalBeforeTax</strong>: invoiceSubtotal ± receipt-level discounts/charges</li>
- *   <li>Example: invoiceSubtotal = $100, discount = $5, charge = $3 → totalBeforeTax = $98</li>
+ *   <li><strong>receiptSubtotal</strong>: Sum of all product line totals (before receipt-level adjustments)</li>
+ *   <li><strong>totalBeforeTax</strong>: receiptSubtotal ± receipt-level discounts/charges</li>
+ *   <li>Example: receiptSubtotal = $100, discount = $5, charge = $3 → totalBeforeTax = $98</li>
  * </ul>
  *
  * <h3>Validation Rules:</h3>
@@ -148,12 +138,12 @@ public final class ReceiptTemplateRequest {
      * invoice-level adjustments or taxes.
      * This amount represents the total value of goods or services listed on the invoice.
      */
-    @JsonProperty("invoiceSubtotal")
-    private final BigDecimal invoiceSubtotal;
+    @JsonProperty("receiptSubtotal")
+    private final BigDecimal receiptSubtotal;
 
     /**
      * The total amount of the invoice excluding taxes, but including any overall discounts or charges.
-     * This amount may differ from the invoiceSubtotal if there are invoice-level adjustments.
+     * This amount may differ from the receiptSubtotal if there are invoice-level adjustments.
      */
     @JsonProperty("totalBeforeTax")
     private final BigDecimal totalBeforeTax;
@@ -196,6 +186,7 @@ public final class ReceiptTemplateRequest {
     /**
      * Tax breakdown for the receipt.
      * Each Tax entry represents a tax category applied to the receipt (e.g., VAT 21%, VAT 9%).
+     * If no taxes are applied, then you need a tax category with 0% rate.
      * The total tax amount is the sum of all tax amounts in this list.
      */
     @JsonProperty("taxes")
@@ -248,7 +239,7 @@ public final class ReceiptTemplateRequest {
             List<Identifier> identifiers,
             Instant issueDate,
             String currency,
-            BigDecimal invoiceSubtotal,
+            BigDecimal receiptSubtotal,
             BigDecimal totalBeforeTax,
             BigDecimal totalTaxAmount,
             BigDecimal totalAmount,
@@ -265,7 +256,7 @@ public final class ReceiptTemplateRequest {
         this.identifiers = identifiers != null ? List.copyOf(identifiers) : List.of();
         this.issueDate = issueDate;
         this.currency = currency;
-        this.invoiceSubtotal = invoiceSubtotal;
+        this.receiptSubtotal = receiptSubtotal;
         this.totalBeforeTax = totalBeforeTax;
         this.totalTaxAmount = totalTaxAmount;
         this.totalAmount = totalAmount;
@@ -302,8 +293,8 @@ public final class ReceiptTemplateRequest {
     }
 
     @JsonIgnore
-    public BigDecimal getInvoiceSubtotal() {
-        return invoiceSubtotal;
+    public BigDecimal getreceiptSubtotal() {
+        return receiptSubtotal;
     }
 
     @JsonIgnore
@@ -390,7 +381,7 @@ public final class ReceiptTemplateRequest {
                 && Objects.equals(this.identifiers, other.identifiers)
                 && Objects.equals(this.issueDate, other.issueDate)
                 && Objects.equals(this.currency, other.currency)
-                && Objects.equals(this.invoiceSubtotal, other.invoiceSubtotal)
+                && Objects.equals(this.receiptSubtotal, other.receiptSubtotal)
                 && Objects.equals(this.totalBeforeTax, other.totalBeforeTax)
                 && Objects.equals(this.totalTaxAmount, other.totalTaxAmount)
                 && Objects.equals(this.totalAmount, other.totalAmount)
@@ -407,7 +398,7 @@ public final class ReceiptTemplateRequest {
     @Override
     public int hashCode() {
         return Objects.hash(this.documentNumber, this.identifiers, this.issueDate, this.currency,
-                this.invoiceSubtotal, this.totalBeforeTax, this.totalTaxAmount, this.totalAmount,
+                this.receiptSubtotal, this.totalBeforeTax, this.totalTaxAmount, this.totalAmount,
                 this.products, this.discounts, this.charges, this.taxes, this.transactionDate,
                 this.purchaseDate, this.period, this.note);
     }
@@ -419,7 +410,7 @@ public final class ReceiptTemplateRequest {
                 ", identifiers=" + identifiers +
                 ", issueDate=" + issueDate +
                 ", currency='" + currency + '\'' +
-                ", invoiceSubtotal=" + invoiceSubtotal +
+                ", receiptSubtotal=" + receiptSubtotal +
                 ", totalBeforeTax=" + totalBeforeTax +
                 ", totalTaxAmount=" + totalTaxAmount +
                 ", totalAmount=" + totalAmount +
@@ -444,7 +435,7 @@ public final class ReceiptTemplateRequest {
         private List<Identifier> identifiers;
         private Instant issueDate;
         private String currency;
-        private BigDecimal invoiceSubtotal;
+        private BigDecimal receiptSubtotal;
         private BigDecimal totalBeforeTax;
         private BigDecimal totalTaxAmount;
         private BigDecimal totalAmount;
@@ -465,7 +456,7 @@ public final class ReceiptTemplateRequest {
             identifiers(other.getIdentifiers());
             issueDate(other.getIssueDate());
             currency(other.getcurrency());
-            invoiceSubtotal(other.getInvoiceSubtotal());
+            receiptSubtotal(other.getreceiptSubtotal());
             totalBeforeTax(other.getTotalBeforeTax());
             totalTaxAmount(other.getTotalTaxAmount());
             totalAmount(other.getTotalAmount());
@@ -520,9 +511,9 @@ public final class ReceiptTemplateRequest {
             return this;
         }
 
-        @JsonSetter(value = "invoiceSubtotal", nulls = Nulls.SKIP)
-        public ReceiptTemplateRequest.Builder invoiceSubtotal(BigDecimal invoiceSubtotal) {
-            this.invoiceSubtotal = invoiceSubtotal;
+        @JsonSetter(value = "receiptSubtotal", nulls = Nulls.SKIP)
+        public ReceiptTemplateRequest.Builder receiptSubtotal(BigDecimal receiptSubtotal) {
+            this.receiptSubtotal = receiptSubtotal;
             return this;
         }
 
@@ -590,10 +581,11 @@ public final class ReceiptTemplateRequest {
          * @param quantity Number of units
          * @return This builder
          */
-        public ReceiptTemplateRequest.Builder addProduct(String brand, String name, String unitPrice, String subtotal, Double taxRate, String taxAmount, String total, Double quantity) {
+        public ReceiptTemplateRequest.Builder addProduct(String identifier, String brand, String name, String unitPrice, String subtotal, Double taxRate, String taxAmount, String total, Double quantity) {
             return addProduct(Product.builder()
-                    .brand(brand)
+                    .brandName(brand)
                     .name(name)
+                    .identifier(identifier)
                     .quantity(quantity)
                     .baseQuantity(1.0)
                     .unitCode(UnitCode.ONE)
@@ -607,8 +599,8 @@ public final class ReceiptTemplateRequest {
         /**
          * Convenience method with BigDecimal amounts.
          */
-        public ReceiptTemplateRequest.Builder addProduct(String brand, String name, BigDecimal unitPrice, BigDecimal subtotal, Double taxRate, BigDecimal taxAmount, BigDecimal total, Double quantity) {
-            return addProduct(brand, name, unitPrice.toString(), subtotal.toString(), taxRate, taxAmount.toString(), total.toString(), quantity);
+        public ReceiptTemplateRequest.Builder addProduct(String identifier, String brand, String name, BigDecimal unitPrice, BigDecimal subtotal, Double taxRate, BigDecimal taxAmount, BigDecimal total, Double quantity) {
+            return addProduct(identifier, brand, name, unitPrice.toString(), subtotal.toString(), taxRate, taxAmount.toString(), total.toString(), quantity);
         }
 
         @JsonSetter(value = "discounts", nulls = Nulls.SKIP)
@@ -762,91 +754,8 @@ public final class ReceiptTemplateRequest {
 
         public ReceiptTemplateRequest build() {
             return new ReceiptTemplateRequest(documentNumber, identifiers, issueDate, currency,
-                    invoiceSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, products, discounts, charges, taxes,
+                    receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, products, discounts, charges, taxes,
                     transactionDate, purchaseDate, period, note, additionalProperties);
         }
-    }
-
-    // ===== VALIDATION METHODS =====
-
-    /**
-     * Validates this receipt template request.
-     * @return true if all mandatory fields are present and valid
-     */
-    public boolean isValid() {
-        List<String> errors = getValidationErrors();
-        return errors.isEmpty();
-    }
-
-    /**
-     * Gets detailed validation errors for this receipt template request.
-     * @return List of validation error messages, empty if valid
-     */
-    @JsonIgnore
-    public List<String> getValidationErrors() {
-        List<String> errors = new ArrayList<>();
-
-        // Mandatory field validation
-        if (documentNumber == null || documentNumber.trim().isEmpty()) {
-            errors.add("Receipt ID is required");
-        }
-        if (issueDate == null) {
-            errors.add("Issue date is required");
-        }
-        if (currency == null || currency.trim().isEmpty()) {
-            errors.add("Currency code is required");
-        }
-        if (invoiceSubtotal == null) {
-            errors.add("Invoice subtotal is required");
-        }
-        if (totalBeforeTax == null) {
-            errors.add("Total before tax is required");
-        }
-        if (totalTaxAmount == null) {
-            errors.add("Total tax amount is required");
-        }
-        if (totalAmount == null) {
-            errors.add("Total amount is required");
-        }
-        if (products == null || products.isEmpty()) {
-            errors.add("At least one product is required");
-        }
-        if (taxes == null || taxes.isEmpty()) {
-            errors.add("At least one tax entry is required");
-        }
-
-        // Validate nested objects
-        if (products != null) {
-            for (int i = 0; i < products.size(); i++) {
-                Product product = products.get(i);
-                if (product == null) {
-                    errors.add("Product " + (i + 1) + " cannot be null");
-                } else {
-                    List<String> productErrors = product.getValidationErrors();
-                    for (String error : productErrors) {
-                        errors.add("Product " + (i + 1) + ": " + error);
-                    }
-                }
-            }
-        }
-
-        // Validate taxes
-        if (taxes != null) {
-            for (int i = 0; i < taxes.size(); i++) {
-                Tax tax = taxes.get(i);
-                if (tax == null) {
-                    errors.add("Tax " + (i + 1) + " cannot be null");
-                } else {
-                    if (tax.getRate() == null) {
-                        errors.add("Tax " + (i + 1) + ": rate is required");
-                    }
-                    if (tax.getType() == null || tax.getType().trim().isEmpty()) {
-                        errors.add("Tax " + (i + 1) + ": type is required");
-                    }
-                }
-            }
-        }
-
-        return errors;
     }
 }

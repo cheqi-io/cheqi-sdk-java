@@ -1,6 +1,6 @@
 package com.cheqi.sdk.http;
 
-import com.cheqi.commons.UBL.PurchaseReceipt;
+import com.cheqi.sdk.models.ubl.PurchaseReceipt;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**

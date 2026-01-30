@@ -5,13 +5,15 @@
 [![Maven](https://img.shields.io/badge/Maven-3.6+-blue.svg)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-The Cheqi Java SDK provides end-to-end encrypted receipt processing capabilities for suppliers, enabling secure digital receipt delivery to customers through the Cheqi platform.
+The Cheqi Java SDK provides end-to-end encrypted receipt and credit note processing capabilities for suppliers, enabling secure digital receipt delivery to customers and handling returns/refunds through the Cheqi platform with bidirectional encrypted communication.
 
 ## Features
 
 - 🔐 **End-to-End Encryption**: Hybrid RSA+AES encryption for secure receipt delivery
 - 🎯 **Customer Matching**: Match customers using payment identifiers (cards, IBANs, etc.)
 - 📄 **Receipt Generation**: Create UBL-compliant receipt templates from transaction data
+- 💳 **Credit Note Processing**: Complete returns, refunds, and cancellations with encryption
+- 🔄 **Bidirectional Flow**: Send receipts to customers, receive encrypted return requests
 - 🏢 **Company Provisioning**: Provision companies and receive immediate API access
 - 🏪 **Store Management**: Full CRUD operations for store/location management
 - 🌐 **Multi-Environment Support**: Sandbox, Test, and Production environments
@@ -509,6 +511,7 @@ EncryptionService encryption = sdk.getEncryptionService();
 DecryptionService decryption = sdk.getDecryptionService();
 MatchingService matching = sdk.getMatchingService();
 ReceiptService receipts = sdk.getReceiptService();
+CreditNoteService creditNotes = sdk.getCreditNoteService();
 CompanyService companies = sdk.getCompanyService();
 StoreService stores = sdk.getStoreService();
 CheqiApiClient apiClient = sdk.getApiClient();
@@ -642,6 +645,184 @@ sdk.getStoreService().deleteStore(companyId, storeId, accessToken);
 - **`postalZone`** (required): Postal/ZIP code
 - **`countryIsoCode`** (required): 2-letter ISO country code (e.g., "NL", "DE", "US")
 
+### Credit Note Processing
+
+The SDK supports complete credit note processing for returns, refunds, and cancellations with the same end-to-end encryption as receipts.
+
+#### Processing Credit Notes
+
+**One method handles everything** - customer identification via receipt ID, encryption, and delivery:
+
+```java
+import com.cheqi.sdk.creditNote.CreditNoteTemplateRequest;
+import com.cheqi.sdk.creditNote.RefundPreference;
+import com.cheqi.sdk.creditNote.RefundBankAccount;
+import com.cheqi.sdk.creditNote.ReturnLineItem;
+import com.cheqi.sdk.creditNote.ReturnCondition;
+import com.cheqi.sdk.models.IdentificationDetails;
+import com.cheqi.sdk.receipt.ProcessReceiptResult;
+import java.time.Instant;
+import java.util.UUID;
+
+// 1. Identify customer via original receipt ID
+// Credit notes use cheqiReceiptId to identify the customer (not payment details)
+IdentificationDetails identificationDetails = IdentificationDetails.builder()
+    .cheqiReceiptId("original-receipt-uuid")  // UUID from original receipt
+    .build();
+
+// 2. Build the credit note template
+CreditNoteTemplateRequest creditNote = CreditNoteTemplateRequest.builder()
+    .documentNumber("CN-2024-001")
+    .issueDate(Instant.now())
+    .currency("EUR")
+    .originatorDocumentReference("original-receipt-number")  // Original invoice number
+    .totalAmount("121.00")
+    .totalTaxAmount("21.00")
+    
+    // Return items
+    .addReturnLineItem(ReturnLineItem.builder()
+        .name("Defective Laptop")
+        .quantity(1.0)
+        .unitPrice("100.00")
+        .total("121.00")
+        .taxRate(21.0)
+        .taxAmount("21.00")
+        .returnCondition(ReturnCondition.DEFECTIVE)
+        .returnReason("Screen not working")
+        .build())
+    
+    // Refund preference
+    .refundPreference(RefundPreference.BANK_ACCOUNT)
+    .refundBankAccount(RefundBankAccount.builder()
+        .iban("NL91ABNA0417164300")
+        .accountHolderName("John Doe")
+        .build())
+    
+    .note("Refund for defective product")
+    .build();
+
+// 3. Process credit note (match customer + generate + encrypt + send)
+ProcessReceiptResult result = sdk.getCreditNoteService()
+    .processCompleteCreditNote(identificationDetails, creditNote, accessToken);
+
+if (result.isSuccess()) {
+    System.out.println("Credit note delivered successfully!");
+    System.out.println("Credit notes created: " + result.getReceiptCount());
+} else if (result.isCustomerNotFound()) {
+    System.out.println("Customer not found");
+} else {
+    System.out.println("Processing failed: " + result.getMessage());
+}
+```
+
+**This method automatically:**
+1. **Identifies the customer** using the `cheqiReceiptId` from the original receipt
+2. **Generates a credit note template** from the request data
+3. **Creates encrypted credit notes** for all customer devices
+4. **Sends the credit notes** to the Cheqi backend for delivery
+
+#### Credit Note Fields
+
+**Required Fields:**
+- **`documentNumber`** - Credit note number (e.g., "CN-2024-001")
+- **`issueDate`** - When the credit note was issued
+- **`currency`** - ISO 4217 currency code (e.g., "EUR")
+- **`cheqiReceiptId`** - UUID of the original receipt being credited
+- **`totalAmount`** - Total credit amount (including tax)
+- **`totalTaxAmount`** - Total tax amount
+
+**Return Items:**
+```java
+.addReturnLineItem(ReturnLineItem.builder()
+    .name("Product Name")
+    .quantity(1.0)
+    .unitPrice("100.00")
+    .total("121.00")
+    .taxRate(21.0)
+    .taxAmount("21.00")
+    .returnCondition(ReturnCondition.DEFECTIVE)  // or UNWANTED, DAMAGED
+    .returnReason("Detailed reason for return")
+    .build())
+```
+
+**Refund Options:**
+```java
+// Bank account refund
+.refundPreference(RefundPreference.BANK_ACCOUNT)
+.refundBankAccount(RefundBankAccount.builder()
+    .iban("NL91ABNA0417164300")
+    .accountHolderName("John Doe")
+    .build())
+
+// Or original payment method refund
+.refundPreference(RefundPreference.ORIGINAL_PAYMENT_METHOD)
+```
+
+**Return Conditions:**
+- **`DEFECTIVE`** - Product is defective or broken
+- **`UNWANTED`** - Customer changed their mind
+- **`DAMAGED`** - Product arrived damaged
+
+#### Receiving Credit Note Requests (Merchant Side)
+
+When a customer initiates a return through the Cheqi app, merchants receive an encrypted credit note request via webhook:
+
+```java
+import com.cheqi.commons.DTOs.EncryptedCreditNoteInitiationRequest;
+import com.cheqi.commons.DTOs.CreditNoteInitiationRequest;
+
+// Received from webhook
+EncryptedCreditNoteInitiationRequest encryptedRequest = // ... from webhook
+
+// Decrypt and parse the credit note request
+CreditNoteInitiationRequest request = sdk.getCreditNoteService()
+    .decryptCreditNoteRequest(encryptedRequest);
+
+// Access the request details
+System.out.println("Receipt ID: " + request.getCheqiReceiptId());
+System.out.println("Return reason: " + request.getReturnReason());
+System.out.println("Refund preference: " + request.getRefundPreference());
+
+// Process the return based on your business logic
+if (request.getRefundPreference() == RefundPreference.BANK_ACCOUNT) {
+    RefundBankAccount bankAccount = request.getRefundBankAccount();
+    System.out.println("Refund to IBAN: " + bankAccount.getIban());
+    // Process bank refund...
+} else {
+    // Process refund to original payment method...
+}
+```
+
+**Credit Note Request Flow:**
+1. Customer initiates return in Cheqi app
+2. Cheqi encrypts request with merchant's public key
+3. Webhook delivers encrypted request to merchant
+4. Merchant decrypts using SDK
+5. Merchant processes return/refund
+6. Merchant sends credit note back to customer (using `processCompleteCreditNote`)
+
+#### Authentication Options
+
+**Using API Key (Direct Merchant Integration):**
+```java
+// Configure SDK with API key
+CheqiSDK sdk = CheqiSDK.builder()
+    .apiEndpoint(Environment.PRODUCTION)
+    .supplierCredentials("client-id", "client-secret")
+    .build();
+
+// Process without access token - customer identified via cheqiReceiptId
+ProcessReceiptResult result = sdk.getCreditNoteService()
+    .processCompleteCreditNote(creditNote);
+```
+
+**Using OAuth2 Access Token (Third-Party Integration):**
+```java
+// Process with access token - customer identified via cheqiReceiptId
+ProcessReceiptResult result = sdk.getCreditNoteService()
+    .processCompleteCreditNote(creditNote, accessToken);
+```
+
 ### Processing Encrypted Receipts
 
 ```java
@@ -695,9 +876,10 @@ try {
 ### Encryption
 
 - **Hybrid Encryption**: RSA-OAEP for key exchange + AES-256-GCM for data
-- **Forward Secrecy**: Unique AES keys for each receipt
+- **Forward Secrecy**: Unique AES keys for each receipt and credit note
 - **Integrity Protection**: Built-in authentication tags
 - **Multi-Device Support**: Encrypt once, deliver to multiple devices
+- **Bidirectional Security**: Both receipts (merchant→customer) and credit note requests (customer→merchant) are encrypted end-to-end
 
 ### Key Management
 
@@ -847,6 +1029,111 @@ public class ReceiptExample {
     }
 }
 ```
+
+### Complete Credit Note Example
+
+Here's a complete example showing credit note processing for returns and refunds:
+
+```java
+import com.cheqi.sdk.CheqiSDK;
+import com.cheqi.sdk.config.Environment;
+import com.cheqi.sdk.models.*;
+import com.cheqi.sdk.creditNote.*;
+import com.cheqi.sdk.receipt.ProcessReceiptResult;
+import com.cheqi.commons.DTOs.EncryptedCreditNoteInitiationRequest;
+import com.cheqi.commons.DTOs.CreditNoteInitiationRequest;
+import com.cheqi.commons.enums.CardProvider;
+import java.time.Instant;
+import java.util.UUID;
+
+public class CreditNoteExample {
+    public static void main(String[] args) {
+        // 1. Initialize SDK with private key for decryption
+        CheqiSDK sdk = CheqiSDK.builder()
+            .apiEndpoint(Environment.PRODUCTION)
+            .supplierCredentials("client-id", "client-secret")
+            .privateKey("your-base64-encoded-private-key")  // For decrypting customer requests
+            .timeout(30)
+            .maxRetries(3)
+            .build();
+        
+        // SCENARIO 1: Receiving a credit note request from customer
+        // This happens when customer initiates a return in the Cheqi app
+        EncryptedCreditNoteInitiationRequest encryptedRequest = // ... received from webhook
+        
+        try {
+            // Decrypt the customer's return request
+            CreditNoteInitiationRequest request = sdk.getCreditNoteService()
+                .decryptCreditNoteRequest(encryptedRequest);
+            
+            System.out.println("📦 Return request received");
+            System.out.println("Receipt ID: " + request.getCheqiReceiptId());
+            System.out.println("Return reason: " + request.getReturnReason());
+            System.out.println("Refund preference: " + request.getRefundPreference());
+            
+            // Process the return based on your business logic
+            if (request.getRefundPreference() == RefundPreference.BANK_ACCOUNT) {
+                RefundBankAccount bankAccount = request.getRefundBankAccount();
+                System.out.println("💰 Refund to IBAN: " + bankAccount.getIban());
+                // Process bank refund through your payment system...
+            } else {
+                System.out.println("💳 Refund to original payment method");
+                // Process refund to original card/payment method...
+            }
+            
+            // SCENARIO 2: Sending credit note back to customer after processing return
+            // Build the credit note (customer identified via cheqiReceiptId)
+            CreditNoteTemplateRequest creditNote = CreditNoteTemplateRequest.builder()
+                .documentNumber("CN-2024-001")
+                .issueDate(Instant.now())
+                .currency("EUR")
+                .cheqiReceiptId(request.getCheqiReceiptId())  // Identifies customer via original receipt
+                .totalAmount("2902.79")
+                .totalTaxAmount("503.79")
+                
+                // Return the laptop
+                .addReturnLineItem(ReturnLineItem.builder()
+                    .name("MacBook Pro 14\"")
+                    .quantity(1.0)
+                    .unitPrice("2499.00")
+                    .total("2902.79")
+                    .taxRate(21.0)
+                    .taxAmount("503.79")
+                    .returnCondition(ReturnCondition.DEFECTIVE)
+                    .returnReason("Screen not working properly")
+                    .build())
+                
+                // Refund details
+                .refundPreference(request.getRefundPreference())
+                .refundBankAccount(request.getRefundBankAccount())
+                
+                .note("Refund processed for defective product")
+                .build();
+            
+            // Send encrypted credit note to customer (identified via cheqiReceiptId)
+            ProcessReceiptResult result = sdk.getCreditNoteService()
+                .processCompleteCreditNote(creditNote);
+            
+            if (result.isSuccess()) {
+                System.out.println("✅ Credit note delivered successfully!");
+                System.out.println("Credit notes created: " + result.getReceiptCount());
+            } else {
+                System.err.println("❌ Failed: " + result.getMessage());
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error processing credit note: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+**Credit Note Flow Summary:**
+1. **Customer initiates return** in Cheqi app → Encrypted request sent to merchant webhook
+2. **Merchant decrypts request** using SDK → Processes return/refund in their system
+3. **Merchant sends credit note** back to customer → Encrypted delivery to customer's devices
+4. **Customer receives credit note** in Cheqi app → Complete audit trail of transaction
 
 ## Migration Guide
 

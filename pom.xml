@@ -6,7 +6,7 @@
 
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <name>Cheqi SDK</name>
@@ -43,13 +43,6 @@
     </properties>
 
     <dependencies>
-        <!-- Domain library -->
-        <dependency>
-            <groupId>io.cheqi</groupId>
-            <artifactId>cheqi-commons</artifactId>
-            <version>1.0.3</version>
-        </dependency>
-
         <!-- JSON Processing -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

@@ -1,7 +1,5 @@
 package com.cheqi.sdk;
 
-import com.cheqi.commons.DTOs.EncryptedReceiptDto;
-import com.cheqi.commons.UBL.PurchaseReceipt;
 import com.cheqi.sdk.company.CompanyService;
 import com.cheqi.sdk.company.StoreService;
 import com.cheqi.sdk.config.CheqiSDKConfig;
@@ -12,6 +10,8 @@ import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.DefaultCheqiApiClient;
 import com.cheqi.sdk.matching.MatchingService;
+import com.cheqi.sdk.models.EncryptedReceipt;
+import com.cheqi.sdk.models.ubl.PurchaseReceipt;
 import com.cheqi.sdk.receipt.ReceiptProcessor;
 import com.cheqi.sdk.receipt.ReceiptService;
 import com.cheqi.sdk.utils.RFC8785Canonicalizer;
@@ -112,9 +112,7 @@ public class CheqiSDK {
         this.receiptService = new ReceiptService(apiClient, encryptionService, matchingService);
         this.companyService = new CompanyService(apiClient);
         this.storeService = new StoreService(apiClient);
-        this.creditNoteService = config.getPrivateKeyBase64() != null 
-            ? new CreditNoteService(config.getPrivateKeyBase64(), matchingService, apiClient, encryptionService)
-            : null;
+        this.creditNoteService = new CreditNoteService(apiClient, encryptionService, matchingService);
     }
 
     /**
@@ -152,7 +150,7 @@ public class CheqiSDK {
     }
 
     // Expose receipt processing functionality
-    public PurchaseReceipt processEncryptedReceipt(EncryptedReceiptDto encryptedReceipt, String privateKey) {
+    public PurchaseReceipt processEncryptedReceipt(EncryptedReceipt encryptedReceipt, String privateKey) {
         return receiptProcessor.processEncryptedReceipt(encryptedReceipt, privateKey);
     }
 
@@ -257,6 +255,16 @@ public class CheqiSDK {
 
         public CheqiSDKBuilder supplierCredentials(String clientId, String clientSecret) {
             configBuilder.supplierCredentials(clientId, clientSecret);
+            return this;
+        }
+
+        public CheqiSDKBuilder apiKey(String apiKey) {
+            configBuilder.apiKey(apiKey);
+            return this;
+        }
+
+        public CheqiSDKBuilder privateKey(String privateKey) {
+            configBuilder.privateKey(privateKey);
             return this;
         }
 

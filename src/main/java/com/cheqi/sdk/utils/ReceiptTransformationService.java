@@ -1,8 +1,8 @@
 package com.cheqi.sdk.utils;
 
-import com.cheqi.commons.UBL.PurchaseReceipt;
 import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.exceptions.CheqiSDKException;
+import com.cheqi.sdk.models.ubl.PurchaseReceipt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.xml.bind.JAXBContext;

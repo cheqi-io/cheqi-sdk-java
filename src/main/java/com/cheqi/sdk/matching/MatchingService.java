@@ -1,11 +1,11 @@
 package com.cheqi.sdk.matching;
 
-import com.cheqi.commons.DTOs.RecipientResolutionResponse;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.models.CardDetails;
 import com.cheqi.sdk.models.IdentificationDetails;
 import com.cheqi.sdk.models.PaymentAccountDetails;
+import com.cheqi.sdk.models.RecipientResolutionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class MatchingService {
         
         // Validate request has at least one identifier
         if (!hasValidIdentifiers(identificationDetails)) {
-            String error = "PaymentDetails must contain at least one identifier (card details, payment account details, or email)";
+            String error = "IdentificationDetails must contain at least one identifier (card details, payment account details, or email)";
             logger.error(error);
             throw new IllegalArgumentException(error);
         }
@@ -57,7 +57,7 @@ public class MatchingService {
         logAvailableIdentifiers(identificationDetails);
         
         try {
-            RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, accessToken);
+            com.cheqi.sdk.models.RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, accessToken);
             
             if (response.isCustomerFound()) {
                 logger.info("Customer matched successfully: {} recipients found", response.getRecipients().size());
@@ -82,16 +82,24 @@ public class MatchingService {
         }
     }
 
+    /**
+     * Matches a customer using API key from SDK config.
+     * Uses Bearer token authentication with the API key configured during SDK initialization.
+     * For companies accessing their own data directly.
+     * 
+     * @param identificationDetails Payment details containing customer identifiers
+     * @return RecipientResolutionResponse with matched recipients or empty if not found
+     * @throws CheqiApiException if matching operation fails
+     * @throws IllegalArgumentException if paymentDetails contains no valid identifiers
+     */
     public RecipientResolutionResponse matchCustomer(
-            IdentificationDetails identificationDetails,
-            String clientId,
-            String clientSecret) throws CheqiApiException {
+            IdentificationDetails identificationDetails) throws CheqiApiException {
 
-        logger.debug("Starting customer matching");
+        logger.debug("Starting customer matching with API key");
 
         // Validate request has at least one identifier
         if (!hasValidIdentifiers(identificationDetails)) {
-            String error = "PaymentDetails must contain at least one identifier (card details, payment account details, or email)";
+            String error = "Identification details must contain at least one identifier (card details, payment account details, or email)";
             logger.error(error);
             throw new IllegalArgumentException(error);
         }
@@ -99,7 +107,7 @@ public class MatchingService {
         logAvailableIdentifiers(identificationDetails);
 
         try {
-            RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, clientId, clientSecret);
+            RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails);
 
             if (response.isCustomerFound()) {
                 logger.info("Customer matched successfully: {} recipients found", response.getRecipients().size());
@@ -134,6 +142,7 @@ public class MatchingService {
         
         return hasCardDetails(identificationDetails) ||
                hasPaymentAccountDetails(identificationDetails) ||
+               hasCheqiReceiptId(identificationDetails) ||
                hasEmail(identificationDetails);
     }
     
@@ -148,6 +157,11 @@ public class MatchingService {
         CardDetails card = identificationDetails.getCardDetails().get();
         return (card.getPaymentAccountNumber().isPresent() && isNotEmpty(card.getPaymentAccountNumber().get())) ||
                (card.getPaymentAccountReference().isPresent() && isNotEmpty(card.getPaymentAccountReference().get()));
+    }
+
+    private boolean hasCheqiReceiptId(IdentificationDetails identificationDetails){
+        return identificationDetails.getCheqiReceiptId().isPresent() &&
+               isNotEmpty(identificationDetails.getCheqiReceiptId().get());
     }
     
     /**
@@ -173,17 +187,20 @@ public class MatchingService {
     /**
      * Logs which identifiers are available for matching.
      */
-    private void logAvailableIdentifiers(IdentificationDetails paymentDetails) {
+    private void logAvailableIdentifiers(IdentificationDetails identificationDetails) {
         StringBuilder identifiers = new StringBuilder("Available identifiers: ");
         
-        if (hasCardDetails(paymentDetails)) {
+        if (hasCardDetails(identificationDetails)) {
             identifiers.append("[Card] ");
         }
-        if (hasPaymentAccountDetails(paymentDetails)) {
+        if (hasPaymentAccountDetails(identificationDetails)) {
             identifiers.append("[PaymentAccount] ");
         }
-        if (hasEmail(paymentDetails)) {
+        if (hasEmail(identificationDetails)) {
             identifiers.append("[Email] ");
+        }
+        if (hasCheqiReceiptId(identificationDetails)) {
+            identifiers.append("[CheqiReceiptId] ");
         }
         
         logger.debug(identifiers.toString().trim());

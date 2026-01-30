@@ -1,8 +1,8 @@
 package com.cheqi.sdk.encryption;
 
-import com.cheqi.commons.DTOs.EncryptedCreditNoteDto;
-import com.cheqi.commons.DTOs.EncryptedReceiptDto;
-import com.cheqi.commons.DTOs.Recipient;
+import com.cheqi.sdk.creditNote.EncryptedCreditNote;
+import com.cheqi.sdk.models.EncryptedReceiptRequestDto;
+import com.cheqi.sdk.models.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +47,12 @@ public class EncryptionService {
      * @return Set of encrypted receipt DTOs, one per recipient
      * @throws EncryptionException if encryption fails for any recipient
      */
-    public Set<EncryptedReceiptDto> encryptReceiptForRecipients(String purchaseReceipt, List<Recipient> recipients) {
+    public Set<EncryptedReceiptRequestDto> encryptReceiptForRecipients(String purchaseReceipt, List<Recipient> recipients) {
         
         logger.debug("Encrypting receipt for {} recipients", recipients.size());
         
         try {
-            Set<EncryptedReceiptDto> encryptedReceipts = recipients.stream()
+            Set<EncryptedReceiptRequestDto> encryptedReceipts = recipients.stream()
                     .map(recipient -> encryptReceiptForRecipient(recipient, purchaseReceipt))
                     .collect(Collectors.toSet());
             
@@ -74,12 +74,12 @@ public class EncryptionService {
      * @return Set of encrypted receipt DTOs, one per recipient
      * @throws EncryptionException if encryption fails for any recipient
      */
-    public Set<EncryptedCreditNoteDto> encryptCreditNoteForRecipients(String creditNote, List<Recipient> recipients) {
+    public Set<EncryptedCreditNote> encryptCreditNoteForRecipients(String creditNote, List<Recipient> recipients) {
 
         logger.debug("Encrypting receipt for {} recipients", recipients.size());
 
         try {
-            Set<EncryptedCreditNoteDto> encryptedReceipts = recipients.stream()
+            Set<EncryptedCreditNote> encryptedReceipts = recipients.stream()
                     .map(recipient -> encryptCreditNoteForRecipient(recipient, creditNote))
                     .collect(Collectors.toSet());
 
@@ -95,7 +95,7 @@ public class EncryptionService {
     /**
      * Encrypts a receipt for a single recipient using hybrid encryption.
      */
-    private EncryptedReceiptDto encryptReceiptForRecipient(
+    private EncryptedReceiptRequestDto encryptReceiptForRecipient(
             Recipient recipient,
             String purchaseReceipt) {
         try {
@@ -112,13 +112,12 @@ public class EncryptionService {
             String encryptedSymmetricKey = rsaKeyEncryptor.encryptKey(aesKey, recipient.getPublicKey());
             
             // Step 4: Build encrypted receipt DTO with pre-encrypted customer details
-            return EncryptedReceiptDto.builder()
+            return EncryptedReceiptRequestDto.builder()
                     .recipientId(recipient.getId())
+                    .publicKey(recipient.getPublicKey())
                     .receiverType(recipient.getReceiverType())
                     .encryptedReceipt(encryptedReceiptBase64)
                     .encryptedSymmetricKey(encryptedSymmetricKey)
-                    .encryptedCustomerAesKey(recipient.getEncryptedAesKey())
-                    .encryptedCustomerDetails(recipient.getEncryptedCustomerDetails())
                     .build();
                     
         } catch (Exception e) {
@@ -130,7 +129,7 @@ public class EncryptionService {
     /**
      * Encrypts a receipt for a single recipient using hybrid encryption.
      */
-    private EncryptedCreditNoteDto encryptCreditNoteForRecipient(
+    private EncryptedCreditNote encryptCreditNoteForRecipient(
             Recipient recipient,
             String creditNote) {
         try {
@@ -147,13 +146,12 @@ public class EncryptionService {
             String encryptedSymmetricKey = rsaKeyEncryptor.encryptKey(aesKey, recipient.getPublicKey());
 
             // Step 4: Build encrypted receipt DTO with pre-encrypted customer details
-            return EncryptedCreditNoteDto.builder()
+            return EncryptedCreditNote.builder()
                     .recipientId(recipient.getId())
                     .receiverType(recipient.getReceiverType())
+                    .publicKey(recipient.getPublicKey())
                     .encryptedCreditNote(encryptedCreditNoteBase64)
                     .encryptedSymmetricKey(encryptedSymmetricKey)
-                    .encryptedCustomerAesKey(recipient.getEncryptedAesKey())
-                    .encryptedCustomerDetails(recipient.getEncryptedCustomerDetails())
                     .build();
 
         } catch (Exception e) {

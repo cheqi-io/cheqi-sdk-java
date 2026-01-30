@@ -53,23 +53,20 @@ public class CompanyService {
     }
 
     /**
-     * Provisions a new company for a merchant.
+     * Provisions a new company for a merchant using API key from SDK config.
+     * Uses Bearer token authentication with the API key configured during SDK initialization.
      *
      * This method creates a new company in the Cheqi system and returns OAuth tokens
-     * for immediate API access. Only available for ClientApplications with a partnerTier.
+     * for immediate API access. Only available for partner-tier API keys.
      *
      * @param company Company details for provisioning
      * @param adminEmail Email address for the company admin (receives invitation)
-     * @param clientId clientId from client application
-     * @param clientSecret clientSecret from client application
      * @return ProvisionCompanyResponse containing companyId and OAuth tokens
      * @throws CheqiSDKException if provisioning fails or validation errors occur
      */
     public ProvisionCompanyResponse provisionCompany(
             Company company,
-            String adminEmail,
-            String clientId,
-            String clientSecret
+            String adminEmail
     ) throws CheqiSDKException {
 
         if (company == null) {
@@ -92,16 +89,6 @@ public class CompanyService {
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
 
-        if (clientId == null || clientId.trim().isEmpty()) {
-            throw new CheqiSDKException("Client application token is required",
-                    CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
-        }
-
-        if (clientSecret == null || clientSecret.trim().isEmpty()) {
-            throw new CheqiSDKException("Client application token is required",
-                    CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
-        }
-
         logger.info("Provisioning company: {}", company.getCompanyName());
 
         try {
@@ -109,7 +96,7 @@ public class CompanyService {
                     .company(company)
                     .adminEmail(adminEmail)
                     .build();
-            ProvisionCompanyResponse response = apiClient.provisionCompany(request, clientId, clientSecret);
+            ProvisionCompanyResponse response = apiClient.provisionCompany(request);
 
             if (response.isProvisioned()) {
                 logger.info("Company provisioned successfully: companyId={}", response.getCompanyId());

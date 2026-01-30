@@ -1,12 +1,12 @@
 package com.cheqi.sdk.receipt;
 
-import com.cheqi.commons.DTOs.EncryptedReceiptDto;
-import com.cheqi.commons.UBL.Party;
-import com.cheqi.commons.UBL.PurchaseReceipt;
 import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.decryption.DecryptedReceipt;
 import com.cheqi.sdk.decryption.DecryptionService;
 import com.cheqi.sdk.exceptions.ReceiptProcessingException;
+import com.cheqi.sdk.models.EncryptedReceipt;
+import com.cheqi.sdk.models.ubl.Party;
+import com.cheqi.sdk.models.ubl.PurchaseReceipt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class ReceiptProcessor {
      * @throws ReceiptProcessingException if decryption or parsing fails
      */
     public PurchaseReceipt processEncryptedReceipt(
-            EncryptedReceiptDto encryptedReceipt,
+            EncryptedReceipt encryptedReceipt,
             String privateKey) {
         
         logger.debug("Processing encrypted receipt for recipient: {}", encryptedReceipt.getRecipientId());
