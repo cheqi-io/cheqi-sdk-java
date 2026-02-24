@@ -11,40 +11,40 @@ import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.matching.MatchingService;
 import com.cheqi.sdk.models.IdentificationDetails;
+import com.cheqi.sdk.models.ReceiptFormat;
 import com.cheqi.sdk.models.Recipient;
 import com.cheqi.sdk.models.RecipientResolutionResponse;
-import com.cheqi.sdk.models.ubl.CreditNote;
 import com.cheqi.sdk.utils.HashUtils;
-import com.cheqi.sdk.utils.RFC8785Canonicalizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service for processing credit note requests.
- * 
+ *
  * This service handles:
  * - Credit note generation and encryption for returns/refunds
  * - Decryption of encrypted credit note requests from customers
  * - Customer identification via cheqiReceiptId (links to original receipt)
  * - Bidirectional encrypted communication (merchant ↔ customer)
- * 
+ *
  * Note: Credit notes identify customers using the cheqiReceiptId from the original receipt,
  * not payment details like card PAR or IBAN. The cheqiReceiptId automatically resolves
  * to the customer who received the original receipt.
  */
 public class CreditNoteService {
     private static final Logger logger = LoggerFactory.getLogger(CreditNoteService.class);
-    
+
     private final DecryptionService decryptionService;
     private final ObjectMapper objectMapper;
     private final MatchingService matchingService;
     private final CheqiApiClient apiClient;
-    private final RFC8785Canonicalizer canonicalizer = new RFC8785Canonicalizer();
     private final EncryptionService encryptionService;
 
     public CreditNoteService(CheqiApiClient apiClient, EncryptionService encryptionService, MatchingService matchingService) {
@@ -64,66 +64,8 @@ public class CreditNoteService {
             IdentificationDetails identificationDetails,
             CreditNoteTemplateRequest creditNoteTemplateRequest
     ) throws CheqiSDKException {
-
-        if (identificationDetails == null) {
-            throw new CheqiSDKException("Identification details cannot be null",
-                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-
-        if (creditNoteTemplateRequest == null) {
-            throw new CheqiSDKException("Credit note template request cannot be null",
-                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-
-        // Validate that cheqiReceiptId is present for credit notes
-        String originalReceiptId = identificationDetails.getCheqiReceiptId()
-                .orElseThrow(() -> new CheqiSDKException(
-                        "Original receipt ID (cheqiReceiptId) is required for credit note processing",
-                        CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null));
-
-        try {
-            logger.debug("Matching customer with API key");
-            RecipientResolutionResponse matchResponse = matchingService.matchCustomer(identificationDetails);
-
-            if (!matchResponse.isCustomerFound() && identificationDetails.getRecipientEmail().isEmpty()) {
-                logger.info("Customer not found and no email provided - skipping template generation as no reciepient is known");
-                return CreditNoteResult.customerNotFound();
-            }
-
-            // Step 3: Generate credit note template
-            logger.debug("Generating credit note template with API key");
-            String creditNoteTemplate = generateCreditNoteTemplate(creditNoteTemplateRequest);
-
-            CreditNote creditNote = objectMapper.readValue(creditNoteTemplate, CreditNote.class);
-
-            if (matchResponse.isCustomerFound()) {
-                String receiptTemplateJson = objectMapper.writeValueAsString(creditNote);
-                String canonicalCreditNoteJson = canonicalizer.canonicalize(receiptTemplateJson);
-                String templateHash = HashUtils.sha256Hex(canonicalCreditNoteJson);
-
-                logger.debug("Creating encrypted receipts for {} recipients", matchResponse.getRecipients().size());
-                Set<EncryptedCreditNote> encryptedCreditNoteDtos = createEncryptedCreditNotes(
-                        canonicalCreditNoteJson,
-                        matchResponse.getRecipients()
-                );
-
-                logger.debug("Sending {} encrypted credit notes to backend with API key", encryptedCreditNoteDtos.size());
-                CreditNoteCreatedResponse receiptCreatedResponse = sendEncryptedCreditNotes(originalReceiptId, encryptedCreditNoteDtos, templateHash, matchResponse);
-
-                logger.info("Receipt processing completed successfully: {} receipts created for {} recipients",
-                        encryptedCreditNoteDtos.size(), matchResponse.getRecipients().size());
-                return CreditNoteResult.deliveredToApp(receiptCreatedResponse, canonicalCreditNoteJson);
-            } else {
-                logger.info("Customer not found but email provided - credit note template generated but not sent");
-                return CreditNoteResult.customerNotFound();
-            }
-        } catch (CheqiSDKException e) {
-            logger.error("Receipt processing failed: {}", e.getMessage(), e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("Unexpected error during receipt processing: {}", e.getMessage(), e);
-            throw new CheqiSDKException("Receipt processing failed: " + e.getMessage(), e);
-        }
+        validateProcessCompleteCreditNoteInputs(identificationDetails, creditNoteTemplateRequest);
+        return processCompleteCreditNoteInternal(identificationDetails, creditNoteTemplateRequest, null);
     }
 
     /**
@@ -135,70 +77,9 @@ public class CreditNoteService {
             CreditNoteTemplateRequest creditNoteTemplateRequest,
             String accessToken
     ) throws CheqiSDKException {
-
-        if (identificationDetails == null) {
-            throw new CheqiSDKException("Identification details cannot be null",
-                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-
-        if (creditNoteTemplateRequest == null) {
-            throw new CheqiSDKException("Credit note template request cannot be null",
-                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-
-        if (accessToken == null || accessToken.trim().isEmpty()) {
-            throw new CheqiSDKException("Access token cannot be null or empty",
-                    CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
-        }
-
-        // Validate that cheqiReceiptId is present for credit notes
-        String originalReceiptId = identificationDetails.getCheqiReceiptId()
-                .orElseThrow(() -> new CheqiSDKException(
-                        "Original receipt ID (cheqiReceiptId) is required for credit note processing",
-                        CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null));
-
-        try {
-            logger.debug("Matching customer with access token");
-            RecipientResolutionResponse matchResponse = matchingService.matchCustomer(identificationDetails, accessToken);
-
-            if (!matchResponse.isCustomerFound() && identificationDetails.getRecipientEmail().isEmpty()) {
-                logger.info("Customer not found and no email provided - skipping template generation as no recipient is known");
-                return CreditNoteResult.customerNotFound();
-            }
-
-            logger.debug("Generating credit note template with access token");
-            String creditNoteTemplate = generateCreditNoteTemplate(creditNoteTemplateRequest, accessToken);
-
-            CreditNote creditNote = objectMapper.readValue(creditNoteTemplate, CreditNote.class);
-
-            if (matchResponse.isCustomerFound()) {
-                String creditNoteTemplateJson = objectMapper.writeValueAsString(creditNote);
-                String canonicalCreditNoteJson = canonicalizer.canonicalize(creditNoteTemplateJson);
-                String templateHash = HashUtils.sha256Hex(canonicalCreditNoteJson);
-
-                logger.debug("Creating encrypted credit notes for {} recipients", matchResponse.getRecipients().size());
-                Set<EncryptedCreditNote> encryptedCreditNoteDtos = createEncryptedCreditNotes(
-                        canonicalCreditNoteJson,
-                        matchResponse.getRecipients()
-                );
-
-                logger.debug("Sending {} encrypted credit notes to backend with access token", encryptedCreditNoteDtos.size());
-                CreditNoteCreatedResponse response = sendEncryptedCreditNotes(originalReceiptId, encryptedCreditNoteDtos, templateHash, matchResponse, accessToken);
-
-                logger.info("Credit note processing completed successfully: {} credit notes created for {} recipients",
-                        encryptedCreditNoteDtos.size(), matchResponse.getRecipients().size());
-                return CreditNoteResult.deliveredToApp(response, canonicalCreditNoteJson);
-            } else {
-                logger.info("Customer not found but email provided - credit note template generated but not sent");
-                return CreditNoteResult.customerNotFound();
-            }
-        } catch (CheqiSDKException e) {
-            logger.error("Credit note processing failed: {}", e.getMessage(), e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("Unexpected error during credit note processing: {}", e.getMessage(), e);
-            throw new CheqiSDKException("Credit note processing failed: " + e.getMessage(), e);
-        }
+        validateProcessCompleteCreditNoteInputs(identificationDetails, creditNoteTemplateRequest);
+        validateAccessToken(accessToken);
+        return processCompleteCreditNoteInternal(identificationDetails, creditNoteTemplateRequest, accessToken);
     }
 
     /**
@@ -211,28 +92,28 @@ public class CreditNoteService {
      */
     public CreditNoteInitiationRequest decryptCreditNoteRequest(
             EncryptedCreditNoteInitiationRequest encryptedCreditNote, String privateKeyBase64) {
-        
-        logger.debug("Processing credit note request for receipt: {}", 
+
+        logger.debug("Processing credit note request for receipt: {}",
                 encryptedCreditNote.getCheqiReceiptId());
-        
+
         try {
             // Step 1: Decrypt the credit note
             DecryptedCreditNote decryptedCreditNote = decryptionService.decryptCreditNote(
                     encryptedCreditNote,
                     privateKeyBase64
             );
-            
+
             // Step 2: Parse JSON to CreditNoteRequest
             CreditNoteInitiationRequest creditNoteRequest = objectMapper.readValue(
                     decryptedCreditNote.getCreditNoteContentJson(),
                     CreditNoteInitiationRequest.class
             );
-            
-            logger.info("Successfully processed credit note request for receipt: {}", 
+
+            logger.info("Successfully processed credit note request for receipt: {}",
                     creditNoteRequest.getCheqiReceiptId());
-            
+
             return creditNoteRequest;
-            
+
         } catch (DecryptionException e) {
             logger.error("Failed to decrypt credit note: {}", e.getMessage());
             throw e;
@@ -250,24 +131,18 @@ public class CreditNoteService {
      * Generates a credit note template using API key from SDK config.
      * Uses Bearer token authentication with the API key configured during SDK initialization.
      */
-    public String generateCreditNoteTemplate(
-            CreditNoteTemplateRequest request) throws CheqiSDKException {
+    public CreditNoteTemplateResponse generateCreditNoteTemplate(
+            CreditNoteTemplateGenerationRequest request) throws CheqiSDKException {
 
         if (request == null) {
             throw new CheqiSDKException("Credit Note template request cannot be null",
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
 
-        if (!request.isValid()) {
-            List<String> errors = request.getValidationErrors();
-            throw new CheqiSDKException("Invalid Credit Note template request: " + String.join(", ", errors),
-                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-
-        logger.debug("Generating credit note template with API key for credit note: {}", request.getDocumentNumber());
+        logger.debug("Generating credit note template with API key for credit note: {}", request.getCreditNoteTemplateRequest().getDocumentNumber());
 
         try {
-            String template = apiClient.generateCreditNoteTemplate(request);
+            CreditNoteTemplateResponse template = apiClient.generateCreditNoteTemplate(request);
             logger.debug("Credit Note template generated successfully");
             return template;
         } catch (Exception e) {
@@ -276,8 +151,8 @@ public class CreditNoteService {
         }
     }
 
-    public String generateCreditNoteTemplate(
-            CreditNoteTemplateRequest request,
+    public CreditNoteTemplateResponse generateCreditNoteTemplate(
+            CreditNoteTemplateGenerationRequest request,
             String accessToken) throws CheqiSDKException {
 
         // Validate request data
@@ -286,21 +161,15 @@ public class CreditNoteService {
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
 
-        if (!request.isValid()) {
-            List<String> errors = request.getValidationErrors();
-            throw new CheqiSDKException("Invalid Credit Note template request: " + String.join(", ", errors),
-                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-
         if (accessToken == null || accessToken.trim().isEmpty()) {
             throw new CheqiSDKException("Access token is required for Credit Note template generation",
                     CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
         }
 
-        logger.debug("Generating Credit Note template for credit note: {}", request.getDocumentNumber());
+        logger.debug("Generating Credit Note template for credit note: {}", request.getCreditNoteTemplateRequest().getDocumentNumber());
 
         try {
-            String template = apiClient.generateCreditNoteTemplate(request, accessToken);
+            CreditNoteTemplateResponse template = apiClient.generateCreditNoteTemplate(request, accessToken);
             logger.debug("Credit Note template generated successfully");
             return template;
         } catch (Exception e) {
@@ -420,42 +289,187 @@ public class CreditNoteService {
 
     /**
      * Creates encrypted receipts for multiple customer devices.
-     *
      * This method takes a receipt template and encrypts it for each of the customer's
      * registered devices using their respective public keys. Each device will receive
      * its own encrypted version that can only be decrypted with its private key.
      *
-     * @param purchaseReceipt The receipt template in JSON format
-     * @param recipients Map of device IDs to their public key information
+     * @param creditNoteEnvelope The receipt template in JSON format
+     * @param recipient Map of device IDs to their public key information
      * @return List of encrypted receipts, one per device
      * @throws CheqiSDKException if encryption fails or parameters are invalid
      */
-    public Set<EncryptedCreditNote> createEncryptedCreditNotes(
-            String purchaseReceipt,
-            List<Recipient> recipients ) throws CheqiSDKException {
+    public EncryptedCreditNote createEncryptedCreditNote(
+            String creditNoteEnvelope,
+            Recipient recipient ) throws CheqiSDKException {
 
-        if (purchaseReceipt == null || purchaseReceipt.trim().isEmpty()) {
+        if (creditNoteEnvelope == null || creditNoteEnvelope.trim().isEmpty()) {
             throw new CheqiSDKException("Purchase receipt cannot be null or empty",
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
 
-        if (recipients == null || recipients.isEmpty()) {
+        if (recipient == null) {
             throw new CheqiSDKException("Recipients cannot be null or empty",
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
-
-        logger.debug("Creating encrypted receipts for {} recipients", recipients.size());
-
         try {
-            Set<EncryptedCreditNote> encryptedReceipts = encryptionService.encryptCreditNoteForRecipients(
-                    purchaseReceipt,
-                    recipients
+            EncryptedCreditNote encryptedReceipts = encryptionService.encryptCreditNoteForRecipient(
+                    creditNoteEnvelope,
+                    recipient
             );
-            logger.debug("Successfully created {} encrypted receipts", encryptedReceipts.size());
             return encryptedReceipts;
         } catch (Exception e) {
             logger.error("Unexpected error creating encrypted receipts: {}", e.getMessage(), e);
             throw new CheqiSDKException("Failed to create encrypted receipts: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Builds a ReceiptEnvelope containing only the formats accepted by the given recipient.
+     */
+    private CreditNoteEnvelope buildEnvelopeForRecipient(
+            Recipient recipient,
+            CreditNoteTemplateResponse creditNoteTemplateResponse) throws Exception {
+
+        CreditNoteEnvelope envelope = new CreditNoteEnvelope();
+        List<ReceiptFormat> acceptedFormats = recipient.getAcceptedFormats();
+
+        if (acceptedFormats.contains(ReceiptFormat.CHEQI) && creditNoteTemplateResponse.getCheqi() != null) {
+            envelope.setCheqiCreditNote(creditNoteTemplateResponse.getCheqi());
+        }
+
+        if (acceptedFormats.contains(ReceiptFormat.UBL_XML) && creditNoteTemplateResponse.getUbl() != null) {
+            envelope.setUblXml(creditNoteTemplateResponse.getUbl());
+        }
+
+        return envelope;
+    }
+
+    private EncryptedCreditNote buildEncryptedCreditNote(
+            Recipient recipient,
+            String envelopeJson) throws CheqiSDKException {
+
+        try {
+            logger.debug("Encrypting creditNote envelope for recipient: {}", recipient.getId());
+
+            // Use encryption service to encrypt the envelope for this recipient
+            EncryptedCreditNote encryptedCreditNote = encryptionService.encryptCreditNoteForRecipient(envelopeJson, recipient);
+
+            return EncryptedCreditNote.builder()
+                    .recipientId(encryptedCreditNote.getRecipientId())
+                    .receiverType(encryptedCreditNote.getReceiverType())
+                    .receiptFormats(recipient.getAcceptedFormats())
+                    .encryptedCreditNote(encryptedCreditNote.getEncryptedCreditNote())
+                    .encryptedSymmetricKey(encryptedCreditNote.getEncryptedSymmetricKey())
+                    .publicKey(encryptedCreditNote.getPublicKey())
+                    .build();
+
+        } catch (Exception e) {
+            logger.error("Failed to encrypt receipt for recipient {}: {}", recipient.getId(), e.getMessage());
+            throw new CheqiSDKException("Failed to encrypt receipt for recipient: " + recipient.getId(), e);
+        }
+    }
+
+    private CreditNoteResult processCompleteCreditNoteInternal(
+            IdentificationDetails identificationDetails,
+            CreditNoteTemplateRequest creditNoteTemplateRequest,
+            String accessToken
+    ) throws CheqiSDKException {
+        String originalReceiptId = identificationDetails.getCheqiReceiptId();
+        if (originalReceiptId == null || originalReceiptId.isEmpty()) {
+            throw new CheqiSDKException(
+                    "Original receipt ID (cheqiReceiptId) is required for credit note processing",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+
+        boolean withAccessToken = accessToken != null;
+        String authMode = withAccessToken ? "access token" : "API key";
+
+        try {
+            logger.debug("Matching customer with {}", authMode);
+            RecipientResolutionResponse matchResponse = withAccessToken
+                    ? matchingService.matchCustomer(identificationDetails, accessToken)
+                    : matchingService.matchCustomer(identificationDetails);
+
+            if (!matchResponse.isCustomerFound()
+                    && (identificationDetails.getRecipientEmail() == null || identificationDetails.getRecipientEmail().isEmpty())) {
+                logger.info("Customer not found and no email provided - skipping template generation as no recipient is known");
+                return CreditNoteResult.customerNotFound();
+            }
+
+            List<ReceiptFormat> determinedFormats = matchResponse.getRecipients().stream()
+                    .flatMap(r -> r.getAcceptedFormats().stream())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            CreditNoteTemplateGenerationRequest generationRequest =
+                    new CreditNoteTemplateGenerationRequest(creditNoteTemplateRequest, determinedFormats);
+
+            logger.debug("Generating credit note template with {}", authMode);
+            CreditNoteTemplateResponse templateResponse = withAccessToken
+                    ? generateCreditNoteTemplate(generationRequest, accessToken)
+                    : generateCreditNoteTemplate(generationRequest);
+
+            if (!matchResponse.isCustomerFound()) {
+                logger.info("Customer not found but email provided - credit note template generated but not sent");
+                return CreditNoteResult.customerNotFound();
+            }
+
+            Set<EncryptedCreditNote> encryptedCreditNotes = buildEncryptedCreditNotes(matchResponse, templateResponse);
+            logger.debug("Sending {} encrypted credit notes to backend with {}", encryptedCreditNotes.size(), authMode);
+
+            String templateContent = templateResponse.getCheqi() != null
+                    ? objectMapper.writeValueAsString(templateResponse.getCheqi())
+                    : templateResponse.getUbl();
+            String templateHash = HashUtils.sha256Hex(templateContent);
+
+            CreditNoteCreatedResponse createdResponse = withAccessToken
+                    ? sendEncryptedCreditNotes(originalReceiptId, encryptedCreditNotes, templateHash, matchResponse, accessToken)
+                    : sendEncryptedCreditNotes(originalReceiptId, encryptedCreditNotes, templateHash, matchResponse);
+
+            logger.info("Credit note processing completed successfully: {} credit notes created for {} recipients",
+                    encryptedCreditNotes.size(), matchResponse.getRecipients().size());
+            return CreditNoteResult.deliveredToApp(createdResponse, templateContent);
+        } catch (CheqiSDKException e) {
+            logger.error("Credit note processing failed: {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error during credit note processing: {}", e.getMessage(), e);
+            throw new CheqiSDKException("Credit note processing failed: " + e.getMessage(), e);
+        }
+    }
+
+    private Set<EncryptedCreditNote> buildEncryptedCreditNotes(
+            RecipientResolutionResponse matchResponse,
+            CreditNoteTemplateResponse templateResponse
+    ) throws Exception {
+        Set<EncryptedCreditNote> encryptedCreditNotes = new HashSet<>();
+        for (Recipient recipient : matchResponse.getRecipients()) {
+            CreditNoteEnvelope envelope = buildEnvelopeForRecipient(recipient, templateResponse);
+            logger.debug("Encrypting envelope for recipient: {} with formats: {}", recipient.getId(), recipient.getAcceptedFormats());
+            String envelopeJson = objectMapper.writeValueAsString(envelope);
+            encryptedCreditNotes.add(buildEncryptedCreditNote(recipient, envelopeJson));
+        }
+        return encryptedCreditNotes;
+    }
+
+    private void validateProcessCompleteCreditNoteInputs(
+            IdentificationDetails identificationDetails,
+            CreditNoteTemplateRequest creditNoteTemplateRequest
+    ) throws CheqiSDKException {
+        if (identificationDetails == null) {
+            throw new CheqiSDKException("Identification details cannot be null",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+        if (creditNoteTemplateRequest == null) {
+            throw new CheqiSDKException("Credit note template request cannot be null",
+                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
+        }
+    }
+
+    private void validateAccessToken(String accessToken) throws CheqiSDKException {
+        if (accessToken == null || accessToken.trim().isEmpty()) {
+            throw new CheqiSDKException("Access token cannot be null or empty",
+                    CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
         }
     }
 }

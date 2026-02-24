@@ -1,7 +1,8 @@
 package com.cheqi.sdk.http;
 
 import com.cheqi.sdk.creditNote.CreditNoteCreatedResponse;
-import com.cheqi.sdk.creditNote.CreditNoteTemplateRequest;
+import com.cheqi.sdk.creditNote.CreditNoteTemplateGenerationRequest;
+import com.cheqi.sdk.creditNote.CreditNoteTemplateResponse;
 import com.cheqi.sdk.creditNote.EncryptedCreditNote;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.models.*;
@@ -9,7 +10,6 @@ import com.cheqi.sdk.models.company.CreateStoreRequest;
 import com.cheqi.sdk.models.company.ProvisionCompanyRequest;
 import com.cheqi.sdk.models.company.ProvisionCompanyResponse;
 import com.cheqi.sdk.models.company.Store;
-import com.cheqi.sdk.models.ubl.PurchaseReceipt;
 
 import java.util.List;
 import java.util.Set;
@@ -42,14 +42,14 @@ public interface CheqiApiClient {
      * @return PurchaseReceipt with placeholders for personal data injection
      * @throws CheqiApiException if the API call fails
      */
-    String generateReceiptTemplate(ReceiptTemplateRequest request, String accessToken) throws CheqiApiException;
+    ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateRequest request, List<ReceiptFormat> receiptFormats, String accessToken) throws CheqiApiException;
 
     /**
      * Generate receipt template using API key from SDK config.
      * Uses Bearer token authentication with the API key configured during SDK initialization.
      * For companies accessing their own data directly.
      */
-    String generateReceiptTemplate(ReceiptTemplateRequest request) throws CheqiApiException;
+    ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateRequest request, List<ReceiptFormat> receiptFormats) throws CheqiApiException;
 
     /**
      * Calls the template endpoint to generate a Credit Note template without personal data.
@@ -65,14 +65,14 @@ public interface CheqiApiClient {
      * @return CreditNote with placeholders for personal data injection
      * @throws CheqiApiException if the API call fails
      */
-    String generateCreditNoteTemplate(CreditNoteTemplateRequest request, String accessToken) throws CheqiApiException;
+    CreditNoteTemplateResponse generateCreditNoteTemplate(CreditNoteTemplateGenerationRequest request, String accessToken) throws CheqiApiException;
 
     /**
      * Generate credit note template using API key from SDK config.
      * Uses Bearer token authentication with the API key configured during SDK initialization.
      * For companies accessing their own data directly.
      */
-    String generateCreditNoteTemplate(CreditNoteTemplateRequest request) throws CheqiApiException;
+    CreditNoteTemplateResponse generateCreditNoteTemplate(CreditNoteTemplateGenerationRequest request) throws CheqiApiException;
 
     /**
      * Calls the customer matching endpoint to find a customer using payment identifiers.
@@ -204,14 +204,14 @@ public interface CheqiApiClient {
      *
      * @since 1.0
      */
-    void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt, String accessToken) throws CheqiApiException;
+    void sendReceiptViaEmail(String customerEmail, CheqiReceipt purchaseReceipt, String accessToken) throws CheqiApiException;
 
     /**
      * Send receipt via email using API key from SDK config.
      * Uses Bearer token authentication with the API key configured during SDK initialization.
      * For companies accessing their own data directly.
      */
-    void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt) throws CheqiApiException;
+    void sendReceiptViaEmail(String customerEmail, CheqiReceipt purchaseReceipt) throws CheqiApiException;
 
     /**
      * Provision a new company using API key from SDK config.

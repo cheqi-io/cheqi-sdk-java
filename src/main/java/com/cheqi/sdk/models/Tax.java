@@ -179,6 +179,9 @@ public final class Tax {
             if (type == null || type.trim().isEmpty()) {
                 throw new IllegalStateException("Tax type is required");
             }
+            if (taxableAmount == null) {
+                throw new IllegalStateException("Tax taxableAmount is required");
+            }
             return new Tax(rate, type, taxableAmount, amount, label);
         }
     }

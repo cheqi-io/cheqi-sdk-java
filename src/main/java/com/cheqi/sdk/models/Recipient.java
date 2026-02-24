@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Key information DTO representing cryptographic key details.
@@ -25,29 +28,34 @@ import java.util.*;
 public class Recipient {
     // ===== MANDATORY FIELDS =====
     @JsonProperty("id")
-    private final UUID id;
+    private final String id;
     @JsonProperty("receiverType")
     private final ReceiverType receiverType;
     @JsonProperty("publicKey")
     private final String publicKey;
     @JsonProperty("keyAlgorithm")
     private final String keyAlgorithm;
+    @JsonProperty("acceptedFormats")
+    private final List<ReceiptFormat> acceptedFormats;
     // ===== OPTIONAL FIELDS =====
-    private final Optional<Instant> keyCreatedAt;
+    @JsonProperty("keyCreatedAt")
+    private final Instant keyCreatedAt;
     private final Map<String, Object> additionalProperties;
 
     // ===== CONSTRUCTOR =====
     private Recipient(
-            UUID id,
+            String id,
             ReceiverType receiverType,
             String publicKey,
             String keyAlgorithm,
-            Optional<Instant> keyCreatedAt,
+            List<ReceiptFormat> acceptedFormats,
+            Instant keyCreatedAt,
             Map<String, Object> additionalProperties) {
         this.id = id;
         this.receiverType = receiverType;
         this.publicKey = publicKey;
         this.keyAlgorithm = keyAlgorithm;
+        this.acceptedFormats = acceptedFormats;
         this.keyCreatedAt = keyCreatedAt;
         this.additionalProperties = additionalProperties;
     }
@@ -55,7 +63,7 @@ public class Recipient {
     // ===== MANDATORY FIELD ACCESSORS =====
 
     @JsonIgnore
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
@@ -74,10 +82,14 @@ public class Recipient {
         return keyAlgorithm;
     }
 
+    @JsonIgnore
+    public List<ReceiptFormat> getAcceptedFormats() {
+        return acceptedFormats;
+    }
+
     // ===== OPTIONAL FIELD ACCESSORS =====
 
-    @JsonIgnore
-    public Optional<Instant> getKeyCreatedAt() {
+    public Instant getKeyCreatedAt() {
         return keyCreatedAt;
     }
 
@@ -96,12 +108,13 @@ public class Recipient {
                 && Objects.equals(this.receiverType, other.receiverType)
                 && Objects.equals(this.publicKey, other.publicKey)
                 && Objects.equals(this.keyAlgorithm, other.keyAlgorithm)
+                && Objects.equals(this.acceptedFormats, other.acceptedFormats)
                 && Objects.equals(this.keyCreatedAt, other.keyCreatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.receiverType, this.publicKey, this.keyAlgorithm, this.keyCreatedAt);
+        return Objects.hash(this.id, this.receiverType, this.publicKey, this.keyAlgorithm, this.acceptedFormats, this.keyCreatedAt);
     }
 
     @Override
@@ -111,6 +124,7 @@ public class Recipient {
                 "receiverType='" + receiverType + '\'' +
                 "publicKey='" + publicKey + '\'' +
                 ", keyAlgorithm='" + keyAlgorithm + '\'' +
+                ", acceptedFormats=" + acceptedFormats +
                 ", keyCreatedAt=" + keyCreatedAt +
                 '}';
     }
@@ -121,11 +135,12 @@ public class Recipient {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
-        private UUID id;
+        private String id;
         private ReceiverType receiverType;
         private String publicKey;
         private String keyAlgorithm;
-        private Optional<Instant> keyCreatedAt = Optional.empty();
+        private List<ReceiptFormat> acceptedFormats;
+        private Instant keyCreatedAt;
         private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {}
@@ -136,11 +151,12 @@ public class Recipient {
             publicKey(other.getPublicKey());
             keyAlgorithm(other.getKeyAlgorithm());
             keyCreatedAt(other.getKeyCreatedAt());
+            acceptedFormats(other.getAcceptedFormats());
             return this;
         }
 
         @JsonSetter(value="id", nulls = Nulls.SKIP)
-        public Recipient.Builder id(UUID id) {
+        public Recipient.Builder id(String id) {
             this.id = id;
             return this;
         }
@@ -163,26 +179,21 @@ public class Recipient {
             return this;
         }
 
+        @JsonSetter(value = "acceptedFormats", nulls = Nulls.SKIP)
+        public Recipient.Builder acceptedFormats(List<ReceiptFormat> acceptedFormats) {
+            this.acceptedFormats = acceptedFormats;
+            return this;
+        }
+
         @JsonSetter(value = "keyCreatedAt", nulls = Nulls.SKIP)
-        public Recipient.Builder keyCreatedAt(Optional<Instant> keyCreatedAt) {
+        public Recipient.Builder keyCreatedAt(Instant keyCreatedAt) {
             this.keyCreatedAt = keyCreatedAt;
             return this;
         }
 
-        public Recipient.Builder keyCreatedAt(Instant keyCreatedAt) {
-            this.keyCreatedAt = Optional.ofNullable(keyCreatedAt);
-            return this;
-        }
-
         public Recipient build() {
-            return new Recipient(id, receiverType, publicKey, keyAlgorithm, keyCreatedAt, additionalProperties);
+            return new Recipient(id, receiverType, publicKey, keyAlgorithm, acceptedFormats, keyCreatedAt, additionalProperties);
         }
     }
 
-    // ===== PRIVATE JSON SERIALIZATION METHODS =====
-
-    @JsonProperty("keyCreatedAt")
-    private Optional<Instant> _getKeyCreatedAt() {
-        return keyCreatedAt;
-    }
 }

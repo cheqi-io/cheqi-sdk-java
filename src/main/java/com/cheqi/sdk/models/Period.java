@@ -81,7 +81,7 @@ public final class Period {
      * Examples: "Monthly subscription - January 2024", "Q1 2024 service period"
      */
     @JsonProperty("description")
-    private final Optional<String> description;
+    private final String description;
 
     private final Map<String, Object> additionalProperties;
 
@@ -90,7 +90,7 @@ public final class Period {
     private Period(
             Instant startDate,
             Instant endDate,
-            Optional<String> description,
+            String description,
             Map<String, Object> additionalProperties) {
         this.startDate = startDate;
         this.endDate = endDate;
@@ -115,9 +115,8 @@ public final class Period {
     /**
      * @return The description if provided
      */
-    @JsonIgnore
-    public Optional<String> getDescription() {
-        return description != null ? description : Optional.empty();
+    public String getDescription() {
+        return description;
     }
 
     public Map<String, Object> getAdditionalProperties() {
@@ -158,7 +157,7 @@ public final class Period {
     public static final class Builder {
         private Instant startDate;
         private Instant endDate;
-        private Optional<String> description = Optional.empty();
+        private String description;
         private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {}
@@ -166,7 +165,7 @@ public final class Period {
         public Period.Builder from(Period other) {
             startDate(other.getStartDate());
             endDate(other.getEndDate());
-            description(other.getDescription().orElse(null));
+            description(other.getDescription());
             return this;
         }
 
@@ -264,7 +263,7 @@ public final class Period {
 
         @JsonSetter(value = "description", nulls = Nulls.SKIP)
         public Period.Builder description(String description) {
-            this.description = Optional.ofNullable(description);
+            this.description = description;
             return this;
         }
 
@@ -273,36 +272,4 @@ public final class Period {
         }
     }
 
-    // ===== VALIDATION METHODS =====
-
-    /**
-     * Validates this period.
-     * @return true if both start and end timestamps are present and start is before or equal to end
-     */
-    @JsonIgnore
-    public boolean isValid() {
-        return getValidationErrors().isEmpty();
-    }
-
-    /**
-     * Gets detailed validation errors for this period.
-     * @return List of validation error messages, empty if valid
-     */
-    @JsonIgnore
-    public List<String> getValidationErrors() {
-        List<String> errors = new ArrayList<>();
-
-        if (startDate == null) {
-            errors.add("Start date/time is required");
-        }
-        if (endDate == null) {
-            errors.add("End date/time is required");
-        }
-        
-        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
-            errors.add("Start date/time must be before or equal to end date/time");
-        }
-
-        return errors;
-    }
 }

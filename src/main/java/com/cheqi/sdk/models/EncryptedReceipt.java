@@ -11,10 +11,10 @@ import java.util.*;
 public class EncryptedReceipt {
     // ===== MANDATORY FIELDS =====
     /**
-     * The UUID of the target device for this encrypted receipt.
+     * The ID of the target recipient for this encrypted receipt.
      */
     @JsonProperty("recipientId")
-    private final UUID recipientId;
+    private final String recipientId;
 
     @JsonProperty("receiptId")
     private final String receiptId;
@@ -32,7 +32,7 @@ public class EncryptedReceipt {
     private final String encryptedSymmetricKey;
 
     /**
-     * Base64-encoded encrypted receipt data.
+     * Base64-encoded encrypted customer details (party envelope).
      */
     @JsonProperty("encryptedCustomerDetails")
     private final String encryptedCustomerDetails;
@@ -63,7 +63,7 @@ public class EncryptedReceipt {
     // ===== CONSTRUCTOR =====
 
     private EncryptedReceipt(
-            UUID recipientId,
+            String recipientId,
             String receiptId,
             ReceiverType receiverType,
             String encryptedReceipt,
@@ -90,7 +90,7 @@ public class EncryptedReceipt {
     // ===== MANDATORY FIELD ACCESSORS =====
 
     @JsonIgnore
-    public UUID getRecipientId() {
+    public String getRecipientId() {
         return recipientId;
     }
 
@@ -175,7 +175,7 @@ public class EncryptedReceipt {
                 ", receiptId=" + receiptId +
                 ", receiverType=" + receiverType +
                 ", encryptedReceipt='" + (encryptedReceipt != null ? "[ENCRYPTED]" : null) + '\'' +
-                ", encryptedCustomerDetails='" + (encryptedCustomerDetails != null ? "[ENCRYPTED]" : null) + '\'' +
+                ", encryptedCustomerParty='" + (encryptedCustomerDetails != null ? "[ENCRYPTED]" : null) + '\'' +
                 ", encryptedSymmetricKey='" + (encryptedSymmetricKey != null ? "[ENCRYPTED]" : null) + '\'' +
                 ", encryptedCustomerAesKey='" + (encryptedCustomerAesKey != null ? "[ENCRYPTED]" : null) + '\'' +
                 ", finalHash='" + (finalHash != null ? "[ENCRYPTED]" : null) + '\'' +
@@ -190,7 +190,7 @@ public class EncryptedReceipt {
     @JsonPOJOBuilder(withPrefix = "", buildMethodName = "build")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
-        private UUID recipientId;
+        private String recipientId;
         private String receiptId;
         private ReceiverType receiverType;
         private String encryptedReceipt;
@@ -219,7 +219,7 @@ public class EncryptedReceipt {
         }
 
         @JsonSetter(value = "recipientId", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder recipientId(UUID recipientId) {
+        public EncryptedReceipt.Builder recipientId(String recipientId) {
             this.recipientId = recipientId;
             return this;
         }
@@ -293,44 +293,5 @@ public class EncryptedReceipt {
                     additionalProperties
             );
         }
-    }
-
-    // ===== VALIDATION METHODS =====
-
-    /**
-     * Validates this encrypted receipt DTO.
-     * @return true if all mandatory fields are present and valid
-     */
-    public boolean isValid() {
-        List<String> errors = getValidationErrors();
-        return errors.isEmpty();
-    }
-
-    /**
-     * Gets detailed validation errors for this encrypted receipt DTO.
-     * @return List of validation error messages, empty if valid
-     */
-    @JsonIgnore
-    public List<String> getValidationErrors() {
-        List<String> errors = new ArrayList<>();
-
-        // Mandatory field validation
-        if (recipientId == null) {
-            errors.add("Device ID is required");
-        }
-
-        if (receiverType == null) {
-            errors.add("Receiver type is required");
-        }
-
-        if (encryptedReceipt == null || encryptedReceipt.trim().isEmpty()) {
-            errors.add("Encrypted receipt data is required");
-        }
-
-        if (encryptedSymmetricKey == null || encryptedSymmetricKey.trim().isEmpty()) {
-            errors.add("Encrypted symmetric key is required");
-        }
-
-        return errors;
     }
 }

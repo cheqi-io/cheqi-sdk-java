@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -86,6 +87,7 @@ public final class ObjectMapperConfig {
         ObjectMapper mapper = new ObjectMapper()
                 .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
                 .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .registerModule(trailingZeroRemovalModule)
                 .registerModule(new Jdk8Module())      // Handles Optional, Stream, etc.
                 .registerModule(new JavaTimeModule()); // Handles LocalDateTime, LocalDate, etc.

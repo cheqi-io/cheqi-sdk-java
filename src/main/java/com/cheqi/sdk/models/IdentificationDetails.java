@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Payment details DTO containing complete payment information for UBL PaymentMeans generation.
@@ -34,28 +33,28 @@ public final class IdentificationDetails {
 
     // ===== OPTIONAL FIELDS =====
     @JsonProperty("cardDetails")
-    private final Optional<CardDetails> cardDetails;
+    private final CardDetails cardDetails;
 
     @JsonProperty("paymentAccountDetails")
-    private final Optional<PaymentAccountDetails> paymentAccountDetails;
+    private final PaymentAccountDetails paymentAccountDetails;
 
     @JsonProperty("paymentIds")
-    private final Optional<List<String>> paymentIds;
+    private final List<String> paymentIds;
 
     @JsonProperty("recipientEmail")
-    private final Optional<String> recipientEmail;
+    private final String recipientEmail;
 
     @JsonProperty("cheqiReceiptId")
-    private final Optional<String> cheqiReceiptId;
+    private final String cheqiReceiptId;
 
     // ===== CONSTRUCTOR =====
     private IdentificationDetails(
             PaymentType paymentType,
-            Optional<CardDetails> cardDetails,
-            Optional<PaymentAccountDetails> paymentAccountDetails,
-            Optional<List<String>> paymentIds,
-            Optional<String> recipientEmail,
-            Optional<String> cheqiReceiptId
+            CardDetails cardDetails,
+            PaymentAccountDetails paymentAccountDetails,
+            List<String> paymentIds,
+            String recipientEmail,
+            String cheqiReceiptId
     ) {
         this.paymentType = paymentType;
         this.cardDetails = cardDetails;
@@ -71,29 +70,25 @@ public final class IdentificationDetails {
     }
 
     // ===== OPTIONAL FIELD ACCESSORS =====
-    @JsonIgnore
-    public Optional<CardDetails> getCardDetails() {
-        return cardDetails != null ? cardDetails : Optional.empty();
+
+    public CardDetails getCardDetails() {
+        return cardDetails;
     }
 
-    @JsonIgnore
-    public Optional<PaymentAccountDetails> getPaymentAccountDetails() {
-        return paymentAccountDetails != null ? paymentAccountDetails : Optional.empty();
+    public PaymentAccountDetails getPaymentAccountDetails() {
+        return paymentAccountDetails;
     }
 
-    @JsonIgnore
-    public Optional<List<String>> getPaymentIds() {
-        return paymentIds != null ? paymentIds : Optional.empty();
+    public List<String> getPaymentIds() {
+        return paymentIds;
     }
 
-    @JsonIgnore
-    public Optional<String> getRecipientEmail() {
-        return recipientEmail != null ? recipientEmail : Optional.empty();
+    public String getRecipientEmail() {
+        return recipientEmail;
     }
 
-    @JsonIgnore
-    public Optional<String> getCheqiReceiptId() {
-        return cheqiReceiptId != null ? cheqiReceiptId : Optional.empty();
+    public String getCheqiReceiptId() {
+        return cheqiReceiptId;
     }
 
     @Override
@@ -135,22 +130,22 @@ public final class IdentificationDetails {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
         private PaymentType paymentType;
-        private Optional<CardDetails> cardDetails = Optional.empty();
-        private Optional<PaymentAccountDetails> paymentAccountDetails = Optional.empty();
-        private Optional<List<String>> paymentIds = Optional.empty();
-        private Optional<String> recipientEmail = Optional.empty();
-        private Optional<String> cheqiReceiptId = Optional.empty();
+        private CardDetails cardDetails;
+        private PaymentAccountDetails paymentAccountDetails;
+        private List<String> paymentIds;
+        private String recipientEmail;
+        private String cheqiReceiptId;
 
         private Builder() {
         }
 
         public IdentificationDetails.Builder from(IdentificationDetails other) {
             paymentType(other.getPaymentType());
-            cardDetails(other.getCardDetails().orElse(null));
-            paymentAccountDetails(other.getPaymentAccountDetails().orElse(null));
-            paymentIds(other.getPaymentIds().orElse(null));
-            recipientEmail(other.getRecipientEmail().orElse(null));
-            cheqiReceiptId(other.getCheqiReceiptId().orElse(null));
+            cardDetails(other.getCardDetails());
+            paymentAccountDetails(other.getPaymentAccountDetails());
+            paymentIds(other.getPaymentIds());
+            recipientEmail(other.getRecipientEmail());
+            cheqiReceiptId(other.getCheqiReceiptId());
             return this;
         }
 
@@ -162,31 +157,31 @@ public final class IdentificationDetails {
 
         @JsonSetter(value = "cardDetails", nulls = Nulls.SKIP)
         public IdentificationDetails.Builder cardDetails(CardDetails cardDetails) {
-            this.cardDetails = Optional.ofNullable(cardDetails);
+            this.cardDetails = cardDetails;
             return this;
         }
 
         @JsonSetter(value = "paymentAccountDetails", nulls = Nulls.SKIP)
         public IdentificationDetails.Builder paymentAccountDetails(PaymentAccountDetails paymentAccountDetails) {
-            this.paymentAccountDetails = Optional.ofNullable(paymentAccountDetails);
+            this.paymentAccountDetails = paymentAccountDetails;
             return this;
         }
 
         @JsonSetter(value = "paymentIds", nulls = Nulls.SKIP)
         public IdentificationDetails.Builder paymentIds(List<String> paymentIds) {
-            this.paymentIds = Optional.ofNullable(paymentIds);
+            this.paymentIds = paymentIds;
             return this;
         }
 
         @JsonSetter(value = "recipientEmail", nulls = Nulls.SKIP)
         public IdentificationDetails.Builder recipientEmail(String recipientEmail) {
-            this.recipientEmail = Optional.ofNullable(recipientEmail);
+            this.recipientEmail = recipientEmail;
             return this;
         }
 
         @JsonSetter(value = "cheqiReceiptId", nulls = Nulls.SKIP)
         public IdentificationDetails.Builder cheqiReceiptId(String cheqiReceiptId) {
-            this.cheqiReceiptId = Optional.ofNullable(cheqiReceiptId);
+            this.cheqiReceiptId = cheqiReceiptId;
             return this;
         }
 

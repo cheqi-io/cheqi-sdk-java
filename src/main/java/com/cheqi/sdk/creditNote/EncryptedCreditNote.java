@@ -1,18 +1,19 @@
 package com.cheqi.sdk.creditNote;
 
+import com.cheqi.sdk.models.ReceiptFormat;
 import com.cheqi.sdk.models.ReceiverType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class EncryptedCreditNote {
     @JsonProperty("recipientId")
-    private UUID recipientId;
+    private String recipientId;
 
     @JsonProperty("creditNoteId")
     private String creditNoteId;
-
 
     @JsonProperty("originalReceiptId")
     private String originalReceiptId;
@@ -44,6 +45,9 @@ public class EncryptedCreditNote {
     @JsonProperty("publicKey")
     private String publicKey;
 
+    @JsonProperty("receiptFormats")
+    private List<ReceiptFormat> receiptFormats;
+
     // ===== OPTIONAL FIELDS =====
 
     /**
@@ -57,7 +61,7 @@ public class EncryptedCreditNote {
     public EncryptedCreditNote() {
     }
 
-    public EncryptedCreditNote(UUID recipientId, String creditNoteId, String originalReceiptId, ReceiverType receiverType, String encryptedCreditNote, String encryptedSymmetricKey, String encryptedCustomerDetails, String encryptedCustomerAesKey, String finalHash, String publicKey, UUID supplierPartyId, Map<String, Object> additionalProperties) {
+    public EncryptedCreditNote(String recipientId, String creditNoteId, String originalReceiptId, ReceiverType receiverType, String encryptedCreditNote, String encryptedSymmetricKey, String encryptedCustomerDetails, String encryptedCustomerAesKey, String finalHash, String publicKey, List<ReceiptFormat> receiptFormats, UUID supplierPartyId, Map<String, Object> additionalProperties) {
         this.recipientId = recipientId;
         this.creditNoteId = creditNoteId;
         this.originalReceiptId = originalReceiptId;
@@ -68,15 +72,16 @@ public class EncryptedCreditNote {
         this.encryptedCustomerAesKey = encryptedCustomerAesKey;
         this.finalHash = finalHash;
         this.publicKey = publicKey;
+        this.receiptFormats = receiptFormats;
         this.supplierPartyId = supplierPartyId;
         this.additionalProperties = additionalProperties;
     }
 
-    public UUID getRecipientId() {
+    public String getRecipientId() {
         return recipientId;
     }
 
-    public void setRecipientId(UUID recipientId) {
+    public void setRecipientId(String recipientId) {
         this.recipientId = recipientId;
     }
 
@@ -152,6 +157,14 @@ public class EncryptedCreditNote {
         this.publicKey = publicKey;
     }
 
+    public List<ReceiptFormat> getReceiptFormats() {
+        return receiptFormats;
+    }
+
+    public void setReceiptFormats(List<ReceiptFormat> receiptFormats) {
+        this.receiptFormats = receiptFormats;
+    }
+
     public UUID getSupplierPartyId() {
         return supplierPartyId;
     }
@@ -173,7 +186,7 @@ public class EncryptedCreditNote {
     }
 
     public static class Builder {
-        private UUID recipientId;
+        private String recipientId;
         private String creditNoteId;
         private String originalReceiptId;
         private ReceiverType receiverType;
@@ -183,10 +196,11 @@ public class EncryptedCreditNote {
         private String encryptedCustomerAesKey;
         private String finalHash;
         private String publicKey;
+        private List<ReceiptFormat> receiptFormats;
         private UUID supplierPartyId;
         private Map<String, Object> additionalProperties;
 
-        public Builder recipientId(UUID recipientId) {
+        public Builder recipientId(String recipientId) {
             this.recipientId = recipientId;
             return this;
         }
@@ -236,6 +250,11 @@ public class EncryptedCreditNote {
             return this;
         }
 
+        public Builder receiptFormats(List<ReceiptFormat> receiptFormats) {
+            this.receiptFormats = receiptFormats;
+            return this;
+        }
+
         public Builder supplierPartyId(UUID supplierPartyId) {
             this.supplierPartyId = supplierPartyId;
             return this;
@@ -258,6 +277,7 @@ public class EncryptedCreditNote {
                 encryptedCustomerAesKey,
                 finalHash,
                 publicKey,
+                receiptFormats,
                 supplierPartyId,
                 additionalProperties
             );

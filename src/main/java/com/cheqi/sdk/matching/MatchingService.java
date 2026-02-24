@@ -150,29 +150,28 @@ public class MatchingService {
      * Checks if card details (PAN or PAR) are present.
      */
     private boolean hasCardDetails(IdentificationDetails identificationDetails) {
-        if (identificationDetails.getCardDetails().isEmpty()) {
+        if (identificationDetails.getCardDetails() == null) {
             return false;
         }
         
-        CardDetails card = identificationDetails.getCardDetails().get();
-        return (card.getPaymentAccountNumber().isPresent() && isNotEmpty(card.getPaymentAccountNumber().get())) ||
-               (card.getPaymentAccountReference().isPresent() && isNotEmpty(card.getPaymentAccountReference().get()));
+        CardDetails card = identificationDetails.getCardDetails();
+        return isNotEmpty(card.getPaymentAccountNumber()) ||
+               isNotEmpty(card.getPaymentAccountReference());
     }
 
     private boolean hasCheqiReceiptId(IdentificationDetails identificationDetails){
-        return identificationDetails.getCheqiReceiptId().isPresent() &&
-               isNotEmpty(identificationDetails.getCheqiReceiptId().get());
+        return isNotEmpty(identificationDetails.getCheqiReceiptId());
     }
     
     /**
      * Checks if payment account details (IBAN) are present.
      */
     private boolean hasPaymentAccountDetails(IdentificationDetails identificationDetails) {
-        if (identificationDetails.getPaymentAccountDetails().isEmpty()) {
+        if (identificationDetails.getPaymentAccountDetails() == null) {
             return false;
         }
         
-        PaymentAccountDetails details = identificationDetails.getPaymentAccountDetails().get();
+        PaymentAccountDetails details = identificationDetails.getPaymentAccountDetails();
         return isNotEmpty(details.getIdentifier());
     }
     
@@ -180,8 +179,7 @@ public class MatchingService {
      * Checks if customer email is present.
      */
     private boolean hasEmail(IdentificationDetails identificationDetails) {
-        return identificationDetails.getRecipientEmail().isPresent() &&
-               isNotEmpty(identificationDetails.getRecipientEmail().get());
+        return isNotEmpty(identificationDetails.getRecipientEmail());
     }
     
     /**

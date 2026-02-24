@@ -8,9 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.crypto.SecretKey;
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Core encryption service providing hybrid encryption for end-to-end security.
@@ -43,22 +40,13 @@ public class EncryptionService {
      * Each recipient gets a unique AES key encrypted with their RSA public key.
      *
      * @param purchaseReceipt The JSON receipt template to encrypt
-     * @param recipients List of recipients with their public keys
+     * @param recipient List of recipients with their public keys
      * @return Set of encrypted receipt DTOs, one per recipient
      * @throws EncryptionException if encryption fails for any recipient
      */
-    public Set<EncryptedReceiptRequestDto> encryptReceiptForRecipients(String purchaseReceipt, List<Recipient> recipients) {
-        
-        logger.debug("Encrypting receipt for {} recipients", recipients.size());
-        
+    public EncryptedReceiptRequestDto encryptReceiptForRecipients(String purchaseReceipt, Recipient recipient) {
         try {
-            Set<EncryptedReceiptRequestDto> encryptedReceipts = recipients.stream()
-                    .map(recipient -> encryptReceiptForRecipient(recipient, purchaseReceipt))
-                    .collect(Collectors.toSet());
-            
-            logger.info("Successfully encrypted receipt for {} recipients", encryptedReceipts.size());
-            return encryptedReceipts;
-            
+            return encryptReceiptForRecipient(recipient, purchaseReceipt);
         } catch (Exception e) {
             logger.error("Failed to encrypt receipt for recipients: {}", e.getMessage());
             throw new EncryptionException("Failed to encrypt receipt for recipients", e);
@@ -70,22 +58,15 @@ public class EncryptionService {
      * Each recipient gets a unique AES key encrypted with their RSA public key.
      *
      * @param creditNote The JSON receipt template to encrypt
-     * @param recipients List of recipients with their public keys
+     * @param recipient List of recipients with their public keys
      * @return Set of encrypted receipt DTOs, one per recipient
      * @throws EncryptionException if encryption fails for any recipient
      */
-    public Set<EncryptedCreditNote> encryptCreditNoteForRecipients(String creditNote, List<Recipient> recipients) {
-
-        logger.debug("Encrypting receipt for {} recipients", recipients.size());
+    public EncryptedCreditNote encryptCreditNoteForRecipient(String creditNote, Recipient recipient) {
 
         try {
-            Set<EncryptedCreditNote> encryptedReceipts = recipients.stream()
-                    .map(recipient -> encryptCreditNoteForRecipient(recipient, creditNote))
-                    .collect(Collectors.toSet());
-
-            logger.info("Successfully encrypted receipt for {} recipients", encryptedReceipts.size());
+            EncryptedCreditNote encryptedReceipts = encryptCreditNoteForRecipient(recipient, creditNote);
             return encryptedReceipts;
-
         } catch (Exception e) {
             logger.error("Failed to encrypt receipt for recipients: {}", e.getMessage());
             throw new EncryptionException("Failed to encrypt receipt for recipients", e);

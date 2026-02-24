@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Simple product line item used in Cheqi receipts.
@@ -29,7 +28,7 @@ import java.util.Optional;
  *     .unitPrice("1000.00")
  *     .subtotal("1000.00")
  *     .total("1210.00")
- *     .addTax(21.0, "VAT", "210.00")
+ *     .addTax(21.0, "VAT", "1000.00", "210.00")
  *     .build();
  *
  * // Pre-packaged product (10 packages × 500g cheese)
@@ -42,7 +41,7 @@ import java.util.Optional;
  *     .unitPrice("4.99")        // Price per package
  *     .subtotal("49.90")
  *     .total("60.38")
- *     .addTax(21.0, "VAT", "10.48")
+ *     .addTax(21.0, "VAT", "49.90", "10.48")
  *     .build();
  *
  * // Weight-based product (2.5kg apples)
@@ -55,7 +54,7 @@ import java.util.Optional;
  *     .unitPrice("3.99")        // Price per kg
  *     .subtotal("9.98")
  *     .total("12.08")
- *     .addTax(21.0, "VAT", "2.10")
+ *     .addTax(21.0, "VAT", "9.98", "2.10")
  *     .build();
  *
  * // Time-based product (monthly subscription) - Easy with LocalDate!
@@ -68,7 +67,7 @@ import java.util.Optional;
  *     .unitPrice("29.99")
  *     .subtotal("29.99")
  *     .total("36.29")
- *     .addTax(21.0, "VAT", "6.30")
+ *     .addTax(21.0, "VAT", "29.99", "6.30")
  *     .period(Period.builder()
  *         .startDate(LocalDate.of(2024, 1, 1))      // Easy!
  *         .endDate(LocalDate.of(2024, 1, 31))       // Easy!
@@ -86,7 +85,7 @@ import java.util.Optional;
  *     .unitPrice("25.00")
  *     .subtotal("75.00")
  *     .total("90.75")
- *     .addTax(21.0, "VAT", "15.75")
+ *     .addTax(21.0, "VAT", "75.00", "15.75")
  *     .period(Period.builder()
  *         .startDate(LocalDateTime.of(2024, 12, 1, 14, 0))  // 2:00 PM - Easy!
  *         .endDate(LocalDateTime.of(2024, 12, 1, 17, 0))    // 5:00 PM - Easy!
@@ -95,7 +94,7 @@ import java.util.Optional;
  *     .build();
  * </pre>
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonDeserialize(builder = Product.Builder.class)
 public final class Product {
 
@@ -228,7 +227,7 @@ public final class Product {
      * @see Period
      */
     @JsonProperty("period")
-    private final Optional<Period> period;
+    private final Period period;
 
     // ===== CONSTRUCTOR =====
 
@@ -246,7 +245,7 @@ public final class Product {
             List<Tax> taxes,
             BigDecimal subtotal,
             BigDecimal total,
-            Optional<Period> period) {
+            Period period) {
 
         this.name = name;
         this.identifier = identifier;
@@ -256,10 +255,10 @@ public final class Product {
         this.baseQuantity = baseQuantity;
         this.unitCode = unitCode;
         this.unitPrice = unitPrice;
-        // defensive copies: keep internal lists immutable
-        this.discounts = discounts != null ? List.copyOf(discounts) : List.of();
-        this.charges   = charges   != null ? List.copyOf(charges)   : List.of();
-        this.taxes     = taxes     != null ? List.copyOf(taxes)     : List.of();
+        // Store null for empty lists so NON_EMPTY excludes them from JSON
+        this.discounts = discounts != null && !discounts.isEmpty() ? List.copyOf(discounts) : null;
+        this.charges   = charges   != null && !charges.isEmpty()   ? List.copyOf(charges)   : null;
+        this.taxes     = taxes     != null && !taxes.isEmpty()     ? List.copyOf(taxes)     : null;
         this.subtotal = subtotal;
         this.total = total;
         this.period = period;
@@ -320,11 +319,10 @@ public final class Product {
     }
 
     /**
-     * @return The period if this product represents a time-based service
+     * @return The period if this product represents a time-based service, or null
      */
-    @JsonIgnore
-    public Optional<Period> getPeriod() {
-        return period != null ? period : Optional.empty();
+    public Period getPeriod() {
+        return period;
     }
 
     // ===== BUILDER =====
@@ -348,7 +346,7 @@ public final class Product {
         private List<Tax> taxes = new ArrayList<>();
         private BigDecimal subtotal;
         private BigDecimal total;
-        private Optional<Period> period = Optional.empty();
+        private Period period;
 
         private Builder() {}
 
@@ -361,12 +359,12 @@ public final class Product {
             this.baseQuantity = other.baseQuantity;
             this.unitCode = other.unitCode;
             this.unitPrice = other.unitPrice;
-            this.discounts = new ArrayList<>(other.discounts);
-            this.charges = new ArrayList<>(other.charges);
-            this.taxes = new ArrayList<>(other.taxes);
+            this.discounts = other.discounts != null ? new ArrayList<>(other.discounts) : new ArrayList<>();
+            this.charges = other.charges != null ? new ArrayList<>(other.charges) : new ArrayList<>();
+            this.taxes = other.taxes != null ? new ArrayList<>(other.taxes) : new ArrayList<>();
             this.subtotal = other.subtotal;
             this.total = other.total;
-            this.period = other.period;
+            this.period = other.getPeriod();
             return this;
         }
 
@@ -540,27 +538,21 @@ public final class Product {
             return this;
         }
 
-        public Builder addTax(Double rate, String type) {
+        public Builder addTax(Double rate, String type, BigDecimal taxableAmount, BigDecimal amount) {
             this.taxes.add(Tax.builder()
                     .rate(rate)
                     .type(type)
-                    .build());
-            return this;
-        }
-
-        public Builder addTax(Double rate, String type, BigDecimal amount) {
-            this.taxes.add(Tax.builder()
-                    .rate(rate)
-                    .type(type)
+                    .taxableAmount(taxableAmount)
                     .amount(amount)
                     .build());
             return this;
         }
 
-        public Builder addTax(Double rate, String type, String amount) {
+        public Builder addTax(Double rate, String type, String taxableAmount, String amount) {
             this.taxes.add(Tax.builder()
                     .rate(rate)
                     .type(type)
+                    .taxableAmount(taxableAmount)
                     .amount(amount)
                     .build());
             return this;
@@ -596,7 +588,7 @@ public final class Product {
          */
         @JsonSetter(value = "period", nulls = Nulls.SKIP)
         public Builder period(Period period) {
-            this.period = Optional.ofNullable(period);
+            this.period = period;
             return this;
         }
 
@@ -618,52 +610,6 @@ public final class Product {
                     period
             );
         }
-    }
-
-    // ===== SIMPLE VALIDATION (OPTIONAL) =====
-
-    /**
-     * @return true if required fields are present and non-negative.
-     */
-    public boolean isValid() {
-        return getValidationErrors().isEmpty();
-    }
-
-    /**
-     * Very lightweight validation meant as a helper for integrators.
-     */
-    public List<String> getValidationErrors() {
-        List<String> errors = new ArrayList<>();
-
-        if (name == null || name.trim().isEmpty()) {
-            errors.add("name is required");
-        }
-        if (quantity == null) {
-            errors.add("quantity is required");
-        }
-        if (baseQuantity == null) {
-            errors.add("baseQuantity is required (use 1.0 for simple items, or the package size for pre-packaged items)");
-        }
-        if (unitCode == null) {
-            errors.add("unitCode is required (e.g., UnitCode.ONE, UnitCode.KILOGRAM)");
-        }
-        if (unitPrice == null) {
-            errors.add("unitPrice is required");
-        }
-        if (subtotal == null) {
-            errors.add("subtotal is required");
-        }
-        if (total == null) {
-            errors.add("total is required");
-        }
-
-        if (quantity != null && quantity <= 0) {
-            errors.add("quantity must be greater than 0");
-        }
-        if (baseQuantity != null && baseQuantity <= 0) {
-            errors.add("baseQuantity must be greater than 0");
-        }
-        return errors;
     }
 
     // ===== EQUALS, HASHCODE, TOSTRING =====

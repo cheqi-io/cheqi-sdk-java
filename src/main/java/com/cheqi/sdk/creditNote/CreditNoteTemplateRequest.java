@@ -42,7 +42,7 @@ import java.util.Objects;
  *         .unitPrice("100.00")
  *         .subtotal("-100.00")
  *         .total("-121.00")
- *         .addTax(21.0, "VAT", "-21.00")
+ *         .addTax(21.0, "VAT", "-100.00", "-21.00")
  *         .build())
  *     
  *     // Tax breakdown
@@ -405,7 +405,7 @@ public final class CreditNoteTemplateRequest {
          * @param quantity Number of units
          * @return This builder
          */
-        public CreditNoteTemplateRequest.Builder addProduct(String brand, String name, String unitPrice, String subtotal, Double taxRate, String taxAmount, String total, Double quantity) {
+        public CreditNoteTemplateRequest.Builder addProduct(String brand, String name, String unitPrice, String subtotal, Double taxRate, String taxableAmount, String taxAmount, String total, Double quantity) {
             return addProduct(Product.builder()
                     .brandName(brand)
                     .name(name)
@@ -415,15 +415,15 @@ public final class CreditNoteTemplateRequest {
                     .unitPrice(unitPrice)
                     .subtotal(subtotal)
                     .total(total)
-                    .addTax(taxRate, "VAT", taxAmount)
+                    .addTax(taxRate, "VAT", taxableAmount, taxAmount)
                     .build());
         }
 
         /**
          * Convenience method with BigDecimal amounts.
          */
-        public CreditNoteTemplateRequest.Builder addProduct(String brand, String name, BigDecimal unitPrice, BigDecimal subtotal, Double taxRate, BigDecimal taxAmount, BigDecimal total, Double quantity) {
-            return addProduct(brand, name, unitPrice.toString(), subtotal.toString(), taxRate, taxAmount.toString(), total.toString(), quantity);
+        public CreditNoteTemplateRequest.Builder addProduct(String brand, String name, BigDecimal unitPrice, BigDecimal subtotal, Double taxRate, BigDecimal taxableAmount, BigDecimal taxAmount, BigDecimal total, Double quantity) {
+            return addProduct(brand, name, unitPrice.toString(), subtotal.toString(), taxRate, taxableAmount.toString(), taxAmount.toString(), total.toString(), quantity);
         }
 
 
@@ -463,16 +463,17 @@ public final class CreditNoteTemplateRequest {
             return this;
         }
 
-        public Builder addTax(Double rate, String type, BigDecimal amount) {
+        public Builder addTax(Double rate, String type, BigDecimal taxableAmount, BigDecimal amount) {
             return addTax(Tax.builder()
                     .rate(rate)
                     .type(type)
+                    .taxableAmount(taxableAmount)
                     .amount(amount)
                     .build());
         }
 
-        public Builder addTax(Double rate, String type, String amount) {
-            return addTax(rate, type, new BigDecimal(amount));
+        public Builder addTax(Double rate, String type, String taxableAmount, String amount) {
+            return addTax(rate, type, new BigDecimal(taxableAmount), new BigDecimal(amount));
         }
 
         @JsonSetter(value = "note", nulls = Nulls.SKIP)
@@ -531,9 +532,20 @@ public final class CreditNoteTemplateRequest {
                 if (product == null) {
                     errors.add("Product " + (i + 1) + " cannot be null");
                 } else {
-                    List<String> productErrors = product.getValidationErrors();
-                    for (String error : productErrors) {
-                        errors.add("Product " + (i + 1) + ": " + error);
+                    if (product.getName() == null || product.getName().trim().isEmpty()) {
+                        errors.add("Product " + (i + 1) + ": name is required");
+                    }
+                    if (product.getQuantity() == null) {
+                        errors.add("Product " + (i + 1) + ": quantity is required");
+                    }
+                    if (product.getUnitPrice() == null) {
+                        errors.add("Product " + (i + 1) + ": unitPrice is required");
+                    }
+                    if (product.getSubtotal() == null) {
+                        errors.add("Product " + (i + 1) + ": subtotal is required");
+                    }
+                    if (product.getTotal() == null) {
+                        errors.add("Product " + (i + 1) + ": total is required");
                     }
                 }
             }

@@ -21,10 +21,12 @@ public class DecryptionService {
 
     private final AESDecryptor aesDecryptor;
     private final RSAKeyDecryptor rsaKeyDecryptor;
+    private final DecryptedReceiptFactory receiptFactory;
 
     public DecryptionService() {
         this.aesDecryptor = new AESDecryptor();
         this.rsaKeyDecryptor = new RSAKeyDecryptor();
+        this.receiptFactory = new DecryptedReceiptFactory();
         logger.info("DecryptionService initialized with AES-256-GCM and RSA-OAEP");
     }
 
@@ -86,7 +88,7 @@ public class DecryptionService {
             logger.info("📊 Decryption summary: receipt={} chars, customer={} chars", 
                        decryptedReceiptContent.length(), 
                        decryptedCustomerDetails != null ? decryptedCustomerDetails.length() : 0);
-            return new DecryptedReceipt(decryptedReceiptContent, decryptedCustomerDetails);
+            return receiptFactory.create(decryptedReceiptContent, decryptedCustomerDetails);
 
         } catch (Exception e) {
             logger.error("❌ Failed to decrypt receipt for recipient {}: {}", 

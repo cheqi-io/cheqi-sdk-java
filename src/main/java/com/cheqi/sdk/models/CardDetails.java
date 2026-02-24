@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Card details DTO representing payment card information.
@@ -42,20 +41,22 @@ public final class CardDetails {
     /**
      * Primary Account Number (PAN) of the card.
      */
-    private final Optional<String> paymentAccountNumber;
+    @JsonProperty("paymentAccountNumber")
+    private final String paymentAccountNumber;
 
     /**
      * Payment Account Reference (PAR) - a unique identifier for the card.
      */
-    private final Optional<String> paymentAccountReference;
+    @JsonProperty("paymentAccountReference")
+    private final String paymentAccountReference;
 
     private final Map<String, Object> additionalProperties;
 
     // ===== CONSTRUCTOR =====
     private CardDetails(
             CardProvider cardProvider,
-            Optional<String> paymentAccountNumber,
-            Optional<String> paymentAccountReference,
+            String paymentAccountNumber,
+            String paymentAccountReference,
             Map<String, Object> additionalProperties) {
         this.cardProvider = cardProvider;
         this.paymentAccountNumber = paymentAccountNumber;
@@ -78,22 +79,14 @@ public final class CardDetails {
     /**
      * @return The payment account number (PAN) if provided
      */
-    @JsonIgnore
-    public Optional<String> getPaymentAccountNumber() {
-        if (paymentAccountNumber == null) {
-            return Optional.empty();
-        }
+    public String getPaymentAccountNumber() {
         return paymentAccountNumber;
     }
 
     /**
      * @return The payment account reference (PAR) if provided
      */
-    @JsonIgnore
-    public Optional<String> getPaymentAccountReference() {
-        if (paymentAccountReference == null) {
-            return Optional.empty();
-        }
+    public String getPaymentAccountReference() {
         return paymentAccountReference;
     }
 
@@ -141,8 +134,8 @@ public final class CardDetails {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
         private CardProvider cardProvider;
-        private Optional<String> paymentAccountNumber = Optional.empty();
-        private Optional<String> paymentAccountReference = Optional.empty();
+        private String paymentAccountNumber;
+        private String paymentAccountReference;
         private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {}
@@ -154,6 +147,7 @@ public final class CardDetails {
             return this;
         }
 
+
         @JsonSetter(value = "cardProvider", nulls = Nulls.SKIP)
         public CardDetails.Builder cardProvider(CardProvider cardProvider) {
             this.cardProvider = cardProvider;
@@ -161,24 +155,14 @@ public final class CardDetails {
         }
 
         @JsonSetter(value = "paymentAccountNumber", nulls = Nulls.SKIP)
-        public CardDetails.Builder paymentAccountNumber(Optional<String> paymentAccountNumber) {
+        public CardDetails.Builder paymentAccountNumber(String paymentAccountNumber) {
             this.paymentAccountNumber = paymentAccountNumber;
             return this;
         }
 
-        public CardDetails.Builder paymentAccountNumber(String paymentAccountNumber) {
-            this.paymentAccountNumber = Optional.ofNullable(paymentAccountNumber);
-            return this;
-        }
-
         @JsonSetter(value = "paymentAccountReference", nulls = Nulls.SKIP)
-        public CardDetails.Builder paymentAccountReference(Optional<String> paymentAccountReference) {
-            this.paymentAccountReference = paymentAccountReference;
-            return this;
-        }
-
         public CardDetails.Builder paymentAccountReference(String paymentAccountReference) {
-            this.paymentAccountReference = Optional.ofNullable(paymentAccountReference);
+            this.paymentAccountReference = paymentAccountReference;
             return this;
         }
 
@@ -192,15 +176,4 @@ public final class CardDetails {
         }
     }
 
-    // ===== PRIVATE JSON SERIALIZATION METHODS =====
-
-    @JsonProperty("paymentAccountNumber")
-    private Optional<String> _getPaymentAccountNumber() {
-        return paymentAccountNumber;
-    }
-
-    @JsonProperty("paymentAccountReference")
-    private Optional<String> _getPaymentAccountReference() {
-        return paymentAccountReference;
-    }
 }

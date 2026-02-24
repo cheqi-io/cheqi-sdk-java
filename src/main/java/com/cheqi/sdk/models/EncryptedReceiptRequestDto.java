@@ -3,22 +3,22 @@ package com.cheqi.sdk.models;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(builder = EncryptedReceiptRequestDto.Builder.class)
 public final class EncryptedReceiptRequestDto {
     @JsonProperty("recipientId")
-    private final UUID recipientId;
+    private final String recipientId;
 
     @JsonProperty("receiptId")
     private final String receiptId;
 
     @JsonProperty("receiverType")
     private final ReceiverType receiverType;
+
+    @JsonProperty("receiptFormats")
+    private final List<ReceiptFormat> receiptFormats;
 
     @JsonProperty("encryptedReceipt")
     private final String encryptedReceipt;
@@ -38,9 +38,10 @@ public final class EncryptedReceiptRequestDto {
     private final Map<String, Object> additionalProperties;
 
     private EncryptedReceiptRequestDto(
-            UUID recipientId,
+            String recipientId,
             String receiptId,
             ReceiverType receiverType,
+            List<ReceiptFormat> receiptFormats,
             String encryptedReceipt,
             String encryptedSymmetricKey,
             String finalHash,
@@ -50,6 +51,7 @@ public final class EncryptedReceiptRequestDto {
         this.recipientId = recipientId;
         this.receiptId = receiptId;
         this.receiverType = receiverType;
+        this.receiptFormats = receiptFormats;
         this.encryptedReceipt = encryptedReceipt;
         this.encryptedSymmetricKey = encryptedSymmetricKey;
         this.finalHash = finalHash;
@@ -58,7 +60,7 @@ public final class EncryptedReceiptRequestDto {
         this.additionalProperties = additionalProperties;
     }
 
-    public UUID getRecipientId() {
+    public String getRecipientId() {
         return recipientId;
     }
 
@@ -68,6 +70,10 @@ public final class EncryptedReceiptRequestDto {
 
     public ReceiverType getReceiverType() {
         return receiverType;
+    }
+
+    public List<ReceiptFormat> getReceiptFormats() {
+        return receiptFormats;
     }
 
     public String getEncryptedReceipt() {
@@ -104,6 +110,7 @@ public final class EncryptedReceiptRequestDto {
         return Objects.equals(this.recipientId, other.recipientId)
                 && Objects.equals(this.receiptId, other.receiptId)
                 && Objects.equals(this.receiverType, other.receiverType)
+                && Objects.equals(this.receiptFormats, other.receiptFormats)
                 && Objects.equals(this.encryptedReceipt, other.encryptedReceipt)
                 && Objects.equals(this.encryptedSymmetricKey, other.encryptedSymmetricKey)
                 && Objects.equals(this.finalHash, other.finalHash)
@@ -114,7 +121,7 @@ public final class EncryptedReceiptRequestDto {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.recipientId, this.receiptId, this.receiverType, this.encryptedReceipt,
+        return Objects.hash(this.recipientId, this.receiptId, this.receiverType, this.receiptFormats, this.encryptedReceipt,
                 this.encryptedSymmetricKey, this.finalHash, this.publicKey, this.supplierPartyId, this.additionalProperties);
     }
 
@@ -124,6 +131,7 @@ public final class EncryptedReceiptRequestDto {
                 "recipientId=" + recipientId +
                 ", receiptId='" + receiptId + '\'' +
                 ", receiverType=" + receiverType +
+                ", receiptFormats=" + receiptFormats +
                 ", encryptedReceipt='" + encryptedReceipt + '\'' +
                 ", encryptedSymmetricKey='" + encryptedSymmetricKey + '\'' +
                 ", finalHash='" + finalHash + '\'' +
@@ -139,9 +147,10 @@ public final class EncryptedReceiptRequestDto {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
-        private UUID recipientId;
+        private String recipientId;
         private String receiptId;
         private ReceiverType receiverType;
+        private List<ReceiptFormat> receiptFormats;
         private String encryptedReceipt;
         private String encryptedSymmetricKey;
         private String finalHash;
@@ -155,6 +164,7 @@ public final class EncryptedReceiptRequestDto {
             recipientId(other.getRecipientId());
             receiptId(other.getReceiptId());
             receiverType(other.getReceiverType());
+            receiptFormats(other.getReceiptFormats());
             encryptedReceipt(other.getEncryptedReceipt());
             encryptedSymmetricKey(other.getEncryptedSymmetricKey());
             finalHash(other.getFinalHash());
@@ -164,7 +174,7 @@ public final class EncryptedReceiptRequestDto {
         }
 
         @JsonSetter(value = "recipientId", nulls = Nulls.SKIP)
-        public Builder recipientId(UUID recipientId) {
+        public Builder recipientId(String recipientId) {
             this.recipientId = recipientId;
             return this;
         }
@@ -178,6 +188,12 @@ public final class EncryptedReceiptRequestDto {
         @JsonSetter(value = "receiverType", nulls = Nulls.SKIP)
         public Builder receiverType(ReceiverType receiverType) {
             this.receiverType = receiverType;
+            return this;
+        }
+
+        @JsonSetter(value = "receiptFormat", nulls = Nulls.SKIP)
+        public Builder receiptFormats(List<ReceiptFormat> receiptFormats) {
+            this.receiptFormats = receiptFormats;
             return this;
         }
 
@@ -212,7 +228,7 @@ public final class EncryptedReceiptRequestDto {
         }
 
         public EncryptedReceiptRequestDto build() {
-            return new EncryptedReceiptRequestDto(recipientId, receiptId, receiverType, encryptedReceipt,
+            return new EncryptedReceiptRequestDto(recipientId, receiptId, receiverType, receiptFormats, encryptedReceipt,
                     encryptedSymmetricKey, finalHash, publicKey, supplierPartyId, additionalProperties);
         }
     }

@@ -1,17 +1,13 @@
 package com.cheqi.sdk.http;
 
 import com.cheqi.sdk.config.CheqiSDKConfig;
-import com.cheqi.sdk.creditNote.CreditNoteCreatedResponse;
-import com.cheqi.sdk.creditNote.CreditNoteTemplateRequest;
-import com.cheqi.sdk.creditNote.EncryptedCreditNote;
-import com.cheqi.sdk.creditNote.EncryptedCreditNotesRequest;
+import com.cheqi.sdk.creditNote.*;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.models.*;
 import com.cheqi.sdk.models.company.CreateStoreRequest;
 import com.cheqi.sdk.models.company.ProvisionCompanyRequest;
 import com.cheqi.sdk.models.company.ProvisionCompanyResponse;
 import com.cheqi.sdk.models.company.Store;
-import com.cheqi.sdk.models.ubl.PurchaseReceipt;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -57,9 +53,9 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public String generateReceiptTemplate(ReceiptTemplateRequest request, String accessToken) throws CheqiApiException {
+    public ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateRequest request, List<ReceiptFormat> receiptFormats, String accessToken) throws CheqiApiException {
         logger.info("Generating receipt template for receipt ID: {}", request.getDocumentNumber());
-
+    
         if (accessToken == null || accessToken.trim().isEmpty()) {
             throw new CheqiApiException(
                     "Access token is required for template generation",
@@ -68,19 +64,24 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
                     null
             );
         }
-
+    
         try {
-            // Serialize request to JSON
-            String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Template request JSON: {}", requestJson);
-
-            // Build HTTP request - Accept XML since backend now returns XML string
-            Request httpRequest = buildPostRequest(Endpoints.TEMPLATE_ENDPOINT, requestJson, accessToken, "application/xml");
-
-            // Execute request with retry logic
+            // Wrap request and formats together
+            ReceiptTemplateGenerationRequest generationRequest = 
+                new ReceiptTemplateGenerationRequest(request, receiptFormats);
+            
+            // Serialize the wrapped request to JSON
+            String requestJson = objectMapper.writeValueAsString(generationRequest);
+            logger.debug("Template generation request JSON: {}", requestJson);
+    
+            // Build HTTP request - Accept JSON for template response
+            Request httpRequest = buildPostRequest(Endpoints.TEMPLATE_ENDPOINT, requestJson, accessToken, "application/json");
+    
+            // Execute request with retry logging
             Response response = retryHandler.executeWithRetry(httpRequest, "generateReceiptTemplate");
-            return responseHandler.handleStringResponse(response, "Template generation");
+            String responseBody = responseHandler.handleStringResponse(response, "Template generation");
 
+            return objectMapper.readValue(responseBody, ReceiptTemplateResponse.class);
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {
@@ -105,17 +106,24 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public String generateReceiptTemplate(ReceiptTemplateRequest request) throws CheqiApiException {
+    public ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateRequest request, List<ReceiptFormat> receiptFormats) throws CheqiApiException {
         logger.info("Generating receipt template with API key for receipt ID: {}", request.getDocumentNumber());
 
         try {
-            String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Template request JSON: {}", requestJson);
+            // Wrap request and formats together
+            ReceiptTemplateGenerationRequest generationRequest = 
+                new ReceiptTemplateGenerationRequest(request, receiptFormats);
+            
+            // Serialize the wrapped request to JSON
+            String requestJson = objectMapper.writeValueAsString(generationRequest);
+            logger.debug("Template generation request JSON: {}", requestJson);
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.TEMPLATE_ENDPOINT, requestJson);
-            Response response = retryHandler.executeWithRetry(httpRequest, "generateReceiptTemplate");
-            return responseHandler.handleStringResponse(response, "Template generation");
 
+            Response response = retryHandler.executeWithRetry(httpRequest, "generateReceiptTemplate");
+            
+            String responseBody = responseHandler.handleStringResponse(response, "Template generation");
+            return objectMapper.readValue(responseBody, ReceiptTemplateResponse.class);
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {
@@ -140,8 +148,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public String generateCreditNoteTemplate(CreditNoteTemplateRequest request, String accessToken) throws CheqiApiException {
-        logger.info("Generating credit note template for credit note ID: {}", request.getDocumentNumber());
+    public CreditNoteTemplateResponse generateCreditNoteTemplate(CreditNoteTemplateGenerationRequest request, String accessToken) throws CheqiApiException {
+        logger.info("Generating credit note template for credit note ID: {}", request.getCreditNoteTemplateRequest().getDocumentNumber());
 
         if (accessToken == null || accessToken.trim().isEmpty()) {
             throw new CheqiApiException(
@@ -158,8 +166,11 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             Request httpRequest = buildPostRequest(Endpoints.CREDIT_NOTE_TEMPLATE_ENDPOINT, requestJson, accessToken, "application/json");
             Response response = retryHandler.executeWithRetry(httpRequest, "generateCreditNoteTemplate");
-            return responseHandler.handleStringResponse(response, "Credit note template generation");
 
+
+            String responseBody = responseHandler.handleStringResponse(response, "Template generation");
+
+            return objectMapper.readValue(responseBody, CreditNoteTemplateResponse.class);
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {
@@ -184,8 +195,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public String generateCreditNoteTemplate(CreditNoteTemplateRequest request) throws CheqiApiException {
-        logger.info("Generating credit note template with API key for credit note ID: {}", request.getDocumentNumber());
+    public CreditNoteTemplateResponse generateCreditNoteTemplate(CreditNoteTemplateGenerationRequest request) throws CheqiApiException {
+        logger.info("Generating credit note template with API key for credit note ID: {}", request.getCreditNoteTemplateRequest().getDocumentNumber());
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
@@ -193,8 +204,9 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.CREDIT_NOTE_TEMPLATE_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "generateCreditNoteTemplate");
-            return responseHandler.handleStringResponse(response, "Credit note template generation");
 
+            String responseBody = responseHandler.handleStringResponse(response, "Template generation");
+            return objectMapper.readValue(responseBody, CreditNoteTemplateResponse.class);
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {
@@ -541,7 +553,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
 
     @Override
-    public void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt) throws CheqiApiException {
+    public void sendReceiptViaEmail(String customerEmail, CheqiReceipt cheqiReceipt) throws CheqiApiException {
         logger.info("Sending receipt via email to: {}", customerEmail);
 
         if (customerEmail == null || customerEmail.trim().isEmpty()) {
@@ -553,7 +565,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             );
         }
 
-        if (purchaseReceipt == null) {
+        if (cheqiReceipt == null) {
             throw new CheqiApiException(
                     "Purchase receipt is required",
                     400,
@@ -564,7 +576,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             // Create request DTO with email and receipt
-            var emailRequest = new EmailReceiptRequest(customerEmail, purchaseReceipt);
+            var emailRequest = new EmailReceiptRequest(customerEmail, cheqiReceipt);
             
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(emailRequest);
@@ -601,7 +613,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void sendReceiptViaEmail(String customerEmail, PurchaseReceipt purchaseReceipt, String accessToken) throws CheqiApiException {
+    public void sendReceiptViaEmail(String customerEmail, CheqiReceipt cheqiReceipt, String accessToken) throws CheqiApiException {
         logger.info("Sending receipt via email to: {}", customerEmail);
 
         validateAccessToken(accessToken);
@@ -615,7 +627,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             );
         }
 
-        if (purchaseReceipt == null) {
+        if (cheqiReceipt == null) {
             throw new CheqiApiException(
                     "Purchase receipt is required",
                     400,
@@ -626,7 +638,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             // Create request DTO with email and receipt
-            var emailRequest = new EmailReceiptRequest(customerEmail, purchaseReceipt);
+            var emailRequest = new EmailReceiptRequest(customerEmail, cheqiReceipt);
 
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(emailRequest);

@@ -207,7 +207,7 @@ if (result.isSuccess()) {
 
 ### Email Fallback
 
-**You can include an email address in your initial request** for automatic fallback if the customer is not found:
+**You can include an email addressDto in your initial request** for automatic fallback if the customer is not found:
 
 ```java
 // Add email to identification details for fallback
@@ -533,7 +533,7 @@ Company company = Company.builder()
     .companyLegalName("My Store B.V.")
     .chamberOfCommerceNumber("12345678")
     .companyEmail("info@mystore.nl")
-    .address(Address.builder()
+    .addressDto(Address.builder()
         .streetName("Hoofdstraat 123")
         .cityName("Amsterdam")
         .postalZone("1012AB")
@@ -577,7 +577,7 @@ import java.util.UUID;
 CreateStoreRequest storeRequest = CreateStoreRequest.builder()
     .storeName("My Store Amsterdam")
     .storeCode("STORE-001")
-    .address(Address.builder()
+    .addressDto(Address.builder()
         .streetName("Kalverstraat 1")
         .cityName("Amsterdam")
         .postalZone("1012NX")
@@ -608,7 +608,7 @@ Store store = sdk.getStoreService()
 CreateStoreRequest updateRequest = CreateStoreRequest.builder()
     .storeName("My Store Amsterdam - Central")
     .storeCode("STORE-001")
-    .address(Address.builder()
+    .addressDto(Address.builder()
         .streetName("Kalverstraat 1")
         .cityName("Amsterdam")
         .postalZone("1012NX")
@@ -638,8 +638,8 @@ sdk.getStoreService().deleteStore(companyId, storeId, accessToken);
 
 **Address Fields:**
 - **`streetName`** (required): Street name and number
-- **`additionalStreetName`** (optional): Additional address line
-- **`addressLine`** (optional): Full address line
+- **`additionalStreetName`** (optional): Additional addressDto line
+- **`addressLine`** (optional): Full addressDto line
 - **`region`** (optional): State/province/region
 - **`cityName`** (required): City name
 - **`postalZone`** (required): Postal/ZIP code

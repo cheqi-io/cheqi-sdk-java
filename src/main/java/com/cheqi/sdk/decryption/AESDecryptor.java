@@ -67,12 +67,12 @@ public class AESDecryptor {
             byte[] decryptedBytes = cipher.doFinal(ciphertextWithTag);
             logger.info("✅ AES-GCM decryption successful: {} bytes", decryptedBytes.length);
             
-            String decryptedString = new String(decryptedBytes, StandardCharsets.UTF_8);
-            logger.info("✅ Converted to UTF-8 string: {} characters", decryptedString.length());
-            logger.info("🔍 Decrypted content (first 200 chars): {}...", 
-                       decryptedString.substring(0, Math.min(200, decryptedString.length())));
+            String decryptedPayload = new String(decryptedBytes, StandardCharsets.UTF_8);
+            logger.info("✅ Converted to UTF-8 string: {} characters", decryptedPayload.length());
+            logger.info("🔍 Decrypted content (first 200 chars): {}...",
+                    decryptedPayload.substring(0, Math.min(200, decryptedPayload.length())));
             
-            return decryptedString;
+            return decryptedPayload;
 
         } catch (Exception e) {
             logger.error("❌ AES-GCM decryption failed: {}", e.getMessage(), e);

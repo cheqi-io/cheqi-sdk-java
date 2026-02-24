@@ -1,6 +1,5 @@
 package com.cheqi.sdk.models;
 
-import com.cheqi.sdk.models.ubl.PaymentMeans;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -23,9 +22,6 @@ public class RecipientResolutionResponse {
     @JsonProperty("recipients")
     private List<Recipient> recipients;
 
-    @JsonProperty("paymentMeans")
-    private List<PaymentMeans> paymentMeans;
-
     @JsonProperty("expiresAt")
     private Instant expiresAt;
 
@@ -45,14 +41,13 @@ public class RecipientResolutionResponse {
             boolean customerFound,
             String matchId,
             List<Recipient> recipients,
-            List<PaymentMeans> paymentMeans,
+            PaymentInfo paymentInfo,
             Instant expiresAt,
             String instructions,
             Map<String, Object> additionalProperties) {
         this.customerFound = customerFound;
         this.matchId = matchId;
         this.recipients = recipients;
-        this.paymentMeans = paymentMeans;
         this.expiresAt = expiresAt;
         this.instructions = instructions != null ? instructions : "Use this anonymous identifier when submitting encrypted receipts. Encrypt receipts using the provided device public keys.";
         this.additionalProperties = additionalProperties != null ? additionalProperties : new HashMap<>();
@@ -69,10 +64,6 @@ public class RecipientResolutionResponse {
 
     public List<Recipient> getRecipients() {
         return recipients;
-    }
-
-    public List<PaymentMeans> getPaymentMeans() {
-        return paymentMeans;
     }
 
     public Instant getExpiresAt() {
@@ -100,10 +91,6 @@ public class RecipientResolutionResponse {
         this.recipients = recipients;
     }
 
-    public void setPaymentMeans(List<PaymentMeans> paymentMeans) {
-        this.paymentMeans = paymentMeans;
-    }
-
     public void setExpiresAt(Instant expiresAt) {
         this.expiresAt = expiresAt;
     }
@@ -128,13 +115,12 @@ public class RecipientResolutionResponse {
                 && Objects.equals(this.recipients, other.recipients)
                 && Objects.equals(this.expiresAt, other.expiresAt)
                 && Objects.equals(this.instructions, other.instructions)
-                && Objects.equals(this.additionalProperties, other.additionalProperties)
-                && Objects.equals(this.paymentMeans, other.paymentMeans);
+                && Objects.equals(this.additionalProperties, other.additionalProperties);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.customerFound, this.matchId, this.recipients, this.expiresAt, this.instructions, this.paymentMeans, this.additionalProperties);
+        return Objects.hash(this.customerFound, this.matchId, this.recipients, this.expiresAt, this.instructions, this.additionalProperties);
     }
 
     @Override
@@ -146,7 +132,6 @@ public class RecipientResolutionResponse {
                 ", expiresAt=" + expiresAt +
                 ", instructions='" + instructions + '\'' +
                 ", additionalProperties=" + additionalProperties +
-                ", paymentMeans=" + paymentMeans +
                 '}';
     }
 
@@ -160,7 +145,7 @@ public class RecipientResolutionResponse {
         private boolean customerFound;
         private String matchId;
         private List<Recipient> recipients;
-        private List<PaymentMeans> paymentMeans;
+        private PaymentInfo paymentInfo;
         private Instant expiresAt;
         private String instructions = "Use this anonymous identifier when submitting encrypted receipts. Encrypt receipts using the provided device public keys.";
         private Map<String, Object> additionalProperties = new HashMap<>();
@@ -172,7 +157,6 @@ public class RecipientResolutionResponse {
             matchId(other.getMatchId());
             recipients(other.getRecipients());
             expiresAt(other.getExpiresAt());
-            paymentMeans(other.getPaymentMeans());
             instructions(other.getInstructions());
             return this;
         }
@@ -195,9 +179,9 @@ public class RecipientResolutionResponse {
             return this;
         }
 
-        @JsonSetter(value = "paymentMeans", nulls = Nulls.SKIP)
-        public RecipientResolutionResponse.Builder paymentMeans(List<PaymentMeans> paymentMeans) {
-            this.paymentMeans = paymentMeans;
+        @JsonSetter(value = "paymentInfo", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder paymentInfo(PaymentInfo paymentInfo) {
+            this.paymentInfo = paymentInfo;
             return this;
         }
 
@@ -220,7 +204,7 @@ public class RecipientResolutionResponse {
         }
 
         public RecipientResolutionResponse build() {
-            return new RecipientResolutionResponse(customerFound, matchId, recipients, paymentMeans, expiresAt, instructions, additionalProperties);
+            return new RecipientResolutionResponse(customerFound, matchId, recipients, paymentInfo, expiresAt, instructions, additionalProperties);
         }
     }
 
