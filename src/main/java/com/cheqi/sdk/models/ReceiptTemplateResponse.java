@@ -7,13 +7,16 @@ public class ReceiptTemplateResponse {
     private String ubl;
     @JsonProperty("cheqi")
     private CheqiReceipt cheqi;
+    @JsonProperty("vatMetadata")
+    private VatMetadata vatMetadata;
 
     public ReceiptTemplateResponse() {
     }
 
-    public ReceiptTemplateResponse(String ubl, CheqiReceipt cheqi) {
+    public ReceiptTemplateResponse(String ubl, CheqiReceipt cheqi, VatMetadata vatMetadata) {
         this.ubl = ubl;
         this.cheqi = cheqi;
+        this.vatMetadata = vatMetadata;
     }
 
     public String getUbl() {
@@ -30,5 +33,13 @@ public class ReceiptTemplateResponse {
 
     public void setCheqi(CheqiReceipt cheqi) {
         this.cheqi = cheqi;
+    }
+
+    public VatMetadata getVatMetadata() {
+        return vatMetadata;
+    }
+
+    public void setVatMetadata(VatMetadata vatMetadata) {
+        this.vatMetadata = vatMetadata;
     }
 }

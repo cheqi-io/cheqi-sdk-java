@@ -67,8 +67,10 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     
         try {
             // Wrap request and formats together
-            ReceiptTemplateGenerationRequest generationRequest = 
-                new ReceiptTemplateGenerationRequest(request, receiptFormats);
+            ReceiptTemplateGenerationRequest generationRequest =
+                new ReceiptTemplateGenerationRequest(request, receiptFormats,
+                        request.getBuyerCountryCode(), request.getRecipientEntityType(),
+                        request.getTaxesApplied());
             
             // Serialize the wrapped request to JSON
             String requestJson = objectMapper.writeValueAsString(generationRequest);
@@ -111,8 +113,10 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             // Wrap request and formats together
-            ReceiptTemplateGenerationRequest generationRequest = 
-                new ReceiptTemplateGenerationRequest(request, receiptFormats);
+            ReceiptTemplateGenerationRequest generationRequest =
+                new ReceiptTemplateGenerationRequest(request, receiptFormats,
+                        request.getBuyerCountryCode(), request.getRecipientEntityType(),
+                        request.getTaxesApplied());
             
             // Serialize the wrapped request to JSON
             String requestJson = objectMapper.writeValueAsString(generationRequest);
@@ -526,7 +530,6 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             // Execute request with retry logic
             Response response = retryHandler.executeWithRetry(httpRequest, "sendEncryptedCreditNotes");
-            responseHandler.handleVoidResponse(response, "Send encrypted credit notes");
             return responseHandler.handleJsonResponse(response, CreditNoteCreatedResponse.class, "Send encrypted credit notes");
         } catch (CheqiApiException e) {
             throw e;
@@ -645,7 +648,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             logger.debug("Email receipt request JSON: {}", requestJson);
 
             // Build HTTP request
-            Request httpRequest = buildPostRequestWithApiKey(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson);
+            Request httpRequest = buildJsonPostRequest(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson, accessToken);
 
             // Execute request with retry logic
             Response response = retryHandler.executeWithRetry(httpRequest, "sendReceiptViaEmail");

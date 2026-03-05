@@ -2,6 +2,8 @@ package com.cheqi.sdk.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 public class ReceivingParty {
     @JsonProperty("companyLegalName")
     private String companyLegalName;
@@ -9,8 +11,8 @@ public class ReceivingParty {
     @JsonProperty("taxNumber")
     private String taxNumber;
     
-    @JsonProperty("companyRegistration")
-    private CompanyRegistration companyRegistration;
+    @JsonProperty("companyIdentifiers")
+    private List<CompanyIdentifier> companyIdentifiers;
     
     @JsonProperty("consumerName")
     private String consumerName;
@@ -43,12 +45,13 @@ public class ReceivingParty {
         this.taxNumber = taxNumber;
     }
 
-    public CompanyRegistration getCompanyRegistration() {
-        return companyRegistration;
+    public List<CompanyIdentifier> getCompanyIdentifiers() {
+        return  companyIdentifiers;
     }
 
-    public void setCompanyRegistration(CompanyRegistration companyRegistration) {
-        this.companyRegistration = companyRegistration;
+    @JsonProperty("companyIdentifiers")
+    public void setCompanyIdentifiers(List<CompanyIdentifier> companyIdentifiers) {
+        this.companyIdentifiers = companyIdentifiers;
     }
 
     public String getConsumerName() {

@@ -191,7 +191,7 @@ public final class EncryptedReceiptRequestDto {
             return this;
         }
 
-        @JsonSetter(value = "receiptFormat", nulls = Nulls.SKIP)
+        @JsonSetter(value = "receiptFormats", nulls = Nulls.SKIP)
         public Builder receiptFormats(List<ReceiptFormat> receiptFormats) {
             this.receiptFormats = receiptFormats;
             return this;

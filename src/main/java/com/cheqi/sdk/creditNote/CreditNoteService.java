@@ -173,7 +173,7 @@ public class CreditNoteService {
             logger.debug("Credit Note template generated successfully");
             return template;
         } catch (Exception e) {
-            logger.error("Unexpected error generating credite template: {}", e.getMessage(), e);
+            logger.error("Unexpected error generating credit note template: {}", e.getMessage(), e);
             throw new CheqiSDKException("Failed to generate credit note template: " + e.getMessage(), e);
         }
     }
@@ -222,7 +222,7 @@ public class CreditNoteService {
             return creditNoteCreatedResponse;
         } catch (CheqiApiException e) {
             logger.error("Failed to send encrypted receipts: {}", e.getMessage());
-            throw new CheqiSDKException("Failed to send encrypted receipts: {}" + e.getMessage(), e);
+            throw new CheqiSDKException("Failed to send encrypted credit notes: " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Unexpected error sending encrypted receipts: {}", e.getMessage(), e);
             throw new CheqiSDKException("Failed to send encrypted receipts: " + e.getMessage(), e);

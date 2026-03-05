@@ -241,6 +241,12 @@ public final class ReceiptTemplateRequest {
 
     private final Map<String, Object> additionalProperties;
 
+    // VAT metadata — not serialized in the inner request JSON.
+    // The API client transfers these to ReceiptTemplateGenerationRequest.
+    private final String buyerCountryCode;
+    private final RecipientEntityType recipientEntityType;
+    private final Boolean taxesApplied;
+
     // ===== CONSTRUCTOR =====
 
     private ReceiptTemplateRequest(
@@ -261,7 +267,10 @@ public final class ReceiptTemplateRequest {
             Optional<Instant> purchaseDate,
             Optional<Period> period,
             Optional<String> note,
-            Map<String, Object> additionalProperties) {
+            Map<String, Object> additionalProperties,
+            String buyerCountryCode,
+            RecipientEntityType recipientEntityType,
+            Boolean taxesApplied) {
         this.childCompanyId = childCompanyId;
         this.documentNumber = documentNumber;
         this.identifiers = identifiers != null ? List.copyOf(identifiers) : List.of();
@@ -280,6 +289,9 @@ public final class ReceiptTemplateRequest {
         this.period = period;
         this.note = note;
         this.additionalProperties = additionalProperties;
+        this.buyerCountryCode = buyerCountryCode;
+        this.recipientEntityType = recipientEntityType;
+        this.taxesApplied = taxesApplied;
     }
 
     // ===== MANDATORY FIELD ACCESSORS =====
@@ -389,6 +401,23 @@ public final class ReceiptTemplateRequest {
         return this.additionalProperties;
     }
 
+    // ===== VAT METADATA ACCESSORS (not serialized) =====
+
+    @JsonIgnore
+    public String getBuyerCountryCode() {
+        return buyerCountryCode;
+    }
+
+    @JsonIgnore
+    public RecipientEntityType getRecipientEntityType() {
+        return recipientEntityType;
+    }
+
+    @JsonIgnore
+    public Boolean getTaxesApplied() {
+        return taxesApplied;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -470,6 +499,9 @@ public final class ReceiptTemplateRequest {
         private Optional<Period> period = Optional.empty();
         private Optional<String> note = Optional.empty();
         private Map<String, Object> additionalProperties = new HashMap<>();
+        private String buyerCountryCode;
+        private RecipientEntityType recipientEntityType;
+        private Boolean taxesApplied;
 
         private Builder() {}
 
@@ -784,10 +816,43 @@ public final class ReceiptTemplateRequest {
             return this;
         }
 
+        /**
+         * Sets the buyer's ISO country code for VAT metadata resolution.
+         * Used to determine cross-border VAT regime (e.g., reverse charge, intra-EU).
+         *
+         * @param buyerCountryCode ISO 3166-1 alpha-2 country code (e.g., "DE", "FR", "US")
+         */
+        public ReceiptTemplateRequest.Builder buyerCountryCode(String buyerCountryCode) {
+            this.buyerCountryCode = buyerCountryCode;
+            return this;
+        }
+
+        /**
+         * Sets the recipient entity type for VAT metadata resolution.
+         *
+         * @param recipientEntityType BUSINESS for B2B or CONSUMER for B2C transactions
+         */
+        public ReceiptTemplateRequest.Builder recipientEntityType(RecipientEntityType recipientEntityType) {
+            this.recipientEntityType = recipientEntityType;
+            return this;
+        }
+
+        /**
+         * Indicates whether taxes were applied to this transaction.
+         * Set to false when no taxes apply (e.g., US sales tax not charged, non-VAT jurisdiction).
+         *
+         * @param taxesApplied true if taxes were charged, false if not
+         */
+        public ReceiptTemplateRequest.Builder taxesApplied(Boolean taxesApplied) {
+            this.taxesApplied = taxesApplied;
+            return this;
+        }
+
         public ReceiptTemplateRequest build() {
             return new ReceiptTemplateRequest(childCompanyId, documentNumber, identifiers, issueDate, currency,
                     receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, products, discounts, charges, taxes,
-                    transactionDate, purchaseDate, period, note, additionalProperties);
+                    transactionDate, purchaseDate, period, note, additionalProperties,
+                    buyerCountryCode, recipientEntityType, taxesApplied);
         }
     }
 }

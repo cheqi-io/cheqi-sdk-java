@@ -28,6 +28,12 @@ public class RecipientResolutionResponse {
     @JsonProperty("instructions")
     private String instructions;
 
+    @JsonProperty("buyerCountryCode")
+    private String buyerCountryCode;
+
+    @JsonProperty("recipientEntityType")
+    private RecipientEntityType recipientEntityType;
+
     @JsonProperty("additionalProperties")
     private Map<String, Object> additionalProperties;
 
@@ -44,12 +50,16 @@ public class RecipientResolutionResponse {
             PaymentInfo paymentInfo,
             Instant expiresAt,
             String instructions,
+            String buyerCountryCode,
+            RecipientEntityType recipientEntityType,
             Map<String, Object> additionalProperties) {
         this.customerFound = customerFound;
         this.matchId = matchId;
         this.recipients = recipients;
         this.expiresAt = expiresAt;
         this.instructions = instructions != null ? instructions : "Use this anonymous identifier when submitting encrypted receipts. Encrypt receipts using the provided device public keys.";
+        this.buyerCountryCode = buyerCountryCode;
+        this.recipientEntityType = recipientEntityType;
         this.additionalProperties = additionalProperties != null ? additionalProperties : new HashMap<>();
     }
 
@@ -72,6 +82,14 @@ public class RecipientResolutionResponse {
 
     public String getInstructions() {
         return instructions;
+    }
+
+    public String getBuyerCountryCode() {
+        return buyerCountryCode;
+    }
+
+    public RecipientEntityType getRecipientEntityType() {
+        return recipientEntityType;
     }
 
     public Map<String, Object> getAdditionalProperties() {
@@ -99,6 +117,14 @@ public class RecipientResolutionResponse {
         this.instructions = instructions;
     }
 
+    public void setBuyerCountryCode(String buyerCountryCode) {
+        this.buyerCountryCode = buyerCountryCode;
+    }
+
+    public void setRecipientEntityType(RecipientEntityType recipientEntityType) {
+        this.recipientEntityType = recipientEntityType;
+    }
+
     public void setAdditionalProperties(Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
@@ -115,12 +141,14 @@ public class RecipientResolutionResponse {
                 && Objects.equals(this.recipients, other.recipients)
                 && Objects.equals(this.expiresAt, other.expiresAt)
                 && Objects.equals(this.instructions, other.instructions)
+                && Objects.equals(this.buyerCountryCode, other.buyerCountryCode)
+                && Objects.equals(this.recipientEntityType, other.recipientEntityType)
                 && Objects.equals(this.additionalProperties, other.additionalProperties);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.customerFound, this.matchId, this.recipients, this.expiresAt, this.instructions, this.additionalProperties);
+        return Objects.hash(this.customerFound, this.matchId, this.recipients, this.expiresAt, this.instructions, this.buyerCountryCode, this.recipientEntityType, this.additionalProperties);
     }
 
     @Override
@@ -131,6 +159,8 @@ public class RecipientResolutionResponse {
                 ", recipients=" + recipients +
                 ", expiresAt=" + expiresAt +
                 ", instructions='" + instructions + '\'' +
+                ", buyerCountryCode='" + buyerCountryCode + '\'' +
+                ", recipientEntityType='" + recipientEntityType + '\'' +
                 ", additionalProperties=" + additionalProperties +
                 '}';
     }
@@ -148,6 +178,8 @@ public class RecipientResolutionResponse {
         private PaymentInfo paymentInfo;
         private Instant expiresAt;
         private String instructions = "Use this anonymous identifier when submitting encrypted receipts. Encrypt receipts using the provided device public keys.";
+        private String buyerCountryCode;
+        private RecipientEntityType recipientEntityType;
         private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {}
@@ -158,6 +190,8 @@ public class RecipientResolutionResponse {
             recipients(other.getRecipients());
             expiresAt(other.getExpiresAt());
             instructions(other.getInstructions());
+            buyerCountryCode(other.getBuyerCountryCode());
+            recipientEntityType(other.getRecipientEntityType());
             return this;
         }
 
@@ -197,6 +231,18 @@ public class RecipientResolutionResponse {
             return this;
         }
 
+        @JsonSetter(value = "buyerCountryCode", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder buyerCountryCode(String buyerCountryCode) {
+            this.buyerCountryCode = buyerCountryCode;
+            return this;
+        }
+
+        @JsonSetter(value = "recipientEntityType", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder recipientEntityType(RecipientEntityType recipientEntityType) {
+            this.recipientEntityType = recipientEntityType;
+            return this;
+        }
+
         @JsonSetter(value = "additionalProperties", nulls = Nulls.SKIP)
         public RecipientResolutionResponse.Builder additionalProperties(Map<String, Object> additionalProperties) {
             this.additionalProperties = additionalProperties;
@@ -204,7 +250,7 @@ public class RecipientResolutionResponse {
         }
 
         public RecipientResolutionResponse build() {
-            return new RecipientResolutionResponse(customerFound, matchId, recipients, paymentInfo, expiresAt, instructions, additionalProperties);
+            return new RecipientResolutionResponse(customerFound, matchId, recipients, paymentInfo, expiresAt, instructions, buyerCountryCode, recipientEntityType, additionalProperties);
         }
     }
 

@@ -160,12 +160,15 @@ public class EncryptedReceipt {
                 && Objects.equals(this.encryptedSymmetricKey, other.encryptedSymmetricKey)
                 && Objects.equals(this.encryptedCustomerAesKey, other.encryptedCustomerAesKey)
                 && Objects.equals(this.finalHash, other.finalHash)
+                && Objects.equals(this.publicKey, other.publicKey)
                 && Objects.equals(this.supplierPartyId, other.supplierPartyId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.recipientId, this.encryptedReceipt, this.encryptedCustomerDetails, this.encryptedSymmetricKey, this.encryptedCustomerAesKey,this.supplierPartyId);
+        return Objects.hash(this.recipientId, this.receiptId, this.receiverType, this.encryptedReceipt,
+                this.encryptedCustomerDetails, this.encryptedSymmetricKey, this.encryptedCustomerAesKey,
+                this.finalHash, this.publicKey, this.supplierPartyId);
     }
 
     @Override

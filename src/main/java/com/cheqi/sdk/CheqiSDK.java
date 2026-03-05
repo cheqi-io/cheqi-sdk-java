@@ -216,12 +216,6 @@ public class CheqiSDK {
      * @throws IllegalStateException if no private key was configured during SDK initialization
      */
     public CreditNoteService getCreditNoteService() {
-        if (creditNoteService == null) {
-            throw new IllegalStateException(
-                "CreditNoteService requires a private key for decryption. " +
-                "Please configure the SDK with .privateKey(String) during initialization. " +
-                "Example: CheqiSDK.builder().privateKey(\"your-base64-key\").build()");
-        }
         return creditNoteService;
     }
 

@@ -8,6 +8,7 @@ package com.cheqi.sdk.models;
 public class ReceiptEnvelope {
     private CheqiReceipt cheqiReceipt;  // CHEQI JSON format (null if not requested)
     private String ublXml;        // UBL XML format (null if not requested)
+    private VatMetadata vatMetadata;
 
     public ReceiptEnvelope() {
     }
@@ -31,5 +32,13 @@ public class ReceiptEnvelope {
 
     public void setUblXml(String ublXml) {
         this.ublXml = ublXml;
+    }
+
+    public VatMetadata getVatMetadata() {
+        return vatMetadata;
+    }
+
+    public void setVatMetadata(VatMetadata vatMetadata) {
+        this.vatMetadata = vatMetadata;
     }
 }

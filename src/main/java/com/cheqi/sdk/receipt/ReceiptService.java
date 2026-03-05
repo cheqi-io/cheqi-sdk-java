@@ -349,7 +349,7 @@ public class ReceiptService {
             return response;
         } catch (CheqiApiException e) {
             logger.error("Failed to send encrypted receipts: {}", e.getMessage());
-            throw new CheqiSDKException("Failed to send encrypted receipts: {}" + e.getMessage(), e);
+            throw new CheqiSDKException("Failed to send encrypted receipts: " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Unexpected error sending encrypted receipts: {}", e.getMessage(), e);
             throw new CheqiSDKException("Failed to send encrypted receipts: " + e.getMessage(), e);
@@ -362,18 +362,22 @@ public class ReceiptService {
     private ReceiptEnvelope buildEnvelopeForRecipient(
             Recipient recipient,
             ReceiptTemplateResponse receiptTemplateResponse) throws Exception {
-        
+
         ReceiptEnvelope envelope = new ReceiptEnvelope();
         List<ReceiptFormat> acceptedFormats = recipient.getAcceptedFormats();
-        
+
         if (acceptedFormats.contains(ReceiptFormat.CHEQI) && receiptTemplateResponse.getCheqi() != null) {
             envelope.setCheqiReceipt(receiptTemplateResponse.getCheqi());
         }
-        
+
         if (acceptedFormats.contains(ReceiptFormat.UBL_XML) && receiptTemplateResponse.getUbl() != null) {
             envelope.setUblXml(receiptTemplateResponse.getUbl());
         }
-        
+
+        if (receiptTemplateResponse.getVatMetadata() != null) {
+            envelope.setVatMetadata(receiptTemplateResponse.getVatMetadata());
+        }
+
         return envelope;
     }
 
@@ -432,7 +436,7 @@ public class ReceiptService {
             }
 
             List<ReceiptFormat> determinedFormats = matchResponse.getRecipients().stream()
-                    .flatMap(r -> r.getAcceptedFormats().stream())
+                    .flatMap(r -> r.getAcceptedFormats() != null ? r.getAcceptedFormats().stream() : java.util.stream.Stream.empty())
                     .distinct()
                     .collect(Collectors.toList());
 
