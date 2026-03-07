@@ -440,10 +440,23 @@ public class ReceiptService {
                     .distinct()
                     .collect(Collectors.toList());
 
-            logger.debug("Generating receipt template with {}", authMode);
+            // Enrich request with VAT context from match response (if not already set by the user)
+            ReceiptTemplateRequest enrichedRequest = ReceiptTemplateRequest.builder()
+                    .from(receiptRequest)
+                    .buyerCountryCode(receiptRequest.getBuyerCountryCode() != null
+                            ? receiptRequest.getBuyerCountryCode()
+                            : matchResponse.getBuyerCountryCode())
+                    .recipientEntityType(receiptRequest.getRecipientEntityType() != null
+                            ? receiptRequest.getRecipientEntityType()
+                            : matchResponse.getRecipientEntityType())
+                    .taxesApplied(receiptRequest.getTaxesApplied())
+                    .build();
+
+            logger.debug("Generating receipt template with {} (buyerCountryCode={}, recipientEntityType={})",
+                    authMode, enrichedRequest.getBuyerCountryCode(), enrichedRequest.getRecipientEntityType());
             ReceiptTemplateResponse receiptTemplateResponse = withAccessToken
-                    ? generateReceiptTemplate(receiptRequest, determinedFormats, accessToken)
-                    : generateReceiptTemplate(receiptRequest, determinedFormats);
+                    ? generateReceiptTemplate(enrichedRequest, determinedFormats, accessToken)
+                    : generateReceiptTemplate(enrichedRequest, determinedFormats);
 
             if (matchResponse.isCustomerFound()) {
                 logger.debug("Creating encrypted receipts for {} recipients", matchResponse.getRecipients().size());

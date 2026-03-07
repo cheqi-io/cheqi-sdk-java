@@ -117,7 +117,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
                 new ReceiptTemplateGenerationRequest(request, receiptFormats,
                         request.getBuyerCountryCode(), request.getRecipientEntityType(),
                         request.getTaxesApplied());
-            
+
             // Serialize the wrapped request to JSON
             String requestJson = objectMapper.writeValueAsString(generationRequest);
             logger.debug("Template generation request JSON: {}", requestJson);
@@ -125,7 +125,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.TEMPLATE_ENDPOINT, requestJson);
 
             Response response = retryHandler.executeWithRetry(httpRequest, "generateReceiptTemplate");
-            
+
             String responseBody = responseHandler.handleStringResponse(response, "Template generation");
             return objectMapper.readValue(responseBody, ReceiptTemplateResponse.class);
         } catch (CheqiApiException e) {

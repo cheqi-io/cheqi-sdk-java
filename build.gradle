@@ -27,6 +27,12 @@ dependencies {
     api libs.org.jetbrains.annotations
     api libs.javax.xml.bind.jaxb.api
     api libs.org.glassfish.jaxb.jaxb.runtime
+
+    testImplementation libs.org.junit.jupiter
+}
+
+test {
+    useJUnitPlatform()
 }
 
 group = 'io.cheqi'
