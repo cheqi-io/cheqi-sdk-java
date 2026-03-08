@@ -47,6 +47,9 @@ public final class IdentificationDetails {
     @JsonProperty("cheqiReceiptId")
     private final String cheqiReceiptId;
 
+    @JsonProperty("pairingCode")
+    private final String pairingCode;
+
     // ===== CONSTRUCTOR =====
     private IdentificationDetails(
             PaymentType paymentType,
@@ -54,7 +57,8 @@ public final class IdentificationDetails {
             PaymentAccountDetails paymentAccountDetails,
             List<String> paymentIds,
             String recipientEmail,
-            String cheqiReceiptId
+            String cheqiReceiptId,
+            String pairingCode
     ) {
         this.paymentType = paymentType;
         this.cardDetails = cardDetails;
@@ -62,6 +66,7 @@ public final class IdentificationDetails {
         this.paymentIds = paymentIds;
         this.recipientEmail = recipientEmail;
         this.cheqiReceiptId = cheqiReceiptId;
+        this.pairingCode = pairingCode;
     }
 
     // ===== MANDATORY FIELD ACCESSORS =====
@@ -91,6 +96,10 @@ public final class IdentificationDetails {
         return cheqiReceiptId;
     }
 
+    public String getPairingCode() {
+        return pairingCode;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -103,12 +112,13 @@ public final class IdentificationDetails {
                 && Objects.equals(this.paymentAccountDetails, other.paymentAccountDetails)
                 && Objects.equals(this.paymentIds, other.paymentIds)
                 && Objects.equals(this.recipientEmail, other.recipientEmail)
-                && Objects.equals(this.cheqiReceiptId, other.cheqiReceiptId);
+                && Objects.equals(this.cheqiReceiptId, other.cheqiReceiptId)
+                && Objects.equals(this.pairingCode, other.pairingCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.paymentType, this.cardDetails, this.paymentAccountDetails, this.paymentIds, this.recipientEmail, this.cheqiReceiptId);
+        return Objects.hash(this.paymentType, this.cardDetails, this.paymentAccountDetails, this.paymentIds, this.recipientEmail, this.cheqiReceiptId, this.pairingCode);
     }
 
     @Override
@@ -120,6 +130,7 @@ public final class IdentificationDetails {
                 ", paymentIds=" + paymentIds +
                 ", recipientEmail=" + recipientEmail +
                 ", cheqiReceiptId=" + cheqiReceiptId +
+                ", pairingCode=" + pairingCode +
                 '}';
     }
 
@@ -135,6 +146,7 @@ public final class IdentificationDetails {
         private List<String> paymentIds;
         private String recipientEmail;
         private String cheqiReceiptId;
+        private String pairingCode;
 
         private Builder() {
         }
@@ -146,6 +158,7 @@ public final class IdentificationDetails {
             paymentIds(other.getPaymentIds());
             recipientEmail(other.getRecipientEmail());
             cheqiReceiptId(other.getCheqiReceiptId());
+            pairingCode(other.getPairingCode());
             return this;
         }
 
@@ -185,8 +198,14 @@ public final class IdentificationDetails {
             return this;
         }
 
+        @JsonSetter(value = "pairingCode", nulls = Nulls.SKIP)
+        public IdentificationDetails.Builder pairingCode(String pairingCode) {
+            this.pairingCode = pairingCode;
+            return this;
+        }
+
         public IdentificationDetails build() {
-            return new IdentificationDetails(paymentType, cardDetails, paymentAccountDetails, paymentIds, recipientEmail, cheqiReceiptId);
+            return new IdentificationDetails(paymentType, cardDetails, paymentAccountDetails, paymentIds, recipientEmail, cheqiReceiptId, pairingCode);
         }
     }
 }

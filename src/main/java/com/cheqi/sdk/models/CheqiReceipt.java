@@ -49,6 +49,9 @@ public class CheqiReceipt {
     @JsonProperty("note")
     private String note;
     
+    @JsonProperty("barcodes")
+    private List<Barcode> barcodes;
+
     @JsonProperty("sellingParty")
     private SellingParty sellingParty;
     
@@ -174,6 +177,14 @@ public class CheqiReceipt {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public List<Barcode> getBarcodes() {
+        return barcodes;
+    }
+
+    public void setBarcodes(List<Barcode> barcodes) {
+        this.barcodes = barcodes;
     }
 
     public SellingParty getSellingParty() {

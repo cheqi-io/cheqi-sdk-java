@@ -143,7 +143,8 @@ public class MatchingService {
         return hasCardDetails(identificationDetails) ||
                hasPaymentAccountDetails(identificationDetails) ||
                hasCheqiReceiptId(identificationDetails) ||
-               hasEmail(identificationDetails);
+               hasEmail(identificationDetails) ||
+               hasPairingCode(identificationDetails);
     }
     
     /**
@@ -181,6 +182,10 @@ public class MatchingService {
     private boolean hasEmail(IdentificationDetails identificationDetails) {
         return isNotEmpty(identificationDetails.getRecipientEmail());
     }
+
+    private boolean hasPairingCode(IdentificationDetails identificationDetails) {
+        return isNotEmpty(identificationDetails.getPairingCode());
+    }
     
     /**
      * Logs which identifiers are available for matching.
@@ -199,6 +204,9 @@ public class MatchingService {
         }
         if (hasCheqiReceiptId(identificationDetails)) {
             identifiers.append("[CheqiReceiptId] ");
+        }
+        if (hasPairingCode(identificationDetails)) {
+            identifiers.append("[PairingCode] ");
         }
         
         logger.debug(identifiers.toString().trim());

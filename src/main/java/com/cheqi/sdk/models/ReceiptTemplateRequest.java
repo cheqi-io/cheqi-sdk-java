@@ -234,6 +234,13 @@ public final class ReceiptTemplateRequest {
     private final Optional<Period> period;
 
     /**
+     * Optional list of barcodes or QR codes to embed in the receipt.
+     * Can be used for returns, loyalty programs, tickets, or any other scannable code.
+     */
+    @JsonProperty("barcodes")
+    private final List<Barcode> barcodes;
+
+    /**
      * A note that the seller wants to include on the purchase receipt.
      */
     @JsonProperty("note")
@@ -263,6 +270,7 @@ public final class ReceiptTemplateRequest {
             List<Discount> discounts,
             List<Charge> charges,
             List<Tax> taxes,
+            List<Barcode> barcodes,
             Optional<Instant> transactionDate,
             Optional<Instant> purchaseDate,
             Optional<Period> period,
@@ -284,6 +292,7 @@ public final class ReceiptTemplateRequest {
         this.discounts = discounts != null ? List.copyOf(discounts) : List.of();
         this.charges = charges != null ? List.copyOf(charges) : List.of();
         this.taxes = taxes != null ? List.copyOf(taxes) : List.of();
+        this.barcodes = barcodes != null ? List.copyOf(barcodes) : List.of();
         this.transactionDate = transactionDate;
         this.purchaseDate = purchaseDate;
         this.period = period;
@@ -363,6 +372,11 @@ public final class ReceiptTemplateRequest {
         return taxes;
     }
 
+    @JsonIgnore
+    public List<Barcode> getBarcodes() {
+        return barcodes;
+    }
+
     // ===== OPTIONAL FIELD ACCESSORS =====
 
     /**
@@ -438,6 +452,7 @@ public final class ReceiptTemplateRequest {
                 && Objects.equals(this.discounts, other.discounts)
                 && Objects.equals(this.charges, other.charges)
                 && Objects.equals(this.taxes, other.taxes)
+                && Objects.equals(this.barcodes, other.barcodes)
                 && Objects.equals(this.transactionDate, other.transactionDate)
                 && Objects.equals(this.purchaseDate, other.purchaseDate)
                 && Objects.equals(this.period, other.period)
@@ -448,7 +463,7 @@ public final class ReceiptTemplateRequest {
     public int hashCode() {
         return Objects.hash(this.childCompanyId, this.documentNumber, this.identifiers, this.issueDate, this.currency,
                 this.receiptSubtotal, this.totalBeforeTax, this.totalTaxAmount, this.totalAmount,
-                this.products, this.discounts, this.charges, this.taxes, this.transactionDate,
+                this.products, this.discounts, this.charges, this.taxes, this.barcodes, this.transactionDate,
                 this.purchaseDate, this.period, this.note);
     }
 
@@ -468,6 +483,7 @@ public final class ReceiptTemplateRequest {
                 ", discounts=" + discounts +
                 ", charges=" + charges +
                 ", taxes=" + taxes +
+                ", barcodes=" + barcodes +
                 ", transactionDate=" + transactionDate +
                 ", purchaseDate=" + purchaseDate +
                 ", period=" + period +
@@ -494,6 +510,7 @@ public final class ReceiptTemplateRequest {
         private List<Discount> discounts;
         private List<Charge> charges;
         private List<Tax> taxes;
+        private List<Barcode> barcodes;
         private Optional<Instant> transactionDate = Optional.empty();
         private Optional<Instant> purchaseDate = Optional.empty();
         private Optional<Period> period = Optional.empty();
@@ -519,6 +536,7 @@ public final class ReceiptTemplateRequest {
             discounts(other.getDiscounts());
             charges(other.getCharges());
             taxes(other.getTaxes());
+            barcodes(other.getBarcodes());
             transactionDate(other.getTransactionDate().orElse(null));
             purchaseDate(other.getPurchaseDate().orElse(null));
             period(other.getPeriod().orElse(null));
@@ -786,6 +804,46 @@ public final class ReceiptTemplateRequest {
             return addTax(rate, type, new BigDecimal(taxableAmount), new BigDecimal(amount));
         }
 
+        @JsonSetter(value = "barcodes", nulls = Nulls.SKIP)
+        public ReceiptTemplateRequest.Builder barcodes(List<Barcode> barcodes) {
+            this.barcodes = barcodes;
+            return this;
+        }
+
+        /**
+         * Convenience method to add a single barcode to the receipt.
+         */
+        public ReceiptTemplateRequest.Builder addBarcode(Barcode barcode) {
+            if (this.barcodes == null) {
+                this.barcodes = new ArrayList<>();
+            }
+            this.barcodes.add(barcode);
+            return this;
+        }
+
+        /**
+         * Convenience method to add a QR code barcode with data and label.
+         *
+         * @param data  The data to encode in the QR code
+         * @param label A human-readable label (e.g., "Return code")
+         * @return This builder
+         */
+        public ReceiptTemplateRequest.Builder addQrCode(String data, String label) {
+            return addBarcode(Barcode.qrCode(data, label));
+        }
+
+        /**
+         * Convenience method to add a barcode with type, data, and label.
+         *
+         * @param type  The barcode type
+         * @param data  The data to encode
+         * @param label A human-readable label
+         * @return This builder
+         */
+        public ReceiptTemplateRequest.Builder addBarcode(BarcodeType type, String data, String label) {
+            return addBarcode(Barcode.of(type, data, label));
+        }
+
         @JsonSetter(value = "transactionDate", nulls = Nulls.SKIP)
         public ReceiptTemplateRequest.Builder transactionDate(Instant transactionDate) {
             this.transactionDate = Optional.ofNullable(transactionDate);
@@ -851,7 +909,7 @@ public final class ReceiptTemplateRequest {
         public ReceiptTemplateRequest build() {
             return new ReceiptTemplateRequest(childCompanyId, documentNumber, identifiers, issueDate, currency,
                     receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, products, discounts, charges, taxes,
-                    transactionDate, purchaseDate, period, note, additionalProperties,
+                    barcodes, transactionDate, purchaseDate, period, note, additionalProperties,
                     buyerCountryCode, recipientEntityType, taxesApplied);
         }
     }

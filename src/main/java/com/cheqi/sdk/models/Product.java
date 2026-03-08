@@ -209,6 +209,15 @@ public final class Product {
     @JsonProperty("total")
     private final BigDecimal total;
 
+    // ===== BARCODES =====
+
+    /**
+     * Barcodes attached to this line item.
+     * Use for per-product codes such as concert tickets, return codes, or serial numbers.
+     */
+    @JsonProperty("barcodes")
+    private final List<Barcode> barcodes;
+
     // ===== OPTIONAL FIELDS =====
 
     /**
@@ -245,6 +254,7 @@ public final class Product {
             List<Tax> taxes,
             BigDecimal subtotal,
             BigDecimal total,
+            List<Barcode> barcodes,
             Period period) {
 
         this.name = name;
@@ -259,6 +269,7 @@ public final class Product {
         this.discounts = discounts != null && !discounts.isEmpty() ? List.copyOf(discounts) : null;
         this.charges   = charges   != null && !charges.isEmpty()   ? List.copyOf(charges)   : null;
         this.taxes     = taxes     != null && !taxes.isEmpty()     ? List.copyOf(taxes)     : null;
+        this.barcodes  = barcodes  != null && !barcodes.isEmpty()  ? List.copyOf(barcodes)  : null;
         this.subtotal = subtotal;
         this.total = total;
         this.period = period;
@@ -318,6 +329,10 @@ public final class Product {
         return total;
     }
 
+    public List<Barcode> getBarcodes() {
+        return barcodes;
+    }
+
     /**
      * @return The period if this product represents a time-based service, or null
      */
@@ -344,6 +359,7 @@ public final class Product {
         private List<Discount> discounts = new ArrayList<>();
         private List<Charge> charges = new ArrayList<>();
         private List<Tax> taxes = new ArrayList<>();
+        private List<Barcode> barcodes = new ArrayList<>();
         private BigDecimal subtotal;
         private BigDecimal total;
         private Period period;
@@ -362,6 +378,7 @@ public final class Product {
             this.discounts = other.discounts != null ? new ArrayList<>(other.discounts) : new ArrayList<>();
             this.charges = other.charges != null ? new ArrayList<>(other.charges) : new ArrayList<>();
             this.taxes = other.taxes != null ? new ArrayList<>(other.taxes) : new ArrayList<>();
+            this.barcodes = other.barcodes != null ? new ArrayList<>(other.barcodes) : new ArrayList<>();
             this.subtotal = other.subtotal;
             this.total = other.total;
             this.period = other.getPeriod();
@@ -580,9 +597,29 @@ public final class Product {
             return this;
         }
 
+        @JsonSetter(value = "barcodes", nulls = Nulls.SKIP)
+        public Builder barcodes(List<Barcode> barcodes) {
+            this.barcodes = barcodes != null ? barcodes : new ArrayList<>();
+            return this;
+        }
+
+        public Builder addBarcode(Barcode barcode) {
+            this.barcodes.add(barcode);
+            return this;
+        }
+
+        public Builder addBarcode(BarcodeType type, String data, String label) {
+            this.barcodes.add(Barcode.builder().type(type).data(data).label(label).build());
+            return this;
+        }
+
+        public Builder addQrCode(String data, String label) {
+            return addBarcode(BarcodeType.QR_CODE, data, label);
+        }
+
         /**
          * Sets the period for time-based products (subscriptions, rentals, etc.).
-         * 
+         *
          * @param period The period this product covers
          * @return This builder
          */
@@ -607,6 +644,7 @@ public final class Product {
                     taxes,
                     subtotal,
                     total,
+                    barcodes,
                     period
             );
         }
@@ -629,6 +667,7 @@ public final class Product {
                 && Objects.equals(discounts, product.discounts)
                 && Objects.equals(charges, product.charges)
                 && Objects.equals(taxes, product.taxes)
+                && Objects.equals(barcodes, product.barcodes)
                 && Objects.equals(subtotal, product.subtotal)
                 && Objects.equals(total, product.total)
                 && Objects.equals(period, product.period);
@@ -648,6 +687,7 @@ public final class Product {
                 discounts,
                 charges,
                 taxes,
+                barcodes,
                 subtotal,
                 total,
                 period
@@ -664,6 +704,7 @@ public final class Product {
                 ", discounts=" + (discounts != null ? discounts.size() : 0) +
                 ", charges=" + (charges != null ? charges.size() : 0) +
                 ", taxes=" + (taxes != null ? taxes.size() : 0) +
+                ", barcodes=" + (barcodes != null ? barcodes.size() : 0) +
                 ", subtotal=" + subtotal +
                 ", total=" + total +
                 '}';
