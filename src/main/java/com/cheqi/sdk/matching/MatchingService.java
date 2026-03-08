@@ -11,12 +11,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Service for secure customer matching using payment details.
- * This service sends PaymentDetails to the backend for recipient resolution.
- * The backend determines the best matching strategy based on available identifiers:
- * - Card details (PAN, PAR)
- * - Payment account details (IBAN)
- * - Customer email
+ * This service sends identification details to the backend for recipient resolution.
+ * The backend determines the best matching strategy based on available identifiers
+ * (tried in priority order):
+ * <ol>
+ *   <li>Pairing code (temporary code from the customer's Cheqi app)</li>
+ *   <li>Card details (PAN, PAR)</li>
+ *   <li>Payment account details (IBAN)</li>
+ *   <li>Customer email</li>
+ * </ol>
  * Thread-safe and designed for high-throughput matching operations.
+ *
+ * @see IdentificationDetails
  */
 public class MatchingService {
     private static final Logger logger = LoggerFactory.getLogger(MatchingService.class);
@@ -28,18 +34,16 @@ public class MatchingService {
     }
     
     /**
-     * Matches a customer using the provided payment details.
-     * 
-     * The backend determines the best matching strategy based on available identifiers:
-     * - Card details (PAN, PAR)
-     * - Payment account details (IBAN)
-     * - Customer email
-     * 
-     * @param identificationDetails Payment details containing customer identifiers
+     * Matches a customer using the provided identification details (OAuth mode).
+     *
+     * <p>At least one identifier must be present: pairing code, card details,
+     * payment account details, or email.</p>
+     *
+     * @param identificationDetails Customer identifiers (card, pairing code, email, etc.)
      * @param accessToken OAuth access token for API calls
      * @return RecipientResolutionResponse with matched recipients or empty if not found
      * @throws CheqiApiException if matching operation fails
-     * @throws IllegalArgumentException if paymentDetails contains no valid identifiers
+     * @throws IllegalArgumentException if no valid identifiers are provided
      */
     public RecipientResolutionResponse matchCustomer(
             IdentificationDetails identificationDetails,
@@ -83,14 +87,15 @@ public class MatchingService {
     }
 
     /**
-     * Matches a customer using API key from SDK config.
-     * Uses Bearer token authentication with the API key configured during SDK initialization.
-     * For companies accessing their own data directly.
-     * 
-     * @param identificationDetails Payment details containing customer identifiers
+     * Matches a customer using API key authentication (configured during SDK initialization).
+     *
+     * <p>At least one identifier must be present: pairing code, card details,
+     * payment account details, or email.</p>
+     *
+     * @param identificationDetails Customer identifiers (card, pairing code, email, etc.)
      * @return RecipientResolutionResponse with matched recipients or empty if not found
      * @throws CheqiApiException if matching operation fails
-     * @throws IllegalArgumentException if paymentDetails contains no valid identifiers
+     * @throws IllegalArgumentException if no valid identifiers are provided
      */
     public RecipientResolutionResponse matchCustomer(
             IdentificationDetails identificationDetails) throws CheqiApiException {
