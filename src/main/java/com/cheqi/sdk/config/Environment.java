@@ -12,11 +12,6 @@ public enum Environment {
     SANDBOX("https://sandbox.api.cheqi.io"),
     
     /**
-     * Test environment for integration testing.
-     */
-    TEST("https://test.api.cheqi.io"),
-    
-    /**
      * Production environment for live operations.
      */
     PRODUCTION("https://api.cheqi.io");

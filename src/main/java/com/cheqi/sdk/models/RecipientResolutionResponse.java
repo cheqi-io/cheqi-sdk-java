@@ -1,0 +1,279 @@
+package com.cheqi.sdk.models;
+
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
+@JsonDeserialize(builder = RecipientResolutionResponse.Builder.class)
+public class RecipientResolutionResponse {
+    @JsonProperty("customerFound")
+    private boolean customerFound;
+
+    @JsonProperty("matchId")
+    private String matchId;
+
+    @JsonProperty("recipients")
+    private List<Recipient> recipients;
+
+    @JsonProperty("expiresAt")
+    private Instant expiresAt;
+
+    @JsonProperty("instructions")
+    private String instructions;
+
+    @JsonProperty("buyerCountryCode")
+    private String buyerCountryCode;
+
+    @JsonProperty("recipientEntityType")
+    private RecipientEntityType recipientEntityType;
+
+    @JsonProperty("additionalProperties")
+    private Map<String, Object> additionalProperties;
+
+    // No-args constructor for Jackson deserialization
+    public RecipientResolutionResponse() {
+        this.additionalProperties = new HashMap<>();
+    }
+
+    // Private constructor for builder
+    private RecipientResolutionResponse(
+            boolean customerFound,
+            String matchId,
+            List<Recipient> recipients,
+            PaymentInfo paymentInfo,
+            Instant expiresAt,
+            String instructions,
+            String buyerCountryCode,
+            RecipientEntityType recipientEntityType,
+            Map<String, Object> additionalProperties) {
+        this.customerFound = customerFound;
+        this.matchId = matchId;
+        this.recipients = recipients;
+        this.expiresAt = expiresAt;
+        this.instructions = instructions != null ? instructions : "Use this anonymous identifier when submitting encrypted receipts. Encrypt receipts using the provided device public keys.";
+        this.buyerCountryCode = buyerCountryCode;
+        this.recipientEntityType = recipientEntityType;
+        this.additionalProperties = additionalProperties != null ? additionalProperties : new HashMap<>();
+    }
+
+    // Getters
+    public boolean isCustomerFound() {
+        return customerFound;
+    }
+
+    public String getMatchId() {
+        return matchId;
+    }
+
+    public List<Recipient> getRecipients() {
+        return recipients;
+    }
+
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public String getBuyerCountryCode() {
+        return buyerCountryCode;
+    }
+
+    public RecipientEntityType getRecipientEntityType() {
+        return recipientEntityType;
+    }
+
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    // Setters for Jackson deserialization
+    public void setCustomerFound(boolean customerFound) {
+        this.customerFound = customerFound;
+    }
+
+    public void setMatchId(String matchId) {
+        this.matchId = matchId;
+    }
+
+    public void setRecipients(List<Recipient> recipients) {
+        this.recipients = recipients;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
+    }
+
+    public void setBuyerCountryCode(String buyerCountryCode) {
+        this.buyerCountryCode = buyerCountryCode;
+    }
+
+    public void setRecipientEntityType(RecipientEntityType recipientEntityType) {
+        this.recipientEntityType = recipientEntityType;
+    }
+
+    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        return other instanceof RecipientResolutionResponse && equalTo((RecipientResolutionResponse) other);
+    }
+
+    private boolean equalTo(RecipientResolutionResponse other) {
+        return Objects.equals(this.customerFound, other.customerFound)
+                && Objects.equals(this.matchId, other.matchId)
+                && Objects.equals(this.recipients, other.recipients)
+                && Objects.equals(this.expiresAt, other.expiresAt)
+                && Objects.equals(this.instructions, other.instructions)
+                && Objects.equals(this.buyerCountryCode, other.buyerCountryCode)
+                && Objects.equals(this.recipientEntityType, other.recipientEntityType)
+                && Objects.equals(this.additionalProperties, other.additionalProperties);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.customerFound, this.matchId, this.recipients, this.expiresAt, this.instructions, this.buyerCountryCode, this.recipientEntityType, this.additionalProperties);
+    }
+
+    @Override
+    public String toString() {
+        return "RecipientResolutionResponse{" +
+                "customerFound=" + customerFound +
+                ", matchId='" + matchId + '\'' +
+                ", recipients=" + recipients +
+                ", expiresAt=" + expiresAt +
+                ", instructions='" + instructions + '\'' +
+                ", buyerCountryCode='" + buyerCountryCode + '\'' +
+                ", recipientEntityType='" + recipientEntityType + '\'' +
+                ", additionalProperties=" + additionalProperties +
+                '}';
+    }
+
+    // Builder pattern for programmatic usage
+    public static RecipientResolutionResponse.Builder builder() {
+        return new RecipientResolutionResponse.Builder();
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static final class Builder {
+        private boolean customerFound;
+        private String matchId;
+        private List<Recipient> recipients;
+        private PaymentInfo paymentInfo;
+        private Instant expiresAt;
+        private String instructions = "Use this anonymous identifier when submitting encrypted receipts. Encrypt receipts using the provided device public keys.";
+        private String buyerCountryCode;
+        private RecipientEntityType recipientEntityType;
+        private Map<String, Object> additionalProperties = new HashMap<>();
+
+        private Builder() {}
+
+        public RecipientResolutionResponse.Builder from(RecipientResolutionResponse other) {
+            customerFound(other.isCustomerFound());
+            matchId(other.getMatchId());
+            recipients(other.getRecipients());
+            expiresAt(other.getExpiresAt());
+            instructions(other.getInstructions());
+            buyerCountryCode(other.getBuyerCountryCode());
+            recipientEntityType(other.getRecipientEntityType());
+            return this;
+        }
+
+        @JsonSetter(value = "customerFound", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder customerFound(boolean customerFound) {
+            this.customerFound = customerFound;
+            return this;
+        }
+
+        @JsonSetter(value = "matchId", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder matchId(String matchId) {
+            this.matchId = matchId;
+            return this;
+        }
+
+        @JsonSetter(value = "recipients", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder recipients(List<Recipient> recipients) {
+            this.recipients = recipients;
+            return this;
+        }
+
+        @JsonSetter(value = "paymentInfo", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder paymentInfo(PaymentInfo paymentInfo) {
+            this.paymentInfo = paymentInfo;
+            return this;
+        }
+
+        @JsonSetter(value = "expiresAt", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder expiresAt(Instant expiresAt) {
+            this.expiresAt = expiresAt;
+            return this;
+        }
+
+        @JsonSetter(value = "instructions", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder instructions(String instructions) {
+            this.instructions = instructions;
+            return this;
+        }
+
+        @JsonSetter(value = "buyerCountryCode", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder buyerCountryCode(String buyerCountryCode) {
+            this.buyerCountryCode = buyerCountryCode;
+            return this;
+        }
+
+        @JsonSetter(value = "recipientEntityType", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder recipientEntityType(RecipientEntityType recipientEntityType) {
+            this.recipientEntityType = recipientEntityType;
+            return this;
+        }
+
+        @JsonSetter(value = "additionalProperties", nulls = Nulls.SKIP)
+        public RecipientResolutionResponse.Builder additionalProperties(Map<String, Object> additionalProperties) {
+            this.additionalProperties = additionalProperties;
+            return this;
+        }
+
+        public RecipientResolutionResponse build() {
+            return new RecipientResolutionResponse(customerFound, matchId, recipients, paymentInfo, expiresAt, instructions, buyerCountryCode, recipientEntityType, additionalProperties);
+        }
+    }
+
+    // Helper factory methods
+    public static RecipientResolutionResponse customerNotFound() {
+        return RecipientResolutionResponse.builder()
+                .customerFound(false)
+                .instructions("No customer found with provided payment details")
+                .build();
+    }
+
+    public static RecipientResolutionResponse customerNotFoundWithEmail(String email) {
+        return RecipientResolutionResponse.builder()
+                .customerFound(false)
+                .instructions("No Cheqi registration found. Consider sending receipt via email to: " + email)
+                .build();
+    }
+
+    public static RecipientResolutionResponse customerFound(List<Recipient> recipients) {
+        return RecipientResolutionResponse.builder()
+                .customerFound(true)
+                .recipients(recipients)
+                .expiresAt(Instant.now().plusSeconds(86400))
+                .build();
+    }
+}

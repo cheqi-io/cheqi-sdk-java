@@ -1,10 +1,6 @@
 package com.cheqi.sdk.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.math.BigDecimal;
@@ -182,6 +178,9 @@ public final class Tax {
             }
             if (type == null || type.trim().isEmpty()) {
                 throw new IllegalStateException("Tax type is required");
+            }
+            if (taxableAmount == null) {
+                throw new IllegalStateException("Tax taxableAmount is required");
             }
             return new Tax(rate, type, taxableAmount, amount, label);
         }

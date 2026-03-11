@@ -1,21 +1,12 @@
 package com.cheqi.sdk.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.UUID;
 
 /**
  * Request DTO for generating receipt templates.
@@ -32,20 +23,23 @@ import java.util.Optional;
  *     .currency("EUR")
  *     
  *     // Totals (POS-calculated)
- *     .invoiceSubtotal(new BigDecimal("100.00"))
- *     .totalBeforeTax(new BigDecimal("95.00"))  // After receipt-level discount
- *     .totalTaxAmount(new BigDecimal("19.95"))  // Total tax
- *     .totalAmount(new BigDecimal("114.95"))    // Final amount
+ *     .receiptSubtotal(new BigDecimal("250.00"))
+ *     .totalBeforeTax(new BigDecimal("245.00"))  // After receipt-level discount
+ *     .totalTaxAmount(new BigDecimal("51.45"))   // Total tax
+ *     .totalAmount(new BigDecimal("296.45"))     // Final amount
  *     
- *     // Products with type-safe unit codes
+ *     // Simple product addition (POS provides all amounts)
+ *     .addProduct("Nike", "AirMax", "125.00", "250.00", 21.0, "52.50", "302.50", 2.0)
+ *     
+ *     // Or use full Product builder for complex cases
  *     .addProduct(Product.builder()
  *         .name("Laptop")
  *         .quantity(1.0)
- *         .unitCode(UnitCode.ONE)  // Type-safe enum
+ *         .unitCode(UnitCode.ONE)
  *         .unitPrice("100.00")
  *         .subtotal("100.00")
  *         .total("121.00")
- *         .addTax(21.0, "VAT", "21.00")
+ *         .addTax(21.0, "VAT", "100.00", "21.00")
  *         .build())
  *     
  *     // Receipt-level adjustments
@@ -70,7 +64,7 @@ import java.util.Optional;
  *   <li><strong>documentNumber</strong>: Unique receipt/invoice identifier</li>
  *   <li><strong>issueDate</strong>: Receipt issue date</li>
  *   <li><strong>currency</strong>: ISO 4217 currency code (e.g., "EUR", "USD")</li>
- *   <li><strong>invoiceSubtotal</strong>: Sum of all product line totals</li>
+ *   <li><strong>receiptSubtotal</strong>: Sum of all product line totals</li>
  *   <li><strong>totalBeforeTax</strong>: Total excluding taxes (after receipt-level adjustments)</li>
  *   <li><strong>totalTaxAmount</strong>: Total tax amount (POS-calculated)</li>
  *   <li><strong>totalAmount</strong>: Final amount charged to customer</li>
@@ -89,11 +83,11 @@ import java.util.Optional;
  *   <li><strong>note</strong>: Additional seller notes</li>
  * </ul>
  *
- * <h3>Key Differences from invoiceSubtotal and totalBeforeTax:</h3>
+ * <h3>Key Differences from receiptSubtotal and totalBeforeTax:</h3>
  * <ul>
- *   <li><strong>invoiceSubtotal</strong>: Sum of all product line totals (before receipt-level adjustments)</li>
- *   <li><strong>totalBeforeTax</strong>: invoiceSubtotal ± receipt-level discounts/charges</li>
- *   <li>Example: invoiceSubtotal = $100, discount = $5, charge = $3 → totalBeforeTax = $98</li>
+ *   <li><strong>receiptSubtotal</strong>: Sum of all product line totals (before receipt-level adjustments)</li>
+ *   <li><strong>totalBeforeTax</strong>: receiptSubtotal ± receipt-level discounts/charges</li>
+ *   <li>Example: receiptSubtotal = $100, discount = $5, charge = $3 → totalBeforeTax = $98</li>
  * </ul>
  *
  * <h3>Validation Rules:</h3>
@@ -115,6 +109,14 @@ import java.util.Optional;
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(builder = ReceiptTemplateRequest.Builder.class)
 public final class ReceiptTemplateRequest {
+    /**
+     * The UUID of the child company (franchisee location or branch store) issuing this receipt.
+     * Required for franchise organizations managing multiple locations.
+     * If not provided, the receipt will be issued under the parent company.
+     */
+    @JsonProperty("childCompanyId")
+    private final Optional<UUID> childCompanyId;
+
     /**
      * A unique document identifier provided by the seller (for example invoice number).
      */
@@ -145,12 +147,12 @@ public final class ReceiptTemplateRequest {
      * invoice-level adjustments or taxes.
      * This amount represents the total value of goods or services listed on the invoice.
      */
-    @JsonProperty("invoiceSubtotal")
-    private final BigDecimal invoiceSubtotal;
+    @JsonProperty("receiptSubtotal")
+    private final BigDecimal receiptSubtotal;
 
     /**
      * The total amount of the invoice excluding taxes, but including any overall discounts or charges.
-     * This amount may differ from the invoiceSubtotal if there are invoice-level adjustments.
+     * This amount may differ from the receiptSubtotal if there are invoice-level adjustments.
      */
     @JsonProperty("totalBeforeTax")
     private final BigDecimal totalBeforeTax;
@@ -193,6 +195,7 @@ public final class ReceiptTemplateRequest {
     /**
      * Tax breakdown for the receipt.
      * Each Tax entry represents a tax category applied to the receipt (e.g., VAT 21%, VAT 9%).
+     * If no taxes are applied, then you need a tax category with 0% rate.
      * The total tax amount is the sum of all tax amounts in this list.
      */
     @JsonProperty("taxes")
@@ -231,6 +234,13 @@ public final class ReceiptTemplateRequest {
     private final Optional<Period> period;
 
     /**
+     * Optional list of barcodes or QR codes to embed in the receipt.
+     * Can be used for returns, loyalty programs, tickets, or any other scannable code.
+     */
+    @JsonProperty("barcodes")
+    private final List<Barcode> barcodes;
+
+    /**
      * A note that the seller wants to include on the purchase receipt.
      */
     @JsonProperty("note")
@@ -238,14 +248,21 @@ public final class ReceiptTemplateRequest {
 
     private final Map<String, Object> additionalProperties;
 
+    // VAT metadata — not serialized in the inner request JSON.
+    // The API client transfers these to ReceiptTemplateGenerationRequest.
+    private final String buyerCountryCode;
+    private final RecipientEntityType recipientEntityType;
+    private final Boolean taxesApplied;
+
     // ===== CONSTRUCTOR =====
 
     private ReceiptTemplateRequest(
+            Optional<UUID> childCompanyId,
             String documentNumber,
             List<Identifier> identifiers,
             Instant issueDate,
             String currency,
-            BigDecimal invoiceSubtotal,
+            BigDecimal receiptSubtotal,
             BigDecimal totalBeforeTax,
             BigDecimal totalTaxAmount,
             BigDecimal totalAmount,
@@ -253,16 +270,21 @@ public final class ReceiptTemplateRequest {
             List<Discount> discounts,
             List<Charge> charges,
             List<Tax> taxes,
+            List<Barcode> barcodes,
             Optional<Instant> transactionDate,
             Optional<Instant> purchaseDate,
             Optional<Period> period,
             Optional<String> note,
-            Map<String, Object> additionalProperties) {
+            Map<String, Object> additionalProperties,
+            String buyerCountryCode,
+            RecipientEntityType recipientEntityType,
+            Boolean taxesApplied) {
+        this.childCompanyId = childCompanyId;
         this.documentNumber = documentNumber;
         this.identifiers = identifiers != null ? List.copyOf(identifiers) : List.of();
         this.issueDate = issueDate;
         this.currency = currency;
-        this.invoiceSubtotal = invoiceSubtotal;
+        this.receiptSubtotal = receiptSubtotal;
         this.totalBeforeTax = totalBeforeTax;
         this.totalTaxAmount = totalTaxAmount;
         this.totalAmount = totalAmount;
@@ -270,14 +292,26 @@ public final class ReceiptTemplateRequest {
         this.discounts = discounts != null ? List.copyOf(discounts) : List.of();
         this.charges = charges != null ? List.copyOf(charges) : List.of();
         this.taxes = taxes != null ? List.copyOf(taxes) : List.of();
+        this.barcodes = barcodes != null ? List.copyOf(barcodes) : List.of();
         this.transactionDate = transactionDate;
         this.purchaseDate = purchaseDate;
         this.period = period;
         this.note = note;
         this.additionalProperties = additionalProperties;
+        this.buyerCountryCode = buyerCountryCode;
+        this.recipientEntityType = recipientEntityType;
+        this.taxesApplied = taxesApplied;
     }
 
     // ===== MANDATORY FIELD ACCESSORS =====
+
+    /**
+     * @return The child company ID if provided
+     */
+    @JsonIgnore
+    public Optional<UUID> getChildCompanyId() {
+        return childCompanyId != null ? childCompanyId : Optional.empty();
+    }
 
     @JsonIgnore
     public String getDocumentNumber() {
@@ -299,8 +333,8 @@ public final class ReceiptTemplateRequest {
     }
 
     @JsonIgnore
-    public BigDecimal getInvoiceSubtotal() {
-        return invoiceSubtotal;
+    public BigDecimal getreceiptSubtotal() {
+        return receiptSubtotal;
     }
 
     @JsonIgnore
@@ -336,6 +370,11 @@ public final class ReceiptTemplateRequest {
     @JsonIgnore
     public List<Tax> getTaxes() {
         return taxes;
+    }
+
+    @JsonIgnore
+    public List<Barcode> getBarcodes() {
+        return barcodes;
     }
 
     // ===== OPTIONAL FIELD ACCESSORS =====
@@ -376,6 +415,23 @@ public final class ReceiptTemplateRequest {
         return this.additionalProperties;
     }
 
+    // ===== VAT METADATA ACCESSORS (not serialized) =====
+
+    @JsonIgnore
+    public String getBuyerCountryCode() {
+        return buyerCountryCode;
+    }
+
+    @JsonIgnore
+    public RecipientEntityType getRecipientEntityType() {
+        return recipientEntityType;
+    }
+
+    @JsonIgnore
+    public Boolean getTaxesApplied() {
+        return taxesApplied;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -383,11 +439,12 @@ public final class ReceiptTemplateRequest {
     }
 
     private boolean equalTo(ReceiptTemplateRequest other) {
-        return Objects.equals(this.documentNumber, other.documentNumber)
+        return Objects.equals(this.childCompanyId, other.childCompanyId)
+                && Objects.equals(this.documentNumber, other.documentNumber)
                 && Objects.equals(this.identifiers, other.identifiers)
                 && Objects.equals(this.issueDate, other.issueDate)
                 && Objects.equals(this.currency, other.currency)
-                && Objects.equals(this.invoiceSubtotal, other.invoiceSubtotal)
+                && Objects.equals(this.receiptSubtotal, other.receiptSubtotal)
                 && Objects.equals(this.totalBeforeTax, other.totalBeforeTax)
                 && Objects.equals(this.totalTaxAmount, other.totalTaxAmount)
                 && Objects.equals(this.totalAmount, other.totalAmount)
@@ -395,6 +452,7 @@ public final class ReceiptTemplateRequest {
                 && Objects.equals(this.discounts, other.discounts)
                 && Objects.equals(this.charges, other.charges)
                 && Objects.equals(this.taxes, other.taxes)
+                && Objects.equals(this.barcodes, other.barcodes)
                 && Objects.equals(this.transactionDate, other.transactionDate)
                 && Objects.equals(this.purchaseDate, other.purchaseDate)
                 && Objects.equals(this.period, other.period)
@@ -403,20 +461,21 @@ public final class ReceiptTemplateRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.documentNumber, this.identifiers, this.issueDate, this.currency,
-                this.invoiceSubtotal, this.totalBeforeTax, this.totalTaxAmount, this.totalAmount,
-                this.products, this.discounts, this.charges, this.taxes, this.transactionDate,
+        return Objects.hash(this.childCompanyId, this.documentNumber, this.identifiers, this.issueDate, this.currency,
+                this.receiptSubtotal, this.totalBeforeTax, this.totalTaxAmount, this.totalAmount,
+                this.products, this.discounts, this.charges, this.taxes, this.barcodes, this.transactionDate,
                 this.purchaseDate, this.period, this.note);
     }
 
     @Override
     public String toString() {
         return "ReceiptTemplateRequestDto{" +
-                "documentNumber='" + documentNumber + '\'' +
+                "childCompanyId='" + childCompanyId + '\'' +
+                ", documentNumber='" + documentNumber + '\'' +
                 ", identifiers=" + identifiers +
                 ", issueDate=" + issueDate +
                 ", currency='" + currency + '\'' +
-                ", invoiceSubtotal=" + invoiceSubtotal +
+                ", receiptSubtotal=" + receiptSubtotal +
                 ", totalBeforeTax=" + totalBeforeTax +
                 ", totalTaxAmount=" + totalTaxAmount +
                 ", totalAmount=" + totalAmount +
@@ -424,6 +483,7 @@ public final class ReceiptTemplateRequest {
                 ", discounts=" + discounts +
                 ", charges=" + charges +
                 ", taxes=" + taxes +
+                ", barcodes=" + barcodes +
                 ", transactionDate=" + transactionDate +
                 ", purchaseDate=" + purchaseDate +
                 ", period=" + period +
@@ -437,11 +497,12 @@ public final class ReceiptTemplateRequest {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
+        private Optional<UUID> childCompanyId = Optional.empty();
         private String documentNumber;
         private List<Identifier> identifiers;
         private Instant issueDate;
         private String currency;
-        private BigDecimal invoiceSubtotal;
+        private BigDecimal receiptSubtotal;
         private BigDecimal totalBeforeTax;
         private BigDecimal totalTaxAmount;
         private BigDecimal totalAmount;
@@ -449,20 +510,25 @@ public final class ReceiptTemplateRequest {
         private List<Discount> discounts;
         private List<Charge> charges;
         private List<Tax> taxes;
+        private List<Barcode> barcodes;
         private Optional<Instant> transactionDate = Optional.empty();
         private Optional<Instant> purchaseDate = Optional.empty();
         private Optional<Period> period = Optional.empty();
         private Optional<String> note = Optional.empty();
         private Map<String, Object> additionalProperties = new HashMap<>();
+        private String buyerCountryCode;
+        private RecipientEntityType recipientEntityType;
+        private Boolean taxesApplied;
 
         private Builder() {}
 
         public ReceiptTemplateRequest.Builder from(ReceiptTemplateRequest other) {
+            childCompanyId(other.getChildCompanyId().orElse(null));
             documentNumber(other.getDocumentNumber());
             identifiers(other.getIdentifiers());
             issueDate(other.getIssueDate());
             currency(other.getcurrency());
-            invoiceSubtotal(other.getInvoiceSubtotal());
+            receiptSubtotal(other.getreceiptSubtotal());
             totalBeforeTax(other.getTotalBeforeTax());
             totalTaxAmount(other.getTotalTaxAmount());
             totalAmount(other.getTotalAmount());
@@ -470,6 +536,7 @@ public final class ReceiptTemplateRequest {
             discounts(other.getDiscounts());
             charges(other.getCharges());
             taxes(other.getTaxes());
+            barcodes(other.getBarcodes());
             transactionDate(other.getTransactionDate().orElse(null));
             purchaseDate(other.getPurchaseDate().orElse(null));
             period(other.getPeriod().orElse(null));
@@ -517,9 +584,9 @@ public final class ReceiptTemplateRequest {
             return this;
         }
 
-        @JsonSetter(value = "invoiceSubtotal", nulls = Nulls.SKIP)
-        public ReceiptTemplateRequest.Builder invoiceSubtotal(BigDecimal invoiceSubtotal) {
-            this.invoiceSubtotal = invoiceSubtotal;
+        @JsonSetter(value = "receiptSubtotal", nulls = Nulls.SKIP)
+        public ReceiptTemplateRequest.Builder receiptSubtotal(BigDecimal receiptSubtotal) {
+            this.receiptSubtotal = receiptSubtotal;
             return this;
         }
 
@@ -560,6 +627,55 @@ public final class ReceiptTemplateRequest {
         public ReceiptTemplateRequest.Builder products(List<Product> products) {
             this.products = products;
             return this;
+        }
+
+        /**
+         * Convenience method to add a single product to the receipt.
+         */
+        public ReceiptTemplateRequest.Builder addProduct(Product product) {
+            if (this.products == null) {
+                this.products = new ArrayList<>();
+            }
+            this.products.add(product);
+            return this;
+        }
+
+        /**
+         * Convenience method to add a simple product with basic details.
+         * All amounts must be pre-calculated by the POS system.
+         *
+         * @param identifier Product identifier (e.g., SKU, EAN)
+         * @param brand Product brand/manufacturer
+         * @param name Product name/model
+         * @param unitPrice Price per unit
+         * @param subtotal Subtotal (unitPrice × quantity, pre-calculated)
+         * @param taxRate Tax rate as percentage (e.g., 21.0 for 21%)
+         * @param taxableAmount The taxable amount this tax rate applies to (pre-calculated)
+         * @param taxAmount Tax amount (pre-calculated)
+         * @param total Total amount including tax (pre-calculated)
+         * @param quantity Number of units
+         * @return This builder
+         */
+        public ReceiptTemplateRequest.Builder addProduct(String identifier, String brand, String name, String unitPrice, String subtotal, Double taxRate, String taxableAmount, String taxAmount, String total, Double quantity) {
+            return addProduct(Product.builder()
+                    .brandName(brand)
+                    .name(name)
+                    .identifier(identifier)
+                    .quantity(quantity)
+                    .baseQuantity(1.0)
+                    .unitCode(UnitCode.ONE)
+                    .unitPrice(unitPrice)
+                    .subtotal(subtotal)
+                    .total(total)
+                    .addTax(taxRate, "VAT", taxableAmount, taxAmount)
+                    .build());
+        }
+
+        /**
+         * Convenience method with BigDecimal amounts.
+         */
+        public ReceiptTemplateRequest.Builder addProduct(String identifier, String brand, String name, BigDecimal unitPrice, BigDecimal subtotal, Double taxRate, BigDecimal taxableAmount, BigDecimal taxAmount, BigDecimal total, Double quantity) {
+            return addProduct(identifier, brand, name, unitPrice.toString(), subtotal.toString(), taxRate, taxableAmount.toString(), taxAmount.toString(), total.toString(), quantity);
         }
 
         @JsonSetter(value = "discounts", nulls = Nulls.SKIP)
@@ -670,21 +786,62 @@ public final class ReceiptTemplateRequest {
         }
 
         /**
-         * Convenience method to add a tax with rate, type, and amount.
+         * Convenience method to add a tax with rate, type, taxable amount, and tax amount.
          */
-        public ReceiptTemplateRequest.Builder addTax(Double rate, String type, BigDecimal amount) {
+        public ReceiptTemplateRequest.Builder addTax(Double rate, String type, BigDecimal taxableAmount, BigDecimal amount) {
             return addTax(Tax.builder()
                     .rate(rate)
                     .type(type)
+                    .taxableAmount(taxableAmount)
                     .amount(amount)
                     .build());
         }
 
         /**
-         * Convenience method to add a tax with rate, type, and amount (String).
+         * Convenience method to add a tax with rate, type, taxable amount, and tax amount (String).
          */
-        public ReceiptTemplateRequest.Builder addTax(Double rate, String type, String amount) {
-            return addTax(rate, type, new BigDecimal(amount));
+        public ReceiptTemplateRequest.Builder addTax(Double rate, String type, String taxableAmount, String amount) {
+            return addTax(rate, type, new BigDecimal(taxableAmount), new BigDecimal(amount));
+        }
+
+        @JsonSetter(value = "barcodes", nulls = Nulls.SKIP)
+        public ReceiptTemplateRequest.Builder barcodes(List<Barcode> barcodes) {
+            this.barcodes = barcodes;
+            return this;
+        }
+
+        /**
+         * Convenience method to add a single barcode to the receipt.
+         */
+        public ReceiptTemplateRequest.Builder addBarcode(Barcode barcode) {
+            if (this.barcodes == null) {
+                this.barcodes = new ArrayList<>();
+            }
+            this.barcodes.add(barcode);
+            return this;
+        }
+
+        /**
+         * Convenience method to add a QR code barcode with data and label.
+         *
+         * @param data  The data to encode in the QR code
+         * @param label A human-readable label (e.g., "Return code")
+         * @return This builder
+         */
+        public ReceiptTemplateRequest.Builder addQrCode(String data, String label) {
+            return addBarcode(Barcode.qrCode(data, label));
+        }
+
+        /**
+         * Convenience method to add a barcode with type, data, and label.
+         *
+         * @param type  The barcode type
+         * @param data  The data to encode
+         * @param label A human-readable label
+         * @return This builder
+         */
+        public ReceiptTemplateRequest.Builder addBarcode(BarcodeType type, String data, String label) {
+            return addBarcode(Barcode.of(type, data, label));
         }
 
         @JsonSetter(value = "transactionDate", nulls = Nulls.SKIP)
@@ -711,93 +868,49 @@ public final class ReceiptTemplateRequest {
             return this;
         }
 
+        @JsonSetter(value = "childCompanyId", nulls = Nulls.SKIP)
+        public ReceiptTemplateRequest.Builder childCompanyId(UUID childCompanyId) {
+            this.childCompanyId = Optional.ofNullable(childCompanyId);
+            return this;
+        }
+
+        /**
+         * Sets the buyer's ISO country code for VAT metadata resolution.
+         * Used to determine cross-border VAT regime (e.g., reverse charge, intra-EU).
+         *
+         * @param buyerCountryCode ISO 3166-1 alpha-2 country code (e.g., "DE", "FR", "US")
+         */
+        public ReceiptTemplateRequest.Builder buyerCountryCode(String buyerCountryCode) {
+            this.buyerCountryCode = buyerCountryCode;
+            return this;
+        }
+
+        /**
+         * Sets the recipient entity type for VAT metadata resolution.
+         *
+         * @param recipientEntityType BUSINESS for B2B or CONSUMER for B2C transactions
+         */
+        public ReceiptTemplateRequest.Builder recipientEntityType(RecipientEntityType recipientEntityType) {
+            this.recipientEntityType = recipientEntityType;
+            return this;
+        }
+
+        /**
+         * Indicates whether taxes were applied to this transaction.
+         * Set to false when no taxes apply (e.g., US sales tax not charged, non-VAT jurisdiction).
+         *
+         * @param taxesApplied true if taxes were charged, false if not
+         */
+        public ReceiptTemplateRequest.Builder taxesApplied(Boolean taxesApplied) {
+            this.taxesApplied = taxesApplied;
+            return this;
+        }
+
         public ReceiptTemplateRequest build() {
-            return new ReceiptTemplateRequest(documentNumber, identifiers, issueDate, currency,
-                    invoiceSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, products, discounts, charges, taxes,
-                    transactionDate, purchaseDate, period, note, additionalProperties);
+            return new ReceiptTemplateRequest(childCompanyId, documentNumber, identifiers, issueDate, currency,
+                    receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, products, discounts, charges, taxes,
+                    barcodes, transactionDate, purchaseDate, period, note, additionalProperties,
+                    buyerCountryCode, recipientEntityType, taxesApplied);
         }
-    }
-
-    // ===== VALIDATION METHODS =====
-
-    /**
-     * Validates this receipt template request.
-     * @return true if all mandatory fields are present and valid
-     */
-    public boolean isValid() {
-        List<String> errors = getValidationErrors();
-        return errors.isEmpty();
-    }
-
-    /**
-     * Gets detailed validation errors for this receipt template request.
-     * @return List of validation error messages, empty if valid
-     */
-    @JsonIgnore
-    public List<String> getValidationErrors() {
-        List<String> errors = new ArrayList<>();
-
-        // Mandatory field validation
-        if (documentNumber == null || documentNumber.trim().isEmpty()) {
-            errors.add("Receipt ID is required");
-        }
-        if (issueDate == null) {
-            errors.add("Issue date is required");
-        }
-        if (currency == null || currency.trim().isEmpty()) {
-            errors.add("Currency code is required");
-        }
-        if (invoiceSubtotal == null) {
-            errors.add("Invoice subtotal is required");
-        }
-        if (totalBeforeTax == null) {
-            errors.add("Total before tax is required");
-        }
-        if (totalTaxAmount == null) {
-            errors.add("Total tax amount is required");
-        }
-        if (totalAmount == null) {
-            errors.add("Total amount is required");
-        }
-        if (products == null || products.isEmpty()) {
-            errors.add("At least one product is required");
-        }
-        if (taxes == null || taxes.isEmpty()) {
-            errors.add("At least one tax entry is required");
-        }
-
-        // Validate nested objects
-        if (products != null) {
-            for (int i = 0; i < products.size(); i++) {
-                Product product = products.get(i);
-                if (product == null) {
-                    errors.add("Product " + (i + 1) + " cannot be null");
-                } else {
-                    List<String> productErrors = product.getValidationErrors();
-                    for (String error : productErrors) {
-                        errors.add("Product " + (i + 1) + ": " + error);
-                    }
-                }
-            }
-        }
-
-        // Validate taxes
-        if (taxes != null) {
-            for (int i = 0; i < taxes.size(); i++) {
-                Tax tax = taxes.get(i);
-                if (tax == null) {
-                    errors.add("Tax " + (i + 1) + " cannot be null");
-                } else {
-                    if (tax.getRate() == null) {
-                        errors.add("Tax " + (i + 1) + ": rate is required");
-                    }
-                    if (tax.getType() == null || tax.getType().trim().isEmpty()) {
-                        errors.add("Tax " + (i + 1) + ": type is required");
-                    }
-                }
-            }
-        }
-
-        return errors;
     }
 }

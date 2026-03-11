@@ -2,7 +2,6 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-com-cheqi-cheqi-commons = "1.0.0"
 com-fasterxml-jackson-core-jackson-annotations = "2.15.2"
 com-fasterxml-jackson-core-jackson-databind = "2.15.2"
 com-fasterxml-jackson-datatype-jackson-datatype-jdk8 = "2.15.2"
@@ -13,9 +12,11 @@ org-bouncycastle-bcprov-jdk18on = "1.82"
 org-glassfish-jaxb-jaxb-runtime = "2.3.1"
 org-jetbrains-annotations = "24.0.1"
 org-slf4j-slf4j-api = "2.0.7"
+jakarta-validation-jakarta-validation-api = "3.0.2"
+org-hibernate-validator-hibernate-validator = "8.0.1.Final"
+org-junit-jupiter = "5.10.2"
 
 [libraries]
-com-cheqi-cheqi-commons = { module = "io.cheqi:cheqi-commons", version.ref = "com-cheqi-cheqi-commons" }
 com-fasterxml-jackson-core-jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "com-fasterxml-jackson-core-jackson-annotations" }
 com-fasterxml-jackson-core-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "com-fasterxml-jackson-core-jackson-databind" }
 com-fasterxml-jackson-datatype-jackson-datatype-jdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8", version.ref = "com-fasterxml-jackson-datatype-jackson-datatype-jdk8" }
@@ -26,3 +27,6 @@ org-bouncycastle-bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", 
 org-glassfish-jaxb-jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "org-glassfish-jaxb-jaxb-runtime" }
 org-jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "org-jetbrains-annotations" }
 org-slf4j-slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "org-slf4j-slf4j-api" }
+jakarta-validation-jakarta-validation-api = { module = "jakarta.validation:jakarta.validation-api", version.ref = "jakarta-validation-jakarta-validation-api" }
+org-hibernate-validator-hibernate-validator = { module = "org.hibernate.validator:hibernate-validator", version.ref = "org-hibernate-validator-hibernate-validator" }
+org-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "org-junit-jupiter" }

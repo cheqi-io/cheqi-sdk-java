@@ -1,17 +1,20 @@
 package com.cheqi.sdk;
 
-import com.cheqi.commons.DTOs.EncryptedReceiptDto;
-import com.cheqi.commons.UBL.PurchaseReceipt;
+import com.cheqi.sdk.company.CompanyService;
+import com.cheqi.sdk.company.StoreService;
 import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.config.Environment;
+import com.cheqi.sdk.creditNote.CreditNoteService;
 import com.cheqi.sdk.decryption.DecryptionService;
 import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.DefaultCheqiApiClient;
 import com.cheqi.sdk.matching.MatchingService;
+import com.cheqi.sdk.decryption.DecryptedReceipt;
+import com.cheqi.sdk.models.EncryptedReceipt;
 import com.cheqi.sdk.receipt.ReceiptProcessor;
 import com.cheqi.sdk.receipt.ReceiptService;
-import com.cheqi.sdk.utils.RFC8785Canonicalizer;
+import com.cheqi.sdk.verification.VerificationService;
 
 /**
  * Main entry point for the Cheqi SDK providing end-to-end encrypted receipt processing.
@@ -57,7 +60,7 @@ import com.cheqi.sdk.utils.RFC8785Canonicalizer;
  *     .invoiceSubtotal(new BigDecimal("100.00"))
  *     .totalBeforeTax(new BigDecimal("100.00"))
  *     .totalAmount(new BigDecimal("121.00"))
- *     .totalTaxAmount(new BigDecimal("21.00"))
+ *     .totalTaxAmount(new BigDecimal("21.00"))creditNoteTemplateRequest
  *     .addProduct(Product.builder()
  *         .name("Laptop")
  *         .quantity(1.0)
@@ -65,7 +68,7 @@ import com.cheqi.sdk.utils.RFC8785Canonicalizer;
  *         .unitPrice("100.00")
  *         .subtotal("100.00")
  *         .total("121.00")
- *         .addTax(21.0, "VAT", "21.00")
+ *         .addTax(21.0, "VAT", "100.00", "21.00")
  *         .build())
  *     .addTax(Tax.builder()
  *         .rate(21.0)
@@ -92,17 +95,24 @@ public class CheqiSDK {
     private final MatchingService matchingService;
     private final ReceiptService receiptService;
     private final ReceiptProcessor receiptProcessor;
-    private final RFC8785Canonicalizer canonicalizer;
+    private final CompanyService companyService;
+    private final StoreService storeService;
+    private final VerificationService verificationService;
+    private final CreditNoteService creditNoteService; // Add this
+
 
     private CheqiSDK(CheqiSDKConfig config) {
         this.config = config;
-        this.canonicalizer = new RFC8785Canonicalizer();
+        this.verificationService = new VerificationService();
         this.decryptionService = new DecryptionService();
         this.receiptProcessor = new ReceiptProcessor(decryptionService);
         this.encryptionService = new EncryptionService();
         this.apiClient = new DefaultCheqiApiClient(config);
         this.matchingService = new MatchingService(apiClient);
         this.receiptService = new ReceiptService(apiClient, encryptionService, matchingService);
+        this.companyService = new CompanyService(apiClient);
+        this.storeService = new StoreService(apiClient);
+        this.creditNoteService = new CreditNoteService(apiClient, encryptionService, matchingService);
     }
 
     /**
@@ -140,7 +150,7 @@ public class CheqiSDK {
     }
 
     // Expose receipt processing functionality
-    public PurchaseReceipt processEncryptedReceipt(EncryptedReceiptDto encryptedReceipt, String privateKey) {
+    public DecryptedReceipt processEncryptedReceipt(EncryptedReceipt encryptedReceipt, String privateKey) {
         return receiptProcessor.processEncryptedReceipt(encryptedReceipt, privateKey);
     }
 
@@ -163,12 +173,13 @@ public class CheqiSDK {
     }
 
     /**
-     * Gets the RFC 8785 canonicalizer for XML canonicalization.
+     * Gets the verification service for receipt integrity verification.
+     * Provides canonicalization and hashing for both CheqiReceipt (JSON) and UBL XML formats.
      *
-     * @return RFC8785Canonicalizer instance
+     * @return VerificationService instance
      */
-    public RFC8785Canonicalizer getCanonicalizer() {
-        return canonicalizer;
+    public VerificationService getVerificationService() {
+        return verificationService;
     }
 
     /**
@@ -178,6 +189,34 @@ public class CheqiSDK {
      */
     public CheqiSDKConfig getConfig() {
         return config;
+    }
+
+    /**
+     * Gets the company service for company provisioning.
+     *
+     * @return CompanyService instance
+     */
+    public CompanyService getCompanyService() {
+        return companyService;
+    }
+
+    /**
+     * Gets the store service for store management.
+     *
+     * @return StoreService instance
+     */
+    public StoreService getStoreService() {
+        return storeService;
+    }
+
+    /**
+     * Gets the credit note service for credit note processing.
+     *
+     * @return CreditNoteService instance
+     * @throws IllegalStateException if no private key was configured during SDK initialization
+     */
+    public CreditNoteService getCreditNoteService() {
+        return creditNoteService;
     }
 
     /**
@@ -211,6 +250,16 @@ public class CheqiSDK {
 
         public CheqiSDKBuilder supplierCredentials(String clientId, String clientSecret) {
             configBuilder.supplierCredentials(clientId, clientSecret);
+            return this;
+        }
+
+        public CheqiSDKBuilder apiKey(String apiKey) {
+            configBuilder.apiKey(apiKey);
+            return this;
+        }
+
+        public CheqiSDKBuilder privateKey(String privateKey) {
+            configBuilder.privateKey(privateKey);
             return this;
         }
 

@@ -9,12 +9,9 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Allowance charge DTO representing discounts or additional charges.
@@ -61,26 +58,30 @@ public final class AllowanceCharge {
      * @see <a href="https://docs.peppol.eu/poacc/billing/3.0/2023-Q2/codelist/UNCL5189/">Allowance Reason Codes</a>
      * @see <a href="https://docs.peppol.eu/poacc/billing/3.0/codelist/UNCL7161/">Charge Reason Codes</a>
      */
-    private final Optional<String> allowanceChargeReasonCode;
+    @JsonProperty("allowanceChargeReasonCode")
+    private final String allowanceChargeReasonCode;
 
     /**
      * The reason for the allowance or charge, expressed as text.
      * Examples: "Summer sale", "Early Payment Discounts", "Extra processing fee".
      * If not provided, the description matching the allowanceChargeReasonCode will be used.
      */
-    private final Optional<String> allowanceChargeReason;
+    @JsonProperty("allowanceChargeReason")
+    private final String allowanceChargeReason;
 
     /**
      * The percentage that may be used, in conjunction with the base amount, 
      * to calculate the allowance or charge amount.
      */
-    private final Optional<Double> percentage;
+    @JsonProperty("percentage")
+    private final Double percentage;
 
     /**
      * The amount of an allowance or a charge, without VAT.
      * This is typically calculated as: Base Amount * (Percentage / 100).
      */
-    private final Optional<BigDecimal> amount;
+    @JsonProperty("allowanceAmount")
+    private final BigDecimal amount;
 
     private final Map<String, Object> additionalProperties;
 
@@ -88,10 +89,10 @@ public final class AllowanceCharge {
 
     private AllowanceCharge(
             Boolean chargeIndicator,
-            Optional<String> allowanceChargeReasonCode,
-            Optional<String> allowanceChargeReason,
-            Optional<Double> percentage,
-            Optional<BigDecimal> amount,
+            String allowanceChargeReasonCode,
+            String allowanceChargeReason,
+            Double percentage,
+            BigDecimal amount,
             Map<String, Object> additionalProperties) {
         this.chargeIndicator = chargeIndicator;
         this.allowanceChargeReasonCode = allowanceChargeReasonCode;
@@ -116,44 +117,28 @@ public final class AllowanceCharge {
     /**
      * @return The allowance charge reason code if provided
      */
-    @JsonIgnore
-    public Optional<String> getAllowanceChargeReasonCode() {
-        if (allowanceChargeReasonCode == null) {
-            return Optional.empty();
-        }
+    public String getAllowanceChargeReasonCode() {
         return allowanceChargeReasonCode;
     }
 
     /**
      * @return The allowance charge reason text if provided
      */
-    @JsonIgnore
-    public Optional<String> getAllowanceChargeReason() {
-        if (allowanceChargeReason == null) {
-            return Optional.empty();
-        }
+    public String getAllowanceChargeReason() {
         return allowanceChargeReason;
     }
 
     /**
      * @return The percentage if provided
      */
-    @JsonIgnore
-    public Optional<Double> getPercentage() {
-        if (percentage == null) {
-            return Optional.empty();
-        }
+    public Double getPercentage() {
         return percentage;
     }
 
     /**
      * @return The amount if provided
      */
-    @JsonIgnore
-    public Optional<BigDecimal> getAmount() {
-        if (amount == null) {
-            return Optional.empty();
-        }
+    public BigDecimal getAmount() {
         return amount;
     }
 
@@ -204,35 +189,13 @@ public final class AllowanceCharge {
         return new AllowanceCharge.Builder();
     }
 
-    // ===== PRIVATE JSON SERIALIZATION METHODS =====
-
-    @JsonProperty("allowanceChargeReasonCode")
-    private Optional<String> _getAllowanceChargeReasonCode() {
-        return allowanceChargeReasonCode;
-    }
-
-    @JsonProperty("allowanceChargeReason")
-    private Optional<String> _getAllowanceChargeReason() {
-        return allowanceChargeReason;
-    }
-
-    @JsonProperty("percentage")
-    private Optional<Double> _getPercentage() {
-        return percentage;
-    }
-
-    @JsonProperty("allowanceAmount")
-    private Optional<BigDecimal> _getAmount() {
-        return amount;
-    }
-
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
         private Boolean chargeIndicator;
-        private Optional<String> allowanceChargeReasonCode = Optional.empty();
-        private Optional<String> allowanceChargeReason = Optional.empty();
-        private Optional<Double> percentage = Optional.empty();
-        private Optional<BigDecimal> amount = Optional.empty();
+        private String allowanceChargeReasonCode;
+        private String allowanceChargeReason;
+        private Double percentage;
+        private BigDecimal amount;
         private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {}
@@ -243,6 +206,7 @@ public final class AllowanceCharge {
             allowanceChargeReason(other.getAllowanceChargeReason());
             percentage(other.getPercentage());
             amount(other.getAmount());
+
             return this;
         }
 
@@ -253,46 +217,26 @@ public final class AllowanceCharge {
         }
 
         @JsonSetter(value = "allowanceChargeReasonCode", nulls = Nulls.SKIP)
-        public AllowanceCharge.Builder allowanceChargeReasonCode(Optional<String> allowanceChargeReasonCode) {
+        public AllowanceCharge.Builder allowanceChargeReasonCode(String allowanceChargeReasonCode) {
             this.allowanceChargeReasonCode = allowanceChargeReasonCode;
             return this;
         }
 
-        public AllowanceCharge.Builder allowanceChargeReasonCode(String allowanceChargeReasonCode) {
-            this.allowanceChargeReasonCode = Optional.ofNullable(allowanceChargeReasonCode);
-            return this;
-        }
-
         @JsonSetter(value = "allowanceChargeReason", nulls = Nulls.SKIP)
-        public AllowanceCharge.Builder allowanceChargeReason(Optional<String> allowanceChargeReason) {
+        public AllowanceCharge.Builder allowanceChargeReason(String allowanceChargeReason) {
             this.allowanceChargeReason = allowanceChargeReason;
             return this;
         }
 
-        public AllowanceCharge.Builder allowanceChargeReason(String allowanceChargeReason) {
-            this.allowanceChargeReason = Optional.ofNullable(allowanceChargeReason);
-            return this;
-        }
-
         @JsonSetter(value = "percentage", nulls = Nulls.SKIP)
-        public AllowanceCharge.Builder percentage(Optional<Double> percentage) {
+        public AllowanceCharge.Builder percentage(Double percentage) {
             this.percentage = percentage;
             return this;
         }
 
-        public AllowanceCharge.Builder percentage(Double percentage) {
-            this.percentage = Optional.ofNullable(percentage);
-            return this;
-        }
-
         @JsonSetter(value = "allowanceAmount", nulls = Nulls.SKIP)
-        public AllowanceCharge.Builder amount(Optional<BigDecimal> amount) {
-            this.amount = amount;
-            return this;
-        }
-
         public AllowanceCharge.Builder amount(BigDecimal amount) {
-            this.amount = Optional.ofNullable(amount);
+            this.amount = amount;
             return this;
         }
 
@@ -308,55 +252,4 @@ public final class AllowanceCharge {
         }
     }
 
-    // ===== VALIDATION METHODS =====
-
-    /**
-     * Validates this allowance charge.
-     * @return true if all mandatory fields are present and business rules are satisfied
-     */
-    public boolean isValid() {
-        List<String> errors = getValidationErrors();
-        return errors.isEmpty();
-    }
-
-    /**
-     * Gets detailed validation errors for this allowance charge.
-     * @return List of validation error messages, empty if valid
-     */
-    public List<String> getValidationErrors() {
-        List<String> errors = new ArrayList<>();
-
-        // Mandatory field validation
-        if (chargeIndicator == null) {
-            errors.add("Charge indicator is required (true for charge, false for allowance)");
-        }
-
-        // Business rule validation - must have either percentage OR amount
-        boolean hasPercentage = percentage.isPresent() && percentage.get() != null;
-        boolean hasAmount = amount.isPresent() && amount.get() != null;
-
-        if (!hasPercentage && !hasAmount) {
-            errors.add("Either percentage or amount must be provided for calculation");
-        }
-
-        // Validate percentage if present
-        if (hasPercentage) {
-            Double pct = percentage.get();
-            if (pct < 0) {
-                errors.add("Percentage cannot be negative");
-            } else if (pct > 100) {
-                errors.add("Percentage cannot exceed 100%");
-            }
-        }
-
-        // Validate amount if present
-        if (hasAmount) {
-            BigDecimal amt = amount.get();
-            if (amt.compareTo(BigDecimal.ZERO) < 0) {
-                errors.add("Amount cannot be negative");
-            }
-        }
-
-        return errors;
-    }
 }

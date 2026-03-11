@@ -17,7 +17,6 @@ repositories {
 }
 
 dependencies {
-    api libs.com.cheqi.cheqi.commons
     api libs.org.bouncycastle.bcprov.jdk18on
     api libs.com.fasterxml.jackson.core.jackson.databind
     api libs.com.fasterxml.jackson.core.jackson.annotations
@@ -28,14 +27,23 @@ dependencies {
     api libs.org.jetbrains.annotations
     api libs.javax.xml.bind.jaxb.api
     api libs.org.glassfish.jaxb.jaxb.runtime
+
+    testImplementation libs.org.junit.jupiter
+}
+
+test {
+    useJUnitPlatform()
 }
 
 group = 'io.cheqi'
-version = '1.0.1'
+version = '1.0.4'
 description = 'Cheqi SDK'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
     withJavadocJar()
     withSourcesJar()
 }

@@ -1,31 +1,29 @@
 package com.cheqi.sdk.receipt;
 
-import com.cheqi.commons.DTOs.EncryptedReceiptDto;
-import com.cheqi.commons.UBL.Party;
-import com.cheqi.commons.UBL.PurchaseReceipt;
-import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.decryption.DecryptedReceipt;
 import com.cheqi.sdk.decryption.DecryptionService;
-import com.cheqi.sdk.exceptions.ReceiptProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.cheqi.sdk.models.EncryptedReceipt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 /**
- * Processes encrypted receipts by decrypting and parsing them into PurchaseReceipt objects.
+ * Processes encrypted receipts by decrypting and parsing them.
  * 
  * This processor handles:
- * - Decryption of encrypted receipt content
- * - Parsing JSON into UBL PurchaseReceipt objects
- * - Injecting customer details when available
+ * - Decryption of encrypted receipt content and customer details
+ * - Merging customer details into both receipt formats (UBL XML and CheqiReceipt)
+ * 
+ * The returned {@link DecryptedReceipt} provides access to:
+ * - {@code getUblXml()} — complete UBL XML with AccountingCustomerParty merged in
+ * - {@code getCheqiReceipt()} — CheqiReceipt with receivingParty injected
  */
 public class ReceiptProcessor {
     private static final Logger logger = LoggerFactory.getLogger(ReceiptProcessor.class);
     
     private final DecryptionService decryptionService;
-    private final ObjectMapper objectMapper;
+    private final ReceiptMergeService mergeService;
 
     /**
      * Creates a new ReceiptProcessor.
@@ -35,66 +33,34 @@ public class ReceiptProcessor {
      */
     public ReceiptProcessor(DecryptionService decryptionService) {
         this.decryptionService = Objects.requireNonNull(decryptionService, "decryptionService cannot be null");
-        this.objectMapper = ObjectMapperConfig.getInstance();
+        this.mergeService = new ReceiptMergeService();
         logger.info("ReceiptProcessor initialized");
     }
 
     /**
-     * Processes an encrypted receipt by decrypting and parsing it.
+     * Processes an encrypted receipt by decrypting it and merging customer details.
+     * 
+     * Customer details from the {@link com.cheqi.sdk.models.ConsumingPartyEnvelope} are automatically merged:
+     * <ul>
+     *   <li>UBL XML: the {@code <cac:AccountingCustomerParty/>} placeholder is replaced with the xmlParty fragment</li>
+     *   <li>CheqiReceipt: the receivingParty is injected from the ConsumingPartyEnvelope</li>
+     * </ul>
      * 
      * @param encryptedReceipt The encrypted receipt DTO
      * @param privateKey The private key for decryption (Base64 PKCS#8 format)
-     * @return Fully parsed PurchaseReceipt with customer details if available
-     * @throws ReceiptProcessingException if decryption or parsing fails
+     * @return DecryptedReceipt with merged customer details in both formats
+     * @throws RuntimeException if decryption or parsing fails
      */
-    public PurchaseReceipt processEncryptedReceipt(
-            EncryptedReceiptDto encryptedReceipt,
+    public DecryptedReceipt processEncryptedReceipt(
+            EncryptedReceipt encryptedReceipt,
             String privateKey) {
         
         logger.debug("Processing encrypted receipt for recipient: {}", encryptedReceipt.getRecipientId());
 
-        // Step 1: Decrypt receipt and customer details
         DecryptedReceipt decrypted = decryptionService.decryptReceipt(encryptedReceipt, privateKey);
-
-        // Step 2: Parse receipt JSON into PurchaseReceipt object
-        PurchaseReceipt receipt;
-        try {
-            receipt = parseReceiptFromJson(decrypted.getReceiptContentJson());
-            logger.debug("Successfully parsed receipt content");
-        } catch (Exception e) {
-            logger.error("Failed to parse receipt JSON: {}", e.getMessage());
-            throw new ReceiptProcessingException("Failed to parse receipt JSON", e);
-        }
-
-        // Step 3: Inject customer party if available
-        if (decrypted.hasCustomerDetails()) {
-            try {
-                Party customerParty = parsePartyFromJson(decrypted.getCustomerDetails());
-                receipt.setAccountingCustomerParty(customerParty);
-                logger.debug("Successfully injected customer details");
-            } catch (Exception e) {
-                logger.error("Failed to parse customer details JSON: {}", e.getMessage());
-                throw new ReceiptProcessingException("Failed to parse customer details JSON", e);
-            }
-        }
+        mergeService.merge(decrypted);
 
         logger.info("Successfully processed encrypted receipt for recipient: {}", encryptedReceipt.getRecipientId());
-        return receipt;
+        return decrypted;
     }
-
-    /**
-     * Parses PurchaseReceipt from JSON string.
-     */
-    private PurchaseReceipt parseReceiptFromJson(String receiptJson) throws Exception {
-        return objectMapper.readValue(receiptJson, PurchaseReceipt.class);
-    }
-
-    /**
-     * Parses Party from JSON string.
-     */
-    private Party parsePartyFromJson(String partyJson) throws Exception {
-        return objectMapper.readValue(partyJson, Party.class);
-    }
-
-
 }

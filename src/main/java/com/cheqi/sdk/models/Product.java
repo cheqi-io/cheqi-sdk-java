@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Simple product line item used in Cheqi receipts.
@@ -15,60 +14,60 @@ import java.util.Optional;
  * - No UBL/PEPPOL types
  * - No Optional
  * - POS/backend just fills in what it already knows
- * The Cheqi backend handles UBL/PEPPOL mapping and validation.
+ * Cheqi backend handles UBL mapping and validation.
  *
  * <h3>Typical usage:</h3>
  * <pre>
  * // Simple product (1 laptop)
  * Product laptop = Product.builder()
  *     .name("Laptop 13\"")
- *     .sku("LAP-001")
+ *     .identifier("LAP-001")
  *     .quantity(1.0)
  *     .baseQuantity(1.0)        // Always required (1.0 for simple items)
  *     .unitCode(UnitCode.ONE)
  *     .unitPrice("1000.00")
  *     .subtotal("1000.00")
  *     .total("1210.00")
- *     .addTax(21.0, "VAT", "210.00")
+ *     .addTax(21.0, "VAT", "1000.00", "210.00")
  *     .build();
  *
  * // Pre-packaged product (10 packages × 500g cheese)
  * Product cheese = Product.builder()
  *     .name("Gouda Cheese")
- *     .sku("CHEESE-500G")
+ *     .identifier("CHEESE-500G")
  *     .quantity(10.0)           // 10 packages
  *     .baseQuantity(500.0)      // 500g per package (total: 5000g)
  *     .unitCode(UnitCode.GRAM)
  *     .unitPrice("4.99")        // Price per package
  *     .subtotal("49.90")
  *     .total("60.38")
- *     .addTax(21.0, "VAT", "10.48")
+ *     .addTax(21.0, "VAT", "49.90", "10.48")
  *     .build();
  *
  * // Weight-based product (2.5kg apples)
  * Product apples = Product.builder()
  *     .name("Organic Apples")
- *     .sku("APPLE-ORG")
+ *     .identifier("APPLE-ORG")
  *     .quantity(2.5)
  *     .baseQuantity(1.0)
  *     .unitCode(UnitCode.KILOGRAM)
  *     .unitPrice("3.99")        // Price per kg
  *     .subtotal("9.98")
  *     .total("12.08")
- *     .addTax(21.0, "VAT", "2.10")
+ *     .addTax(21.0, "VAT", "9.98", "2.10")
  *     .build();
  *
  * // Time-based product (monthly subscription) - Easy with LocalDate!
  * Product subscription = Product.builder()
  *     .name("Premium Subscription")
- *     .sku("SUB-PREMIUM-M")
+ *     .identifier("SUB-PREMIUM-M")
  *     .quantity(1.0)
  *     .baseQuantity(1.0)
  *     .unitCode(UnitCode.MONTH)
  *     .unitPrice("29.99")
  *     .subtotal("29.99")
  *     .total("36.29")
- *     .addTax(21.0, "VAT", "6.30")
+ *     .addTax(21.0, "VAT", "29.99", "6.30")
  *     .period(Period.builder()
  *         .startDate(LocalDate.of(2024, 1, 1))      // Easy!
  *         .endDate(LocalDate.of(2024, 1, 31))       // Easy!
@@ -79,14 +78,14 @@ import java.util.Optional;
  * // Hourly rental with precise times - Easy with LocalDateTime!
  * Product carRental = Product.builder()
  *     .name("Tesla Model 3 Rental")
- *     .sku("RENTAL-TESLA-M3")
+ *     .identifier("RENTAL-TESLA-M3")
  *     .quantity(3.0)
  *     .baseQuantity(1.0)
  *     .unitCode(UnitCode.HOUR)
  *     .unitPrice("25.00")
  *     .subtotal("75.00")
  *     .total("90.75")
- *     .addTax(21.0, "VAT", "15.75")
+ *     .addTax(21.0, "VAT", "75.00", "15.75")
  *     .period(Period.builder()
  *         .startDate(LocalDateTime.of(2024, 12, 1, 14, 0))  // 2:00 PM - Easy!
  *         .endDate(LocalDateTime.of(2024, 12, 1, 17, 0))    // 5:00 PM - Easy!
@@ -95,7 +94,7 @@ import java.util.Optional;
  *     .build();
  * </pre>
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonDeserialize(builder = Product.Builder.class)
 public final class Product {
 
@@ -108,10 +107,10 @@ public final class Product {
     private final String name;
 
     /**
-     * SKU or article number (merchant-defined).
+     * Article identifier, for example article number (merchant-defined).
      */
-    @JsonProperty("sku")
-    private final String sku;
+    @JsonProperty("identifier")
+    private final String identifier;
 
     /**
      * Optional longer description.
@@ -120,10 +119,10 @@ public final class Product {
     private final String description;
 
     /**
-     * Optional brand name.
+     * Optional brandName name.
      */
-    @JsonProperty("brand")
-    private final String brand;
+    @JsonProperty("brandName")
+    private final String brandName;
 
     // ===== QUANTITY & PRICE =====
 
@@ -210,6 +209,15 @@ public final class Product {
     @JsonProperty("total")
     private final BigDecimal total;
 
+    // ===== BARCODES =====
+
+    /**
+     * Barcodes attached to this line item.
+     * Use for per-product codes such as concert tickets, return codes, or serial numbers.
+     */
+    @JsonProperty("barcodes")
+    private final List<Barcode> barcodes;
+
     // ===== OPTIONAL FIELDS =====
 
     /**
@@ -228,15 +236,15 @@ public final class Product {
      * @see Period
      */
     @JsonProperty("period")
-    private final Optional<Period> period;
+    private final Period period;
 
     // ===== CONSTRUCTOR =====
 
     private Product(
             String name,
-            String sku,
+            String identifier,
             String description,
-            String brand,
+            String brandName,
             Double quantity,
             Double baseQuantity,
             UnitCode unitCode,
@@ -246,20 +254,22 @@ public final class Product {
             List<Tax> taxes,
             BigDecimal subtotal,
             BigDecimal total,
-            Optional<Period> period) {
+            List<Barcode> barcodes,
+            Period period) {
 
         this.name = name;
-        this.sku = sku;
+        this.identifier = identifier;
         this.description = description;
-        this.brand = brand;
+        this.brandName = brandName;
         this.quantity = quantity;
         this.baseQuantity = baseQuantity;
         this.unitCode = unitCode;
         this.unitPrice = unitPrice;
-        // defensive copies: keep internal lists immutable
-        this.discounts = discounts != null ? List.copyOf(discounts) : List.of();
-        this.charges   = charges   != null ? List.copyOf(charges)   : List.of();
-        this.taxes     = taxes     != null ? List.copyOf(taxes)     : List.of();
+        // Store null for empty lists so NON_EMPTY excludes them from JSON
+        this.discounts = discounts != null && !discounts.isEmpty() ? List.copyOf(discounts) : null;
+        this.charges   = charges   != null && !charges.isEmpty()   ? List.copyOf(charges)   : null;
+        this.taxes     = taxes     != null && !taxes.isEmpty()     ? List.copyOf(taxes)     : null;
+        this.barcodes  = barcodes  != null && !barcodes.isEmpty()  ? List.copyOf(barcodes)  : null;
         this.subtotal = subtotal;
         this.total = total;
         this.period = period;
@@ -271,16 +281,16 @@ public final class Product {
         return name;
     }
 
-    public String getSku() {
-        return sku;
+    public String getIdentifier() {
+        return identifier;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public String getBrand() {
-        return brand;
+    public String getBrandName() {
+        return brandName;
     }
 
     public Double getQuantity() {
@@ -319,12 +329,15 @@ public final class Product {
         return total;
     }
 
+    public List<Barcode> getBarcodes() {
+        return barcodes;
+    }
+
     /**
-     * @return The period if this product represents a time-based service
+     * @return The period if this product represents a time-based service, or null
      */
-    @JsonIgnore
-    public Optional<Period> getPeriod() {
-        return period != null ? period : Optional.empty();
+    public Period getPeriod() {
+        return period;
     }
 
     // ===== BUILDER =====
@@ -336,9 +349,9 @@ public final class Product {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
         private String name;
-        private String sku;
+        private String identifier;
         private String description;
-        private String brand;
+        private String brandName;
         private Double quantity;
         private Double baseQuantity;
         private UnitCode unitCode;
@@ -346,27 +359,29 @@ public final class Product {
         private List<Discount> discounts = new ArrayList<>();
         private List<Charge> charges = new ArrayList<>();
         private List<Tax> taxes = new ArrayList<>();
+        private List<Barcode> barcodes = new ArrayList<>();
         private BigDecimal subtotal;
         private BigDecimal total;
-        private Optional<Period> period = Optional.empty();
+        private Period period;
 
         private Builder() {}
 
         public Builder from(Product other) {
             this.name = other.name;
-            this.sku = other.sku;
+            this.identifier = other.identifier;
             this.description = other.description;
-            this.brand = other.brand;
+            this.brandName = other.brandName;
             this.quantity = other.quantity;
             this.baseQuantity = other.baseQuantity;
             this.unitCode = other.unitCode;
             this.unitPrice = other.unitPrice;
-            this.discounts = new ArrayList<>(other.discounts);
-            this.charges = new ArrayList<>(other.charges);
-            this.taxes = new ArrayList<>(other.taxes);
+            this.discounts = other.discounts != null ? new ArrayList<>(other.discounts) : new ArrayList<>();
+            this.charges = other.charges != null ? new ArrayList<>(other.charges) : new ArrayList<>();
+            this.taxes = other.taxes != null ? new ArrayList<>(other.taxes) : new ArrayList<>();
+            this.barcodes = other.barcodes != null ? new ArrayList<>(other.barcodes) : new ArrayList<>();
             this.subtotal = other.subtotal;
             this.total = other.total;
-            this.period = other.period;
+            this.period = other.getPeriod();
             return this;
         }
 
@@ -376,9 +391,9 @@ public final class Product {
             return this;
         }
 
-        @JsonSetter(value = "sku", nulls = Nulls.SKIP)
-        public Builder sku(String sku) {
-            this.sku = sku;
+        @JsonSetter(value = "identifier", nulls = Nulls.SKIP)
+        public Builder identifier(String identifier) {
+            this.identifier = identifier;
             return this;
         }
 
@@ -388,9 +403,9 @@ public final class Product {
             return this;
         }
 
-        @JsonSetter(value = "brand", nulls = Nulls.SKIP)
-        public Builder brand(String brand) {
-            this.brand = brand;
+        @JsonSetter(value = "brandName", nulls = Nulls.SKIP)
+        public Builder brandName(String brandName) {
+            this.brandName = brandName;
             return this;
         }
 
@@ -540,27 +555,21 @@ public final class Product {
             return this;
         }
 
-        public Builder addTax(Double rate, String type) {
+        public Builder addTax(Double rate, String type, BigDecimal taxableAmount, BigDecimal amount) {
             this.taxes.add(Tax.builder()
                     .rate(rate)
                     .type(type)
-                    .build());
-            return this;
-        }
-
-        public Builder addTax(Double rate, String type, BigDecimal amount) {
-            this.taxes.add(Tax.builder()
-                    .rate(rate)
-                    .type(type)
+                    .taxableAmount(taxableAmount)
                     .amount(amount)
                     .build());
             return this;
         }
 
-        public Builder addTax(Double rate, String type, String amount) {
+        public Builder addTax(Double rate, String type, String taxableAmount, String amount) {
             this.taxes.add(Tax.builder()
                     .rate(rate)
                     .type(type)
+                    .taxableAmount(taxableAmount)
                     .amount(amount)
                     .build());
             return this;
@@ -588,24 +597,44 @@ public final class Product {
             return this;
         }
 
+        @JsonSetter(value = "barcodes", nulls = Nulls.SKIP)
+        public Builder barcodes(List<Barcode> barcodes) {
+            this.barcodes = barcodes != null ? barcodes : new ArrayList<>();
+            return this;
+        }
+
+        public Builder addBarcode(Barcode barcode) {
+            this.barcodes.add(barcode);
+            return this;
+        }
+
+        public Builder addBarcode(BarcodeType type, String data, String label) {
+            this.barcodes.add(Barcode.builder().type(type).data(data).label(label).build());
+            return this;
+        }
+
+        public Builder addQrCode(String data, String label) {
+            return addBarcode(BarcodeType.QR_CODE, data, label);
+        }
+
         /**
          * Sets the period for time-based products (subscriptions, rentals, etc.).
-         * 
+         *
          * @param period The period this product covers
          * @return This builder
          */
         @JsonSetter(value = "period", nulls = Nulls.SKIP)
         public Builder period(Period period) {
-            this.period = Optional.ofNullable(period);
+            this.period = period;
             return this;
         }
 
         public Product build() {
             return new Product(
                     name,
-                    sku,
+                    identifier,
                     description,
-                    brand,
+                    brandName,
                     quantity,
                     baseQuantity,
                     unitCode,
@@ -615,65 +644,10 @@ public final class Product {
                     taxes,
                     subtotal,
                     total,
+                    barcodes,
                     period
             );
         }
-    }
-
-    // ===== SIMPLE VALIDATION (OPTIONAL) =====
-
-    /**
-     * @return true if required fields are present and non-negative.
-     */
-    public boolean isValid() {
-        return getValidationErrors().isEmpty();
-    }
-
-    /**
-     * Very lightweight validation meant as a helper for integrators.
-     */
-    public List<String> getValidationErrors() {
-        List<String> errors = new ArrayList<>();
-
-        if (name == null || name.trim().isEmpty()) {
-            errors.add("name is required");
-        }
-        if (quantity == null) {
-            errors.add("quantity is required");
-        }
-        if (baseQuantity == null) {
-            errors.add("baseQuantity is required (use 1.0 for simple items, or the package size for pre-packaged items)");
-        }
-        if (unitCode == null) {
-            errors.add("unitCode is required (e.g., UnitCode.ONE, UnitCode.KILOGRAM)");
-        }
-        if (unitPrice == null) {
-            errors.add("unitPrice is required");
-        }
-        if (subtotal == null) {
-            errors.add("subtotal is required");
-        }
-        if (total == null) {
-            errors.add("total is required");
-        }
-
-        if (quantity != null && quantity <= 0) {
-            errors.add("quantity must be greater than 0");
-        }
-        if (baseQuantity != null && baseQuantity <= 0) {
-            errors.add("baseQuantity must be greater than 0");
-        }
-        if (unitPrice != null && unitPrice.compareTo(BigDecimal.ZERO) < 0) {
-            errors.add("unitPrice cannot be negative");
-        }
-        if (subtotal != null && subtotal.compareTo(BigDecimal.ZERO) < 0) {
-            errors.add("subtotal cannot be negative");
-        }
-        if (total != null && total.compareTo(BigDecimal.ZERO) < 0) {
-            errors.add("total cannot be negative");
-        }
-
-        return errors;
     }
 
     // ===== EQUALS, HASHCODE, TOSTRING =====
@@ -683,9 +657,9 @@ public final class Product {
         if (!(o instanceof Product)) return false;
         Product product = (Product) o;
         return Objects.equals(name, product.name)
-                && Objects.equals(sku, product.sku)
+                && Objects.equals(identifier, product.identifier)
                 && Objects.equals(description, product.description)
-                && Objects.equals(brand, product.brand)
+                && Objects.equals(brandName, product.brandName)
                 && Objects.equals(quantity, product.quantity)
                 && Objects.equals(baseQuantity, product.baseQuantity)
                 && Objects.equals(unitCode, product.unitCode)
@@ -693,6 +667,7 @@ public final class Product {
                 && Objects.equals(discounts, product.discounts)
                 && Objects.equals(charges, product.charges)
                 && Objects.equals(taxes, product.taxes)
+                && Objects.equals(barcodes, product.barcodes)
                 && Objects.equals(subtotal, product.subtotal)
                 && Objects.equals(total, product.total)
                 && Objects.equals(period, product.period);
@@ -702,9 +677,9 @@ public final class Product {
     public int hashCode() {
         return Objects.hash(
                 name,
-                sku,
+                identifier,
                 description,
-                brand,
+                brandName,
                 quantity,
                 baseQuantity,
                 unitCode,
@@ -712,6 +687,7 @@ public final class Product {
                 discounts,
                 charges,
                 taxes,
+                barcodes,
                 subtotal,
                 total,
                 period
@@ -722,12 +698,13 @@ public final class Product {
     public String toString() {
         return "Product{" +
                 "name='" + name + '\'' +
-                ", sku='" + sku + '\'' +
+                ", identifier='" + identifier + '\'' +
                 ", quantity=" + quantity +
                 ", unitPrice=" + unitPrice +
                 ", discounts=" + (discounts != null ? discounts.size() : 0) +
                 ", charges=" + (charges != null ? charges.size() : 0) +
                 ", taxes=" + (taxes != null ? taxes.size() : 0) +
+                ", barcodes=" + (barcodes != null ? barcodes.size() : 0) +
                 ", subtotal=" + subtotal +
                 ", total=" + total +
                 '}';

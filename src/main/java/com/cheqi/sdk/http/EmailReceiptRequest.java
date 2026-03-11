@@ -1,6 +1,6 @@
 package com.cheqi.sdk.http;
 
-import com.cheqi.commons.UBL.PurchaseReceipt;
+import com.cheqi.sdk.models.CheqiReceipt;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -12,18 +12,18 @@ public class EmailReceiptRequest {
     private final String customerEmail;
     
     @JsonProperty("purchaseReceipt")
-    private final PurchaseReceipt purchaseReceipt;
+    private final CheqiReceipt cheqiReceipt;
 
-    public EmailReceiptRequest(String customerEmail, PurchaseReceipt purchaseReceipt) {
+    public EmailReceiptRequest(String customerEmail, CheqiReceipt cheqiReceipt) {
         this.customerEmail = customerEmail;
-        this.purchaseReceipt = purchaseReceipt;
+        this.cheqiReceipt = cheqiReceipt;
     }
 
     public String getCustomerEmail() {
         return customerEmail;
     }
 
-    public PurchaseReceipt getPurchaseReceipt() {
-        return purchaseReceipt;
+    public CheqiReceipt getPurchaseReceipt() {
+        return cheqiReceipt;
     }
 }
