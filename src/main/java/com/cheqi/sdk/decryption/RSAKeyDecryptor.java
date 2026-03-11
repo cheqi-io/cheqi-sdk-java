@@ -14,6 +14,8 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
+import com.cheqi.sdk.utils.PemUtils;
+
 /**
  * Decrypts AES keys using RSA-OAEP with a private key.
  */
@@ -83,7 +85,7 @@ public class RSAKeyDecryptor {
     private PrivateKey parsePrivateKey(String privateKeyBase64) {
         try {
             logger.debug("🔑 Parsing private key from Base64 (PKCS#8 format)");
-            byte[] keyBytes = Base64.getDecoder().decode(privateKeyBase64);
+            byte[] keyBytes = PemUtils.decodeKey(privateKeyBase64);
             logger.debug("✅ Decoded private key: {} bytes", keyBytes.length);
             
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);

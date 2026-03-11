@@ -7,7 +7,8 @@ import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
+
+import com.cheqi.sdk.utils.PemUtils;
 
 /**
  * Parses RSA public keys from various formats.
@@ -22,7 +23,7 @@ public class RSAPublicKeyParser {
      */
     public PublicKey parse(String publicKeyBase64) {
         try {
-            byte[] keyBytes = Base64.getDecoder().decode(publicKeyBase64);
+            byte[] keyBytes = PemUtils.decodeKey(publicKeyBase64);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
             // First, try X.509 SubjectPublicKeyInfo format (standard Java format)
