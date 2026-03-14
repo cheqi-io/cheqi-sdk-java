@@ -30,7 +30,7 @@ class CheqiSDKConfigTest {
     void negativeTimeoutThrows() {
         assertThrows(IllegalArgumentException.class, () ->
                 CheqiSDKConfig.builder()
-                        .apiEndpoint(Environment.TEST)
+                        .apiEndpoint(Environment.SANDBOX)
                         .timeoutSeconds(-1)
                         .build()
         );
@@ -40,7 +40,7 @@ class CheqiSDKConfigTest {
     void zeroTimeoutThrows() {
         assertThrows(IllegalArgumentException.class, () ->
                 CheqiSDKConfig.builder()
-                        .apiEndpoint(Environment.TEST)
+                        .apiEndpoint(Environment.SANDBOX)
                         .timeoutSeconds(0)
                         .build()
         );
@@ -50,7 +50,7 @@ class CheqiSDKConfigTest {
     void negativeRetriesThrows() {
         assertThrows(IllegalArgumentException.class, () ->
                 CheqiSDKConfig.builder()
-                        .apiEndpoint(Environment.TEST)
+                        .apiEndpoint(Environment.SANDBOX)
                         .maxRetries(-1)
                         .build()
         );
@@ -92,14 +92,4 @@ class CheqiSDKConfigTest {
         assertNotNull(config.getEncryptionConfig());
     }
 
-    @Test
-    void supplierCredentialsStored() {
-        CheqiSDKConfig config = CheqiSDKConfig.builder()
-                .apiEndpoint(Environment.SANDBOX)
-                .supplierCredentials("client-id", "client-secret")
-                .build();
-
-        assertEquals("client-id", config.getSupplierClientId());
-        assertEquals("client-secret", config.getSupplierClientSecret());
-    }
 }

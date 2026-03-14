@@ -28,7 +28,7 @@ import com.cheqi.sdk.verification.VerificationService;
  * <pre>
  * CheqiSDK sdk = CheqiSDK.builder()
  *     .apiEndpoint(Environment.PRODUCTION)
- *     .supplierCredentials("client_id", "client_secret")
+ *     .apiKey("sk_live_...")
  *     .build();
  * </pre>
  *
@@ -36,7 +36,7 @@ import com.cheqi.sdk.verification.VerificationService;
  * <pre>
  * CheqiSDK sdk = CheqiSDK.builder()
  *     .customApiEndpoint("https://custom.api.example.com")
- *     .supplierCredentials("client_id", "client_secret")
+ *     .apiKey("sk_test_...")
  *     .build();
  *
  * // Match customer using card details
@@ -245,11 +245,6 @@ public class CheqiSDK {
          */
         public CheqiSDKBuilder customApiEndpoint(String customUrl) {
             configBuilder.customApiEndpoint(customUrl);
-            return this;
-        }
-
-        public CheqiSDKBuilder supplierCredentials(String clientId, String clientSecret) {
-            configBuilder.supplierCredentials(clientId, clientSecret);
             return this;
         }
 
