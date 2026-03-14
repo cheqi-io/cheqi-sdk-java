@@ -19,8 +19,6 @@ public class CheqiSDKConfig {
 
     private final String apiEndpoint;
     private final String apiKey;
-    private final String supplierClientId;
-    private final String supplierClientSecret;
     private final String privateKeyBase64;
     private final EncryptionConfig encryptionConfig;
     private final int timeoutSeconds;
@@ -29,8 +27,6 @@ public class CheqiSDKConfig {
     private CheqiSDKConfig(Builder builder) {
         this.apiEndpoint = builder.apiEndpoint;
         this.apiKey = builder.apiKey;
-        this.supplierClientId = builder.supplierClientId;
-        this.supplierClientSecret = builder.supplierClientSecret;
         this.privateKeyBase64 = builder.privateKeyBase64;
         this.encryptionConfig = builder.encryptionConfig;
         this.timeoutSeconds = builder.timeoutSeconds;
@@ -47,14 +43,6 @@ public class CheqiSDKConfig {
 
     public String getApiKey() {
         return apiKey;
-    }
-
-    public String getSupplierClientId() {
-        return supplierClientId;
-    }
-
-    public String getSupplierClientSecret() {
-        return supplierClientSecret;
     }
 
     public EncryptionConfig getEncryptionConfig() {
@@ -76,8 +64,6 @@ public class CheqiSDKConfig {
     public static class Builder {
         private String apiEndpoint;
         private String apiKey;
-        private String supplierClientId;
-        private String supplierClientSecret;
         private String privateKeyBase64;
         private EncryptionConfig encryptionConfig;
         private int timeoutSeconds = 30;
@@ -117,20 +103,6 @@ public class CheqiSDKConfig {
             return this;
         }
 
-        /**
-         * Sets client credentials for OAuth token generation.
-         * Only needed for client applications using OAuth flow.
-         *
-         * @param clientId OAuth client ID
-         * @param clientSecret OAuth client secret
-         * @return this builder instance
-         */
-        public Builder supplierCredentials(String clientId, String clientSecret) {
-            this.supplierClientId = clientId;
-            this.supplierClientSecret = clientSecret;
-            return this;
-        }
-
         public Builder encryptionConfig(EncryptionConfig encryptionConfig) {
             this.encryptionConfig = encryptionConfig;
             return this;
@@ -165,10 +137,7 @@ public class CheqiSDKConfig {
             
             // Optional authentication validation - log warning if no auth configured
             boolean hasApiKey = apiKey != null && !apiKey.trim().isEmpty();
-            boolean hasClientCredentials = (supplierClientId != null && !supplierClientId.trim().isEmpty()) 
-                    && (supplierClientSecret != null && !supplierClientSecret.trim().isEmpty());
-            
-            if (!hasApiKey && !hasClientCredentials) {
+            if (!hasApiKey) {
                 logger.warn("No authentication configured. API calls will fail unless access tokens are provided explicitly.");
             }
             
@@ -199,7 +168,7 @@ public class CheqiSDKConfig {
             }
             
             CheqiSDKConfig config = new CheqiSDKConfig(this);
-            String authMode = hasApiKey ? "API Key" : (hasClientCredentials ? "OAuth Client Credentials" : "None (tokens required per-call)");
+            String authMode = hasApiKey ? "API Key" : "None (tokens required per-call)";
             logger.info("CheqiSDKConfig created: endpoint={}, authMode={}, timeout={}s, maxRetries={}", 
                     apiEndpoint, authMode, timeoutSeconds, maxRetries);
             

@@ -53,6 +53,7 @@ public class XMLCanonicalService {
             dbf.setNamespaceAware(true);
             Document doc = dbf.newDocumentBuilder()
                     .parse(new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8)));
+            removeWhitespaceOnlyTextNodes(doc);
 
             List<Node> allNodes = collectAllNodes(doc);
 
@@ -81,6 +82,22 @@ public class XMLCanonicalService {
             throw e;
         } catch (Exception e) {
             throw new XMLCanonException("XML Exclusive C14N canonicalization failed", e);
+        }
+    }
+
+    /**
+     * Removes formatting-only whitespace text nodes between XML elements while preserving
+     * meaningful text content inside leaf nodes.
+     */
+    private void removeWhitespaceOnlyTextNodes(Node node) {
+        NodeList children = node.getChildNodes();
+        for (int i = children.getLength() - 1; i >= 0; i--) {
+            Node child = children.item(i);
+            if (child.getNodeType() == Node.TEXT_NODE && child.getTextContent().trim().isEmpty()) {
+                node.removeChild(child);
+                continue;
+            }
+            removeWhitespaceOnlyTextNodes(child);
         }
     }
 

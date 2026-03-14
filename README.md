@@ -252,8 +252,8 @@ if (result.isSuccess()) {
 ```java
 CheqiSDK sdk = CheqiSDK.builder()
     .apiEndpoint(Environment.PRODUCTION)
-    .supplierCredentials("client-id", "client-secret")
-    .timeout(60)        // Custom timeout in seconds
+    .apiKey("sk_live_...")
+    .timeoutSeconds(60) // Custom timeout in seconds
     .maxRetries(5)      // Custom retry count
     .build();
 ```
@@ -808,7 +808,7 @@ if (request.getRefundPreference() == RefundPreference.BANK_ACCOUNT) {
 // Configure SDK with API key
 CheqiSDK sdk = CheqiSDK.builder()
     .apiEndpoint(Environment.PRODUCTION)
-    .supplierCredentials("client-id", "client-secret")
+    .apiKey("sk_live_...")
     .build();
 
 // Process without access token - customer identified via cheqiReceiptId
@@ -1051,9 +1051,9 @@ public class CreditNoteExample {
         // 1. Initialize SDK with private key for decryption
         CheqiSDK sdk = CheqiSDK.builder()
             .apiEndpoint(Environment.PRODUCTION)
-            .supplierCredentials("client-id", "client-secret")
+            .apiKey("sk_live_...")
             .privateKey("your-base64-encoded-private-key")  // For decrypting customer requests
-            .timeout(30)
+            .timeoutSeconds(30)
             .maxRetries(3)
             .build();
         
