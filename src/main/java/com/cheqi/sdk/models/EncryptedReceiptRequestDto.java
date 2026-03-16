@@ -35,6 +35,9 @@ public final class EncryptedReceiptRequestDto {
     @JsonProperty("supplierPartyId")
     private final UUID supplierPartyId;
 
+    @JsonProperty("notificationDisplayCode")
+    private final NotificationDisplayCode notificationDisplayCode;
+
     private final Map<String, Object> additionalProperties;
 
     private EncryptedReceiptRequestDto(
@@ -47,6 +50,7 @@ public final class EncryptedReceiptRequestDto {
             String finalHash,
             String publicKey,
             UUID supplierPartyId,
+            NotificationDisplayCode notificationDisplayCode,
             Map<String, Object> additionalProperties) {
         this.recipientId = recipientId;
         this.receiptId = receiptId;
@@ -57,6 +61,7 @@ public final class EncryptedReceiptRequestDto {
         this.finalHash = finalHash;
         this.publicKey = publicKey;
         this.supplierPartyId = supplierPartyId;
+        this.notificationDisplayCode = notificationDisplayCode;
         this.additionalProperties = additionalProperties;
     }
 
@@ -96,6 +101,10 @@ public final class EncryptedReceiptRequestDto {
         return supplierPartyId;
     }
 
+    public NotificationDisplayCode getNotificationDisplayCode() {
+        return notificationDisplayCode;
+    }
+
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
@@ -116,13 +125,14 @@ public final class EncryptedReceiptRequestDto {
                 && Objects.equals(this.finalHash, other.finalHash)
                 && Objects.equals(this.publicKey, other.publicKey)
                 && Objects.equals(this.supplierPartyId, other.supplierPartyId)
+                && Objects.equals(this.notificationDisplayCode, other.notificationDisplayCode)
                 && Objects.equals(this.additionalProperties, other.additionalProperties);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(this.recipientId, this.receiptId, this.receiverType, this.receiptFormats, this.encryptedReceipt,
-                this.encryptedSymmetricKey, this.finalHash, this.publicKey, this.supplierPartyId, this.additionalProperties);
+                this.encryptedSymmetricKey, this.finalHash, this.publicKey, this.supplierPartyId, this.notificationDisplayCode, this.additionalProperties);
     }
 
     @Override
@@ -137,6 +147,7 @@ public final class EncryptedReceiptRequestDto {
                 ", finalHash='" + finalHash + '\'' +
                 ", publicKey='" + publicKey + '\'' +
                 ", supplierPartyId=" + supplierPartyId +
+                ", notificationDisplayCode=" + notificationDisplayCode +
                 ", additionalProperties=" + additionalProperties +
                 '}';
     }
@@ -156,6 +167,7 @@ public final class EncryptedReceiptRequestDto {
         private String finalHash;
         private String publicKey;
         private UUID supplierPartyId;
+        private NotificationDisplayCode notificationDisplayCode;
         private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {}
@@ -170,6 +182,7 @@ public final class EncryptedReceiptRequestDto {
             finalHash(other.getFinalHash());
             publicKey(other.getPublicKey());
             supplierPartyId(other.getSupplierPartyId());
+            notificationDisplayCode(other.getNotificationDisplayCode());
             return this;
         }
 
@@ -227,9 +240,15 @@ public final class EncryptedReceiptRequestDto {
             return this;
         }
 
+        @JsonSetter(value = "notificationDisplayCode", nulls = Nulls.SKIP)
+        public Builder notificationDisplayCode(NotificationDisplayCode notificationDisplayCode) {
+            this.notificationDisplayCode = notificationDisplayCode;
+            return this;
+        }
+
         public EncryptedReceiptRequestDto build() {
             return new EncryptedReceiptRequestDto(recipientId, receiptId, receiverType, receiptFormats, encryptedReceipt,
-                    encryptedSymmetricKey, finalHash, publicKey, supplierPartyId, additionalProperties);
+                    encryptedSymmetricKey, finalHash, publicKey, supplierPartyId, notificationDisplayCode, additionalProperties);
         }
     }
 }

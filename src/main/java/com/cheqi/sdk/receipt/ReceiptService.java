@@ -89,9 +89,17 @@ public class ReceiptService {
             IdentificationDetails identificationDetails,
             ReceiptTemplateRequest receiptRequest,
             String accessToken) throws CheqiSDKException {
+        return processCompleteReceipt(identificationDetails, receiptRequest, accessToken, null);
+    }
+
+    public ReceiptResult processCompleteReceipt(
+            IdentificationDetails identificationDetails,
+            ReceiptTemplateRequest receiptRequest,
+            String accessToken,
+            NotificationDisplayCode notificationDisplayCode) throws CheqiSDKException {
         validateProcessCompleteReceiptInputs(identificationDetails, receiptRequest);
         validateAccessToken(accessToken);
-        return processCompleteReceiptInternal(identificationDetails, receiptRequest, accessToken);
+        return processCompleteReceiptInternal(identificationDetails, receiptRequest, notificationDisplayCode, accessToken);
     }
 
     /**
@@ -102,8 +110,15 @@ public class ReceiptService {
     public ReceiptResult processCompleteReceipt(
             IdentificationDetails identificationDetails,
             ReceiptTemplateRequest receiptRequest) throws CheqiSDKException {
+        return processCompleteReceipt(identificationDetails, receiptRequest, (NotificationDisplayCode) null);
+    }
+
+    public ReceiptResult processCompleteReceipt(
+            IdentificationDetails identificationDetails,
+            ReceiptTemplateRequest receiptRequest,
+            NotificationDisplayCode notificationDisplayCode) throws CheqiSDKException {
         validateProcessCompleteReceiptInputs(identificationDetails, receiptRequest);
-        return processCompleteReceiptInternal(identificationDetails, receiptRequest, null);
+        return processCompleteReceiptInternal(identificationDetails, receiptRequest, notificationDisplayCode, null);
     }
 
 
@@ -392,7 +407,8 @@ public class ReceiptService {
      */
     private EncryptedReceiptRequestDto buildEncryptedReceiptDto(
             Recipient recipient,
-            String envelopeJson) throws CheqiSDKException {
+            String envelopeJson,
+            NotificationDisplayCode notificationDisplayCode) throws CheqiSDKException {
         
         try {
             logger.debug("Encrypting receipt envelope for recipient: {}", recipient.getId());
@@ -407,6 +423,7 @@ public class ReceiptService {
                     .encryptedReceipt(encryptedReceipt.getEncryptedReceipt())
                     .encryptedSymmetricKey(encryptedReceipt.getEncryptedSymmetricKey())
                     .publicKey(encryptedReceipt.getPublicKey())
+                    .notificationDisplayCode(notificationDisplayCode)
                     .build();
                     
         } catch (Exception e) {
@@ -418,6 +435,7 @@ public class ReceiptService {
     private ReceiptResult processCompleteReceiptInternal(
             IdentificationDetails identificationDetails,
             ReceiptTemplateRequest receiptRequest,
+            NotificationDisplayCode notificationDisplayCode,
             String accessToken
     ) throws CheqiSDKException {
         boolean withAccessToken = accessToken != null;
@@ -460,7 +478,11 @@ public class ReceiptService {
 
             if (matchResponse.isCustomerFound()) {
                 logger.debug("Creating encrypted receipts for {} recipients", matchResponse.getRecipients().size());
-                Set<EncryptedReceiptRequestDto> encryptedReceipts = buildEncryptedReceipts(matchResponse, receiptTemplateResponse);
+                Set<EncryptedReceiptRequestDto> encryptedReceipts = buildEncryptedReceipts(
+                        matchResponse,
+                        receiptTemplateResponse,
+                        notificationDisplayCode
+                );
                 logger.debug("Sending {} encrypted receipts to backend with {}", encryptedReceipts.size(), authMode);
 
                 String templateContent = receiptTemplateResponse.getCheqi() != null
@@ -492,14 +514,15 @@ public class ReceiptService {
 
     private Set<EncryptedReceiptRequestDto> buildEncryptedReceipts(
             RecipientResolutionResponse matchResponse,
-            ReceiptTemplateResponse receiptTemplateResponse
+            ReceiptTemplateResponse receiptTemplateResponse,
+            NotificationDisplayCode notificationDisplayCode
     ) throws Exception {
         Set<EncryptedReceiptRequestDto> encryptedReceipts = new HashSet<>();
         for (Recipient recipient : matchResponse.getRecipients()) {
             ReceiptEnvelope envelope = buildEnvelopeForRecipient(recipient, receiptTemplateResponse);
             logger.debug("Encrypting envelope for recipient: {} with formats: {}", recipient.getId(), recipient.getAcceptedFormats());
             String envelopeJson = objectMapper.writeValueAsString(envelope);
-            encryptedReceipts.add(buildEncryptedReceiptDto(recipient, envelopeJson));
+            encryptedReceipts.add(buildEncryptedReceiptDto(recipient, envelopeJson, notificationDisplayCode));
         }
         return encryptedReceipts;
     }

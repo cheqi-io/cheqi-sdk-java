@@ -90,6 +90,15 @@ ProcessReceiptResult result = sdk.getReceiptService()
 if (result.isSuccess()) {
     System.out.println("Receipt sent!");
 }
+
+// Optional: include a notification QR/barcode for supported merchants
+NotificationDisplayCode notificationDisplayCode = NotificationDisplayCode.builder()
+    .type(BarcodeType.QR_CODE)
+    .data("https://example.com/receipt/INV-001")
+    .build();
+
+ProcessReceiptResult notificationResult = sdk.getReceiptService()
+    .processCompleteReceipt(customer, receipt, accessToken, notificationDisplayCode);
 ```
 
 **Prerequisites:**
@@ -204,6 +213,26 @@ if (result.isSuccess()) {
 2. **Generates a receipt template** from the request data (only if customer is found)
 3. **Creates encrypted receipts** for all customer devices
 4. **Sends the receipts** to the Cheqi backend for delivery
+
+### Notification Display Code
+
+If the merchant has notification-code rendering enabled, you can attach a QR code or barcode to the high-level receipt flow. The code is sent as request metadata and rendered by supported mobile clients directly from the push notification.
+
+```java
+NotificationDisplayCode notificationDisplayCode = NotificationDisplayCode.builder()
+    .type(BarcodeType.CODE_128)
+    .data("CHEQI-DEMO-123456")
+    .build();
+
+ProcessReceiptResult result = sdk.getReceiptService().processCompleteReceipt(
+    identificationDetails,
+    receiptRequest,
+    accessToken,
+    notificationDisplayCode
+);
+```
+
+If the merchant is not enabled for this feature, or you omit `notificationDisplayCode`, the normal receipt push is sent.
 
 ### Email Fallback
 
