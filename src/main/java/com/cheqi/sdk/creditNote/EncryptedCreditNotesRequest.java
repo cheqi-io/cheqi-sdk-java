@@ -1,5 +1,6 @@
 package com.cheqi.sdk.creditNote;
 
+import com.cheqi.sdk.models.generated.EncryptedCreditNote;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Set;

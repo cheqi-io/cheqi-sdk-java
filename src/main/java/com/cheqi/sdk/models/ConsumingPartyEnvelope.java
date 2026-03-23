@@ -1,5 +1,6 @@
 package com.cheqi.sdk.models;
 
+import com.cheqi.sdk.models.generated.ReceivingParty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ConsumingPartyEnvelope {

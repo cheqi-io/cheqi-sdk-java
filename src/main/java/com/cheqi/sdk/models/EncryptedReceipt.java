@@ -1,300 +1,77 @@
 package com.cheqi.sdk.models;
 
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.*;
-
-@JsonInclude(JsonInclude.Include.NON_ABSENT)
-@JsonDeserialize(builder = EncryptedReceipt.Builder.class)
 public class EncryptedReceipt {
-    // ===== MANDATORY FIELDS =====
-    /**
-     * The ID of the target recipient for this encrypted receipt.
-     */
-    @JsonProperty("recipientId")
-    private final String recipientId;
-
-    @JsonProperty("receiptId")
-    private final String receiptId;
-
-    @JsonProperty("receiverType")
-    private final ReceiverType receiverType;
-
     @JsonProperty("encryptedReceipt")
-    private final String encryptedReceipt;
+    private String encryptedReceipt;
 
     /**
      * Base64-encoded device-specific encrypted symmetric key.
      */
     @JsonProperty("encryptedSymmetricKey")
-    private final String encryptedSymmetricKey;
+    private String encryptedSymmetricKey;
 
     /**
      * Base64-encoded encrypted customer details (party envelope).
      */
     @JsonProperty("encryptedCustomerDetails")
-    private final String encryptedCustomerDetails;
+    private String encryptedCustomerDetails;
 
 
     @JsonProperty("encryptedCustomerAesKey")
-    private final String encryptedCustomerAesKey;
+    private String encryptedCustomerSymmetricKey;
 
-    @JsonProperty("finalHash")
-    private final String finalHash;
+    @JsonProperty("Hash")
+    private String Hash;
 
-    /**
-     * Public key used to encrypt the symmetric key (for key selection on decrypt).
-     */
-    @JsonProperty("publicKey")
-    private final String publicKey;
+    public EncryptedReceipt() {
+    }
 
-    // ===== OPTIONAL FIELDS =====
-
-    /**
-     * Supplier party ID for tracking purposes.
-     */
-    @JsonProperty("supplierPartyId")
-    private final UUID supplierPartyId;
-
-    private final Map<String, Object> additionalProperties;
-
-    // ===== CONSTRUCTOR =====
-
-    private EncryptedReceipt(
-            String recipientId,
-            String receiptId,
-            ReceiverType receiverType,
-            String encryptedReceipt,
-            String encryptedSymmetricKey,
-            String encryptedCustomerDetails,
-            String encryptedCustomerAesKey,
-            String finalHash,
-            String publicKey,
-            UUID supplierPartyId,
-            Map<String, Object> additionalProperties) {
-        this.recipientId = recipientId;
-        this.receiptId = receiptId;
-        this.receiverType = receiverType;
+    public EncryptedReceipt(String encryptedReceipt, String encryptedSymmetricKey, String encryptedCustomerDetails, String encryptedCustomerSymmetricKey) {
         this.encryptedReceipt = encryptedReceipt;
         this.encryptedSymmetricKey = encryptedSymmetricKey;
         this.encryptedCustomerDetails = encryptedCustomerDetails;
-        this.encryptedCustomerAesKey = encryptedCustomerAesKey;
-        this.finalHash = finalHash;
-        this.publicKey = publicKey;
-        this.supplierPartyId = supplierPartyId;
-        this.additionalProperties = additionalProperties;
+        this.encryptedCustomerSymmetricKey = encryptedCustomerSymmetricKey;
     }
 
-    // ===== MANDATORY FIELD ACCESSORS =====
-
-    @JsonIgnore
-    public String getRecipientId() {
-        return recipientId;
-    }
-
-    @JsonIgnore
-    public ReceiverType getReceiverType() {
-        return receiverType;
-    }
-
-    @JsonIgnore
     public String getEncryptedReceipt() {
         return encryptedReceipt;
     }
 
-    @JsonIgnore
-    public String getEncryptedCustomerDetails() {
-        return encryptedCustomerDetails;
+    public void setEncryptedReceipt(String encryptedReceipt) {
+        this.encryptedReceipt = encryptedReceipt;
     }
 
-    @JsonIgnore
     public String getEncryptedSymmetricKey() {
         return encryptedSymmetricKey;
     }
 
-    @JsonIgnore
-    public String getEncryptedCustomerAesKey() {
-        return encryptedCustomerAesKey;
+    public void setEncryptedSymmetricKey(String encryptedSymmetricKey) {
+        this.encryptedSymmetricKey = encryptedSymmetricKey;
     }
 
-    @JsonIgnore
-    public String getReceiptId() {
-        return receiptId;
+    public String getEncryptedCustomerDetails() {
+        return encryptedCustomerDetails;
     }
 
-    @JsonIgnore
-    public String getFinalHash() {
-        return finalHash;
+    public void setEncryptedCustomerDetails(String encryptedCustomerDetails) {
+        this.encryptedCustomerDetails = encryptedCustomerDetails;
     }
 
-    @JsonIgnore
-    public String getPublicKey() {
-        return publicKey;
+    public String getEncryptedCustomerSymmetricKey() {
+        return encryptedCustomerSymmetricKey;
     }
 
-    // ===== OPTIONAL FIELD ACCESSORS =====
-
-    @JsonIgnore
-    public UUID getSupplierPartyId() {
-        return supplierPartyId;
+    public void setEncryptedCustomerSymmetricKey(String encryptedCustomerSymmetricKey) {
+        this.encryptedCustomerSymmetricKey = encryptedCustomerSymmetricKey;
     }
 
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
+    public String getHash() {
+        return Hash;
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        return other instanceof EncryptedReceipt && equalTo((EncryptedReceipt) other);
-    }
-
-    private boolean equalTo(EncryptedReceipt other) {
-        return Objects.equals(this.recipientId, other.recipientId)
-                && Objects.equals(this.receiptId, other.receiptId)
-                && Objects.equals(this.receiverType, other.receiverType)
-                && Objects.equals(this.encryptedReceipt, other.encryptedReceipt)
-                && Objects.equals(this.encryptedCustomerDetails, other.encryptedCustomerDetails)
-                && Objects.equals(this.encryptedSymmetricKey, other.encryptedSymmetricKey)
-                && Objects.equals(this.encryptedCustomerAesKey, other.encryptedCustomerAesKey)
-                && Objects.equals(this.finalHash, other.finalHash)
-                && Objects.equals(this.publicKey, other.publicKey)
-                && Objects.equals(this.supplierPartyId, other.supplierPartyId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.recipientId, this.receiptId, this.receiverType, this.encryptedReceipt,
-                this.encryptedCustomerDetails, this.encryptedSymmetricKey, this.encryptedCustomerAesKey,
-                this.finalHash, this.publicKey, this.supplierPartyId);
-    }
-
-    @Override
-    public String toString() {
-        return "EncryptedReceipt{" +
-                "recipientId=" + recipientId +
-                ", receiptId=" + receiptId +
-                ", receiverType=" + receiverType +
-                ", encryptedReceipt='" + (encryptedReceipt != null ? "[ENCRYPTED]" : null) + '\'' +
-                ", encryptedCustomerParty='" + (encryptedCustomerDetails != null ? "[ENCRYPTED]" : null) + '\'' +
-                ", encryptedSymmetricKey='" + (encryptedSymmetricKey != null ? "[ENCRYPTED]" : null) + '\'' +
-                ", encryptedCustomerAesKey='" + (encryptedCustomerAesKey != null ? "[ENCRYPTED]" : null) + '\'' +
-                ", finalHash='" + (finalHash != null ? "[ENCRYPTED]" : null) + '\'' +
-                ", supplierPartyId=" + supplierPartyId +
-                '}';
-    }
-
-    public static EncryptedReceipt.Builder builder() {
-        return new EncryptedReceipt.Builder();
-    }
-
-    @JsonPOJOBuilder(withPrefix = "", buildMethodName = "build")
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Builder {
-        private String recipientId;
-        private String receiptId;
-        private ReceiverType receiverType;
-        private String encryptedReceipt;
-        private String encryptedCustomerDetails;
-        private String encryptedSymmetricKey;
-        private String encryptedCustomerAesKey;
-        private String finalHash;
-        private String publicKey;
-        private UUID supplierPartyId;
-        private Map<String, Object> additionalProperties = new HashMap<>();
-
-        private Builder() {}
-
-        public EncryptedReceipt.Builder from(EncryptedReceipt other) {
-            recipientId(other.getRecipientId());
-            receiptId(other.getReceiptId());
-            receiverType(other.getReceiverType());
-            encryptedReceipt(other.getEncryptedReceipt());
-            encryptedCustomerDetails(other.getEncryptedCustomerDetails());
-            encryptedSymmetricKey(other.getEncryptedSymmetricKey());
-            encryptedCustomerAesKey(other.getEncryptedCustomerAesKey());
-            finalHash(other.getFinalHash());
-            publicKey(other.getPublicKey());
-            supplierPartyId(other.getSupplierPartyId());
-            return this;
-        }
-
-        @JsonSetter(value = "recipientId", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder recipientId(String recipientId) {
-            this.recipientId = recipientId;
-            return this;
-        }
-
-        @JsonSetter(value = "receiptId", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder receiptId(String receiptId) {
-            this.receiptId = receiptId;
-            return this;
-        }
-
-        @JsonSetter(value = "receiverType", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder receiverType(ReceiverType receiverType) {
-            this.receiverType = receiverType;
-            return this;
-        }
-
-        @JsonSetter(value = "encryptedReceipt", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder encryptedReceipt(String encryptedReceipt) {
-            this.encryptedReceipt = encryptedReceipt;
-            return this;
-        }
-
-        @JsonSetter(value = "encryptedCustomerDetails", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder encryptedCustomerDetails(String encryptedCustomerDetails) {
-            this.encryptedCustomerDetails = encryptedCustomerDetails;
-            return this;
-        }
-
-        @JsonSetter(value = "encryptedSymmetricKey", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder encryptedSymmetricKey(String encryptedSymmetricKey) {
-            this.encryptedSymmetricKey = encryptedSymmetricKey;
-            return this;
-        }
-
-        @JsonSetter(value = "encryptedCustomerAesKey", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder encryptedCustomerAesKey(String encryptedCustomerAesKey) {
-            this.encryptedCustomerAesKey = encryptedCustomerAesKey;
-            return this;
-        }
-
-        @JsonSetter(value = "supplierPartyId", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder supplierPartyId(UUID supplierPartyId) {
-            this.supplierPartyId = supplierPartyId;
-            return this;
-        }
-
-        @JsonSetter(value = "finalHash", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder finalHash(String finalHash) {
-            this.finalHash = finalHash;
-            return this;
-        }
-
-        @JsonSetter(value = "publicKey", nulls = Nulls.SKIP)
-        public EncryptedReceipt.Builder publicKey(String publicKey) {
-            this.publicKey = publicKey;
-            return this;
-        }
-
-        public EncryptedReceipt build() {
-            return new EncryptedReceipt(
-                    recipientId,
-                    receiptId,
-                    receiverType,
-                    encryptedReceipt,
-                    encryptedSymmetricKey,
-                    encryptedCustomerDetails,
-                    encryptedCustomerAesKey,
-                    finalHash,
-                    publicKey,
-                    supplierPartyId,
-                    additionalProperties
-            );
-        }
+    public void setHash(String hash) {
+        Hash = hash;
     }
 }

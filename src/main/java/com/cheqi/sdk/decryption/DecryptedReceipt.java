@@ -1,9 +1,9 @@
 package com.cheqi.sdk.decryption;
 
-import com.cheqi.sdk.models.CheqiReceipt;
 import com.cheqi.sdk.models.ConsumingPartyEnvelope;
 import com.cheqi.sdk.models.ReceiptEnvelope;
-import com.cheqi.sdk.models.ReceivingParty;
+import com.cheqi.sdk.models.generated.CheqiReceipt;
+import com.cheqi.sdk.models.generated.ReceivingParty;
 
 /**
  * Represents a decrypted receipt containing multiple format options.

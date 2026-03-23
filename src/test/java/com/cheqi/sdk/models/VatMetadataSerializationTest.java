@@ -1,6 +1,9 @@
 package com.cheqi.sdk.models;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
+import com.cheqi.sdk.models.generated.BuyerType;
+import com.cheqi.sdk.models.generated.VatMetadata;
+import com.cheqi.sdk.models.generated.VatRegime;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -13,20 +16,23 @@ class VatMetadataSerializationTest {
 
     @Test
     void serializeDeserializeAllFields() throws Exception {
-        VatMetadata original = new VatMetadata(
-                "NL", "DE", true,
-                RecipientEntityType.BUSINESS, true,
-                VatRegime.REVERSE_CHARGE_EU, true
-        );
+        VatMetadata original = new VatMetadata()
+                .supplierCountry("NL")
+                .buyerCountry("DE")
+                .crossBorder(true)
+                .buyerType(BuyerType.BUSINESS)
+                .vatOnReceipt(true)
+                .vatRegime(VatRegime.REVERSE_CHARGE_EU)
+                .taxesApplied(true);
 
         String json = mapper.writeValueAsString(original);
         VatMetadata deserialized = mapper.readValue(json, VatMetadata.class);
 
         assertEquals("NL", deserialized.getSupplierCountry());
         assertEquals("DE", deserialized.getBuyerCountry());
-        assertTrue(deserialized.isCrossBorder());
-        assertEquals(RecipientEntityType.BUSINESS, deserialized.getRecipientEntityType());
-        assertTrue(deserialized.isVatOnReceipt());
+        assertTrue(deserialized.getCrossBorder());
+        assertEquals(BuyerType.BUSINESS, deserialized.getBuyerType());
+        assertTrue(deserialized.getVatOnReceipt());
         assertEquals(VatRegime.REVERSE_CHARGE_EU, deserialized.getVatRegime());
         assertTrue(deserialized.getTaxesApplied());
     }
@@ -34,14 +40,13 @@ class VatMetadataSerializationTest {
     @Test
     void nullFieldsOmittedInJson() throws Exception {
         VatMetadata metadata = new VatMetadata();
-        // Only set non-null fields
         metadata.setSupplierCountry("NL");
 
         JsonNode node = mapper.valueToTree(metadata);
 
         assertTrue(node.has("supplierCountry"));
         assertFalse(node.has("buyerCountry"), "Null buyerCountry should be omitted (@JsonInclude NON_NULL)");
-        assertFalse(node.has("recipientEntityType"), "Null recipientEntityType should be omitted");
+        assertFalse(node.has("buyerType"), "Null buyerType should be omitted");
         assertFalse(node.has("vatRegime"), "Null vatRegime should be omitted");
         assertFalse(node.has("taxesApplied"), "Null taxesApplied should be omitted");
     }
@@ -53,20 +58,20 @@ class VatMetadataSerializationTest {
             metadata.setVatRegime(regime);
 
             String json = mapper.writeValueAsString(metadata);
-            assertTrue(json.contains("\"" + regime.name() + "\""),
+            assertTrue(json.contains("\"" + regime.getValue() + "\""),
                     "VatRegime." + regime + " should serialize to its name");
         }
     }
 
     @Test
-    void recipientEntityTypeEnumSerializesCorrectly() throws Exception {
-        for (RecipientEntityType type : RecipientEntityType.values()) {
+    void buyerTypeEnumSerializesCorrectly() throws Exception {
+        for (BuyerType type : BuyerType.values()) {
             VatMetadata metadata = new VatMetadata();
-            metadata.setRecipientEntityType(type);
+            metadata.setBuyerType(type);
 
             String json = mapper.writeValueAsString(metadata);
-            assertTrue(json.contains("\"" + type.name() + "\""),
-                    "RecipientEntityType." + type + " should serialize to its name");
+            assertTrue(json.contains("\"" + type.getValue() + "\""),
+                    "BuyerType." + type + " should serialize to its name");
         }
     }
 }

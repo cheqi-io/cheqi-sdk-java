@@ -3,11 +3,10 @@ package com.cheqi.sdk.http;
 import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.creditNote.*;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
-import com.cheqi.sdk.models.*;
-import com.cheqi.sdk.models.company.CreateStoreRequest;
-import com.cheqi.sdk.models.company.ProvisionCompanyRequest;
-import com.cheqi.sdk.models.company.ProvisionCompanyResponse;
-import com.cheqi.sdk.models.company.Store;
+import com.cheqi.sdk.models.generated.*;
+import com.cheqi.sdk.models.generated.CreditNoteCreatedResponse;
+import com.cheqi.sdk.models.generated.CreditNoteTemplateResponse;
+import com.cheqi.sdk.models.generated.EncryptedCreditNotesRequest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -53,8 +52,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateRequest request, List<ReceiptFormat> receiptFormats, String accessToken) throws CheqiApiException {
-        logger.info("Generating receipt template for receipt ID: {}", request.getDocumentNumber());
+    public ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateGenerationRequest request, List<ReceiptFormat> receiptFormats, String accessToken) throws CheqiApiException {
+        logger.info("Generating receipt template for receipt ID: {}", request.getReceiptTemplateRequest().getDocumentNumber());
     
         if (accessToken == null || accessToken.trim().isEmpty()) {
             throw new CheqiApiException(
@@ -66,14 +65,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
     
         try {
-            // Wrap request and formats together
-            ReceiptTemplateGenerationRequest generationRequest =
-                new ReceiptTemplateGenerationRequest(request, receiptFormats,
-                        request.getBuyerCountryCode(), request.getRecipientEntityType(),
-                        request.getTaxesApplied());
-            
             // Serialize the wrapped request to JSON
-            String requestJson = objectMapper.writeValueAsString(generationRequest);
+            String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Template generation request JSON: {}", requestJson);
     
             // Build HTTP request - Accept JSON for template response
@@ -108,18 +101,12 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateRequest request, List<ReceiptFormat> receiptFormats) throws CheqiApiException {
-        logger.info("Generating receipt template with API key for receipt ID: {}", request.getDocumentNumber());
+    public ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateGenerationRequest request, List<ReceiptFormat> receiptFormats) throws CheqiApiException {
+        logger.info("Generating receipt template with API key for receipt ID: {}", request.getReceiptTemplateRequest().getDocumentNumber());
 
         try {
-            // Wrap request and formats together
-            ReceiptTemplateGenerationRequest generationRequest =
-                new ReceiptTemplateGenerationRequest(request, receiptFormats,
-                        request.getBuyerCountryCode(), request.getRecipientEntityType(),
-                        request.getTaxesApplied());
-
             // Serialize the wrapped request to JSON
-            String requestJson = objectMapper.writeValueAsString(generationRequest);
+            String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Template generation request JSON: {}", requestJson);
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.TEMPLATE_ENDPOINT, requestJson);
@@ -255,7 +242,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             Response response = retryHandler.executeWithRetry(httpRequest, "matchCustomer");
 
             RecipientResolutionResponse result = responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
-            logger.info("Customer match successful: customerFound={}", result.isCustomerFound());
+            logger.info("Customer match successful: customerFound={}", result.getCustomerFound());
             return result;
         } catch (CheqiApiException e) {
             throw e;
@@ -315,7 +302,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             RecipientResolutionResponse result = responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
 
-            logger.info("Customer match successful: customerFound={}", result.isCustomerFound());
+            logger.info("Customer match successful: customerFound={}", result.getCustomerFound());
             return result;
         } catch (CheqiApiException e) {
             throw e;
@@ -341,7 +328,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequestDto> encryptedReceipts, String templateHash) throws CheqiApiException {
+    public ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequest> encryptedReceipts, String templateHash) throws CheqiApiException {
         logger.info("Sending {} encrypted receipts with API key", encryptedReceipts.size());
 
         if (encryptedReceipts == null || encryptedReceipts.isEmpty()) {
@@ -354,13 +341,12 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
 
         try {
-            EncryptedReceiptsRequest request = EncryptedReceiptsRequest.builder()
-                    .matchId(matchId)
-                    .encryptedReceipts(encryptedReceipts)
-                    .templateHash(templateHash)
-                    .build();
+            EncryptedReceiptsRequest encryptedReceiptsRequest = new EncryptedReceiptsRequest();
+            encryptedReceiptsRequest.setMatchId(matchId);
+            encryptedReceiptsRequest.setEncryptedReceiptRequests(encryptedReceipts);
+            encryptedReceiptsRequest.templateHash(templateHash);
 
-            String requestJson = objectMapper.writeValueAsString(request);
+            String requestJson = objectMapper.writeValueAsString(encryptedReceiptsRequest);
             logger.debug("Encrypted receipts request JSON: {}", requestJson);
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.ENCRYPTED_RECEIPT_ENDPOINT, requestJson);
@@ -404,7 +390,12 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
 
         try {
-            EncryptedCreditNotesRequest request = new EncryptedCreditNotesRequest(matchId, parentCheqiReceiptId, encryptedCreditNotes, templateHash);
+            EncryptedCreditNotesRequest request = new EncryptedCreditNotesRequest();
+            request.setMatchId(matchId);
+            request.setParentCheqiReceiptId(parentCheqiReceiptId);
+            request.setEncryptedCreditNotes(encryptedCreditNotes);
+            request.setTemplateHash(templateHash);
+
             String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Encrypted credit notes request JSON: {}", requestJson);
 
@@ -437,7 +428,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequestDto> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException {
+    public ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequest> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException {
         logger.info("Sending {} encrypted receipts for customer: ", encryptedReceipts.size());
 
         if (accessToken == null || accessToken.trim().isEmpty()) {
@@ -459,11 +450,11 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
 
         try {
-            EncryptedReceiptsRequest request = EncryptedReceiptsRequest.builder()
-                    .matchId(matchId)
-                    .encryptedReceipts(encryptedReceipts)
-                    .templateHash(templateHash)
-                    .build();
+            EncryptedReceiptsRequest request = new EncryptedReceiptsRequest();
+            request.setMatchId(matchId);
+            request.setEncryptedReceiptRequests(encryptedReceipts);
+            request.setTemplateHash(templateHash);
+
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Encrypted receipts request JSON: {}", requestJson);
@@ -520,7 +511,11 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
 
         try {
-            EncryptedCreditNotesRequest request = new EncryptedCreditNotesRequest(matchId, parentCheqiReceiptId, encryptedCreditNotes, templateHash);
+            EncryptedCreditNotesRequest request = new EncryptedCreditNotesRequest();
+            request.setMatchId(matchId);
+            request.setParentCheqiReceiptId(parentCheqiReceiptId);
+            request.setEncryptedCreditNotes(encryptedCreditNotes);
+            request.setTemplateHash(templateHash);
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(request);
             logger.debug("Encrypted credit notes request JSON: {}", requestJson);
@@ -579,10 +574,12 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             // Create request DTO with email and receipt
-            var emailRequest = new EmailReceiptRequest(customerEmail, cheqiReceipt);
-            
+            EmailReceiptRequest emailReceiptRequest = new EmailReceiptRequest();
+            emailReceiptRequest.setCustomerEmail(customerEmail);
+            emailReceiptRequest.setCheqiReceipt(cheqiReceipt);
+
             // Serialize request to JSON
-            String requestJson = objectMapper.writeValueAsString(emailRequest);
+            String requestJson = objectMapper.writeValueAsString(emailReceiptRequest);
             logger.debug("Email receipt request JSON: {}", requestJson);
 
             // Build HTTP request
@@ -641,10 +638,12 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             // Create request DTO with email and receipt
-            var emailRequest = new EmailReceiptRequest(customerEmail, cheqiReceipt);
+            EmailReceiptRequest emailReceiptRequest = new EmailReceiptRequest();
+            emailReceiptRequest.setCustomerEmail(customerEmail);
+            emailReceiptRequest.setCheqiReceipt(cheqiReceipt);
 
             // Serialize request to JSON
-            String requestJson = objectMapper.writeValueAsString(emailRequest);
+            String requestJson = objectMapper.writeValueAsString(emailReceiptRequest);
             logger.debug("Email receipt request JSON: {}", requestJson);
 
             // Build HTTP request
@@ -769,7 +768,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public Store createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiApiException {
+    public StoreDTO createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiApiException {
         logger.info("Creating store for company: {}", companyId);
         validateAccessToken(accessToken);
 
@@ -780,7 +779,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             Request httpRequest = buildJsonPostRequest(url, requestJson, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "createStore");
 
-            return responseHandler.handleJsonResponse(response, Store.class, "Create store");
+            return responseHandler.handleJsonResponse(response, StoreDTO.class, "Create store");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
@@ -790,7 +789,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public List<Store> getStores(UUID companyId, Boolean activeOnly, String accessToken) throws CheqiApiException {
+    public List<StoreDTO> getStores(UUID companyId, Boolean activeOnly, String accessToken) throws CheqiApiException {
         logger.debug("Getting stores for company: {}", companyId);
         validateAccessToken(accessToken);
 
@@ -803,7 +802,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             Request httpRequest = buildGetRequest(url, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "getStores");
 
-            return responseHandler.handleJsonListResponse(response, Store.class, "Get stores");
+            return responseHandler.handleJsonListResponse(response, StoreDTO.class, "Get stores");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
@@ -813,7 +812,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public Store getStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException {
+    public StoreDTO getStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException {
         logger.debug("Getting store {} for company {}", storeId, companyId);
         validateAccessToken(accessToken);
 
@@ -823,7 +822,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             Request httpRequest = buildGetRequest(url, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "getStore");
 
-            return responseHandler.handleJsonResponse(response, Store.class, "Get store");
+            return responseHandler.handleJsonResponse(response, StoreDTO.class, "Get store");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
@@ -833,7 +832,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public Store updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, String accessToken) throws CheqiApiException {
+    public StoreDTO updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, String accessToken) throws CheqiApiException {
         logger.info("Updating store {} for company {}", storeId, companyId);
         validateAccessToken(accessToken);
 
@@ -844,7 +843,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             Request httpRequest = buildPutRequest(url, requestJson, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "updateStore");
 
-            return responseHandler.handleJsonResponse(response, Store.class, "Update store");
+            return responseHandler.handleJsonResponse(response, StoreDTO.class, "Update store");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {

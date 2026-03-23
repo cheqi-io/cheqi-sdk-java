@@ -1,15 +1,7 @@
 package com.cheqi.sdk.http;
 
-import com.cheqi.sdk.creditNote.CreditNoteCreatedResponse;
-import com.cheqi.sdk.creditNote.CreditNoteTemplateGenerationRequest;
-import com.cheqi.sdk.creditNote.CreditNoteTemplateResponse;
-import com.cheqi.sdk.creditNote.EncryptedCreditNote;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
-import com.cheqi.sdk.models.*;
-import com.cheqi.sdk.models.company.CreateStoreRequest;
-import com.cheqi.sdk.models.company.ProvisionCompanyRequest;
-import com.cheqi.sdk.models.company.ProvisionCompanyResponse;
-import com.cheqi.sdk.models.company.Store;
+import com.cheqi.sdk.models.generated.*;
 
 import java.util.List;
 import java.util.Set;
@@ -42,14 +34,14 @@ public interface CheqiApiClient {
      * @return PurchaseReceipt with placeholders for personal data injection
      * @throws CheqiApiException if the API call fails
      */
-    ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateRequest request, List<ReceiptFormat> receiptFormats, String accessToken) throws CheqiApiException;
+    ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateGenerationRequest request, List<ReceiptFormat> receiptFormats, String accessToken) throws CheqiApiException;
 
     /**
      * Generate receipt template using API key from SDK config.
      * Uses Bearer token authentication with the API key configured during SDK initialization.
      * For companies accessing their own data directly.
      */
-    ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateRequest request, List<ReceiptFormat> receiptFormats) throws CheqiApiException;
+    ReceiptTemplateResponse generateReceiptTemplate(ReceiptTemplateGenerationRequest request, List<ReceiptFormat> receiptFormats) throws CheqiApiException;
 
     /**
      * Calls the template endpoint to generate a Credit Note template without personal data.
@@ -154,14 +146,14 @@ public interface CheqiApiClient {
      *
      * @since 1.0
      */
-    ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequestDto> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException;
+    ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequest> encryptedReceipts, String templateHash, String accessToken) throws CheqiApiException;
 
     /**
      * Send encrypted receipts using API key from SDK config.
      * Uses Bearer token authentication with the API key configured during SDK initialization.
      * For companies accessing their own data directly.
      */
-    ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequestDto> encryptedReceipts, String templateHash) throws CheqiApiException;
+    ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequest> encryptedReceipts, String templateHash) throws CheqiApiException;
 
 
     CreditNoteCreatedResponse sendEncryptedCreditNotes(String matchId, String parentCheqiReceiptId, Set<EncryptedCreditNote> encryptedCreditNotes, String templateHash, String accessToken) throws CheqiApiException;
@@ -221,10 +213,10 @@ public interface CheqiApiClient {
     ProvisionCompanyResponse provisionCompany(ProvisionCompanyRequest request) throws CheqiApiException;
 
     // Store management
-    Store createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiApiException;
-    List<Store> getStores(UUID companyId, Boolean activeOnly, String accessToken) throws CheqiApiException;
-    Store getStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
-    Store updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, String accessToken) throws CheqiApiException;
+    StoreDTO createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiApiException;
+    List<StoreDTO> getStores(UUID companyId, Boolean activeOnly, String accessToken) throws CheqiApiException;
+    StoreDTO getStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
+    StoreDTO updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, String accessToken) throws CheqiApiException;
     void deleteStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
     void activateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
     void deactivateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;

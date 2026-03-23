@@ -1,6 +1,8 @@
 package com.cheqi.sdk.models;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
+import com.cheqi.sdk.models.generated.BuyerType;
+import com.cheqi.sdk.models.generated.UnitCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -26,7 +28,7 @@ class ReceiptTemplateRequestSerializationTest {
                 .addProduct(Product.builder()
                         .name("Widget")
                         .quantity(1.0)
-                        .unitCode(UnitCode.ONE)
+                        .unitCode(UnitCode.C62)
                         .unitPrice("100.00")
                         .subtotal("100.00")
                         .total("121.00")
@@ -45,9 +47,9 @@ class ReceiptTemplateRequestSerializationTest {
         // BigDecimal trailing zeros are stripped during serialization (100.00 → 100),
         // so we compare key fields individually using compareTo for BigDecimal
         assertEquals(receipt.getDocumentNumber(), deserialized.getDocumentNumber());
-        assertEquals(receipt.getcurrency(), deserialized.getcurrency());
+        assertEquals(receipt.getCurrency(), deserialized.getCurrency());
         assertEquals(0, receipt.getTotalAmount().compareTo(deserialized.getTotalAmount()));
-        assertEquals(0, receipt.getreceiptSubtotal().compareTo(deserialized.getreceiptSubtotal()));
+        assertEquals(0, receipt.getReceiptSubtotal().compareTo(deserialized.getReceiptSubtotal()));
         assertEquals(receipt.getProducts().size(), deserialized.getProducts().size());
         assertEquals(receipt.getTaxes().size(), deserialized.getTaxes().size());
     }
@@ -84,7 +86,7 @@ class ReceiptTemplateRequestSerializationTest {
     void vatMetadataFieldsNotInSerializedJson() throws Exception {
         ReceiptTemplateRequest receipt = minimalBuilder()
                 .buyerCountryCode("DE")
-                .recipientEntityType(RecipientEntityType.BUSINESS)
+                .buyerType(BuyerType.BUSINESS)
                 .taxesApplied(true)
                 .build();
         JsonNode node = mapper.valueToTree(receipt);
@@ -95,7 +97,7 @@ class ReceiptTemplateRequestSerializationTest {
 
         // But they should be accessible via getters
         assertEquals("DE", receipt.getBuyerCountryCode());
-        assertEquals(RecipientEntityType.BUSINESS, receipt.getRecipientEntityType());
+        assertEquals(BuyerType.BUSINESS, receipt.getBuyerType());
         assertTrue(receipt.getTaxesApplied());
     }
 

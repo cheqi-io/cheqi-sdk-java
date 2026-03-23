@@ -2,10 +2,10 @@ package com.cheqi.sdk.matching;
 
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
-import com.cheqi.sdk.models.CardDetails;
-import com.cheqi.sdk.models.IdentificationDetails;
-import com.cheqi.sdk.models.PaymentAccountDetails;
-import com.cheqi.sdk.models.RecipientResolutionResponse;
+import com.cheqi.sdk.models.generated.CardDetails;
+import com.cheqi.sdk.models.generated.IdentificationDetails;
+import com.cheqi.sdk.models.generated.PaymentAccountDetails;
+import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,9 +61,9 @@ public class MatchingService {
         logAvailableIdentifiers(identificationDetails);
         
         try {
-            com.cheqi.sdk.models.RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, accessToken);
+            RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, accessToken);
             
-            if (response.isCustomerFound()) {
+            if (Boolean.TRUE.equals(response.getCustomerFound())) {
                 logger.info("Customer matched successfully: {} recipients found", response.getRecipients().size());
             } else {
                 logger.info("No customer match found");
@@ -114,7 +114,7 @@ public class MatchingService {
         try {
             RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails);
 
-            if (response.isCustomerFound()) {
+            if (Boolean.TRUE.equals(response.getCustomerFound())) {
                 logger.info("Customer matched successfully: {} recipients found", response.getRecipients().size());
             } else {
                 logger.info("No customer match found");

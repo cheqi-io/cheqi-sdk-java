@@ -40,3 +40,6 @@ bin/
 # Gradle
 .gradle/
 !gradle/wrapper/gradle-wrapper.jar
+
+# OpenAPI Generator metadata
+.openapi-generator/

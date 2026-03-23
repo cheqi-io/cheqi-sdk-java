@@ -1,5 +1,6 @@
 package com.cheqi.sdk.creditNote;
 
+import com.cheqi.sdk.models.generated.CheqiCreditNote;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CreditNoteEnvelope {

@@ -1,9 +1,10 @@
 package com.cheqi.sdk.receipt;
 
-import com.cheqi.sdk.models.ReceiptCreatedResponse;
+import com.cheqi.sdk.models.generated.ReceiptCreatedResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 
 /**
  * Result of processing a receipt through the SDK.
@@ -16,7 +17,7 @@ public class ReceiptResult {
     @JsonProperty("cheqiReceiptId")
     private final String cheqiReceiptId;
     @JsonProperty("createdAt")
-    private final Instant createdAt;
+    private final OffsetDateTime createdAt;
     @JsonProperty("templateHash")
     private final String templateHash;
     @JsonProperty("canonicalJson")
@@ -30,7 +31,7 @@ public class ReceiptResult {
             boolean success,
             DeliveryStatus deliveryStatus,
             String cheqiReceiptId,
-            Instant createdAt,
+            OffsetDateTime createdAt,
             String templateHash,
             String canonicalJson,
             String emailAddress,
@@ -63,7 +64,7 @@ public class ReceiptResult {
                 true,
                 DeliveryStatus.DELIVERED_EMAIL,
                 null,
-                Instant.now(),
+                OffsetDateTime.now(),
                 null,
                 null,
                 emailAddress,
@@ -105,7 +106,7 @@ public class ReceiptResult {
 
     // Archival data
     public String getCheqiReceiptId() { return cheqiReceiptId; }
-    public Instant getCreatedAt() { return createdAt; }
+    public OffsetDateTime getCreatedAt() { return createdAt; }
     public String getTemplateHash() { return templateHash; }
     public String getCanonicalJson() { return canonicalJson; }
 

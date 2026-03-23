@@ -1,5 +1,8 @@
 package com.cheqi.sdk.models;
 
+import com.cheqi.sdk.models.generated.CheqiReceipt;
+import com.cheqi.sdk.models.generated.VatMetadata;
+
 /**
  * Envelope containing multiple receipt formats.
  * Used to bundle different format representations of the same receipt

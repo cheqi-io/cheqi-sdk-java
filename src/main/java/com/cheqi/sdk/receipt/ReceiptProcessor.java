@@ -54,13 +54,10 @@ public class ReceiptProcessor {
     public DecryptedReceipt processEncryptedReceipt(
             EncryptedReceipt encryptedReceipt,
             String privateKey) {
-        
-        logger.debug("Processing encrypted receipt for recipient: {}", encryptedReceipt.getRecipientId());
 
         DecryptedReceipt decrypted = decryptionService.decryptReceipt(encryptedReceipt, privateKey);
         mergeService.merge(decrypted);
 
-        logger.info("Successfully processed encrypted receipt for recipient: {}", encryptedReceipt.getRecipientId());
         return decrypted;
     }
 }

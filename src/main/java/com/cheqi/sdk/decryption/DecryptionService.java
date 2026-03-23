@@ -44,7 +44,6 @@ public class DecryptionService {
      * @throws DecryptionException if decryption fails
      */
     public DecryptedReceipt decryptReceipt(EncryptedReceipt encryptedReceipt, String privateKeyBase64) {
-        logger.info("📦 Starting receipt decryption for recipient: {}", encryptedReceipt.getRecipientId());
         logger.info("🔍 Encrypted receipt length: {} characters", encryptedReceipt.getEncryptedReceipt().length());
         logger.info("🔍 Encrypted symmetric key length: {} characters", encryptedReceipt.getEncryptedSymmetricKey().length());
         
@@ -71,7 +70,7 @@ public class DecryptionService {
                 logger.info("🔐 Step 3: Decrypting customer details...");
                 
                 SecretKey customerAesKey = rsaKeyDecryptor.decryptKey(
-                        encryptedReceipt.getEncryptedCustomerAesKey(),
+                        encryptedReceipt.getEncryptedSymmetricKey(),
                         privateKeyBase64
                 );
 
@@ -84,15 +83,12 @@ public class DecryptionService {
                 logger.info("ℹ️ Step 3 skipped: No customer details present");
             }
 
-            logger.info("✅ Successfully decrypted receipt for recipient: {}", encryptedReceipt.getRecipientId());
-            logger.info("📊 Decryption summary: receipt={} chars, customer={} chars", 
+            logger.info("📊 Decryption summary: receipt={} chars, customer={} chars",
                        decryptedReceiptContent.length(), 
                        decryptedCustomerDetails != null ? decryptedCustomerDetails.length() : 0);
             return receiptFactory.create(decryptedReceiptContent, decryptedCustomerDetails);
 
         } catch (Exception e) {
-            logger.error("❌ Failed to decrypt receipt for recipient {}: {}", 
-                        encryptedReceipt.getRecipientId(), e.getMessage(), e);
             throw new DecryptionException("Failed to decrypt receipt", e);
         }
     }
@@ -156,6 +152,6 @@ public class DecryptionService {
     private boolean hasCustomerDetails(EncryptedReceipt encryptedReceipt) {
         return encryptedReceipt.getEncryptedCustomerDetails() != null &&
                !encryptedReceipt.getEncryptedCustomerDetails().trim().isEmpty() &&
-               encryptedReceipt.getEncryptedCustomerAesKey() != null;
+               encryptedReceipt.getEncryptedCustomerSymmetricKey() != null;
     }
 }

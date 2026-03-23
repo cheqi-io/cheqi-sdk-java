@@ -2,8 +2,8 @@ package com.cheqi.sdk.company;
 
 import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
-import com.cheqi.sdk.models.company.CreateStoreRequest;
-import com.cheqi.sdk.models.company.Store;
+import com.cheqi.sdk.models.generated.CreateStoreRequest;
+import com.cheqi.sdk.models.generated.StoreDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class StoreService {
      * @return Created Store with ID and timestamps
      * @throws CheqiSDKException if creation fails
      */
-    public Store createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiSDKException {
+    public StoreDTO createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateAccessToken(accessToken);
 
@@ -68,15 +68,10 @@ public class StoreService {
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
 
-        if (!request.isValid()) {
-            throw new CheqiSDKException("Invalid store request: " + String.join(", ", request.getValidationErrors()),
-                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-
         logger.info("Creating store '{}' for company {}", request.getStoreName(), companyId);
 
         try {
-            Store store = apiClient.createStore(companyId, request, accessToken);
+            StoreDTO store = apiClient.createStore(companyId, request, accessToken);
             logger.info("Store created successfully: storeId={}", store.getId());
             return store;
         } catch (Exception e) {
@@ -93,7 +88,7 @@ public class StoreService {
      * @return List of stores
      * @throws CheqiSDKException if retrieval fails
      */
-    public List<Store> getStores(UUID companyId, String accessToken) throws CheqiSDKException {
+    public List<StoreDTO> getStores(UUID companyId, String accessToken) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateAccessToken(accessToken);
 
@@ -115,7 +110,7 @@ public class StoreService {
      * @return List of active stores
      * @throws CheqiSDKException if retrieval fails
      */
-    public List<Store> getActiveStores(UUID companyId, String accessToken) throws CheqiSDKException {
+    public List<StoreDTO> getActiveStores(UUID companyId, String accessToken) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateAccessToken(accessToken);
 
@@ -138,7 +133,7 @@ public class StoreService {
      * @return Store details
      * @throws CheqiSDKException if retrieval fails
      */
-    public Store getStore(UUID companyId, UUID storeId, String accessToken) throws CheqiSDKException {
+    public StoreDTO getStore(UUID companyId, UUID storeId, String accessToken) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateStoreId(storeId);
         validateAccessToken(accessToken);
@@ -163,7 +158,7 @@ public class StoreService {
      * @return Updated store
      * @throws CheqiSDKException if update fails
      */
-    public Store updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, String accessToken) throws CheqiSDKException {
+    public StoreDTO updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, String accessToken) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateStoreId(storeId);
         validateAccessToken(accessToken);
@@ -176,7 +171,7 @@ public class StoreService {
         logger.info("Updating store {} for company {}", storeId, companyId);
 
         try {
-            Store store = apiClient.updateStore(companyId, storeId, request, accessToken);
+            StoreDTO store = apiClient.updateStore(companyId, storeId, request, accessToken);
             logger.info("Store updated successfully: storeId={}", store.getId());
             return store;
         } catch (Exception e) {

@@ -3,8 +3,9 @@ package com.cheqi.sdk.company;
 import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.models.company.Company;
-import com.cheqi.sdk.models.company.ProvisionCompanyRequest;
-import com.cheqi.sdk.models.company.ProvisionCompanyResponse;
+import com.cheqi.sdk.models.generated.CompanyDTO;
+import com.cheqi.sdk.models.generated.ProvisionCompanyRequest;
+import com.cheqi.sdk.models.generated.ProvisionCompanyResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,17 +66,12 @@ public class CompanyService {
      * @throws CheqiSDKException if provisioning fails or validation errors occur
      */
     public ProvisionCompanyResponse provisionCompany(
-            Company company,
+            CompanyDTO company,
             String adminEmail
     ) throws CheqiSDKException {
 
         if (company == null) {
             throw new CheqiSDKException("Company cannot be null",
-                    CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-
-        if (!company.isValid()) {
-            throw new CheqiSDKException("Invalid company data: " + String.join(", ", company.getValidationErrors()),
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
         }
 
@@ -92,15 +88,14 @@ public class CompanyService {
         logger.info("Provisioning company: {}", company.getCompanyName());
 
         try {
-            ProvisionCompanyRequest request = ProvisionCompanyRequest.builder()
-                    .company(company)
-                    .adminEmail(adminEmail)
-                    .build();
+            ProvisionCompanyRequest request = new ProvisionCompanyRequest();
+            request.setCompany(company);
+            request.setAdminEmail(adminEmail);
             ProvisionCompanyResponse response = apiClient.provisionCompany(request);
 
-            if (response.isProvisioned()) {
+            if ("PROVISIONED".equals(response.getStatus())) {
                 logger.info("Company provisioned successfully: companyId={}", response.getCompanyId());
-            } else if (response.isAlreadyExists()) {
+            } else if ("ALREADY_EXISTS".equals(response.getStatus())) {
                 logger.info("Company already exists: companyId={}, requiresOAuth=true", response.getCompanyId());
             }
 

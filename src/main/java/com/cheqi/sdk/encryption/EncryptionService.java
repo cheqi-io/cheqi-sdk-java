@@ -1,8 +1,8 @@
 package com.cheqi.sdk.encryption;
 
-import com.cheqi.sdk.creditNote.EncryptedCreditNote;
-import com.cheqi.sdk.models.EncryptedReceiptRequestDto;
-import com.cheqi.sdk.models.Recipient;
+import com.cheqi.sdk.models.generated.EncryptedCreditNote;
+import com.cheqi.sdk.models.generated.EncryptedReceiptRequest;
+import com.cheqi.sdk.models.generated.MatchedRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,11 +12,7 @@ import java.security.SecureRandom;
 /**
  * Core encryption service providing hybrid encryption for end-to-end security.
  *
- * This service orchestrates:
- * - AES-256-GCM encryption for receipt data
- * - RSA-OAEP encryption for AES keys
- * - Secure key generation and management
- *
+ * Orchestrates AES-256-GCM encryption for data and RSA-OAEP encryption for keys.
  * Thread-safe and designed for high-throughput receipt encryption.
  */
 public class EncryptionService {
@@ -36,71 +32,28 @@ public class EncryptionService {
     }
 
     /**
-     * Encrypts a receipt template for multiple recipients using hybrid encryption.
-     * Each recipient gets a unique AES key encrypted with their RSA public key.
+     * Encrypts a receipt for a recipient using hybrid encryption.
+     * Generates a unique AES key encrypted with the recipient's RSA public key.
      *
-     * @param purchaseReceipt The JSON receipt template to encrypt
-     * @param recipient List of recipients with their public keys
-     * @return Set of encrypted receipt DTOs, one per recipient
-     * @throws EncryptionException if encryption fails for any recipient
+     * @param purchaseReceipt The JSON receipt to encrypt
+     * @param recipient Recipient with public key
+     * @return Encrypted receipt
      */
-    public EncryptedReceiptRequestDto encryptReceiptForRecipients(String purchaseReceipt, Recipient recipient) {
-        try {
-            return encryptReceiptForRecipient(recipient, purchaseReceipt);
-        } catch (Exception e) {
-            logger.error("Failed to encrypt receipt for recipients: {}", e.getMessage());
-            throw new EncryptionException("Failed to encrypt receipt for recipients", e);
-        }
-    }
-
-    /**
-     * Encrypts a receipt template for multiple recipients using hybrid encryption.
-     * Each recipient gets a unique AES key encrypted with their RSA public key.
-     *
-     * @param creditNote The JSON receipt template to encrypt
-     * @param recipient List of recipients with their public keys
-     * @return Set of encrypted receipt DTOs, one per recipient
-     * @throws EncryptionException if encryption fails for any recipient
-     */
-    public EncryptedCreditNote encryptCreditNoteForRecipient(String creditNote, Recipient recipient) {
-
-        try {
-            EncryptedCreditNote encryptedReceipts = encryptCreditNoteForRecipient(recipient, creditNote);
-            return encryptedReceipts;
-        } catch (Exception e) {
-            logger.error("Failed to encrypt receipt for recipients: {}", e.getMessage());
-            throw new EncryptionException("Failed to encrypt receipt for recipients", e);
-        }
-    }
-
-    /**
-     * Encrypts a receipt for a single recipient using hybrid encryption.
-     */
-    private EncryptedReceiptRequestDto encryptReceiptForRecipient(
-            Recipient recipient,
-            String purchaseReceipt) {
+    public EncryptedReceiptRequest encryptReceiptForRecipients(String purchaseReceipt, MatchedRecipient recipient) {
         try {
             logger.debug("Encrypting receipt for recipient: {}", recipient.getId());
-            
-            // Step 1: Generate unique AES-256 key for this receipt
+
             SecretKey aesKey = keyGenerator.generateKey();
-            
-            // Step 2: Encrypt receipt data with AES-GCM
             EncryptedData encryptedData = aesEncryptor.encrypt(purchaseReceipt, aesKey);
-            String encryptedReceiptBase64 = encryptedData.toBase64String();
-            
-            // Step 3: Encrypt AES key with recipient's RSA public key
             String encryptedSymmetricKey = rsaKeyEncryptor.encryptKey(aesKey, recipient.getPublicKey());
-            
-            // Step 4: Build encrypted receipt DTO with pre-encrypted customer details
-            return EncryptedReceiptRequestDto.builder()
-                    .recipientId(recipient.getId())
-                    .publicKey(recipient.getPublicKey())
-                    .receiverType(recipient.getReceiverType())
-                    .encryptedReceipt(encryptedReceiptBase64)
-                    .encryptedSymmetricKey(encryptedSymmetricKey)
-                    .build();
-                    
+
+            EncryptedReceiptRequest dto = new EncryptedReceiptRequest();
+            dto.setRecipientId(recipient.getId());
+            dto.setPublicKey(recipient.getPublicKey());
+            dto.setEncryptedReceipt(encryptedData.toBase64String());
+            dto.setEncryptedSymmetricKey(encryptedSymmetricKey);
+            return dto;
+
         } catch (Exception e) {
             logger.error("Failed to encrypt receipt for recipient {}: {}", recipient.getId(), e.getMessage());
             throw new EncryptionException("Failed to encrypt receipt for recipient: " + recipient.getId(), e);
@@ -108,38 +61,31 @@ public class EncryptionService {
     }
 
     /**
-     * Encrypts a receipt for a single recipient using hybrid encryption.
+     * Encrypts a credit note for a recipient using hybrid encryption.
+     * Generates a unique AES key encrypted with the recipient's RSA public key.
+     *
+     * @param creditNote The JSON credit note to encrypt
+     * @param recipient Recipient with public key
+     * @return Encrypted credit note DTO
      */
-    private EncryptedCreditNote encryptCreditNoteForRecipient(
-            Recipient recipient,
-            String creditNote) {
+    public EncryptedCreditNote encryptCreditNoteForRecipient(String creditNote, MatchedRecipient recipient) {
         try {
-            logger.debug("Encrypting receipt for recipient: {}", recipient.getId());
+            logger.debug("Encrypting credit note for recipient: {}", recipient.getId());
 
-            // Step 1: Generate unique AES-256 key for this receipt
             SecretKey aesKey = keyGenerator.generateKey();
-
-            // Step 2: Encrypt receipt data with AES-GCM
             EncryptedData encryptedData = aesEncryptor.encrypt(creditNote, aesKey);
-            String encryptedCreditNoteBase64 = encryptedData.toBase64String();
-
-            // Step 3: Encrypt AES key with recipient's RSA public key
             String encryptedSymmetricKey = rsaKeyEncryptor.encryptKey(aesKey, recipient.getPublicKey());
 
-            // Step 4: Build encrypted receipt DTO with pre-encrypted customer details
-            return EncryptedCreditNote.builder()
-                    .recipientId(recipient.getId())
-                    .receiverType(recipient.getReceiverType())
-                    .publicKey(recipient.getPublicKey())
-                    .encryptedCreditNote(encryptedCreditNoteBase64)
-                    .encryptedSymmetricKey(encryptedSymmetricKey)
-                    .build();
+            EncryptedCreditNote dto = new EncryptedCreditNote();
+            dto.setRecipientId(recipient.getId());
+            dto.setPublicKey(recipient.getPublicKey());
+            dto.setEncryptedCreditNote(encryptedData.toBase64String());
+            dto.setEncryptedSymmetricKey(encryptedSymmetricKey);
+            return dto;
 
         } catch (Exception e) {
-            logger.error("Failed to encrypt receipt for recipient {}: {}", recipient.getId(), e.getMessage());
-            throw new EncryptionException("Failed to encrypt receipt for recipient: " + recipient.getId(), e);
+            logger.error("Failed to encrypt credit note for recipient {}: {}", recipient.getId(), e.getMessage());
+            throw new EncryptionException("Failed to encrypt credit note for recipient: " + recipient.getId(), e);
         }
     }
-
-
 }

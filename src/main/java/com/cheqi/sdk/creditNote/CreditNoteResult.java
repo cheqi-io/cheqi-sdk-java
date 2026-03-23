@@ -1,9 +1,11 @@
 package com.cheqi.sdk.creditNote;
 
+import com.cheqi.sdk.models.generated.CreditNoteCreatedResponse;
 import com.cheqi.sdk.receipt.DeliveryStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 
 public class CreditNoteResult {
     @JsonProperty("success")
@@ -15,7 +17,7 @@ public class CreditNoteResult {
     @JsonProperty("cheqiCreditNoteId")
     private final String parentCheqiReceiptId;
     @JsonProperty("createdAt")
-    private final Instant createdAt;
+    private final OffsetDateTime createdAt;
     @JsonProperty("templateHash")
     private final String templateHash;
     @JsonProperty("canonicalJson")
@@ -30,7 +32,7 @@ public class CreditNoteResult {
             DeliveryStatus deliveryStatus,
             String cheqiReceiptId,
             String parentCheqiReceiptId,
-            Instant createdAt,
+            OffsetDateTime createdAt,
             String templateHash,
             String canonicalJson,
             String emailAddress,
@@ -66,7 +68,7 @@ public class CreditNoteResult {
                 DeliveryStatus.DELIVERED_EMAIL,
                 cheqiReceiptId,
                 parentCheqiReceiptId,
-                Instant.now(),
+                OffsetDateTime.now(),
                 null,
                 null,
                 emailAddress,
@@ -110,7 +112,7 @@ public class CreditNoteResult {
 
     // Archival data
     public String getCheqiReceiptId() { return cheqiReceiptId; }
-    public Instant getCreatedAt() { return createdAt; }
+    public OffsetDateTime getCreatedAt() { return createdAt; }
     public String getTemplateHash() { return templateHash; }
     public String getCanonicalJson() { return canonicalJson; }
 

@@ -1,3 +1,4 @@
+
 package com.cheqi.sdk.models.company;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
