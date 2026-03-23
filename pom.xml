@@ -173,6 +173,7 @@
                                 <sourceFolder>src/main/java</sourceFolder>
                                 <modelPackage>com.cheqi.sdk.models.generated</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
                                 <openApiNullable>false</openApiNullable>
                                 <useJakartaEe>false</useJakartaEe>
                                 <serializationLibrary>jackson</serializationLibrary>

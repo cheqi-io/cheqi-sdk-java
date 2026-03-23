@@ -109,7 +109,7 @@ public class CheqiSDKException extends Exception {
     /**
      * Checks if this exception has an HTTP status code.
      *
-     * @return true if httpStatusCode > 0
+     * @return true if {@code httpStatusCode > 0}
      */
     public boolean hasHttpStatusCode() {
         return httpStatusCode > 0;

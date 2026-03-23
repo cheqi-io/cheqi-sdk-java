@@ -44,7 +44,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   IdentificationDetails.JSON_PROPERTY_PAIRING_CODE
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-23T03:17:47.013061+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
 public class IdentificationDetails {
   /**
    * The payment type

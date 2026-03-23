@@ -1,17 +1,14 @@
 package com.cheqi.sdk.http;
 
 import com.cheqi.sdk.config.CheqiSDKConfig;
+import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.creditNote.*;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.models.generated.*;
 import com.cheqi.sdk.models.generated.CreditNoteCreatedResponse;
 import com.cheqi.sdk.models.generated.CreditNoteTemplateResponse;
 import com.cheqi.sdk.models.generated.EncryptedCreditNotesRequest;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +33,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
     public DefaultCheqiApiClient(CheqiSDKConfig config) {
         this.config = config;
-        this.objectMapper = new ObjectMapper();
-        // Register JDK8 module to handle Optional fields properly
-        this.objectMapper.registerModule(new Jdk8Module());
-        this.objectMapper.registerModule(new JavaTimeModule());
-        this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        this.objectMapper.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, false);
+        this.objectMapper = ObjectMapperConfig.getInstance();
 
         this.httpClient = createHttpClient();
         this.retryHandler = new RetryHandler(httpClient, config.getMaxRetries());
@@ -67,7 +59,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         try {
             // Serialize the wrapped request to JSON
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Template generation request JSON: {}", requestJson);
+            logger.debug("Serialized receipt template generation request for {}", request.getReceiptTemplateRequest().getDocumentNumber());
     
             // Build HTTP request - Accept JSON for template response
             Request httpRequest = buildPostRequest(Endpoints.TEMPLATE_ENDPOINT, requestJson, accessToken, "application/json");
@@ -107,7 +99,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         try {
             // Serialize the wrapped request to JSON
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Template generation request JSON: {}", requestJson);
+            logger.debug("Serialized receipt template generation request for {}", request.getReceiptTemplateRequest().getDocumentNumber());
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.TEMPLATE_ENDPOINT, requestJson);
 
@@ -153,7 +145,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Credit note template request JSON: {}", requestJson);
+            logger.debug("Serialized credit note template generation request for {}", request.getCreditNoteTemplateRequest().getDocumentNumber());
 
             Request httpRequest = buildPostRequest(Endpoints.CREDIT_NOTE_TEMPLATE_ENDPOINT, requestJson, accessToken, "application/json");
             Response response = retryHandler.executeWithRetry(httpRequest, "generateCreditNoteTemplate");
@@ -191,7 +183,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Credit note template request JSON: {}", requestJson);
+            logger.debug("Serialized credit note template generation request for {}", request.getCreditNoteTemplateRequest().getDocumentNumber());
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.CREDIT_NOTE_TEMPLATE_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "generateCreditNoteTemplate");
@@ -236,7 +228,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.info("Customer match request JSON: {}", requestJson);
+            logger.debug("Serialized customer match request with API key");
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.CUSTOMER_MATCH_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "matchCustomer");
@@ -292,7 +284,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         try {
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.info("Customer match request JSON: {}", requestJson);
+            logger.debug("Serialized customer match request with access token");
 
             // Build HTTP request
             Request httpRequest = buildJsonPostRequest(Endpoints.CUSTOMER_MATCH_ENDPOINT, requestJson, accessToken);
@@ -347,7 +339,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             encryptedReceiptsRequest.templateHash(templateHash);
 
             String requestJson = objectMapper.writeValueAsString(encryptedReceiptsRequest);
-            logger.debug("Encrypted receipts request JSON: {}", requestJson);
+            logger.debug("Serialized encrypted receipts request for {} recipient(s)", encryptedReceipts.size());
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.ENCRYPTED_RECEIPT_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "sendEncryptedReceipts");
@@ -397,7 +389,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             request.setTemplateHash(templateHash);
 
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Encrypted credit notes request JSON: {}", requestJson);
+            logger.debug("Serialized encrypted credit notes request for {} recipient(s)", encryptedCreditNotes.size());
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.ENCRYPTED_CREDIT_NOTE_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "sendEncryptedCreditNotes");
@@ -457,7 +449,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Encrypted receipts request JSON: {}", requestJson);
+            logger.debug("Serialized encrypted receipts request for {} recipient(s)", encryptedReceipts.size());
 
             // Build HTTP request
             Request httpRequest = buildJsonPostRequest(Endpoints.ENCRYPTED_RECEIPT_ENDPOINT, requestJson, accessToken);
@@ -518,7 +510,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             request.setTemplateHash(templateHash);
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Encrypted credit notes request JSON: {}", requestJson);
+            logger.debug("Serialized encrypted credit notes request for {} recipient(s)", encryptedCreditNotes.size());
 
             // Build HTTP request
             Request httpRequest = buildJsonPostRequest(Endpoints.ENCRYPTED_CREDIT_NOTE_ENDPOINT, requestJson, accessToken);
@@ -580,7 +572,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(emailReceiptRequest);
-            logger.debug("Email receipt request JSON: {}", requestJson);
+            logger.debug("Serialized email receipt request");
 
             // Build HTTP request
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson);
@@ -644,7 +636,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(emailReceiptRequest);
-            logger.debug("Email receipt request JSON: {}", requestJson);
+            logger.debug("Serialized email receipt request");
 
             // Build HTTP request
             Request httpRequest = buildJsonPostRequest(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson, accessToken);
@@ -738,7 +730,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Provision company request JSON: {}", requestJson);
+            logger.debug("Serialized company provisioning request");
 
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.COMPANY_PROVISION_ENDPOINT, requestJson);
             Response response = retryHandler.executeWithRetry(httpRequest, "provisionCompany");

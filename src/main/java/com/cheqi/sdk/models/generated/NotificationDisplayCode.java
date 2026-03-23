@@ -34,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   NotificationDisplayCode.JSON_PROPERTY_DATA
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-23T03:17:47.013061+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
 public class NotificationDisplayCode {
   public static final String JSON_PROPERTY_TYPE = "type";
   @javax.annotation.Nonnull

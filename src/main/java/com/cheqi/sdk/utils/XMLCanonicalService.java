@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Service for XML Canonicalization (Exclusive C14N 1.0) and hashing.
  *
- * Uses the JDK's built-in {@link javax.xml.crypto.dsig} API to produce
+     * Uses the JDK's built-in {@code javax.xml.crypto.dsig} API to produce
  * deterministic XML output matching:
  * <ul>
  *   <li>iOS: libxml2's xmlC14NDocDumpMemory with XML_C14N_EXCLUSIVE_1_0</li>

@@ -6,13 +6,54 @@ on:
     tags:
       - 'v*'  # Trigger on tags like v1.0.0
 
+concurrency:
+  group: cheqi-sdk-java-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
-  publish:
+  validate-release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Ensure release commit is on main
+        run: |
+          git fetch origin main --depth=1
+          git branch -r --contains "$GITHUB_SHA" | grep -q 'origin/main'
+
+      - name: Verify generated models are committed
+        run: |
+          mvn -B -q generate-sources
+          git diff --exit-code -I '^@javax\.annotation\.Generated' -- src/main/java/com/cheqi/sdk/models/generated
+
+      - name: Validate release artifacts
+        run: ./gradlew clean check javadocJar sourcesJar publishToMavenLocal --no-daemon --console=plain
+
+  publish:
+    needs: validate-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 11
         uses: actions/setup-java@v4
