@@ -64,7 +64,7 @@ class ReceiptServiceTest {
     void processCompleteReceipt_deliversEncryptedReceiptForMatchedCustomer() throws Exception {
         ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
         RecipientResolutionResponse matchResponse = matchedRecipientResponse();
-        ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse().ubl("<Receipt>ok</Receipt>");
+        ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse().ublPurchaseReceipt("<Receipt>ok</Receipt>");
         ReceiptCreatedResponse createdResponse = new ReceiptCreatedResponse()
                 .cheqiReceiptId("receipt-123")
                 .templateHash("hash-123")
@@ -94,7 +94,7 @@ class ReceiptServiceTest {
         MatchedRecipient recipient = new MatchedRecipient()
                 .id("recipient-1")
                 .publicKey("public-key")
-                .acceptedFormats(List.of(ReceiptFormat.UBL_XML));
+                .acceptedFormats(List.of(ReceiptFormat.UBL_PURCHASE_RECEIPT));
 
         return new RecipientResolutionResponse()
                 .customerFound(true)

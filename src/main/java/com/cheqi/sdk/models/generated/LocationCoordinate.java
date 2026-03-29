@@ -41,7 +41,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   LocationCoordinate.JSON_PROPERTY_ALTITUDE_MEASURE
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class LocationCoordinate {
   public static final String JSON_PROPERTY_COORDINATE_SYSTEM_CODE = "coordinateSystemCode";
   @javax.annotation.Nullable

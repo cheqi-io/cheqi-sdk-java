@@ -50,8 +50,8 @@ public class DecryptedReceipt {
      * Gets the receipt content in UBL XML format.
      * @return UBL XML string, or null if not available
      */
-    public String getUblXml() {
-        return receiptEnvelope.getUblXml();
+    public String getUblPurchaseReceipt() {
+        return receiptEnvelope.getUblPurchaseReceipt();
     }
 
     /**

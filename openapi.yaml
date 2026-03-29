@@ -55,12 +55,6 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to view this store
           content:
@@ -69,6 +63,12 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
+        "200":
+          description: Store retrieved successfully
           content:
             '*/*':
               schema:
@@ -109,12 +109,6 @@ paths:
             '*/*':
               schema:
                 type: object
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to update this store
           content:
@@ -127,6 +121,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
     delete:
@@ -233,6 +233,12 @@ paths:
               $ref: "#/components/schemas/WebhookRequestBody"
         required: true
       responses:
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
         "400":
           description: Invalid webhook request data
           content:
@@ -249,12 +255,6 @@ paths:
           description: Insufficient permissions - requires read_receipts scope
           content:
             '*/*':
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
       security:
@@ -278,12 +278,6 @@ paths:
               $ref: "#/components/schemas/IdentificationDetails"
         required: true
       responses:
-        "200":
-          description: Recipient successfully resolved and matched
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/RecipientResolutionResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
           content:
@@ -292,6 +286,12 @@ paths:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
         "404":
           description: No recipient found matching the provided identification details
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RecipientResolutionResponse"
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -374,14 +374,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "201":
-          description: Receipt created successfully
+        "400":
+          description: Invalid encrypted receipt data
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "400":
-          description: Invalid encrypted receipt data
+        "201":
+          description: Receipt created successfully
           content:
             '*/*':
               schema:
@@ -511,14 +511,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "403":
-          description: Insufficient permissions - requires write_receipts scope
+        "201":
+          description: Encrypted credit note queued successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "201":
-          description: Encrypted credit note queued successfully
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
           content:
             '*/*':
               schema:
@@ -747,12 +747,6 @@ paths:
               $ref: "#/components/schemas/CreateStoreRequest"
         required: true
       responses:
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to create stores for this company
           content:
@@ -771,6 +765,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /company/{companyId}/public-key:
@@ -792,14 +792,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Public key retrieved successfully
+        "403":
+          description: Not authorized to access this company's public key
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "403":
-          description: Not authorized to access this company's public key
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
@@ -962,14 +962,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "403":
-          description: Not authorized to rotate webhook secret for this client application
+        "200":
+          description: Secret rotated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookSecretRotationResponse"
-        "200":
-          description: Secret rotated successfully
+        "403":
+          description: Not authorized to rotate webhook secret for this client application
           content:
             '*/*':
               schema:
@@ -1000,14 +1000,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
@@ -1075,6 +1075,12 @@ paths:
           type: string
           format: uuid
       responses:
+        "200":
+          description: Store deactivated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -1083,12 +1089,6 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to deactivate this store
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store deactivated successfully
           content:
             '*/*':
               schema:
@@ -1118,6 +1118,12 @@ paths:
           type: string
           format: uuid
       responses:
+        "200":
+          description: Store activated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -1126,12 +1132,6 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to activate this store
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
           content:
             '*/*':
               schema:
@@ -1539,7 +1539,7 @@ components:
             )."
         acceptedFormats:
           type: array
-          description: "Receipt formats this recipient accepts (e.g., CHEQI, UBL_XML)."
+          description: "Receipt formats this recipient accepts (e.g., CHEQI, UBL_PURCHASE_RECEIPT)."
           items:
             $ref: "#/components/schemas/ReceiptFormat"
       description: The list of recipients found for the given recipient
@@ -1548,7 +1548,9 @@ components:
       description: Receipt output format
       enum:
       - CHEQI
-      - UBL_XML
+      - UBL_PURCHASE_RECEIPT
+      - UBL_INVOICE
+      - UBL_CREDIT_NOTE
     RecipientResolutionResponse:
       type: object
       properties:
@@ -2105,7 +2107,7 @@ components:
           description: Optional list of barcodes or QR codes embedded in the receipt
           items:
             $ref: "#/components/schemas/Barcode"
-        verificationNonce:
+        receiptUuid:
           type: string
           description: The verification nonce of the receipt
       description: "Cheqi JSON receipt template object. This contains a complete CheqiReceipt\
@@ -2188,12 +2190,17 @@ components:
     ReceiptTemplateResponse:
       type: object
       properties:
-        ubl:
+        ublPurchaseReceipt:
           type: string
           description: "UBL 2.4 XML receipt template as a serialized XML string following\
             \ the PurchaseReceipt schema. See [UBL XML Receipt Format](https://docs.cheqi.io/receipts/ubl-format)\
             \ for the full structure and field reference."
           example: <?xml version="1.0" encoding="UTF-8"?><PurchaseReceipt xmlns="urn:oasis:names:specification:ubl:schema:xsd:PurchaseReceipt-2">...</PurchaseReceipt>
+        ublInvoice:
+          type: string
+          description: UBL 2.4 XML Invoice template as a serialized XML string following
+            the Invoice schema. Widely supported by accounting systems.
+          example: <?xml version="1.0" encoding="UTF-8"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">...</Invoice>
         cheqi:
           $ref: "#/components/schemas/CheqiReceipt"
         vatMetadata:
@@ -3026,10 +3033,10 @@ components:
             namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
           items:
             $ref: "#/components/schemas/TaxTotal"
-        verificationNonce:
+        receiptUuid:
           type: string
           xml:
-            name: VerificationNonce
+            name: UUID
             namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
       xml:
         name: CreditNote
@@ -4382,7 +4389,7 @@ components:
           $ref: "#/components/schemas/SellingParty"
         receivingParty:
           $ref: "#/components/schemas/ReceivingParty"
-        verificationNonce:
+        receiptUuid:
           type: string
           description: The verification nonce of the credit note
       description: "Cheqi JSON credit note template object. This contains a complete\
@@ -4615,7 +4622,7 @@ components:
           format: date-time
     CompanyDTO:
       required:
-      - addressDto
+      - address
       - companyEmail
       - companyLegalName
       - companyName
@@ -4631,7 +4638,7 @@ components:
           type: string
         taxNumber:
           type: string
-        addressDto:
+        address:
           $ref: "#/components/schemas/AddressDTO"
         companyEmail:
           type: string
@@ -4775,7 +4782,7 @@ components:
           - OTHER
         hasCompletedOnboarding:
           type: boolean
-        addressDto:
+        address:
           $ref: "#/components/schemas/AddressDTO"
         profileImageId:
           type: string

@@ -59,10 +59,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CheqiReceipt.JSON_PROPERTY_SELLING_PARTY,
   CheqiReceipt.JSON_PROPERTY_RECEIVING_PARTY,
   CheqiReceipt.JSON_PROPERTY_BARCODES,
-  CheqiReceipt.JSON_PROPERTY_VERIFICATION_NONCE
+  CheqiReceipt.JSON_PROPERTY_RECEIPT_UUID
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class CheqiReceipt {
   public static final String JSON_PROPERTY_TOTAL_AMOUNT = "totalAmount";
   @javax.annotation.Nullable
@@ -132,9 +132,9 @@ public class CheqiReceipt {
   @javax.annotation.Nullable
   private List<Barcode> barcodes = new ArrayList<>();
 
-  public static final String JSON_PROPERTY_VERIFICATION_NONCE = "verificationNonce";
+  public static final String JSON_PROPERTY_RECEIPT_UUID = "receiptUuid";
   @javax.annotation.Nullable
-  private String verificationNonce;
+  private String receiptUuid;
 
   public CheqiReceipt() { 
   }
@@ -595,27 +595,27 @@ public class CheqiReceipt {
   }
 
 
-  public CheqiReceipt verificationNonce(@javax.annotation.Nullable String verificationNonce) {
-    this.verificationNonce = verificationNonce;
+  public CheqiReceipt receiptUuid(@javax.annotation.Nullable String receiptUuid) {
+    this.receiptUuid = receiptUuid;
     return this;
   }
 
   /**
    * The verification nonce of the receipt
-   * @return verificationNonce
+   * @return receiptUuid
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_VERIFICATION_NONCE)
+  @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getVerificationNonce() {
-    return verificationNonce;
+  public String getReceiptUuid() {
+    return receiptUuid;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_VERIFICATION_NONCE)
+  @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setVerificationNonce(@javax.annotation.Nullable String verificationNonce) {
-    this.verificationNonce = verificationNonce;
+  public void setReceiptUuid(@javax.annotation.Nullable String receiptUuid) {
+    this.receiptUuid = receiptUuid;
   }
 
 
@@ -648,12 +648,12 @@ public class CheqiReceipt {
         Objects.equals(this.sellingParty, cheqiReceipt.sellingParty) &&
         Objects.equals(this.receivingParty, cheqiReceipt.receivingParty) &&
         Objects.equals(this.barcodes, cheqiReceipt.barcodes) &&
-        Objects.equals(this.verificationNonce, cheqiReceipt.verificationNonce);
+        Objects.equals(this.receiptUuid, cheqiReceipt.receiptUuid);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(totalAmount, documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, products, discounts, charges, taxes, period, note, sellingParty, receivingParty, barcodes, verificationNonce);
+    return Objects.hash(totalAmount, documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, products, discounts, charges, taxes, period, note, sellingParty, receivingParty, barcodes, receiptUuid);
   }
 
   @Override
@@ -677,7 +677,7 @@ public class CheqiReceipt {
     sb.append("    sellingParty: ").append(toIndentedString(sellingParty)).append("\n");
     sb.append("    receivingParty: ").append(toIndentedString(receivingParty)).append("\n");
     sb.append("    barcodes: ").append(toIndentedString(barcodes)).append("\n");
-    sb.append("    verificationNonce: ").append(toIndentedString(verificationNonce)).append("\n");
+    sb.append("    receiptUuid: ").append(toIndentedString(receiptUuid)).append("\n");
     sb.append("}");
     return sb.toString();
   }

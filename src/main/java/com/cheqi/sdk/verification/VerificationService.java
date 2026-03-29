@@ -59,12 +59,12 @@ public class VerificationService {
     /**
      * Computes the SHA-256 hash of a UBL XML string after Exclusive C14N 1.0 canonicalization.
      *
-     * @param ublXml the UBL XML string
+     * @param ublPurchaseReceipt the UBL XML string
      * @return lowercase hex-encoded SHA-256 hash
      */
-    public String calculateUblXmlHash(String ublXml) {
+    public String calculateUblHash(String ublPurchaseReceipt) {
         logger.debug("Calculating UBL XML hash");
-        return xmlCanonicalizer.calculateHash(ublXml);
+        return xmlCanonicalizer.calculateHash(ublPurchaseReceipt);
     }
 
     /**
@@ -92,10 +92,10 @@ public class VerificationService {
     /**
      * Canonicalizes a UBL XML string using Exclusive C14N 1.0.
      *
-     * @param ublXml the UBL XML string
+     * @param ublPurchaseReceipt the UBL XML string
      * @return the canonicalized XML string
      */
-    public String canonicalizeUblXml(String ublXml) {
-        return xmlCanonicalizer.canonicalize(ublXml);
+    public String canonicalizeUbl(String ublPurchaseReceipt) {
+        return xmlCanonicalizer.canonicalize(ublPurchaseReceipt);
     }
 }

@@ -16,7 +16,7 @@ import java.util.Objects;
  * - Merging customer details into both receipt formats (UBL XML and CheqiReceipt)
  * 
  * The returned {@link DecryptedReceipt} provides access to:
- * - {@code getUblXml()} — complete UBL XML with AccountingCustomerParty merged in
+ * - {@code getUblPurchaseReceipt()} — complete UBL XML with AccountingCustomerParty merged in
  * - {@code getCheqiReceipt()} — CheqiReceipt with receivingParty injected
  */
 public class ReceiptProcessor {

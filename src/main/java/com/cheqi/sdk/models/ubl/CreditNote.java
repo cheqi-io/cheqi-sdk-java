@@ -36,8 +36,8 @@ public class CreditNote {
     private List<CreditNoteLine> creditNoteLine;
     @XmlElement(name = "TaxTotal", namespace = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2")
     private List<TaxTotal> taxTotal;
-    @XmlElement(name = "VerificationNonce", namespace = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2")
-    private String verificationNonce;
+    @XmlElement(name = "UUID", namespace = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2")
+    private String receiptUuid;
 
     public CreditNote() {
     }
@@ -55,7 +55,7 @@ public class CreditNote {
         this.accountingCustomerParty = builder.accountingCustomerParty;
         this.originatorDocumentReference = builder.originatorDocumentReference;
         this.taxTotal = builder.taxTotal;
-        this.verificationNonce = builder.verificationNonce;
+        this.receiptUuid = builder.receiptUuid;
     }
 
     public static class Builder {
@@ -74,7 +74,7 @@ public class CreditNote {
         private Party accountingCustomerParty;
         private List<DocumentReference> originatorDocumentReference;
         private List<TaxTotal> taxTotal;
-        private String verificationNonce;
+        private String receiptUuid;
 
         public Builder(Identifier id, String issueDate, String issueTime, Party accountingSupplierParty, String documentCurrencyCode,
                        MonetaryTotal legalMonetaryTotal, List<CreditNoteLine> creditNoteLine) {
@@ -117,8 +117,8 @@ public class CreditNote {
             return this;
         }
 
-        public Builder verificationNonce(String verificationNonce) {
-            this.verificationNonce = verificationNonce;
+        public Builder receiptUuid(String receiptUuid) {
+            this.receiptUuid = receiptUuid;
             return this;
         }
 
@@ -127,8 +127,8 @@ public class CreditNote {
         }
     }
 
-    public void setVerificationNonce(String verificationNonce) {
-        this.verificationNonce = verificationNonce;
+    public void setUUID(String receiptUuid) {
+        this.receiptUuid = receiptUuid;
     }
 
     public Identifier getId() {
@@ -179,8 +179,8 @@ public class CreditNote {
         return taxTotal;
     }
 
-    public String getVerificationNonce() {
-        return verificationNonce;
+    public String getUUID() {
+        return receiptUuid;
     }
 
     @Override
@@ -198,7 +198,7 @@ public class CreditNote {
                 ", originatorDocumentReference=" + (originatorDocumentReference.toString()) +
                 ", creditNoteLine=" + creditNoteLine.toString() +
                 ", taxTotal=" + taxTotal.toString() +
-                ", verificationNonce='" + verificationNonce + '\'' +
+                ", receiptUuid='" + receiptUuid + '\'' +
                 '}';
     }
 }

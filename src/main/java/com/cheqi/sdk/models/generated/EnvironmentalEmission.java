@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   EnvironmentalEmission.JSON_PROPERTY_EMISSION_CALCULATION_METHOD
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class EnvironmentalEmission {
   public static final String JSON_PROPERTY_ENVIRONMENTAL_EMISSION_TYPE_CODE = "environmentalEmissionTypeCode";
   @javax.annotation.Nonnull

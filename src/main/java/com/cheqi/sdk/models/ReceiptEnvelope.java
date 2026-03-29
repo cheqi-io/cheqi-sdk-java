@@ -10,15 +10,15 @@ import com.cheqi.sdk.models.generated.VatMetadata;
  */
 public class ReceiptEnvelope {
     private CheqiReceipt cheqiReceipt;  // CHEQI JSON format (null if not requested)
-    private String ublXml;        // UBL XML format (null if not requested)
+    private String ublPurchaseReceipt;        // UBL XML format (null if not requested)
     private VatMetadata vatMetadata;
 
     public ReceiptEnvelope() {
     }
 
-    public ReceiptEnvelope(CheqiReceipt cheqiReceipt, String ublXml) {
+    public ReceiptEnvelope(CheqiReceipt cheqiReceipt, String ublPurchaseReceipt) {
         this.cheqiReceipt = cheqiReceipt;
-        this.ublXml = ublXml;
+        this.ublPurchaseReceipt = ublPurchaseReceipt;
     }
 
     public CheqiReceipt getCheqiReceipt() {
@@ -29,12 +29,12 @@ public class ReceiptEnvelope {
         this.cheqiReceipt = cheqiReceipt;
     }
 
-    public String getUblXml() {
-        return ublXml;
+    public String getUblPurchaseReceipt() {
+        return ublPurchaseReceipt;
     }
 
-    public void setUblXml(String ublXml) {
-        this.ublXml = ublXml;
+    public void setUblPurchaseReceipt(String ublPurchaseReceipt) {
+        this.ublPurchaseReceipt = ublPurchaseReceipt;
     }
 
     public VatMetadata getVatMetadata() {

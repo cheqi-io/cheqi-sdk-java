@@ -39,7 +39,7 @@ class DefaultCheqiApiClientTest {
         });
         try {
             DefaultCheqiApiClient client = new DefaultCheqiApiClient(configFor(server));
-            client.generateReceiptTemplate(generationRequest(), List.of(ReceiptFormat.UBL_XML));
+            client.generateReceiptTemplate(generationRequest(), List.of(ReceiptFormat.UBL_PURCHASE_RECEIPT));
 
             String body = requestBody.get();
             assertEquals("Bearer sk_test_123", authorization.get());
@@ -110,7 +110,7 @@ class DefaultCheqiApiClientTest {
                         .addTax(21.0, "VAT", "100.00", "21.00")
                         .build()
         );
-        request.setFormats(List.of(ReceiptFormat.UBL_XML));
+        request.setFormats(List.of(ReceiptFormat.UBL_PURCHASE_RECEIPT));
         return request;
     }
 

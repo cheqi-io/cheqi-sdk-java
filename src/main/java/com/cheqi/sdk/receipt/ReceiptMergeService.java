@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * The {@link DecryptedReceipt} is mutated in place — after calling {@link #merge(DecryptedReceipt)},
- * its {@code getUblXml()} and {@code getCheqiReceipt()} return the complete, merged versions.
+ * its {@code getUblPurchaseReceipt()} and {@code getCheqiReceipt()} return the complete, merged versions.
  */
 public class ReceiptMergeService {
     private static final Logger logger = LoggerFactory.getLogger(ReceiptMergeService.class);
@@ -46,14 +46,14 @@ public class ReceiptMergeService {
      * with the xmlParty fragment from the ConsumingPartyEnvelope.
      */
     private void mergeXmlParty(ConsumingPartyEnvelope envelope, ReceiptEnvelope receiptEnvelope) {
-        if (envelope.getXmlParty() == null || receiptEnvelope.getUblXml() == null) {
+        if (envelope.getXmlParty() == null || receiptEnvelope.getUblPurchaseReceipt() == null) {
             return;
         }
 
-        String ublXml = receiptEnvelope.getUblXml();
-        if (ublXml.contains(CUSTOMER_PARTY_PLACEHOLDER)) {
-            String mergedXml = ublXml.replace(CUSTOMER_PARTY_PLACEHOLDER, envelope.getXmlParty());
-            receiptEnvelope.setUblXml(mergedXml);
+        String ublPurchaseReceipt = receiptEnvelope.getUblPurchaseReceipt();
+        if (ublPurchaseReceipt.contains(CUSTOMER_PARTY_PLACEHOLDER)) {
+            String mergedXml = ublPurchaseReceipt.replace(CUSTOMER_PARTY_PLACEHOLDER, envelope.getXmlParty());
+            receiptEnvelope.setUblPurchaseReceipt(mergedXml);
             logger.debug("Merged xmlParty into UBL XML, replacing AccountingCustomerParty placeholder");
         } else {
             logger.warn("UBL XML does not contain AccountingCustomerParty placeholder, skipping XML merge");

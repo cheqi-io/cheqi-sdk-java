@@ -44,7 +44,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CompanyDTO.JSON_PROPERTY_COMPANY_NAME,
   CompanyDTO.JSON_PROPERTY_COMPANY_LEGAL_NAME,
   CompanyDTO.JSON_PROPERTY_TAX_NUMBER,
-  CompanyDTO.JSON_PROPERTY_ADDRESS_DTO,
+  CompanyDTO.JSON_PROPERTY_ADDRESS,
   CompanyDTO.JSON_PROPERTY_COMPANY_EMAIL,
   CompanyDTO.JSON_PROPERTY_PHONE_NUMBER,
   CompanyDTO.JSON_PROPERTY_CONTACT_DETAILS,
@@ -62,7 +62,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CompanyDTO.JSON_PROPERTY_NOTIFICATION_CODE_ENABLED
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class CompanyDTO {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nullable
@@ -80,9 +80,9 @@ public class CompanyDTO {
   @javax.annotation.Nonnull
   private String taxNumber;
 
-  public static final String JSON_PROPERTY_ADDRESS_DTO = "addressDto";
+  public static final String JSON_PROPERTY_ADDRESS = "address";
   @javax.annotation.Nonnull
-  private AddressDTO addressDto;
+  private AddressDTO address;
 
   public static final String JSON_PROPERTY_COMPANY_EMAIL = "companyEmail";
   @javax.annotation.Nonnull
@@ -243,27 +243,27 @@ public class CompanyDTO {
   }
 
 
-  public CompanyDTO addressDto(@javax.annotation.Nonnull AddressDTO addressDto) {
-    this.addressDto = addressDto;
+  public CompanyDTO address(@javax.annotation.Nonnull AddressDTO address) {
+    this.address = address;
     return this;
   }
 
   /**
-   * Get addressDto
-   * @return addressDto
+   * Get address
+   * @return address
    */
   @javax.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_ADDRESS_DTO)
+  @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public AddressDTO getAddressDto() {
-    return addressDto;
+  public AddressDTO getAddress() {
+    return address;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_ADDRESS_DTO)
+  @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAddressDto(@javax.annotation.Nonnull AddressDTO addressDto) {
-    this.addressDto = addressDto;
+  public void setAddress(@javax.annotation.Nonnull AddressDTO address) {
+    this.address = address;
   }
 
 
@@ -670,7 +670,7 @@ public class CompanyDTO {
         Objects.equals(this.companyName, companyDTO.companyName) &&
         Objects.equals(this.companyLegalName, companyDTO.companyLegalName) &&
         Objects.equals(this.taxNumber, companyDTO.taxNumber) &&
-        Objects.equals(this.addressDto, companyDTO.addressDto) &&
+        Objects.equals(this.address, companyDTO.address) &&
         Objects.equals(this.companyEmail, companyDTO.companyEmail) &&
         Objects.equals(this.phoneNumber, companyDTO.phoneNumber) &&
         Objects.equals(this.contactDetails, companyDTO.contactDetails) &&
@@ -690,7 +690,7 @@ public class CompanyDTO {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, companyName, companyLegalName, taxNumber, addressDto, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, companyLogoUrl, companyLogoUrlExpiresAt, clientApplications, returnProcessingMode, userRole, accountPaused, accountPausedReason, notificationCodeEnabled);
+    return Objects.hash(id, companyName, companyLegalName, taxNumber, address, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, companyLogoUrl, companyLogoUrlExpiresAt, clientApplications, returnProcessingMode, userRole, accountPaused, accountPausedReason, notificationCodeEnabled);
   }
 
   @Override
@@ -701,7 +701,7 @@ public class CompanyDTO {
     sb.append("    companyName: ").append(toIndentedString(companyName)).append("\n");
     sb.append("    companyLegalName: ").append(toIndentedString(companyLegalName)).append("\n");
     sb.append("    taxNumber: ").append(toIndentedString(taxNumber)).append("\n");
-    sb.append("    addressDto: ").append(toIndentedString(addressDto)).append("\n");
+    sb.append("    address: ").append(toIndentedString(address)).append("\n");
     sb.append("    companyEmail: ").append(toIndentedString(companyEmail)).append("\n");
     sb.append("    phoneNumber: ").append(toIndentedString(phoneNumber)).append("\n");
     sb.append("    contactDetails: ").append(toIndentedString(contactDetails)).append("\n");

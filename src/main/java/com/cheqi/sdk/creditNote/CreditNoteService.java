@@ -283,8 +283,8 @@ public class CreditNoteService {
         if (acceptedFormats.contains(ReceiptFormat.CHEQI) && templateResponse.getCheqi() != null) {
             envelope.setCheqiCreditNote(templateResponse.getCheqi());
         }
-        if (acceptedFormats.contains(ReceiptFormat.UBL_XML) && templateResponse.getUbl() != null) {
-            envelope.setUblXml(templateResponse.getUbl());
+        if (acceptedFormats.contains(ReceiptFormat.UBL_CREDIT_NOTE) && templateResponse.getUbl() != null) {
+            envelope.setUblPurchaseReceipt(templateResponse.getUbl());
         }
         return envelope;
     }

@@ -124,7 +124,7 @@ public class ReceiptService {
      * Generates a receipt template from transaction data.
      *
      * @param request Receipt template request containing transaction details
-     * @param receiptFormats Formats to generate (CHEQI, UBL_XML)
+     * @param receiptFormats Formats to generate (CHEQI, UBL_PURCHASE_RECEIPT)
      * @param accessToken OAuth access token, or null to use API key from SDK config
      * @return Generated receipt template response
      */
@@ -323,7 +323,7 @@ public class ReceiptService {
 
         String templateContent = templateResponse.getCheqi() != null
                 ? objectMapper.writeValueAsString(templateResponse.getCheqi())
-                : templateResponse.getUbl();
+                : templateResponse.getUblPurchaseReceipt();
         String templateHash = HashUtils.sha256Hex(templateContent);
 
         logger.debug("Sending {} encrypted receipts to backend", encryptedReceipts.size());

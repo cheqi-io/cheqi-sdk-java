@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   EmissionCalculationMethod.JSON_PROPERTY_MEASUREMENT_TO_LOCATION
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class EmissionCalculationMethod {
   public static final String JSON_PROPERTY_CALCULATION_METHOD_CODE = "calculationMethodCode";
   @javax.annotation.Nullable

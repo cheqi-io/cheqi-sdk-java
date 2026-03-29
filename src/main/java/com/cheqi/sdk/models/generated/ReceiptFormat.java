@@ -29,7 +29,11 @@ public enum ReceiptFormat {
   
   CHEQI("CHEQI"),
   
-  UBL_XML("UBL_XML");
+  UBL_PURCHASE_RECEIPT("UBL_PURCHASE_RECEIPT"),
+  
+  UBL_INVOICE("UBL_INVOICE"),
+  
+  UBL_CREDIT_NOTE("UBL_CREDIT_NOTE");
 
   private String value;
 

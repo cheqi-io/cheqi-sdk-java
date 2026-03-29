@@ -65,7 +65,7 @@ class ReceiptTemplateGenerationRequestTest {
     void fiveArgConstructorHasVatFieldsAtTopLevel() throws Exception {
         ReceiptTemplateGenerationRequest request = new ReceiptTemplateGenerationRequest();
         request.setReceiptTemplateRequest(minimalReceipt());
-        request.setFormats(List.of(ReceiptFormat.CHEQI, ReceiptFormat.UBL_XML));
+        request.setFormats(List.of(ReceiptFormat.CHEQI, ReceiptFormat.UBL_PURCHASE_RECEIPT));
         request.setBuyerCountryCode("DE");
         request.setBuyerType(BuyerType.BUSINESS);
         request.setTaxesApplied(true);

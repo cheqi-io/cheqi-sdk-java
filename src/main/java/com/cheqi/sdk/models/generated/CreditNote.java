@@ -50,10 +50,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CreditNote.JSON_PROPERTY_ORIGINATOR_DOCUMENT_REFERENCE,
   CreditNote.JSON_PROPERTY_CREDIT_NOTE_LINE,
   CreditNote.JSON_PROPERTY_TAX_TOTAL,
-  CreditNote.JSON_PROPERTY_VERIFICATION_NONCE
+  CreditNote.JSON_PROPERTY_RECEIPT_UUID
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class CreditNote {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nullable
@@ -103,9 +103,9 @@ public class CreditNote {
   @javax.annotation.Nullable
   private List<TaxTotal> taxTotal = new ArrayList<>();
 
-  public static final String JSON_PROPERTY_VERIFICATION_NONCE = "verificationNonce";
+  public static final String JSON_PROPERTY_RECEIPT_UUID = "receiptUuid";
   @javax.annotation.Nullable
-  private String verificationNonce;
+  private String receiptUuid;
 
   public CreditNote() { 
   }
@@ -422,27 +422,27 @@ public class CreditNote {
   }
 
 
-  public CreditNote verificationNonce(@javax.annotation.Nullable String verificationNonce) {
-    this.verificationNonce = verificationNonce;
+  public CreditNote receiptUuid(@javax.annotation.Nullable String receiptUuid) {
+    this.receiptUuid = receiptUuid;
     return this;
   }
 
   /**
-   * Get verificationNonce
-   * @return verificationNonce
+   * Get receiptUuid
+   * @return receiptUuid
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_VERIFICATION_NONCE)
+  @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getVerificationNonce() {
-    return verificationNonce;
+  public String getReceiptUuid() {
+    return receiptUuid;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_VERIFICATION_NONCE)
+  @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setVerificationNonce(@javax.annotation.Nullable String verificationNonce) {
-    this.verificationNonce = verificationNonce;
+  public void setReceiptUuid(@javax.annotation.Nullable String receiptUuid) {
+    this.receiptUuid = receiptUuid;
   }
 
 
@@ -470,12 +470,12 @@ public class CreditNote {
         Objects.equals(this.originatorDocumentReference, creditNote.originatorDocumentReference) &&
         Objects.equals(this.creditNoteLine, creditNote.creditNoteLine) &&
         Objects.equals(this.taxTotal, creditNote.taxTotal) &&
-        Objects.equals(this.verificationNonce, creditNote.verificationNonce);
+        Objects.equals(this.receiptUuid, creditNote.receiptUuid);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, issueDate, issueTime, documentCurrencyCode, note, creditNoteTypeCode, accountingSupplierParty, accountingCustomerParty, legalMonetaryTotal, originatorDocumentReference, creditNoteLine, taxTotal, verificationNonce);
+    return Objects.hash(id, issueDate, issueTime, documentCurrencyCode, note, creditNoteTypeCode, accountingSupplierParty, accountingCustomerParty, legalMonetaryTotal, originatorDocumentReference, creditNoteLine, taxTotal, receiptUuid);
   }
 
   @Override
@@ -494,7 +494,7 @@ public class CreditNote {
     sb.append("    originatorDocumentReference: ").append(toIndentedString(originatorDocumentReference)).append("\n");
     sb.append("    creditNoteLine: ").append(toIndentedString(creditNoteLine)).append("\n");
     sb.append("    taxTotal: ").append(toIndentedString(taxTotal)).append("\n");
-    sb.append("    verificationNonce: ").append(toIndentedString(verificationNonce)).append("\n");
+    sb.append("    receiptUuid: ").append(toIndentedString(receiptUuid)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -31,16 +31,21 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * ReceiptTemplateResponse
  */
 @JsonPropertyOrder({
-  ReceiptTemplateResponse.JSON_PROPERTY_UBL,
+  ReceiptTemplateResponse.JSON_PROPERTY_UBL_PURCHASE_RECEIPT,
+  ReceiptTemplateResponse.JSON_PROPERTY_UBL_INVOICE,
   ReceiptTemplateResponse.JSON_PROPERTY_CHEQI,
   ReceiptTemplateResponse.JSON_PROPERTY_VAT_METADATA
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class ReceiptTemplateResponse {
-  public static final String JSON_PROPERTY_UBL = "ubl";
+  public static final String JSON_PROPERTY_UBL_PURCHASE_RECEIPT = "ublPurchaseReceipt";
   @javax.annotation.Nullable
-  private String ubl;
+  private String ublPurchaseReceipt;
+
+  public static final String JSON_PROPERTY_UBL_INVOICE = "ublInvoice";
+  @javax.annotation.Nullable
+  private String ublInvoice;
 
   public static final String JSON_PROPERTY_CHEQI = "cheqi";
   @javax.annotation.Nullable
@@ -53,27 +58,51 @@ public class ReceiptTemplateResponse {
   public ReceiptTemplateResponse() { 
   }
 
-  public ReceiptTemplateResponse ubl(@javax.annotation.Nullable String ubl) {
-    this.ubl = ubl;
+  public ReceiptTemplateResponse ublPurchaseReceipt(@javax.annotation.Nullable String ublPurchaseReceipt) {
+    this.ublPurchaseReceipt = ublPurchaseReceipt;
     return this;
   }
 
   /**
    * UBL 2.4 XML receipt template as a serialized XML string following the PurchaseReceipt schema. See [UBL XML Receipt Format](https://docs.cheqi.io/receipts/ubl-format) for the full structure and field reference.
-   * @return ubl
+   * @return ublPurchaseReceipt
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_UBL)
+  @JsonProperty(JSON_PROPERTY_UBL_PURCHASE_RECEIPT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getUbl() {
-    return ubl;
+  public String getUblPurchaseReceipt() {
+    return ublPurchaseReceipt;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_UBL)
+  @JsonProperty(JSON_PROPERTY_UBL_PURCHASE_RECEIPT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setUbl(@javax.annotation.Nullable String ubl) {
-    this.ubl = ubl;
+  public void setUblPurchaseReceipt(@javax.annotation.Nullable String ublPurchaseReceipt) {
+    this.ublPurchaseReceipt = ublPurchaseReceipt;
+  }
+
+
+  public ReceiptTemplateResponse ublInvoice(@javax.annotation.Nullable String ublInvoice) {
+    this.ublInvoice = ublInvoice;
+    return this;
+  }
+
+  /**
+   * UBL 2.4 XML Invoice template as a serialized XML string following the Invoice schema. Widely supported by accounting systems.
+   * @return ublInvoice
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_UBL_INVOICE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getUblInvoice() {
+    return ublInvoice;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_UBL_INVOICE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setUblInvoice(@javax.annotation.Nullable String ublInvoice) {
+    this.ublInvoice = ublInvoice;
   }
 
 
@@ -137,21 +166,23 @@ public class ReceiptTemplateResponse {
       return false;
     }
     ReceiptTemplateResponse receiptTemplateResponse = (ReceiptTemplateResponse) o;
-    return Objects.equals(this.ubl, receiptTemplateResponse.ubl) &&
+    return Objects.equals(this.ublPurchaseReceipt, receiptTemplateResponse.ublPurchaseReceipt) &&
+        Objects.equals(this.ublInvoice, receiptTemplateResponse.ublInvoice) &&
         Objects.equals(this.cheqi, receiptTemplateResponse.cheqi) &&
         Objects.equals(this.vatMetadata, receiptTemplateResponse.vatMetadata);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ubl, cheqi, vatMetadata);
+    return Objects.hash(ublPurchaseReceipt, ublInvoice, cheqi, vatMetadata);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ReceiptTemplateResponse {\n");
-    sb.append("    ubl: ").append(toIndentedString(ubl)).append("\n");
+    sb.append("    ublPurchaseReceipt: ").append(toIndentedString(ublPurchaseReceipt)).append("\n");
+    sb.append("    ublInvoice: ").append(toIndentedString(ublInvoice)).append("\n");
     sb.append("    cheqi: ").append(toIndentedString(cheqi)).append("\n");
     sb.append("    vatMetadata: ").append(toIndentedString(vatMetadata)).append("\n");
     sb.append("}");

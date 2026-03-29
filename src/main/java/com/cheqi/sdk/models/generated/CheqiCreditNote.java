@@ -59,10 +59,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CheqiCreditNote.JSON_PROPERTY_NOTE,
   CheqiCreditNote.JSON_PROPERTY_SELLING_PARTY,
   CheqiCreditNote.JSON_PROPERTY_RECEIVING_PARTY,
-  CheqiCreditNote.JSON_PROPERTY_VERIFICATION_NONCE
+  CheqiCreditNote.JSON_PROPERTY_RECEIPT_UUID
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class CheqiCreditNote {
   public static final String JSON_PROPERTY_CHEQI_CREDIT_NOTE_ID = "cheqiCreditNoteId";
   @javax.annotation.Nullable
@@ -136,9 +136,9 @@ public class CheqiCreditNote {
   @javax.annotation.Nullable
   private ReceivingParty receivingParty;
 
-  public static final String JSON_PROPERTY_VERIFICATION_NONCE = "verificationNonce";
+  public static final String JSON_PROPERTY_RECEIPT_UUID = "receiptUuid";
   @javax.annotation.Nullable
-  private String verificationNonce;
+  private String receiptUuid;
 
   public CheqiCreditNote() { 
   }
@@ -615,27 +615,27 @@ public class CheqiCreditNote {
   }
 
 
-  public CheqiCreditNote verificationNonce(@javax.annotation.Nullable String verificationNonce) {
-    this.verificationNonce = verificationNonce;
+  public CheqiCreditNote receiptUuid(@javax.annotation.Nullable String receiptUuid) {
+    this.receiptUuid = receiptUuid;
     return this;
   }
 
   /**
    * The verification nonce of the credit note
-   * @return verificationNonce
+   * @return receiptUuid
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_VERIFICATION_NONCE)
+  @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getVerificationNonce() {
-    return verificationNonce;
+  public String getReceiptUuid() {
+    return receiptUuid;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_VERIFICATION_NONCE)
+  @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setVerificationNonce(@javax.annotation.Nullable String verificationNonce) {
-    this.verificationNonce = verificationNonce;
+  public void setReceiptUuid(@javax.annotation.Nullable String receiptUuid) {
+    this.receiptUuid = receiptUuid;
   }
 
 
@@ -669,12 +669,12 @@ public class CheqiCreditNote {
         Objects.equals(this.note, cheqiCreditNote.note) &&
         Objects.equals(this.sellingParty, cheqiCreditNote.sellingParty) &&
         Objects.equals(this.receivingParty, cheqiCreditNote.receivingParty) &&
-        Objects.equals(this.verificationNonce, cheqiCreditNote.verificationNonce);
+        Objects.equals(this.receiptUuid, cheqiCreditNote.receiptUuid);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cheqiCreditNoteId, documentNumber, originatorDocumentReference, identifiers, issueDate, currency, creditNoteSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, products, discounts, charges, taxes, period, note, sellingParty, receivingParty, verificationNonce);
+    return Objects.hash(cheqiCreditNoteId, documentNumber, originatorDocumentReference, identifiers, issueDate, currency, creditNoteSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, products, discounts, charges, taxes, period, note, sellingParty, receivingParty, receiptUuid);
   }
 
   @Override
@@ -699,7 +699,7 @@ public class CheqiCreditNote {
     sb.append("    note: ").append(toIndentedString(note)).append("\n");
     sb.append("    sellingParty: ").append(toIndentedString(sellingParty)).append("\n");
     sb.append("    receivingParty: ").append(toIndentedString(receivingParty)).append("\n");
-    sb.append("    verificationNonce: ").append(toIndentedString(verificationNonce)).append("\n");
+    sb.append("    receiptUuid: ").append(toIndentedString(receiptUuid)).append("\n");
     sb.append("}");
     return sb.toString();
   }

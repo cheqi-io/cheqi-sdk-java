@@ -45,13 +45,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   UserDTO.JSON_PROPERTY_PHONE_NUMBER,
   UserDTO.JSON_PROPERTY_GENDER,
   UserDTO.JSON_PROPERTY_HAS_COMPLETED_ONBOARDING,
-  UserDTO.JSON_PROPERTY_ADDRESS_DTO,
+  UserDTO.JSON_PROPERTY_ADDRESS,
   UserDTO.JSON_PROPERTY_PROFILE_IMAGE_ID,
   UserDTO.JSON_PROPERTY_ROLES,
   UserDTO.JSON_PROPERTY_DEVICES
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-03-24T00:27:32.891604+01:00[Europe/Amsterdam]", comments = "Generator version: 7.12.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class UserDTO {
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nullable
@@ -118,9 +118,9 @@ public class UserDTO {
   @javax.annotation.Nullable
   private Boolean hasCompletedOnboarding;
 
-  public static final String JSON_PROPERTY_ADDRESS_DTO = "addressDto";
+  public static final String JSON_PROPERTY_ADDRESS = "address";
   @javax.annotation.Nullable
-  private AddressDTO addressDto;
+  private AddressDTO address;
 
   public static final String JSON_PROPERTY_PROFILE_IMAGE_ID = "profileImageId";
   @javax.annotation.Nullable
@@ -349,27 +349,27 @@ public class UserDTO {
   }
 
 
-  public UserDTO addressDto(@javax.annotation.Nullable AddressDTO addressDto) {
-    this.addressDto = addressDto;
+  public UserDTO address(@javax.annotation.Nullable AddressDTO address) {
+    this.address = address;
     return this;
   }
 
   /**
-   * Get addressDto
-   * @return addressDto
+   * Get address
+   * @return address
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ADDRESS_DTO)
+  @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public AddressDTO getAddressDto() {
-    return addressDto;
+  public AddressDTO getAddress() {
+    return address;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_ADDRESS_DTO)
+  @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAddressDto(@javax.annotation.Nullable AddressDTO addressDto) {
-    this.addressDto = addressDto;
+  public void setAddress(@javax.annotation.Nullable AddressDTO address) {
+    this.address = address;
   }
 
 
@@ -481,7 +481,7 @@ public class UserDTO {
         Objects.equals(this.phoneNumber, userDTO.phoneNumber) &&
         Objects.equals(this.gender, userDTO.gender) &&
         Objects.equals(this.hasCompletedOnboarding, userDTO.hasCompletedOnboarding) &&
-        Objects.equals(this.addressDto, userDTO.addressDto) &&
+        Objects.equals(this.address, userDTO.address) &&
         Objects.equals(this.profileImageId, userDTO.profileImageId) &&
         Objects.equals(this.roles, userDTO.roles) &&
         Objects.equals(this.devices, userDTO.devices);
@@ -489,7 +489,7 @@ public class UserDTO {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, firstName, lastName, email, phoneNumber, gender, hasCompletedOnboarding, addressDto, profileImageId, roles, devices);
+    return Objects.hash(id, firstName, lastName, email, phoneNumber, gender, hasCompletedOnboarding, address, profileImageId, roles, devices);
   }
 
   @Override
@@ -503,7 +503,7 @@ public class UserDTO {
     sb.append("    phoneNumber: ").append(toIndentedString(phoneNumber)).append("\n");
     sb.append("    gender: ").append(toIndentedString(gender)).append("\n");
     sb.append("    hasCompletedOnboarding: ").append(toIndentedString(hasCompletedOnboarding)).append("\n");
-    sb.append("    addressDto: ").append(toIndentedString(addressDto)).append("\n");
+    sb.append("    address: ").append(toIndentedString(address)).append("\n");
     sb.append("    profileImageId: ").append(toIndentedString(profileImageId)).append("\n");
     sb.append("    roles: ").append(toIndentedString(roles)).append("\n");
     sb.append("    devices: ").append(toIndentedString(devices)).append("\n");

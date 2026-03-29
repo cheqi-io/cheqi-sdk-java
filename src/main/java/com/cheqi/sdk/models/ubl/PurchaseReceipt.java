@@ -70,8 +70,8 @@ public class PurchaseReceipt {
     private MonetaryTotal legalMonetaryTotal;
     @XmlElement(name = "PurchaseReceiptLine", namespace = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2")
     private List<PurchaseReceiptLine> purchaseReceiptLines;
-    @XmlElement(name = "VerificationNonce", namespace = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2")
-    private String verificationNonce;
+    @XmlElement(name = "UUID", namespace = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2")
+    private String receiptUuid;
 
     public PurchaseReceipt() {
     }
@@ -106,7 +106,7 @@ public class PurchaseReceipt {
         this.paymentMeans = builder.paymentMeans;
         this.allowanceCharge = builder.allowanceCharge;
         this.taxTotals = builder.taxTotals;
-        this.verificationNonce = builder.verificationNonce;
+        this.receiptUuid = builder.receiptUuid;
     }
 
     public static class Builder {
@@ -140,7 +140,7 @@ public class PurchaseReceipt {
         private List<PaymentMeans> paymentMeans;
         private List<AllowanceCharge> allowanceCharge;
         private List<TaxTotal> taxTotals;
-        private String verificationNonce;
+        private String receiptUuid;
 
         public Builder(Identifier id, String issueDate, Party accountingSupplierParty, String documentCurrencyCode, MonetaryTotal legalMonetaryTotal, List<PurchaseReceiptLine> purchaseReceiptLines) {
             this.id = id;
@@ -271,8 +271,8 @@ public class PurchaseReceipt {
             return this;
         }
 
-        public Builder verificationNonce(String verificationNonce) {
-            this.verificationNonce = verificationNonce;
+        public Builder receiptUuid(String receiptUuid) {
+            this.receiptUuid = receiptUuid;
             return this;
         }
 
@@ -513,12 +513,12 @@ public class PurchaseReceipt {
         this.purchaseReceiptLines = purchaseReceiptLines;
     }
 
-    public String getVerificationNonce() {
-        return verificationNonce;
+    public String getUUID() {
+        return receiptUuid;
     }
 
-    public void setVerificationNonce(String verificationNonce) {
-        this.verificationNonce = verificationNonce;
+    public void setUUID(String receiptUuid) {
+        this.receiptUuid = receiptUuid;
     }
 
     @Override
@@ -553,7 +553,7 @@ public class PurchaseReceipt {
                 ", taxTotals=" + taxTotals +
                 ", legalMonetaryTotal=" + legalMonetaryTotal +
                 ", purchaseReceiptLines=" + purchaseReceiptLines +
-                ", verificationNonce='" + verificationNonce + '\'' +
+                ", receiptUuid='" + receiptUuid + '\'' +
                 '}';
     }
 }
