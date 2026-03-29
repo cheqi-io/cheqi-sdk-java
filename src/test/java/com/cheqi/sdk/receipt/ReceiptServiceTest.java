@@ -76,7 +76,7 @@ class ReceiptServiceTest {
 
         when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
         when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(templateResponse);
-        when(encryptionService.encryptReceiptForRecipients(eq("{\"ubl\":\"<Receipt>ok</Receipt>\"}"), any(MatchedRecipient.class))).thenReturn(encrypted);
+        when(encryptionService.encryptReceiptForRecipients(eq("{\"ublPurchaseReceipt\":\"<Receipt>ok</Receipt>\"}"), any(MatchedRecipient.class))).thenReturn(encrypted);
         when(apiClient.sendEncryptedReceipts(eq("match-123"), anySet(), any(String.class))).thenReturn(createdResponse);
 
         ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
