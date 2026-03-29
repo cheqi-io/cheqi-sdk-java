@@ -17,15 +17,12 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
 import com.cheqi.sdk.models.generated.NotificationDisplayCode;
-import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -35,7 +32,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({
   EncryptedReceiptRequest.JSON_PROPERTY_RECIPIENT_ID,
-  EncryptedReceiptRequest.JSON_PROPERTY_RECEIPT_FORMATS,
   EncryptedReceiptRequest.JSON_PROPERTY_ENCRYPTED_RECEIPT,
   EncryptedReceiptRequest.JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY,
   EncryptedReceiptRequest.JSON_PROPERTY_FINAL_HASH,
@@ -49,10 +45,6 @@ public class EncryptedReceiptRequest {
   public static final String JSON_PROPERTY_RECIPIENT_ID = "recipientId";
   @javax.annotation.Nullable
   private String recipientId;
-
-  public static final String JSON_PROPERTY_RECEIPT_FORMATS = "receiptFormats";
-  @javax.annotation.Nullable
-  private List<ReceiptFormat> receiptFormats = new ArrayList<>();
 
   public static final String JSON_PROPERTY_ENCRYPTED_RECEIPT = "encryptedReceipt";
   @javax.annotation.Nullable
@@ -102,38 +94,6 @@ public class EncryptedReceiptRequest {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setRecipientId(@javax.annotation.Nullable String recipientId) {
     this.recipientId = recipientId;
-  }
-
-
-  public EncryptedReceiptRequest receiptFormats(@javax.annotation.Nullable List<ReceiptFormat> receiptFormats) {
-    this.receiptFormats = receiptFormats;
-    return this;
-  }
-
-  public EncryptedReceiptRequest addReceiptFormatsItem(ReceiptFormat receiptFormatsItem) {
-    if (this.receiptFormats == null) {
-      this.receiptFormats = new ArrayList<>();
-    }
-    this.receiptFormats.add(receiptFormatsItem);
-    return this;
-  }
-
-  /**
-   * List of receipt formats to generate for this recipient
-   * @return receiptFormats
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_RECEIPT_FORMATS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<ReceiptFormat> getReceiptFormats() {
-    return receiptFormats;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_RECEIPT_FORMATS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReceiptFormats(@javax.annotation.Nullable List<ReceiptFormat> receiptFormats) {
-    this.receiptFormats = receiptFormats;
   }
 
 
@@ -294,7 +254,6 @@ public class EncryptedReceiptRequest {
     }
     EncryptedReceiptRequest encryptedReceiptRequest = (EncryptedReceiptRequest) o;
     return Objects.equals(this.recipientId, encryptedReceiptRequest.recipientId) &&
-        Objects.equals(this.receiptFormats, encryptedReceiptRequest.receiptFormats) &&
         Objects.equals(this.encryptedReceipt, encryptedReceiptRequest.encryptedReceipt) &&
         Objects.equals(this.encryptedSymmetricKey, encryptedReceiptRequest.encryptedSymmetricKey) &&
         Objects.equals(this.finalHash, encryptedReceiptRequest.finalHash) &&
@@ -305,7 +264,7 @@ public class EncryptedReceiptRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(recipientId, receiptFormats, encryptedReceipt, encryptedSymmetricKey, finalHash, publicKey, supplierPartyId, notificationDisplayCode);
+    return Objects.hash(recipientId, encryptedReceipt, encryptedSymmetricKey, finalHash, publicKey, supplierPartyId, notificationDisplayCode);
   }
 
   @Override
@@ -313,7 +272,6 @@ public class EncryptedReceiptRequest {
     StringBuilder sb = new StringBuilder();
     sb.append("class EncryptedReceiptRequest {\n");
     sb.append("    recipientId: ").append(toIndentedString(recipientId)).append("\n");
-    sb.append("    receiptFormats: ").append(toIndentedString(receiptFormats)).append("\n");
     sb.append("    encryptedReceipt: ").append(toIndentedString(encryptedReceipt)).append("\n");
     sb.append("    encryptedSymmetricKey: ").append(toIndentedString(encryptedSymmetricKey)).append("\n");
     sb.append("    finalHash: ").append(toIndentedString(finalHash)).append("\n");

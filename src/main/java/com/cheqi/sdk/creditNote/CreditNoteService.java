@@ -297,7 +297,6 @@ public class CreditNoteService {
 
             EncryptedCreditNote encryptedCreditNote = new EncryptedCreditNote();
             encryptedCreditNote.setRecipientId(recipient.getId());
-            encryptedCreditNote.setReceiptFormats(recipient.getAcceptedFormats());
             encryptedCreditNote.setPublicKey(recipient.getPublicKey());
             encryptedCreditNote.setEncryptedCreditNote(encrypted.getEncryptedCreditNote());
             encryptedCreditNote.setEncryptedSymmetricKey(encrypted.getEncryptedSymmetricKey());

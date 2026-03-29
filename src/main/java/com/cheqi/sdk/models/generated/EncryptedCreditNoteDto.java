@@ -16,17 +16,13 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.cheqi.sdk.models.generated.ReceiverType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -35,7 +31,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * EncryptedCreditNoteDto
  */
 @JsonPropertyOrder({
-  EncryptedCreditNoteDto.JSON_PROPERTY_RECEIPT_FORMATS,
   EncryptedCreditNoteDto.JSON_PROPERTY_RECIPIENT_ID,
   EncryptedCreditNoteDto.JSON_PROPERTY_CREDIT_NOTE_ID,
   EncryptedCreditNoteDto.JSON_PROPERTY_ORIGINAL_RECEIPT_ID,
@@ -51,10 +46,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class EncryptedCreditNoteDto {
-  public static final String JSON_PROPERTY_RECEIPT_FORMATS = "receiptFormats";
-  @javax.annotation.Nullable
-  private Set<ReceiptFormat> receiptFormats = new LinkedHashSet<>();
-
   public static final String JSON_PROPERTY_RECIPIENT_ID = "recipientId";
   @javax.annotation.Nonnull
   private UUID recipientId;
@@ -101,39 +92,6 @@ public class EncryptedCreditNoteDto {
 
   public EncryptedCreditNoteDto() { 
   }
-
-  public EncryptedCreditNoteDto receiptFormats(@javax.annotation.Nullable Set<ReceiptFormat> receiptFormats) {
-    this.receiptFormats = receiptFormats;
-    return this;
-  }
-
-  public EncryptedCreditNoteDto addReceiptFormatsItem(ReceiptFormat receiptFormatsItem) {
-    if (this.receiptFormats == null) {
-      this.receiptFormats = new LinkedHashSet<>();
-    }
-    this.receiptFormats.add(receiptFormatsItem);
-    return this;
-  }
-
-  /**
-   * Get receiptFormats
-   * @return receiptFormats
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_RECEIPT_FORMATS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Set<ReceiptFormat> getReceiptFormats() {
-    return receiptFormats;
-  }
-
-
-  @JsonDeserialize(as = LinkedHashSet.class)
-  @JsonProperty(JSON_PROPERTY_RECEIPT_FORMATS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReceiptFormats(@javax.annotation.Nullable Set<ReceiptFormat> receiptFormats) {
-    this.receiptFormats = receiptFormats;
-  }
-
 
   public EncryptedCreditNoteDto recipientId(@javax.annotation.Nonnull UUID recipientId) {
     this.recipientId = recipientId;
@@ -411,8 +369,7 @@ public class EncryptedCreditNoteDto {
       return false;
     }
     EncryptedCreditNoteDto encryptedCreditNoteDto = (EncryptedCreditNoteDto) o;
-    return Objects.equals(this.receiptFormats, encryptedCreditNoteDto.receiptFormats) &&
-        Objects.equals(this.recipientId, encryptedCreditNoteDto.recipientId) &&
+    return Objects.equals(this.recipientId, encryptedCreditNoteDto.recipientId) &&
         Objects.equals(this.creditNoteId, encryptedCreditNoteDto.creditNoteId) &&
         Objects.equals(this.originalReceiptId, encryptedCreditNoteDto.originalReceiptId) &&
         Objects.equals(this.receiverType, encryptedCreditNoteDto.receiverType) &&
@@ -427,14 +384,13 @@ public class EncryptedCreditNoteDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(receiptFormats, recipientId, creditNoteId, originalReceiptId, receiverType, encryptedCreditNote, encryptedSymmetricKey, encryptedCustomerDetails, encryptedCustomerAesKey, finalHash, publicKey, supplierPartyId);
+    return Objects.hash(recipientId, creditNoteId, originalReceiptId, receiverType, encryptedCreditNote, encryptedSymmetricKey, encryptedCustomerDetails, encryptedCustomerAesKey, finalHash, publicKey, supplierPartyId);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class EncryptedCreditNoteDto {\n");
-    sb.append("    receiptFormats: ").append(toIndentedString(receiptFormats)).append("\n");
     sb.append("    recipientId: ").append(toIndentedString(recipientId)).append("\n");
     sb.append("    creditNoteId: ").append(toIndentedString(creditNoteId)).append("\n");
     sb.append("    originalReceiptId: ").append(toIndentedString(originalReceiptId)).append("\n");
