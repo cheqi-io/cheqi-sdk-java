@@ -16,55 +16,34 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.Code;
-import com.cheqi.sdk.models.generated.Measure;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Period
+ * The billing or service period covered by this receipt. Use this when the purchase covers a specific time range rather than a single point in time.
  */
 @JsonPropertyOrder({
   Period.JSON_PROPERTY_START_DATE,
-  Period.JSON_PROPERTY_START_TIME,
   Period.JSON_PROPERTY_END_DATE,
-  Period.JSON_PROPERTY_END_TIME,
-  Period.JSON_PROPERTY_DURATION_MEASURE,
-  Period.JSON_PROPERTY_DESCRIPTION_CODE,
   Period.JSON_PROPERTY_DESCRIPTION
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class Period {
   public static final String JSON_PROPERTY_START_DATE = "startDate";
-  @javax.annotation.Nullable
-  private String startDate;
-
-  public static final String JSON_PROPERTY_START_TIME = "startTime";
-  @javax.annotation.Nullable
-  private String startTime;
+  @javax.annotation.Nonnull
+  private OffsetDateTime startDate;
 
   public static final String JSON_PROPERTY_END_DATE = "endDate";
-  @javax.annotation.Nullable
-  private String endDate;
-
-  public static final String JSON_PROPERTY_END_TIME = "endTime";
-  @javax.annotation.Nullable
-  private String endTime;
-
-  public static final String JSON_PROPERTY_DURATION_MEASURE = "durationMeasure";
-  @javax.annotation.Nullable
-  private Measure durationMeasure;
-
-  public static final String JSON_PROPERTY_DESCRIPTION_CODE = "descriptionCode";
-  @javax.annotation.Nullable
-  private Code descriptionCode;
+  @javax.annotation.Nonnull
+  private OffsetDateTime endDate;
 
   public static final String JSON_PROPERTY_DESCRIPTION = "description";
   @javax.annotation.Nullable
@@ -73,147 +52,51 @@ public class Period {
   public Period() { 
   }
 
-  public Period startDate(@javax.annotation.Nullable String startDate) {
+  public Period startDate(@javax.annotation.Nonnull OffsetDateTime startDate) {
     this.startDate = startDate;
     return this;
   }
 
   /**
-   * Get startDate
+   * The start date of the period
    * @return startDate
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_START_DATE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getStartDate() {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public OffsetDateTime getStartDate() {
     return startDate;
   }
 
 
   @JsonProperty(JSON_PROPERTY_START_DATE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setStartDate(@javax.annotation.Nullable String startDate) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setStartDate(@javax.annotation.Nonnull OffsetDateTime startDate) {
     this.startDate = startDate;
   }
 
 
-  public Period startTime(@javax.annotation.Nullable String startTime) {
-    this.startTime = startTime;
-    return this;
-  }
-
-  /**
-   * Get startTime
-   * @return startTime
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_START_TIME)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getStartTime() {
-    return startTime;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_START_TIME)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setStartTime(@javax.annotation.Nullable String startTime) {
-    this.startTime = startTime;
-  }
-
-
-  public Period endDate(@javax.annotation.Nullable String endDate) {
+  public Period endDate(@javax.annotation.Nonnull OffsetDateTime endDate) {
     this.endDate = endDate;
     return this;
   }
 
   /**
-   * Get endDate
+   * The end date of the period
    * @return endDate
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_END_DATE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getEndDate() {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public OffsetDateTime getEndDate() {
     return endDate;
   }
 
 
   @JsonProperty(JSON_PROPERTY_END_DATE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEndDate(@javax.annotation.Nullable String endDate) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setEndDate(@javax.annotation.Nonnull OffsetDateTime endDate) {
     this.endDate = endDate;
-  }
-
-
-  public Period endTime(@javax.annotation.Nullable String endTime) {
-    this.endTime = endTime;
-    return this;
-  }
-
-  /**
-   * Get endTime
-   * @return endTime
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_END_TIME)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getEndTime() {
-    return endTime;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_END_TIME)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEndTime(@javax.annotation.Nullable String endTime) {
-    this.endTime = endTime;
-  }
-
-
-  public Period durationMeasure(@javax.annotation.Nullable Measure durationMeasure) {
-    this.durationMeasure = durationMeasure;
-    return this;
-  }
-
-  /**
-   * Get durationMeasure
-   * @return durationMeasure
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_DURATION_MEASURE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Measure getDurationMeasure() {
-    return durationMeasure;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_DURATION_MEASURE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setDurationMeasure(@javax.annotation.Nullable Measure durationMeasure) {
-    this.durationMeasure = durationMeasure;
-  }
-
-
-  public Period descriptionCode(@javax.annotation.Nullable Code descriptionCode) {
-    this.descriptionCode = descriptionCode;
-    return this;
-  }
-
-  /**
-   * Get descriptionCode
-   * @return descriptionCode
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_DESCRIPTION_CODE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Code getDescriptionCode() {
-    return descriptionCode;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_DESCRIPTION_CODE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setDescriptionCode(@javax.annotation.Nullable Code descriptionCode) {
-    this.descriptionCode = descriptionCode;
   }
 
 
@@ -223,7 +106,7 @@ public class Period {
   }
 
   /**
-   * Get description
+   * Human-readable description of the period
    * @return description
    */
   @javax.annotation.Nullable
@@ -254,17 +137,13 @@ public class Period {
     }
     Period period = (Period) o;
     return Objects.equals(this.startDate, period.startDate) &&
-        Objects.equals(this.startTime, period.startTime) &&
         Objects.equals(this.endDate, period.endDate) &&
-        Objects.equals(this.endTime, period.endTime) &&
-        Objects.equals(this.durationMeasure, period.durationMeasure) &&
-        Objects.equals(this.descriptionCode, period.descriptionCode) &&
         Objects.equals(this.description, period.description);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(startDate, startTime, endDate, endTime, durationMeasure, descriptionCode, description);
+    return Objects.hash(startDate, endDate, description);
   }
 
   @Override
@@ -272,11 +151,7 @@ public class Period {
     StringBuilder sb = new StringBuilder();
     sb.append("class Period {\n");
     sb.append("    startDate: ").append(toIndentedString(startDate)).append("\n");
-    sb.append("    startTime: ").append(toIndentedString(startTime)).append("\n");
     sb.append("    endDate: ").append(toIndentedString(endDate)).append("\n");
-    sb.append("    endTime: ").append(toIndentedString(endTime)).append("\n");
-    sb.append("    durationMeasure: ").append(toIndentedString(durationMeasure)).append("\n");
-    sb.append("    descriptionCode: ").append(toIndentedString(descriptionCode)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("}");
     return sb.toString();

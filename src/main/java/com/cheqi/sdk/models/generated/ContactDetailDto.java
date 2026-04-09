@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * ContactDetailDto
+ * Optional additional contact details for the company
  */
 @JsonPropertyOrder({
   ContactDetailDto.JSON_PROPERTY_ID,

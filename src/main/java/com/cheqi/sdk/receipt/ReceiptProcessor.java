@@ -2,6 +2,7 @@ package com.cheqi.sdk.receipt;
 
 import com.cheqi.sdk.decryption.DecryptedReceipt;
 import com.cheqi.sdk.decryption.DecryptionService;
+import com.cheqi.sdk.models.generated.CustomerContextEnvelope;
 import com.cheqi.sdk.models.EncryptedReceipt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +41,10 @@ public class ReceiptProcessor {
     /**
      * Processes an encrypted receipt by decrypting it and merging customer details.
      * 
-     * Customer details from the {@link com.cheqi.sdk.models.ConsumingPartyEnvelope} are automatically merged:
+     * Customer details from the {@link CustomerContextEnvelope} are automatically merged:
      * <ul>
      *   <li>UBL XML: the {@code <cac:AccountingCustomerParty/>} placeholder is replaced with the xmlParty fragment</li>
-     *   <li>CheqiReceipt: the receivingParty is injected from the ConsumingPartyEnvelope</li>
+     *   <li>CheqiReceipt: the receivingParty is injected from the CustomerContextEnvelope</li>
      * </ul>
      * 
      * @param encryptedReceipt The encrypted receipt DTO

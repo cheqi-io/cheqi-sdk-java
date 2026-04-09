@@ -122,7 +122,7 @@ public class EncryptedCreditNotesRequest {
   }
 
   /**
-   * A set of encrypted credit notes
+   * Recipient-specific encrypted credit-note payloads. Each item contains ciphertext for one locally assembled recipient envelope plus the wrapped symmetric key and verification metadata.
    * @return encryptedCreditNotes
    */
   @javax.annotation.Nonnull
@@ -147,7 +147,7 @@ public class EncryptedCreditNotesRequest {
   }
 
   /**
-   * The hash of the credit note template
+   * Hash of the credit-note template basis used when building and encrypting the recipient envelopes.
    * @return templateHash
    */
   @javax.annotation.Nonnull

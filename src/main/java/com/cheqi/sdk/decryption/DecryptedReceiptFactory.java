@@ -1,8 +1,8 @@
 package com.cheqi.sdk.decryption;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
-import com.cheqi.sdk.models.ConsumingPartyEnvelope;
-import com.cheqi.sdk.models.ReceiptEnvelope;
+import com.cheqi.sdk.models.generated.CustomerContextEnvelope;
+import com.cheqi.sdk.models.generated.ReceiptEnvelope;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +28,13 @@ public class DecryptedReceiptFactory {
             ReceiptEnvelope receiptEnvelope = objectMapper.readValue(receiptEnvelopeJson, ReceiptEnvelope.class);
             logger.debug("Deserialized receipt envelope");
 
-            ConsumingPartyEnvelope consumingPartyEnvelope = null;
+            CustomerContextEnvelope customerContextEnvelope = null;
             if (customerEnvelopeJson != null && !customerEnvelopeJson.trim().isEmpty()) {
-                consumingPartyEnvelope = objectMapper.readValue(customerEnvelopeJson, ConsumingPartyEnvelope.class);
-                logger.debug("Deserialized consuming party envelope");
+                customerContextEnvelope = objectMapper.readValue(customerEnvelopeJson, CustomerContextEnvelope.class);
+                logger.debug("Deserialized customer context envelope");
             }
 
-            return new DecryptedReceipt(receiptEnvelope, consumingPartyEnvelope);
+            return new DecryptedReceipt(receiptEnvelope, customerContextEnvelope);
         } catch (Exception e) {
             throw new DecryptionException("Failed to deserialize decrypted receipt envelopes", e);
         }

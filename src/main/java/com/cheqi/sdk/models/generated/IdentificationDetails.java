@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -40,7 +39,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   IdentificationDetails.JSON_PROPERTY_PAYMENT_IDS,
   IdentificationDetails.JSON_PROPERTY_RECIPIENT_EMAIL,
   IdentificationDetails.JSON_PROPERTY_CHEQI_RECEIPT_ID,
-  IdentificationDetails.JSON_PROPERTY_USER_ID,
   IdentificationDetails.JSON_PROPERTY_PAIRING_CODE
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
@@ -106,10 +104,6 @@ public class IdentificationDetails {
   public static final String JSON_PROPERTY_CHEQI_RECEIPT_ID = "cheqiReceiptId";
   @javax.annotation.Nullable
   private String cheqiReceiptId;
-
-  public static final String JSON_PROPERTY_USER_ID = "userId";
-  @javax.annotation.Nullable
-  private UUID userId;
 
   public static final String JSON_PROPERTY_PAIRING_CODE = "pairingCode";
   @javax.annotation.Nullable
@@ -270,30 +264,6 @@ public class IdentificationDetails {
   }
 
 
-  public IdentificationDetails userId(@javax.annotation.Nullable UUID userId) {
-    this.userId = userId;
-    return this;
-  }
-
-  /**
-   * The user ID
-   * @return userId
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_USER_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public UUID getUserId() {
-    return userId;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_USER_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setUserId(@javax.annotation.Nullable UUID userId) {
-    this.userId = userId;
-  }
-
-
   public IdentificationDetails pairingCode(@javax.annotation.Nullable String pairingCode) {
     this.pairingCode = pairingCode;
     return this;
@@ -336,13 +306,12 @@ public class IdentificationDetails {
         Objects.equals(this.paymentIds, identificationDetails.paymentIds) &&
         Objects.equals(this.recipientEmail, identificationDetails.recipientEmail) &&
         Objects.equals(this.cheqiReceiptId, identificationDetails.cheqiReceiptId) &&
-        Objects.equals(this.userId, identificationDetails.userId) &&
         Objects.equals(this.pairingCode, identificationDetails.pairingCode);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(paymentType, cardDetails, paymentAccountDetails, paymentIds, recipientEmail, cheqiReceiptId, userId, pairingCode);
+    return Objects.hash(paymentType, cardDetails, paymentAccountDetails, paymentIds, recipientEmail, cheqiReceiptId, pairingCode);
   }
 
   @Override
@@ -355,7 +324,6 @@ public class IdentificationDetails {
     sb.append("    paymentIds: ").append(toIndentedString(paymentIds)).append("\n");
     sb.append("    recipientEmail: ").append(toIndentedString(recipientEmail)).append("\n");
     sb.append("    cheqiReceiptId: ").append(toIndentedString(cheqiReceiptId)).append("\n");
-    sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("    pairingCode: ").append(toIndentedString(pairingCode)).append("\n");
     sb.append("}");
     return sb.toString();

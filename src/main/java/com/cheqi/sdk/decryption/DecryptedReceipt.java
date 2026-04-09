@@ -1,41 +1,46 @@
 package com.cheqi.sdk.decryption;
 
-import com.cheqi.sdk.models.ConsumingPartyEnvelope;
-import com.cheqi.sdk.models.ReceiptEnvelope;
-import com.cheqi.sdk.models.generated.CheqiReceipt;
-import com.cheqi.sdk.models.generated.ReceivingParty;
+import com.cheqi.sdk.models.generated.*;
 
 /**
  * Represents a decrypted receipt containing multiple format options.
  * The receipt envelope contains different format representations of the same receipt.
- * The consuming party envelope contains the customer details (if present).
+ * The customer context envelope contains the recipient-specific context (if present).
  *
  * This is a pure data holder. Use {@link DecryptedReceiptFactory} to create instances
  * and {@link com.cheqi.sdk.receipt.ReceiptMergeService} to merge customer details into the receipt formats.
  */
 public class DecryptedReceipt {
     private final ReceiptEnvelope receiptEnvelope;
-    private final ConsumingPartyEnvelope consumingPartyEnvelope;
+    private final CustomerContextEnvelope customerContextEnvelope;
 
-    public DecryptedReceipt(ReceiptEnvelope receiptEnvelope, ConsumingPartyEnvelope consumingPartyEnvelope) {
+    public DecryptedReceipt(ReceiptEnvelope receiptEnvelope, CustomerContextEnvelope customerContextEnvelope) {
         this.receiptEnvelope = receiptEnvelope;
-        this.consumingPartyEnvelope = consumingPartyEnvelope;
+        this.customerContextEnvelope = customerContextEnvelope;
     }
 
     /**
-     * Gets the UBL XML party fragment for the consuming party.
+     * Gets the UBL XML party fragment from the customer context envelope.
      * @return XML party string, or null if no customer details
      */
     public String getXmlParty() {
-        return consumingPartyEnvelope != null ? consumingPartyEnvelope.getXmlParty() : null;
+        return customerContextEnvelope != null ? customerContextEnvelope.getXmlParty() : null;
     }
 
     /**
-     * Gets the receiving party from the consuming party envelope.
+     * Gets the receiving party from the customer context envelope.
      * @return ReceivingParty, or null if no customer details
      */
     public ReceivingParty getReceivingParty() {
-        return consumingPartyEnvelope != null ? consumingPartyEnvelope.getReceivingParty() : null;
+        return customerContextEnvelope != null ? customerContextEnvelope.getReceivingParty() : null;
+    }
+
+    /**
+     * Gets payment means from the customer context envelope.
+     * @return payment means list, or null if not available
+     */
+    public PaymentMeansEnvelope getPaymentMeans() {
+        return customerContextEnvelope != null ? customerContextEnvelope.getPaymentMeans() : null;
     }
 
     /**
@@ -43,7 +48,7 @@ public class DecryptedReceipt {
      * @return CheqiReceipt object, or null if not available
      */
     public CheqiReceipt getCheqiReceipt() {
-        return receiptEnvelope.getCheqiReceipt();
+        return receiptEnvelope.getCheqi();
     }
 
     /**
@@ -63,17 +68,17 @@ public class DecryptedReceipt {
     }
 
     /**
-     * Gets the consuming party envelope containing customer details.
-     * @return ConsumingPartyEnvelope, or null if no customer details
+     * Gets the customer context envelope containing customer details.
+     * @return CustomerContextEnvelope, or null if no customer details
      */
-    public ConsumingPartyEnvelope getConsumingPartyEnvelope() {
-        return consumingPartyEnvelope;
+    public CustomerContextEnvelope getCustomerContextEnvelope() {
+        return customerContextEnvelope;
     }
 
     /**
      * Checks if customer details are present.
      */
     public boolean hasCustomerDetails() {
-        return consumingPartyEnvelope != null;
+        return customerContextEnvelope != null;
     }
 }

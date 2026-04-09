@@ -98,7 +98,7 @@ public class CheqiSDK {
     private final CompanyService companyService;
     private final StoreService storeService;
     private final VerificationService verificationService;
-    private final CreditNoteService creditNoteService; // Add this
+    private final CreditNoteService creditNoteService;
 
 
     private CheqiSDK(CheqiSDKConfig config) {

@@ -16,87 +16,87 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.CompanyCreationRequest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Child company details
+ * AuthorizedEmailDTO
  */
 @JsonPropertyOrder({
-  CreateChildCompanyRequest.JSON_PROPERTY_COMPANY,
-  CreateChildCompanyRequest.JSON_PROPERTY_ADMIN_EMAIL
+  AuthorizedEmailDTO.JSON_PROPERTY_ID,
+  AuthorizedEmailDTO.JSON_PROPERTY_EMAIL
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class CreateChildCompanyRequest {
-  public static final String JSON_PROPERTY_COMPANY = "company";
+public class AuthorizedEmailDTO {
+  public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nullable
-  private CompanyCreationRequest company;
+  private UUID id;
 
-  public static final String JSON_PROPERTY_ADMIN_EMAIL = "adminEmail";
+  public static final String JSON_PROPERTY_EMAIL = "email";
   @javax.annotation.Nullable
-  private String adminEmail;
+  private String email;
 
-  public CreateChildCompanyRequest() { 
+  public AuthorizedEmailDTO() { 
   }
 
-  public CreateChildCompanyRequest company(@javax.annotation.Nullable CompanyCreationRequest company) {
-    this.company = company;
+  public AuthorizedEmailDTO id(@javax.annotation.Nullable UUID id) {
+    this.id = id;
     return this;
   }
 
   /**
-   * Get company
-   * @return company
+   * Get id
+   * @return id
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_COMPANY)
+  @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public CompanyCreationRequest getCompany() {
-    return company;
+  public UUID getId() {
+    return id;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_COMPANY)
+  @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCompany(@javax.annotation.Nullable CompanyCreationRequest company) {
-    this.company = company;
+  public void setId(@javax.annotation.Nullable UUID id) {
+    this.id = id;
   }
 
 
-  public CreateChildCompanyRequest adminEmail(@javax.annotation.Nullable String adminEmail) {
-    this.adminEmail = adminEmail;
+  public AuthorizedEmailDTO email(@javax.annotation.Nullable String email) {
+    this.email = email;
     return this;
   }
 
   /**
-   * Email address of the company admin to invite
-   * @return adminEmail
+   * Get email
+   * @return email
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ADMIN_EMAIL)
+  @JsonProperty(JSON_PROPERTY_EMAIL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getAdminEmail() {
-    return adminEmail;
+  public String getEmail() {
+    return email;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_ADMIN_EMAIL)
+  @JsonProperty(JSON_PROPERTY_EMAIL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAdminEmail(@javax.annotation.Nullable String adminEmail) {
-    this.adminEmail = adminEmail;
+  public void setEmail(@javax.annotation.Nullable String email) {
+    this.email = email;
   }
 
 
   /**
-   * Return true if this CreateChildCompanyRequest object is equal to o.
+   * Return true if this AuthorizedEmailDTO object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -106,22 +106,22 @@ public class CreateChildCompanyRequest {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    CreateChildCompanyRequest createChildCompanyRequest = (CreateChildCompanyRequest) o;
-    return Objects.equals(this.company, createChildCompanyRequest.company) &&
-        Objects.equals(this.adminEmail, createChildCompanyRequest.adminEmail);
+    AuthorizedEmailDTO authorizedEmailDTO = (AuthorizedEmailDTO) o;
+    return Objects.equals(this.id, authorizedEmailDTO.id) &&
+        Objects.equals(this.email, authorizedEmailDTO.email);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(company, adminEmail);
+    return Objects.hash(id, email);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class CreateChildCompanyRequest {\n");
-    sb.append("    company: ").append(toIndentedString(company)).append("\n");
-    sb.append("    adminEmail: ").append(toIndentedString(adminEmail)).append("\n");
+    sb.append("class AuthorizedEmailDTO {\n");
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
+    sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("}");
     return sb.toString();
   }

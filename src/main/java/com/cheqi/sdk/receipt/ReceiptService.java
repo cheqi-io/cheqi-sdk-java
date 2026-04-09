@@ -314,10 +314,16 @@ public class ReceiptService {
 
         logger.debug("Creating encrypted receipts for {} recipients", matchResponse.getRecipients().size());
 
+        ReceiptEnvelope envelope = new ReceiptEnvelope();
+        envelope.setCheqi(templateResponse.getCheqi());
+        envelope.setUblPurchaseReceipt(templateResponse.getUblPurchaseReceipt());
+        envelope.setUblInvoice(templateResponse.getUblInvoice());
+        envelope.setVatMetaData(templateResponse.getVatMetadata());
+
+        String envelopeJson = objectMapper.writeValueAsString(envelope);
         Set<EncryptedReceiptRequest> encryptedReceipts = new HashSet<>();
         for (MatchedRecipient recipient : matchResponse.getRecipients()) {
             logger.debug("Encrypting envelope for recipient: {} with formats: {}", recipient.getId(), recipient.getAcceptedFormats());
-            String envelopeJson = objectMapper.writeValueAsString(templateResponse);
             encryptedReceipts.add(encryptionService.encryptReceiptForRecipients(envelopeJson, recipient));
         }
 

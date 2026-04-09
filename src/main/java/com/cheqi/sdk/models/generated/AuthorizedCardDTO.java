@@ -16,87 +16,87 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.CompanyCreationRequest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Child company details
+ * AuthorizedCardDTO
  */
 @JsonPropertyOrder({
-  CreateChildCompanyRequest.JSON_PROPERTY_COMPANY,
-  CreateChildCompanyRequest.JSON_PROPERTY_ADMIN_EMAIL
+  AuthorizedCardDTO.JSON_PROPERTY_ID,
+  AuthorizedCardDTO.JSON_PROPERTY_LAST_FOUR_DIGITS
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class CreateChildCompanyRequest {
-  public static final String JSON_PROPERTY_COMPANY = "company";
+public class AuthorizedCardDTO {
+  public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nullable
-  private CompanyCreationRequest company;
+  private UUID id;
 
-  public static final String JSON_PROPERTY_ADMIN_EMAIL = "adminEmail";
+  public static final String JSON_PROPERTY_LAST_FOUR_DIGITS = "lastFourDigits";
   @javax.annotation.Nullable
-  private String adminEmail;
+  private String lastFourDigits;
 
-  public CreateChildCompanyRequest() { 
+  public AuthorizedCardDTO() { 
   }
 
-  public CreateChildCompanyRequest company(@javax.annotation.Nullable CompanyCreationRequest company) {
-    this.company = company;
+  public AuthorizedCardDTO id(@javax.annotation.Nullable UUID id) {
+    this.id = id;
     return this;
   }
 
   /**
-   * Get company
-   * @return company
+   * Get id
+   * @return id
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_COMPANY)
+  @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public CompanyCreationRequest getCompany() {
-    return company;
+  public UUID getId() {
+    return id;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_COMPANY)
+  @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCompany(@javax.annotation.Nullable CompanyCreationRequest company) {
-    this.company = company;
+  public void setId(@javax.annotation.Nullable UUID id) {
+    this.id = id;
   }
 
 
-  public CreateChildCompanyRequest adminEmail(@javax.annotation.Nullable String adminEmail) {
-    this.adminEmail = adminEmail;
+  public AuthorizedCardDTO lastFourDigits(@javax.annotation.Nullable String lastFourDigits) {
+    this.lastFourDigits = lastFourDigits;
     return this;
   }
 
   /**
-   * Email address of the company admin to invite
-   * @return adminEmail
+   * Get lastFourDigits
+   * @return lastFourDigits
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ADMIN_EMAIL)
+  @JsonProperty(JSON_PROPERTY_LAST_FOUR_DIGITS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getAdminEmail() {
-    return adminEmail;
+  public String getLastFourDigits() {
+    return lastFourDigits;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_ADMIN_EMAIL)
+  @JsonProperty(JSON_PROPERTY_LAST_FOUR_DIGITS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAdminEmail(@javax.annotation.Nullable String adminEmail) {
-    this.adminEmail = adminEmail;
+  public void setLastFourDigits(@javax.annotation.Nullable String lastFourDigits) {
+    this.lastFourDigits = lastFourDigits;
   }
 
 
   /**
-   * Return true if this CreateChildCompanyRequest object is equal to o.
+   * Return true if this AuthorizedCardDTO object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -106,22 +106,22 @@ public class CreateChildCompanyRequest {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    CreateChildCompanyRequest createChildCompanyRequest = (CreateChildCompanyRequest) o;
-    return Objects.equals(this.company, createChildCompanyRequest.company) &&
-        Objects.equals(this.adminEmail, createChildCompanyRequest.adminEmail);
+    AuthorizedCardDTO authorizedCardDTO = (AuthorizedCardDTO) o;
+    return Objects.equals(this.id, authorizedCardDTO.id) &&
+        Objects.equals(this.lastFourDigits, authorizedCardDTO.lastFourDigits);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(company, adminEmail);
+    return Objects.hash(id, lastFourDigits);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class CreateChildCompanyRequest {\n");
-    sb.append("    company: ").append(toIndentedString(company)).append("\n");
-    sb.append("    adminEmail: ").append(toIndentedString(adminEmail)).append("\n");
+    sb.append("class AuthorizedCardDTO {\n");
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
+    sb.append("    lastFourDigits: ").append(toIndentedString(lastFourDigits)).append("\n");
     sb.append("}");
     return sb.toString();
   }

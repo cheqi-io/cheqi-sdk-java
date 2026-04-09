@@ -21,81 +21,64 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The identifiers for the purchase, given by the seller, for example order reference, transaction number
+ * AcknowledgeRequest
  */
 @JsonPropertyOrder({
-  Identifier.JSON_PROPERTY_NAME,
-  Identifier.JSON_PROPERTY_VALUE
+  AcknowledgeRequest.JSON_PROPERTY_RECEIPT_IDS
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class Identifier {
-  public static final String JSON_PROPERTY_NAME = "name";
+public class AcknowledgeRequest {
+  public static final String JSON_PROPERTY_RECEIPT_IDS = "receiptIds";
   @javax.annotation.Nullable
-  private String name;
+  private Set<String> receiptIds = new LinkedHashSet<>();
 
-  public static final String JSON_PROPERTY_VALUE = "value";
-  @javax.annotation.Nullable
-  private String value;
-
-  public Identifier() { 
+  public AcknowledgeRequest() { 
   }
 
-  public Identifier name(@javax.annotation.Nullable String name) {
-    this.name = name;
+  public AcknowledgeRequest receiptIds(@javax.annotation.Nullable Set<String> receiptIds) {
+    this.receiptIds = receiptIds;
+    return this;
+  }
+
+  public AcknowledgeRequest addReceiptIdsItem(String receiptIdsItem) {
+    if (this.receiptIds == null) {
+      this.receiptIds = new LinkedHashSet<>();
+    }
+    this.receiptIds.add(receiptIdsItem);
     return this;
   }
 
   /**
-   * Get name
-   * @return name
+   * Get receiptIds
+   * @return receiptIds
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_NAME)
+  @JsonProperty(JSON_PROPERTY_RECEIPT_IDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getName() {
-    return name;
+  public Set<String> getReceiptIds() {
+    return receiptIds;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_NAME)
+  @JsonDeserialize(as = LinkedHashSet.class)
+  @JsonProperty(JSON_PROPERTY_RECEIPT_IDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setName(@javax.annotation.Nullable String name) {
-    this.name = name;
-  }
-
-
-  public Identifier value(@javax.annotation.Nullable String value) {
-    this.value = value;
-    return this;
-  }
-
-  /**
-   * Get value
-   * @return value
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_VALUE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getValue() {
-    return value;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_VALUE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setValue(@javax.annotation.Nullable String value) {
-    this.value = value;
+  public void setReceiptIds(@javax.annotation.Nullable Set<String> receiptIds) {
+    this.receiptIds = receiptIds;
   }
 
 
   /**
-   * Return true if this Identifier object is equal to o.
+   * Return true if this AcknowledgeRequest object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -105,22 +88,20 @@ public class Identifier {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Identifier identifier = (Identifier) o;
-    return Objects.equals(this.name, identifier.name) &&
-        Objects.equals(this.value, identifier.value);
+    AcknowledgeRequest acknowledgeRequest = (AcknowledgeRequest) o;
+    return Objects.equals(this.receiptIds, acknowledgeRequest.receiptIds);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, value);
+    return Objects.hash(receiptIds);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Identifier {\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    value: ").append(toIndentedString(value)).append("\n");
+    sb.append("class AcknowledgeRequest {\n");
+    sb.append("    receiptIds: ").append(toIndentedString(receiptIds)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * A set of encrypted credit notes
+ * Recipient-specific encrypted credit-note payloads. Each item contains ciphertext for one locally assembled recipient envelope plus the wrapped symmetric key and verification metadata.
  */
 @JsonPropertyOrder({
   EncryptedCreditNote.JSON_PROPERTY_RECIPIENT_ID,

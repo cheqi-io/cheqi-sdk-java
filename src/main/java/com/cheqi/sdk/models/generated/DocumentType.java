@@ -23,17 +23,17 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * The processing mode for returns
+ * Type of document for this receipt
  */
-public enum ReturnProcessingMode {
+public enum DocumentType {
   
-  MANUAL("MANUAL"),
+  RECEIPT("RECEIPT"),
   
-  AUTOMATED("AUTOMATED");
+  CREDIT_NOTE("CREDIT_NOTE");
 
   private String value;
 
-  ReturnProcessingMode(String value) {
+  DocumentType(String value) {
     this.value = value;
   }
 
@@ -48,13 +48,13 @@ public enum ReturnProcessingMode {
   }
 
   @JsonCreator
-  public static ReturnProcessingMode fromValue(String value) {
-    for (ReturnProcessingMode b : ReturnProcessingMode.values()) {
+  public static DocumentType fromValue(String value) {
+    for (DocumentType b : DocumentType.values()) {
       if (b.value.equals(value)) {
         return b;
       }
     }
-    return null;
+    throw new IllegalArgumentException("Unexpected value '" + value + "'");
   }
 
 }

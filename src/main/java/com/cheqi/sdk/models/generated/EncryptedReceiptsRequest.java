@@ -69,7 +69,7 @@ public class EncryptedReceiptsRequest {
   }
 
   /**
-   * The encrypted receipts
+   * Recipient-specific encrypted receipt payloads. Each item contains ciphertext for one recipient envelope plus the wrapped symmetric key and verification metadata.
    * @return encryptedReceiptRequests
    */
   @javax.annotation.Nonnull
@@ -94,7 +94,7 @@ public class EncryptedReceiptsRequest {
   }
 
   /**
-   * The match ID that was return during the recipient matching process
+   * Match identifier returned by the recipient resolution step. Every recipientId in encryptedReceiptRequests must belong to this match.
    * @return matchId
    */
   @javax.annotation.Nonnull
@@ -118,7 +118,7 @@ public class EncryptedReceiptsRequest {
   }
 
   /**
-   * The template hash that was return during the recipient matching process
+   * Hash of the receipt template basis used when building and encrypting the recipient envelopes. Submit the same hash that was produced during local envelope construction.
    * @return templateHash
    */
   @javax.annotation.Nonnull

@@ -32,6 +32,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   ProvisionCompanyResponse.JSON_PROPERTY_COMPANY_ID,
   ProvisionCompanyResponse.JSON_PROPERTY_STATUS,
   ProvisionCompanyResponse.JSON_PROPERTY_MESSAGE,
+  ProvisionCompanyResponse.JSON_PROPERTY_PARTNER_PROVISIONED,
+  ProvisionCompanyResponse.JSON_PROPERTY_MERCHANT_CLAIMED,
+  ProvisionCompanyResponse.JSON_PROPERTY_PROVISIONING_PARTNER_TIER,
   ProvisionCompanyResponse.JSON_PROPERTY_INVITATION_SENT,
   ProvisionCompanyResponse.JSON_PROPERTY_REQUIRES_O_AUTH,
   ProvisionCompanyResponse.JSON_PROPERTY_ACCESS_TOKEN,
@@ -53,6 +56,18 @@ public class ProvisionCompanyResponse {
   public static final String JSON_PROPERTY_MESSAGE = "message";
   @javax.annotation.Nullable
   private String message;
+
+  public static final String JSON_PROPERTY_PARTNER_PROVISIONED = "partnerProvisioned";
+  @javax.annotation.Nullable
+  private Boolean partnerProvisioned;
+
+  public static final String JSON_PROPERTY_MERCHANT_CLAIMED = "merchantClaimed";
+  @javax.annotation.Nullable
+  private Boolean merchantClaimed;
+
+  public static final String JSON_PROPERTY_PROVISIONING_PARTNER_TIER = "provisioningPartnerTier";
+  @javax.annotation.Nullable
+  private String provisioningPartnerTier;
 
   public static final String JSON_PROPERTY_INVITATION_SENT = "invitationSent";
   @javax.annotation.Nullable
@@ -150,6 +165,78 @@ public class ProvisionCompanyResponse {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setMessage(@javax.annotation.Nullable String message) {
     this.message = message;
+  }
+
+
+  public ProvisionCompanyResponse partnerProvisioned(@javax.annotation.Nullable Boolean partnerProvisioned) {
+    this.partnerProvisioned = partnerProvisioned;
+    return this;
+  }
+
+  /**
+   * Get partnerProvisioned
+   * @return partnerProvisioned
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_PARTNER_PROVISIONED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getPartnerProvisioned() {
+    return partnerProvisioned;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PARTNER_PROVISIONED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPartnerProvisioned(@javax.annotation.Nullable Boolean partnerProvisioned) {
+    this.partnerProvisioned = partnerProvisioned;
+  }
+
+
+  public ProvisionCompanyResponse merchantClaimed(@javax.annotation.Nullable Boolean merchantClaimed) {
+    this.merchantClaimed = merchantClaimed;
+    return this;
+  }
+
+  /**
+   * Get merchantClaimed
+   * @return merchantClaimed
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_MERCHANT_CLAIMED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getMerchantClaimed() {
+    return merchantClaimed;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_MERCHANT_CLAIMED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setMerchantClaimed(@javax.annotation.Nullable Boolean merchantClaimed) {
+    this.merchantClaimed = merchantClaimed;
+  }
+
+
+  public ProvisionCompanyResponse provisioningPartnerTier(@javax.annotation.Nullable String provisioningPartnerTier) {
+    this.provisioningPartnerTier = provisioningPartnerTier;
+    return this;
+  }
+
+  /**
+   * Get provisioningPartnerTier
+   * @return provisioningPartnerTier
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_PROVISIONING_PARTNER_TIER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getProvisioningPartnerTier() {
+    return provisioningPartnerTier;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PROVISIONING_PARTNER_TIER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setProvisioningPartnerTier(@javax.annotation.Nullable String provisioningPartnerTier) {
+    this.provisioningPartnerTier = provisioningPartnerTier;
   }
 
 
@@ -312,6 +399,9 @@ public class ProvisionCompanyResponse {
     return Objects.equals(this.companyId, provisionCompanyResponse.companyId) &&
         Objects.equals(this.status, provisionCompanyResponse.status) &&
         Objects.equals(this.message, provisionCompanyResponse.message) &&
+        Objects.equals(this.partnerProvisioned, provisionCompanyResponse.partnerProvisioned) &&
+        Objects.equals(this.merchantClaimed, provisionCompanyResponse.merchantClaimed) &&
+        Objects.equals(this.provisioningPartnerTier, provisionCompanyResponse.provisioningPartnerTier) &&
         Objects.equals(this.invitationSent, provisionCompanyResponse.invitationSent) &&
         Objects.equals(this.requiresOAuth, provisionCompanyResponse.requiresOAuth) &&
         Objects.equals(this.accessToken, provisionCompanyResponse.accessToken) &&
@@ -322,7 +412,7 @@ public class ProvisionCompanyResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(companyId, status, message, invitationSent, requiresOAuth, accessToken, refreshToken, expiresIn, tokenType);
+    return Objects.hash(companyId, status, message, partnerProvisioned, merchantClaimed, provisioningPartnerTier, invitationSent, requiresOAuth, accessToken, refreshToken, expiresIn, tokenType);
   }
 
   @Override
@@ -332,6 +422,9 @@ public class ProvisionCompanyResponse {
     sb.append("    companyId: ").append(toIndentedString(companyId)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("    partnerProvisioned: ").append(toIndentedString(partnerProvisioned)).append("\n");
+    sb.append("    merchantClaimed: ").append(toIndentedString(merchantClaimed)).append("\n");
+    sb.append("    provisioningPartnerTier: ").append(toIndentedString(provisioningPartnerTier)).append("\n");
     sb.append("    invitationSent: ").append(toIndentedString(invitationSent)).append("\n");
     sb.append("    requiresOAuth: ").append(toIndentedString(requiresOAuth)).append("\n");
     sb.append("    accessToken: ").append(toIndentedString(accessToken)).append("\n");

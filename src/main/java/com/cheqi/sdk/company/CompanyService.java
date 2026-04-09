@@ -3,6 +3,7 @@ package com.cheqi.sdk.company;
 import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.models.company.Company;
+import com.cheqi.sdk.models.generated.CompanyCreationRequest;
 import com.cheqi.sdk.models.generated.CompanyDTO;
 import com.cheqi.sdk.models.generated.ProvisionCompanyRequest;
 import com.cheqi.sdk.models.generated.ProvisionCompanyResponse;
@@ -66,7 +67,7 @@ public class CompanyService {
      * @throws CheqiSDKException if provisioning fails or validation errors occur
      */
     public ProvisionCompanyResponse provisionCompany(
-            CompanyDTO company,
+            CompanyCreationRequest company,
             String adminEmail
     ) throws CheqiSDKException {
 

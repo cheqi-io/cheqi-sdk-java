@@ -161,8 +161,7 @@ public class MatchingService {
         }
         
         CardDetails card = identificationDetails.getCardDetails();
-        return isNotEmpty(card.getPaymentAccountNumber()) ||
-               isNotEmpty(card.getPaymentAccountReference());
+        return isNotEmpty(card.getPaymentAccountReference());
     }
 
     private boolean hasCheqiReceiptId(IdentificationDetails identificationDetails){

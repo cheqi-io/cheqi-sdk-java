@@ -58,7 +58,7 @@ public class ReceiptCreatedResponse {
   }
 
   /**
-   * Get cheqiReceiptId
+   * Stable Cheqi receipt identifier assigned to the submitted receipt.
    * @return cheqiReceiptId
    */
   @javax.annotation.Nullable
@@ -82,7 +82,7 @@ public class ReceiptCreatedResponse {
   }
 
   /**
-   * Get createdAt
+   * Timestamp when Cheqi accepted and queued the encrypted receipt submission.
    * @return createdAt
    */
   @javax.annotation.Nullable
@@ -106,7 +106,7 @@ public class ReceiptCreatedResponse {
   }
 
   /**
-   * Get templateHash
+   * Template hash associated with the locally built recipient envelopes. This should match the templateHash submitted in the request and can be stored for audit and verification.
    * @return templateHash
    */
   @javax.annotation.Nullable

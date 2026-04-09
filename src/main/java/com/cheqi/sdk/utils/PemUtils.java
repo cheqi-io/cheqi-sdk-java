@@ -15,6 +15,14 @@ public final class PemUtils {
      * Accepts both PEM-wrapped keys (e.g. "-----BEGIN PUBLIC KEY-----...") and raw base64.
      */
     public static byte[] decodeKey(String keyString) {
+        // If the input doesn't contain PEM headers, it may be base64-encoded PEM
+        if (!keyString.contains("-----BEGIN")) {
+            String decoded = new String(Base64.getDecoder().decode(keyString.replaceAll("\\s+", "")));
+            if (decoded.contains("-----BEGIN")) {
+                return decodeKey(decoded);
+            }
+        }
+
         String cleanKey = keyString
                 .replaceAll("-+BEGIN [A-Z ]+KEY-+", "")
                 .replaceAll("-+END [A-Z ]+KEY-+", "")

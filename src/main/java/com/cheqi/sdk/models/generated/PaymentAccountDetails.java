@@ -33,14 +33,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   PaymentAccountDetails.JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE,
   PaymentAccountDetails.JSON_PROPERTY_BIC,
   PaymentAccountDetails.JSON_PROPERTY_BANK_NAME,
-  PaymentAccountDetails.JSON_PROPERTY_ACCOUNT_HOLDER_NAME,
-  PaymentAccountDetails.JSON_PROPERTY_INSTITUTION_NAME
+  PaymentAccountDetails.JSON_PROPERTY_ACCOUNT_HOLDER_NAME
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class PaymentAccountDetails {
   public static final String JSON_PROPERTY_IDENTIFIER = "identifier";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String identifier;
 
   /**
@@ -87,7 +86,7 @@ public class PaymentAccountDetails {
   }
 
   public static final String JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE = "accountIdentifierType";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private AccountIdentifierTypeEnum accountIdentifierType;
 
   public static final String JSON_PROPERTY_BIC = "bic";
@@ -102,14 +101,10 @@ public class PaymentAccountDetails {
   @javax.annotation.Nullable
   private String accountHolderName;
 
-  public static final String JSON_PROPERTY_INSTITUTION_NAME = "institutionName";
-  @javax.annotation.Nullable
-  private String institutionName;
-
   public PaymentAccountDetails() { 
   }
 
-  public PaymentAccountDetails identifier(@javax.annotation.Nullable String identifier) {
+  public PaymentAccountDetails identifier(@javax.annotation.Nonnull String identifier) {
     this.identifier = identifier;
     return this;
   }
@@ -118,22 +113,22 @@ public class PaymentAccountDetails {
    * Get identifier
    * @return identifier
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_IDENTIFIER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getIdentifier() {
     return identifier;
   }
 
 
   @JsonProperty(JSON_PROPERTY_IDENTIFIER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setIdentifier(@javax.annotation.Nullable String identifier) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setIdentifier(@javax.annotation.Nonnull String identifier) {
     this.identifier = identifier;
   }
 
 
-  public PaymentAccountDetails accountIdentifierType(@javax.annotation.Nullable AccountIdentifierTypeEnum accountIdentifierType) {
+  public PaymentAccountDetails accountIdentifierType(@javax.annotation.Nonnull AccountIdentifierTypeEnum accountIdentifierType) {
     this.accountIdentifierType = accountIdentifierType;
     return this;
   }
@@ -142,17 +137,17 @@ public class PaymentAccountDetails {
    * Get accountIdentifierType
    * @return accountIdentifierType
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public AccountIdentifierTypeEnum getAccountIdentifierType() {
     return accountIdentifierType;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAccountIdentifierType(@javax.annotation.Nullable AccountIdentifierTypeEnum accountIdentifierType) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setAccountIdentifierType(@javax.annotation.Nonnull AccountIdentifierTypeEnum accountIdentifierType) {
     this.accountIdentifierType = accountIdentifierType;
   }
 
@@ -229,30 +224,6 @@ public class PaymentAccountDetails {
   }
 
 
-  public PaymentAccountDetails institutionName(@javax.annotation.Nullable String institutionName) {
-    this.institutionName = institutionName;
-    return this;
-  }
-
-  /**
-   * Get institutionName
-   * @return institutionName
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_INSTITUTION_NAME)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getInstitutionName() {
-    return institutionName;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_INSTITUTION_NAME)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setInstitutionName(@javax.annotation.Nullable String institutionName) {
-    this.institutionName = institutionName;
-  }
-
-
   /**
    * Return true if this PaymentAccountDetails object is equal to o.
    */
@@ -269,13 +240,12 @@ public class PaymentAccountDetails {
         Objects.equals(this.accountIdentifierType, paymentAccountDetails.accountIdentifierType) &&
         Objects.equals(this.bic, paymentAccountDetails.bic) &&
         Objects.equals(this.bankName, paymentAccountDetails.bankName) &&
-        Objects.equals(this.accountHolderName, paymentAccountDetails.accountHolderName) &&
-        Objects.equals(this.institutionName, paymentAccountDetails.institutionName);
+        Objects.equals(this.accountHolderName, paymentAccountDetails.accountHolderName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(identifier, accountIdentifierType, bic, bankName, accountHolderName, institutionName);
+    return Objects.hash(identifier, accountIdentifierType, bic, bankName, accountHolderName);
   }
 
   @Override
@@ -287,7 +257,6 @@ public class PaymentAccountDetails {
     sb.append("    bic: ").append(toIndentedString(bic)).append("\n");
     sb.append("    bankName: ").append(toIndentedString(bankName)).append("\n");
     sb.append("    accountHolderName: ").append(toIndentedString(accountHolderName)).append("\n");
-    sb.append("    institutionName: ").append(toIndentedString(institutionName)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -26,27 +26,56 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The identifiers for the purchase, given by the seller, for example order reference, transaction number
+ * MoneybirdPaymentAccountDto
  */
 @JsonPropertyOrder({
-  Identifier.JSON_PROPERTY_NAME,
-  Identifier.JSON_PROPERTY_VALUE
+  MoneybirdPaymentAccountDto.JSON_PROPERTY_ID,
+  MoneybirdPaymentAccountDto.JSON_PROPERTY_NAME,
+  MoneybirdPaymentAccountDto.JSON_PROPERTY_KIND
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class Identifier {
+public class MoneybirdPaymentAccountDto {
+  public static final String JSON_PROPERTY_ID = "id";
+  @javax.annotation.Nullable
+  private String id;
+
   public static final String JSON_PROPERTY_NAME = "name";
   @javax.annotation.Nullable
   private String name;
 
-  public static final String JSON_PROPERTY_VALUE = "value";
+  public static final String JSON_PROPERTY_KIND = "kind";
   @javax.annotation.Nullable
-  private String value;
+  private String kind;
 
-  public Identifier() { 
+  public MoneybirdPaymentAccountDto() { 
   }
 
-  public Identifier name(@javax.annotation.Nullable String name) {
+  public MoneybirdPaymentAccountDto id(@javax.annotation.Nullable String id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * Get id
+   * @return id
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getId() {
+    return id;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setId(@javax.annotation.Nullable String id) {
+    this.id = id;
+  }
+
+
+  public MoneybirdPaymentAccountDto name(@javax.annotation.Nullable String name) {
     this.name = name;
     return this;
   }
@@ -70,32 +99,32 @@ public class Identifier {
   }
 
 
-  public Identifier value(@javax.annotation.Nullable String value) {
-    this.value = value;
+  public MoneybirdPaymentAccountDto kind(@javax.annotation.Nullable String kind) {
+    this.kind = kind;
     return this;
   }
 
   /**
-   * Get value
-   * @return value
+   * Get kind
+   * @return kind
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_VALUE)
+  @JsonProperty(JSON_PROPERTY_KIND)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getValue() {
-    return value;
+  public String getKind() {
+    return kind;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_VALUE)
+  @JsonProperty(JSON_PROPERTY_KIND)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setValue(@javax.annotation.Nullable String value) {
-    this.value = value;
+  public void setKind(@javax.annotation.Nullable String kind) {
+    this.kind = kind;
   }
 
 
   /**
-   * Return true if this Identifier object is equal to o.
+   * Return true if this MoneybirdPaymentAccountDto object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -105,22 +134,24 @@ public class Identifier {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Identifier identifier = (Identifier) o;
-    return Objects.equals(this.name, identifier.name) &&
-        Objects.equals(this.value, identifier.value);
+    MoneybirdPaymentAccountDto moneybirdPaymentAccountDto = (MoneybirdPaymentAccountDto) o;
+    return Objects.equals(this.id, moneybirdPaymentAccountDto.id) &&
+        Objects.equals(this.name, moneybirdPaymentAccountDto.name) &&
+        Objects.equals(this.kind, moneybirdPaymentAccountDto.kind);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, value);
+    return Objects.hash(id, name, kind);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Identifier {\n");
+    sb.append("class MoneybirdPaymentAccountDto {\n");
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    value: ").append(toIndentedString(value)).append("\n");
+    sb.append("    kind: ").append(toIndentedString(kind)).append("\n");
     sb.append("}");
     return sb.toString();
   }

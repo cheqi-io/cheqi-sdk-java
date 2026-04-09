@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * VAT metadata for cross-border tax handling. Contains supplier/buyer countries, VAT regime classification, and whether VAT was charged on the receipt.
+ * VAT metadata that accompanies the receipt formats and supports verification and tax handling.
  */
 @JsonPropertyOrder({
   VatMetadata.JSON_PROPERTY_SUPPLIER_COUNTRY,

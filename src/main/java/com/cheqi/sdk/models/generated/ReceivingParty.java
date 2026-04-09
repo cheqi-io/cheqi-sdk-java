@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The receiving party of the receipt (the buyer/customer).
+ * Cheqi JSON receiving-party object for the matched customer or customer company. Include this when the recipient accepts the CHEQI JSON receipt format.
  */
 @JsonPropertyOrder({
   ReceivingParty.JSON_PROPERTY_COMPANY_LEGAL_NAME,

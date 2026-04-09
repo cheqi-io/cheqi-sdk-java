@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Cheqi JSON receipt template object. This contains a complete CheqiReceipt structure with products, taxes, parties, and all receipt details.
+ * Cheqi JSON receipt payload. Include this when the recipient accepts the CHEQI format.
  */
 @JsonPropertyOrder({
   CheqiReceipt.JSON_PROPERTY_TOTAL_AMOUNT,

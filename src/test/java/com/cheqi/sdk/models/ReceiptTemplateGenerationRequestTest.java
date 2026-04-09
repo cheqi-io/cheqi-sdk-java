@@ -52,7 +52,7 @@ class ReceiptTemplateGenerationRequestTest {
         assertTrue(node.has("receiptTemplateRequest"));
         assertTrue(node.has("formats"));
         assertEquals(1, node.get("formats").size());
-        // VAT fields are always present (ALWAYS include) but should be null when not set
+        // The generated model marks these fields as ALWAYS included, so they serialize as explicit nulls.
         assertTrue(node.has("buyerCountryCode"));
         assertTrue(node.get("buyerCountryCode").isNull());
         assertTrue(node.has("buyerType"));

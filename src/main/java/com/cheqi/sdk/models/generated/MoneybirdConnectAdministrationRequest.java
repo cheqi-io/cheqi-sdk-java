@@ -26,76 +26,47 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The identifiers for the purchase, given by the seller, for example order reference, transaction number
+ * MoneybirdConnectAdministrationRequest
  */
 @JsonPropertyOrder({
-  Identifier.JSON_PROPERTY_NAME,
-  Identifier.JSON_PROPERTY_VALUE
+  MoneybirdConnectAdministrationRequest.JSON_PROPERTY_ADMINISTRATION_ID
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class Identifier {
-  public static final String JSON_PROPERTY_NAME = "name";
+public class MoneybirdConnectAdministrationRequest {
+  public static final String JSON_PROPERTY_ADMINISTRATION_ID = "administrationId";
   @javax.annotation.Nullable
-  private String name;
+  private String administrationId;
 
-  public static final String JSON_PROPERTY_VALUE = "value";
-  @javax.annotation.Nullable
-  private String value;
-
-  public Identifier() { 
+  public MoneybirdConnectAdministrationRequest() { 
   }
 
-  public Identifier name(@javax.annotation.Nullable String name) {
-    this.name = name;
+  public MoneybirdConnectAdministrationRequest administrationId(@javax.annotation.Nullable String administrationId) {
+    this.administrationId = administrationId;
     return this;
   }
 
   /**
-   * Get name
-   * @return name
+   * Get administrationId
+   * @return administrationId
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_NAME)
+  @JsonProperty(JSON_PROPERTY_ADMINISTRATION_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getName() {
-    return name;
+  public String getAdministrationId() {
+    return administrationId;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_NAME)
+  @JsonProperty(JSON_PROPERTY_ADMINISTRATION_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setName(@javax.annotation.Nullable String name) {
-    this.name = name;
-  }
-
-
-  public Identifier value(@javax.annotation.Nullable String value) {
-    this.value = value;
-    return this;
-  }
-
-  /**
-   * Get value
-   * @return value
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_VALUE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getValue() {
-    return value;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_VALUE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setValue(@javax.annotation.Nullable String value) {
-    this.value = value;
+  public void setAdministrationId(@javax.annotation.Nullable String administrationId) {
+    this.administrationId = administrationId;
   }
 
 
   /**
-   * Return true if this Identifier object is equal to o.
+   * Return true if this MoneybirdConnectAdministrationRequest object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -105,22 +76,20 @@ public class Identifier {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Identifier identifier = (Identifier) o;
-    return Objects.equals(this.name, identifier.name) &&
-        Objects.equals(this.value, identifier.value);
+    MoneybirdConnectAdministrationRequest moneybirdConnectAdministrationRequest = (MoneybirdConnectAdministrationRequest) o;
+    return Objects.equals(this.administrationId, moneybirdConnectAdministrationRequest.administrationId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, value);
+    return Objects.hash(administrationId);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Identifier {\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    value: ").append(toIndentedString(value)).append("\n");
+    sb.append("class MoneybirdConnectAdministrationRequest {\n");
+    sb.append("    administrationId: ").append(toIndentedString(administrationId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

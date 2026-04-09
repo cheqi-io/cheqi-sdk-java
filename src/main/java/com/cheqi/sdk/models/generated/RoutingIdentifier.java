@@ -16,38 +16,39 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.BarcodeType;
+import com.cheqi.sdk.models.generated.RoutingIdentifierType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * NotificationDisplayCode
+ * Identifier that was used to route or resolve the recipient context for this queued receipt.
  */
 @JsonPropertyOrder({
-  NotificationDisplayCode.JSON_PROPERTY_TYPE,
-  NotificationDisplayCode.JSON_PROPERTY_DATA
+  RoutingIdentifier.JSON_PROPERTY_TYPE,
+  RoutingIdentifier.JSON_PROPERTY_ID
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class NotificationDisplayCode {
+public class RoutingIdentifier {
   public static final String JSON_PROPERTY_TYPE = "type";
-  @javax.annotation.Nonnull
-  private BarcodeType type;
+  @javax.annotation.Nullable
+  private RoutingIdentifierType type;
 
-  public static final String JSON_PROPERTY_DATA = "data";
-  @javax.annotation.Nonnull
-  private String data;
+  public static final String JSON_PROPERTY_ID = "id";
+  @javax.annotation.Nullable
+  private UUID id;
 
-  public NotificationDisplayCode() { 
+  public RoutingIdentifier() { 
   }
 
-  public NotificationDisplayCode type(@javax.annotation.Nonnull BarcodeType type) {
+  public RoutingIdentifier type(@javax.annotation.Nullable RoutingIdentifierType type) {
     this.type = type;
     return this;
   }
@@ -56,47 +57,47 @@ public class NotificationDisplayCode {
    * Get type
    * @return type
    */
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_TYPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public BarcodeType getType() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public RoutingIdentifierType getType() {
     return type;
   }
 
 
   @JsonProperty(JSON_PROPERTY_TYPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setType(@javax.annotation.Nonnull BarcodeType type) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setType(@javax.annotation.Nullable RoutingIdentifierType type) {
     this.type = type;
   }
 
 
-  public NotificationDisplayCode data(@javax.annotation.Nonnull String data) {
-    this.data = data;
+  public RoutingIdentifier id(@javax.annotation.Nullable UUID id) {
+    this.id = id;
     return this;
   }
 
   /**
-   * Get data
-   * @return data
+   * Identifier value for the resolved routing target.
+   * @return id
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_DATA)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getData() {
-    return data;
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public UUID getId() {
+    return id;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_DATA)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setData(@javax.annotation.Nonnull String data) {
-    this.data = data;
+  @JsonProperty(JSON_PROPERTY_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setId(@javax.annotation.Nullable UUID id) {
+    this.id = id;
   }
 
 
   /**
-   * Return true if this NotificationDisplayCode object is equal to o.
+   * Return true if this RoutingIdentifier object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -106,22 +107,22 @@ public class NotificationDisplayCode {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    NotificationDisplayCode notificationDisplayCode = (NotificationDisplayCode) o;
-    return Objects.equals(this.type, notificationDisplayCode.type) &&
-        Objects.equals(this.data, notificationDisplayCode.data);
+    RoutingIdentifier routingIdentifier = (RoutingIdentifier) o;
+    return Objects.equals(this.type, routingIdentifier.type) &&
+        Objects.equals(this.id, routingIdentifier.id);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, data);
+    return Objects.hash(type, id);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class NotificationDisplayCode {\n");
+    sb.append("class RoutingIdentifier {\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    data: ").append(toIndentedString(data)).append("\n");
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("}");
     return sb.toString();
   }

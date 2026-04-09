@@ -16,7 +16,7 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.CompanyDTO;
+import com.cheqi.sdk.models.generated.CompanyCreationRequest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * ProvisionCompanyRequest
+ * Request payload for trusted partner company provisioning.
  */
 @JsonPropertyOrder({
   ProvisionCompanyRequest.JSON_PROPERTY_COMPANY,
@@ -38,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class ProvisionCompanyRequest {
   public static final String JSON_PROPERTY_COMPANY = "company";
   @javax.annotation.Nonnull
-  private CompanyDTO company;
+  private CompanyCreationRequest company;
 
   public static final String JSON_PROPERTY_ADMIN_EMAIL = "adminEmail";
   @javax.annotation.Nullable
@@ -47,7 +47,7 @@ public class ProvisionCompanyRequest {
   public ProvisionCompanyRequest() { 
   }
 
-  public ProvisionCompanyRequest company(@javax.annotation.Nonnull CompanyDTO company) {
+  public ProvisionCompanyRequest company(@javax.annotation.Nonnull CompanyCreationRequest company) {
     this.company = company;
     return this;
   }
@@ -59,14 +59,14 @@ public class ProvisionCompanyRequest {
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_COMPANY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public CompanyDTO getCompany() {
+  public CompanyCreationRequest getCompany() {
     return company;
   }
 
 
   @JsonProperty(JSON_PROPERTY_COMPANY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setCompany(@javax.annotation.Nonnull CompanyDTO company) {
+  public void setCompany(@javax.annotation.Nonnull CompanyCreationRequest company) {
     this.company = company;
   }
 
@@ -77,7 +77,7 @@ public class ProvisionCompanyRequest {
   }
 
   /**
-   * Get adminEmail
+   * Optional admin email that should receive a company-claim invitation
    * @return adminEmail
    */
   @javax.annotation.Nullable

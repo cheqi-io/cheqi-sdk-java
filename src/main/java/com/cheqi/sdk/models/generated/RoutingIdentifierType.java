@@ -23,17 +23,21 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * The processing mode for returns
+ * Type of routing identifier
  */
-public enum ReturnProcessingMode {
+public enum RoutingIdentifierType {
   
-  MANUAL("MANUAL"),
+  PAYMENT_ACCOUNT("PAYMENT_ACCOUNT"),
   
-  AUTOMATED("AUTOMATED");
+  CARD("CARD"),
+  
+  EMAIL("EMAIL"),
+  
+  CASH("CASH");
 
   private String value;
 
-  ReturnProcessingMode(String value) {
+  RoutingIdentifierType(String value) {
     this.value = value;
   }
 
@@ -48,13 +52,13 @@ public enum ReturnProcessingMode {
   }
 
   @JsonCreator
-  public static ReturnProcessingMode fromValue(String value) {
-    for (ReturnProcessingMode b : ReturnProcessingMode.values()) {
+  public static RoutingIdentifierType fromValue(String value) {
+    for (RoutingIdentifierType b : RoutingIdentifierType.values()) {
       if (b.value.equals(value)) {
         return b;
       }
     }
-    return null;
+    throw new IllegalArgumentException("Unexpected value '" + value + "'");
   }
 
 }

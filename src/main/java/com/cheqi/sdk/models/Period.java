@@ -1,7 +1,6 @@
 package com.cheqi.sdk.models;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Represents a billing or service period.
@@ -30,89 +29,66 @@ public class Period extends com.cheqi.sdk.models.generated.Period {
     }
 
     public static final class Builder {
-        private String startDate;
-        private String startTime;
-        private String endDate;
-        private String endTime;
+        private OffsetDateTime startDate;
+        private OffsetDateTime endDate;
         private String description;
 
         private Builder() {}
 
         public Builder from(com.cheqi.sdk.models.generated.Period other) {
             this.startDate = other.getStartDate();
-            this.startTime = other.getStartTime();
             this.endDate = other.getEndDate();
-            this.endTime = other.getEndTime();
             this.description = other.getDescription();
             return this;
         }
 
-        public Builder startDate(String startDate) {
+        public Builder startDate(OffsetDateTime startDate) {
             this.startDate = startDate;
             return this;
         }
 
         public Builder startDate(LocalDate startDate) {
-            this.startDate = startDate.toString();
+            this.startDate = startDate.atStartOfDay().atOffset(ZoneOffset.UTC);
             return this;
         }
 
         public Builder startDate(LocalDateTime startDateTime) {
-            this.startDate = startDateTime.toLocalDate().toString();
-            this.startTime = startDateTime.toLocalTime().format(DateTimeFormatter.ISO_LOCAL_TIME);
+            this.startDate = startDateTime.atOffset(ZoneOffset.UTC);
             return this;
         }
 
         public Builder startDate(LocalDateTime startDateTime, ZoneId zoneId) {
-            Instant instant = startDateTime.atZone(zoneId).toInstant();
-            this.startDate = startDateTime.toLocalDate().toString();
-            this.startTime = startDateTime.toLocalTime().format(DateTimeFormatter.ISO_LOCAL_TIME);
+            this.startDate = startDateTime.atZone(zoneId).toOffsetDateTime();
             return this;
         }
 
         public Builder startDate(Instant startDate) {
-            OffsetDateTime odt = startDate.atOffset(ZoneOffset.UTC);
-            this.startDate = odt.toLocalDate().toString();
-            this.startTime = odt.toLocalTime().format(DateTimeFormatter.ISO_LOCAL_TIME);
+            this.startDate = startDate.atOffset(ZoneOffset.UTC);
             return this;
         }
 
-        public Builder endDate(String endDate) {
+        public Builder endDate(OffsetDateTime endDate) {
             this.endDate = endDate;
             return this;
         }
 
         public Builder endDate(LocalDate endDate) {
-            this.endDate = endDate.toString();
+            this.endDate = endDate.atStartOfDay().atOffset(ZoneOffset.UTC);
             return this;
         }
 
         public Builder endDate(LocalDateTime endDateTime) {
-            this.endDate = endDateTime.toLocalDate().toString();
-            this.endTime = endDateTime.toLocalTime().format(DateTimeFormatter.ISO_LOCAL_TIME);
+            this.endDate = endDateTime.atOffset(ZoneOffset.UTC);
             return this;
         }
 
         public Builder endDate(LocalDateTime endDateTime, ZoneId zoneId) {
-            this.endDate = endDateTime.toLocalDate().toString();
-            this.endTime = endDateTime.toLocalTime().format(DateTimeFormatter.ISO_LOCAL_TIME);
+            this.endDate = endDateTime.atZone(zoneId).toOffsetDateTime();
             return this;
         }
 
         public Builder endDate(Instant endDate) {
-            OffsetDateTime odt = endDate.atOffset(ZoneOffset.UTC);
-            this.endDate = odt.toLocalDate().toString();
-            this.endTime = odt.toLocalTime().format(DateTimeFormatter.ISO_LOCAL_TIME);
-            return this;
-        }
-
-        public Builder startTime(String startTime) {
-            this.startTime = startTime;
-            return this;
-        }
-
-        public Builder endTime(String endTime) {
-            this.endTime = endTime;
+            this.endDate = endDate.atOffset(ZoneOffset.UTC);
             return this;
         }
 
@@ -124,9 +100,7 @@ public class Period extends com.cheqi.sdk.models.generated.Period {
         public Period build() {
             Period p = new Period();
             p.setStartDate(startDate);
-            p.setStartTime(startTime);
             p.setEndDate(endDate);
-            p.setEndTime(endTime);
             p.setDescription(description);
             return p;
         }

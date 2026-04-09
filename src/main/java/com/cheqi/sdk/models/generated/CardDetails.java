@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -32,9 +30,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({
   CardDetails.JSON_PROPERTY_CARD_PROVIDER,
-  CardDetails.JSON_PROPERTY_PAYMENT_ACCOUNT_NUMBER,
-  CardDetails.JSON_PROPERTY_PAYMENT_ACCOUNT_REFERENCE,
-  CardDetails.JSON_PROPERTY_ADDITIONAL_PROPERTIES
+  CardDetails.JSON_PROPERTY_PAYMENT_ACCOUNT_REFERENCE
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -82,17 +78,9 @@ public class CardDetails {
   @javax.annotation.Nullable
   private CardProviderEnum cardProvider;
 
-  public static final String JSON_PROPERTY_PAYMENT_ACCOUNT_NUMBER = "paymentAccountNumber";
-  @javax.annotation.Nullable
-  private String paymentAccountNumber;
-
   public static final String JSON_PROPERTY_PAYMENT_ACCOUNT_REFERENCE = "paymentAccountReference";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String paymentAccountReference;
-
-  public static final String JSON_PROPERTY_ADDITIONAL_PROPERTIES = "additionalProperties";
-  @javax.annotation.Nullable
-  private Map<String, Object> additionalProperties = new HashMap<>();
 
   public CardDetails() { 
   }
@@ -121,31 +109,7 @@ public class CardDetails {
   }
 
 
-  public CardDetails paymentAccountNumber(@javax.annotation.Nullable String paymentAccountNumber) {
-    this.paymentAccountNumber = paymentAccountNumber;
-    return this;
-  }
-
-  /**
-   * Get paymentAccountNumber
-   * @return paymentAccountNumber
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_PAYMENT_ACCOUNT_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getPaymentAccountNumber() {
-    return paymentAccountNumber;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_PAYMENT_ACCOUNT_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPaymentAccountNumber(@javax.annotation.Nullable String paymentAccountNumber) {
-    this.paymentAccountNumber = paymentAccountNumber;
-  }
-
-
-  public CardDetails paymentAccountReference(@javax.annotation.Nullable String paymentAccountReference) {
+  public CardDetails paymentAccountReference(@javax.annotation.Nonnull String paymentAccountReference) {
     this.paymentAccountReference = paymentAccountReference;
     return this;
   }
@@ -154,50 +118,18 @@ public class CardDetails {
    * Get paymentAccountReference
    * @return paymentAccountReference
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_PAYMENT_ACCOUNT_REFERENCE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPaymentAccountReference() {
     return paymentAccountReference;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PAYMENT_ACCOUNT_REFERENCE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPaymentAccountReference(@javax.annotation.Nullable String paymentAccountReference) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setPaymentAccountReference(@javax.annotation.Nonnull String paymentAccountReference) {
     this.paymentAccountReference = paymentAccountReference;
-  }
-
-
-  public CardDetails additionalProperties(@javax.annotation.Nullable Map<String, Object> additionalProperties) {
-    this.additionalProperties = additionalProperties;
-    return this;
-  }
-
-  public CardDetails putAdditionalPropertiesItem(String key, Object additionalPropertiesItem) {
-    if (this.additionalProperties == null) {
-      this.additionalProperties = new HashMap<>();
-    }
-    this.additionalProperties.put(key, additionalPropertiesItem);
-    return this;
-  }
-
-  /**
-   * Get additionalProperties
-   * @return additionalProperties
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ADDITIONAL_PROPERTIES)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getAdditionalProperties() {
-    return additionalProperties;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_ADDITIONAL_PROPERTIES)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAdditionalProperties(@javax.annotation.Nullable Map<String, Object> additionalProperties) {
-    this.additionalProperties = additionalProperties;
   }
 
 
@@ -214,14 +146,12 @@ public class CardDetails {
     }
     CardDetails cardDetails = (CardDetails) o;
     return Objects.equals(this.cardProvider, cardDetails.cardProvider) &&
-        Objects.equals(this.paymentAccountNumber, cardDetails.paymentAccountNumber) &&
-        Objects.equals(this.paymentAccountReference, cardDetails.paymentAccountReference) &&
-        Objects.equals(this.additionalProperties, cardDetails.additionalProperties);
+        Objects.equals(this.paymentAccountReference, cardDetails.paymentAccountReference);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cardProvider, paymentAccountNumber, paymentAccountReference, additionalProperties);
+    return Objects.hash(cardProvider, paymentAccountReference);
   }
 
   @Override
@@ -229,9 +159,7 @@ public class CardDetails {
     StringBuilder sb = new StringBuilder();
     sb.append("class CardDetails {\n");
     sb.append("    cardProvider: ").append(toIndentedString(cardProvider)).append("\n");
-    sb.append("    paymentAccountNumber: ").append(toIndentedString(paymentAccountNumber)).append("\n");
     sb.append("    paymentAccountReference: ").append(toIndentedString(paymentAccountReference)).append("\n");
-    sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
   }
