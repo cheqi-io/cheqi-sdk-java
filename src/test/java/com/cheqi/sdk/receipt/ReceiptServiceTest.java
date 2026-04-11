@@ -8,6 +8,7 @@ import com.cheqi.sdk.models.ReceiptTemplateRequest;
 import com.cheqi.sdk.models.generated.EncryptedReceiptRequest;
 import com.cheqi.sdk.models.generated.IdentificationDetails;
 import com.cheqi.sdk.models.generated.MatchedRecipient;
+import com.cheqi.sdk.models.generated.PaymentType;
 import com.cheqi.sdk.models.generated.ReceiptCreatedResponse;
 import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.cheqi.sdk.models.generated.ReceiptTemplateGenerationRequest;
@@ -104,7 +105,7 @@ class ReceiptServiceTest {
 
     private static IdentificationDetails identificationDetails(String email) {
         return new IdentificationDetails()
-                .paymentType(IdentificationDetails.PaymentTypeEnum.CARD_PAYMENT)
+                .paymentType(PaymentType.CARD_PAYMENT)
                 .recipientEmail(email);
     }
 

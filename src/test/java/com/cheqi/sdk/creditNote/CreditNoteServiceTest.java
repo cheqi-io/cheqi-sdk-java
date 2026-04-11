@@ -10,6 +10,7 @@ import com.cheqi.sdk.models.generated.CreditNoteTemplateResponse;
 import com.cheqi.sdk.models.generated.EncryptedCreditNote;
 import com.cheqi.sdk.models.generated.IdentificationDetails;
 import com.cheqi.sdk.models.generated.MatchedRecipient;
+import com.cheqi.sdk.models.generated.PaymentType;
 import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
 import com.cheqi.sdk.utils.HashUtils;
@@ -89,7 +90,7 @@ class CreditNoteServiceTest {
 
     private static IdentificationDetails identificationDetails() {
         return new IdentificationDetails()
-                .paymentType(IdentificationDetails.PaymentTypeEnum.CARD_PAYMENT)
+                .paymentType(PaymentType.CARD_PAYMENT)
                 .cheqiReceiptId("receipt-123");
     }
 

@@ -16,6 +16,7 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.cheqi.sdk.models.generated.AccountIdentifierType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -26,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The payment account details, for now only IBAN/WERO is supported
+ * Payment-account details. For now only IBAN/WERO-style identifiers are supported.
  */
 @JsonPropertyOrder({
   PaymentAccountDetails.JSON_PROPERTY_IDENTIFIER,
@@ -42,52 +43,9 @@ public class PaymentAccountDetails {
   @javax.annotation.Nonnull
   private String identifier;
 
-  /**
-   * Gets or Sets accountIdentifierType
-   */
-  public enum AccountIdentifierTypeEnum {
-    IBAN(String.valueOf("IBAN")),
-    
-    ROUTING_ACCOUNT(String.valueOf("ROUTING_ACCOUNT")),
-    
-    SORT_CODE_ACCOUNT(String.valueOf("SORT_CODE_ACCOUNT")),
-    
-    TOKEN(String.valueOf("TOKEN")),
-    
-    WALLET(String.valueOf("WALLET")),
-    
-    OTHER(String.valueOf("OTHER"));
-
-    private String value;
-
-    AccountIdentifierTypeEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static AccountIdentifierTypeEnum fromValue(String value) {
-      for (AccountIdentifierTypeEnum b : AccountIdentifierTypeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
   public static final String JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE = "accountIdentifierType";
   @javax.annotation.Nonnull
-  private AccountIdentifierTypeEnum accountIdentifierType;
+  private AccountIdentifierType accountIdentifierType;
 
   public static final String JSON_PROPERTY_BIC = "bic";
   @javax.annotation.Nullable
@@ -128,7 +86,7 @@ public class PaymentAccountDetails {
   }
 
 
-  public PaymentAccountDetails accountIdentifierType(@javax.annotation.Nonnull AccountIdentifierTypeEnum accountIdentifierType) {
+  public PaymentAccountDetails accountIdentifierType(@javax.annotation.Nonnull AccountIdentifierType accountIdentifierType) {
     this.accountIdentifierType = accountIdentifierType;
     return this;
   }
@@ -140,14 +98,14 @@ public class PaymentAccountDetails {
   @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public AccountIdentifierTypeEnum getAccountIdentifierType() {
+  public AccountIdentifierType getAccountIdentifierType() {
     return accountIdentifierType;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAccountIdentifierType(@javax.annotation.Nonnull AccountIdentifierTypeEnum accountIdentifierType) {
+  public void setAccountIdentifierType(@javax.annotation.Nonnull AccountIdentifierType accountIdentifierType) {
     this.accountIdentifierType = accountIdentifierType;
   }
 

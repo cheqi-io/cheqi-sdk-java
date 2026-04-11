@@ -112,6 +112,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to update this store
           content:
@@ -124,12 +130,6 @@ paths:
             '*/*':
               schema:
                 type: object
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /webhook/subscription:
@@ -155,16 +155,16 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
-        "409":
-          description: Duplicate webhook subscription already exists
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
         "200":
           description: Webhook subscription created successfully
           content:
             application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+        "409":
+          description: Duplicate webhook subscription already exists
+          content:
+            '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
         "403":
@@ -212,14 +212,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
+        "400":
+          description: Invalid identification details provided
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "400":
-          description: Invalid identification details provided
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -334,12 +334,6 @@ paths:
               $ref: "#/components/schemas/EncryptedReceiptsRequest"
         required: true
       responses:
-        "201":
-          description: Receipt created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ReceiptCreatedResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
           content:
@@ -348,6 +342,12 @@ paths:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
         "400":
           description: Invalid encrypted receipt data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReceiptCreatedResponse"
+        "201":
+          description: Receipt created successfully
           content:
             '*/*':
               schema:
@@ -611,18 +611,18 @@ paths:
               $ref: "#/components/schemas/CreateStoreRequest"
         required: true
       responses:
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to create stores for this company
           content:
             '*/*':
               schema:
                 type: object
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Company not found
           content:
@@ -654,14 +654,14 @@ paths:
               $ref: "#/components/schemas/ProvisionCompanyRequest"
         required: true
       responses:
-        "201":
-          description: Company provisioned successfully for the trusted partner
+        "403":
+          description: Client application is not a trusted partner
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProvisionCompanyResponse"
-        "403":
-          description: Client application is not a trusted partner
+        "201":
+          description: Company provisioned successfully for the trusted partner
           content:
             '*/*':
               schema:
@@ -698,14 +698,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Secret rotated successfully
+        "403":
+          description: Not authorized to rotate webhook secret for this client application
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookSecretRotationResponse"
-        "403":
-          description: Not authorized to rotate webhook secret for this client application
+        "200":
+          description: Secret rotated successfully
           content:
             '*/*':
               schema:
@@ -736,14 +736,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
@@ -887,12 +887,6 @@ paths:
         **Accessible for:** Client Application, Company
       operationId: getQueuedReceipts
       responses:
-        "200":
-          description: Queued receipts returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReceiptQueueDto"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
@@ -902,6 +896,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ReceiptQueueDto"
+        "200":
+          description: Queued receipts returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptQueueDto"
       security:
       - cheqi_oauth:
         - read_receipts
@@ -949,14 +949,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "403":
-          description: Not a client application token
+        "200":
+          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "200":
-          description: Authorized resources retrieved successfully
+        "403":
+          description: Not a client application token
           content:
             '*/*':
               schema:
@@ -1101,6 +1101,11 @@ components:
           type: array
           items:
             type: string
+    AccountIdentifierType:
+      type: string
+      description: Account type identifier
+      enum:
+      - IBAN
     CardDetails:
       required:
       - paymentAccountReference
@@ -1108,6 +1113,8 @@ components:
       properties:
         cardProvider:
           type: string
+          description: "The card provider, this is one of the major networks like\
+            \ Mastercard, Visa, American Express etc."
           enum:
           - MAESTRO
           - MASTERCARD
@@ -1115,20 +1122,21 @@ components:
           - AMERICAN_EXPRESS
         paymentAccountReference:
           type: string
-      description: The card details
+          description: "The Payment Account Reference (PAR), a stable identifier for\
+            \ the card or tokenized payment instrument."
+        lastFourDigits:
+          pattern: "^\\d{4}$"
+          type: string
+          description: "The last four digits of the card number, if available. Optional\
+            \ and used for display and receipt metadata only."
+      description: Card payment details.
     IdentificationDetails:
       required:
       - paymentType
       type: object
       properties:
         paymentType:
-          type: string
-          description: The payment type
-          example: CREDIT_CARD
-          enum:
-          - CARD_PAYMENT
-          - DIRECT_DEBIT
-          - CASH
+          $ref: "#/components/schemas/PaymentType"
         cardDetails:
           $ref: "#/components/schemas/CardDetails"
         paymentAccountDetails:
@@ -1143,7 +1151,7 @@ components:
               your side
         recipientEmail:
           type: string
-          description: The recipient email
+          description: Recipient email used as a fallback customer identifier.
           example: recipient@example.com
         cheqiReceiptId:
           type: string
@@ -1151,8 +1159,14 @@ components:
           example: CHQ-12345678-123456-123456
         pairingCode:
           type: string
-          description: A temporary 6-digit pairing code generated by the receipt recipient
+          description: A temporary 6-digit pairing code generated by the receipt recipient.
           example: "847392"
+      description: "Identification and payment details used to resolve the receipt\
+        \ recipient. For non-cash payments, you must provide either cardDetails or\
+        \ paymentAccountDetails. For card payments, cardDetails may also include optional\
+        \ lastFourDigits for richer receipt metadata. For cash payments, cardDetails\
+        \ and paymentAccountDetails are not required, but you must provide either\
+        \ recipientEmail or pairingCode."
     PaymentAccountDetails:
       required:
       - accountIdentifierType
@@ -1162,21 +1176,24 @@ components:
         identifier:
           type: string
         accountIdentifierType:
-          type: string
-          enum:
-          - IBAN
-          - ROUTING_ACCOUNT
-          - SORT_CODE_ACCOUNT
-          - TOKEN
-          - WALLET
-          - OTHER
+          $ref: "#/components/schemas/AccountIdentifierType"
         bic:
           type: string
         bankName:
           type: string
         accountHolderName:
           type: string
-      description: "The payment account details, for now only IBAN/WERO is supported"
+      description: Payment-account details. For now only IBAN/WERO-style identifiers
+        are supported.
+    PaymentType:
+      type: string
+      description: Describes how the transaction was paid. This is payment context
+        for receipt generation and is independent from how the recipient was matched.
+      example: CARD_PAYMENT
+      enum:
+      - CARD_PAYMENT
+      - DIRECT_DEBIT
+      - CASH
     BuyerType:
       type: string
       description: Type of recipient entity
@@ -4461,9 +4478,6 @@ components:
       enum:
       - RSA_2048
       - RSA_4096
-      - ECDSA_P256
-      - ECDSA_P384
-      - ED25519
     UploadPublicKeyRequest:
       required:
       - keyAlgorithm
@@ -4866,7 +4880,7 @@ components:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: http://Teijes-MacBook-Pro.local:8080/oauth/authorize
+          authorizationUrl: http://teijes-macbook-air.home:8080/oauth/authorize
           scopes:
             write_receipts: Write receipts
             read_receipts: Read receipts

@@ -45,7 +45,7 @@ test {
 }
 
 group = 'io.cheqi'
-version = '1.0.4'
+version = '1.0.5-local'
 description = 'Cheqi SDK'
 java.sourceCompatibility = JavaVersion.VERSION_11
 

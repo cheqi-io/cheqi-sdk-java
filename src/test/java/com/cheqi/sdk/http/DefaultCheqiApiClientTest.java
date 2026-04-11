@@ -5,6 +5,7 @@ import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.models.Product;
 import com.cheqi.sdk.models.ReceiptTemplateRequest;
 import com.cheqi.sdk.models.generated.IdentificationDetails;
+import com.cheqi.sdk.models.generated.PaymentType;
 import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.cheqi.sdk.models.generated.ReceiptTemplateGenerationRequest;
 import com.cheqi.sdk.models.generated.UnitCode;
@@ -64,7 +65,7 @@ class DefaultCheqiApiClientTest {
         try {
             DefaultCheqiApiClient client = new DefaultCheqiApiClient(configFor(server));
             IdentificationDetails request = new IdentificationDetails()
-                    .paymentType(IdentificationDetails.PaymentTypeEnum.CARD_PAYMENT)
+                    .paymentType(PaymentType.CARD_PAYMENT)
                     .recipientEmail("customer@example.com");
 
             var response = client.matchCustomer(request, "token-abc");

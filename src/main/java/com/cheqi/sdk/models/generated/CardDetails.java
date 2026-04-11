@@ -26,17 +26,18 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The card details
+ * Card payment details.
  */
 @JsonPropertyOrder({
   CardDetails.JSON_PROPERTY_CARD_PROVIDER,
-  CardDetails.JSON_PROPERTY_PAYMENT_ACCOUNT_REFERENCE
+  CardDetails.JSON_PROPERTY_PAYMENT_ACCOUNT_REFERENCE,
+  CardDetails.JSON_PROPERTY_LAST_FOUR_DIGITS
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class CardDetails {
   /**
-   * Gets or Sets cardProvider
+   * The card provider, this is one of the major networks like Mastercard, Visa, American Express etc.
    */
   public enum CardProviderEnum {
     MAESTRO(String.valueOf("MAESTRO")),
@@ -82,6 +83,10 @@ public class CardDetails {
   @javax.annotation.Nonnull
   private String paymentAccountReference;
 
+  public static final String JSON_PROPERTY_LAST_FOUR_DIGITS = "lastFourDigits";
+  @javax.annotation.Nullable
+  private String lastFourDigits;
+
   public CardDetails() { 
   }
 
@@ -91,7 +96,7 @@ public class CardDetails {
   }
 
   /**
-   * Get cardProvider
+   * The card provider, this is one of the major networks like Mastercard, Visa, American Express etc.
    * @return cardProvider
    */
   @javax.annotation.Nullable
@@ -115,7 +120,7 @@ public class CardDetails {
   }
 
   /**
-   * Get paymentAccountReference
+   * The Payment Account Reference (PAR), a stable identifier for the card or tokenized payment instrument.
    * @return paymentAccountReference
    */
   @javax.annotation.Nonnull
@@ -133,6 +138,30 @@ public class CardDetails {
   }
 
 
+  public CardDetails lastFourDigits(@javax.annotation.Nullable String lastFourDigits) {
+    this.lastFourDigits = lastFourDigits;
+    return this;
+  }
+
+  /**
+   * The last four digits of the card number, if available. Optional and used for display and receipt metadata only.
+   * @return lastFourDigits
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_LAST_FOUR_DIGITS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getLastFourDigits() {
+    return lastFourDigits;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_LAST_FOUR_DIGITS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLastFourDigits(@javax.annotation.Nullable String lastFourDigits) {
+    this.lastFourDigits = lastFourDigits;
+  }
+
+
   /**
    * Return true if this CardDetails object is equal to o.
    */
@@ -146,12 +175,13 @@ public class CardDetails {
     }
     CardDetails cardDetails = (CardDetails) o;
     return Objects.equals(this.cardProvider, cardDetails.cardProvider) &&
-        Objects.equals(this.paymentAccountReference, cardDetails.paymentAccountReference);
+        Objects.equals(this.paymentAccountReference, cardDetails.paymentAccountReference) &&
+        Objects.equals(this.lastFourDigits, cardDetails.lastFourDigits);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cardProvider, paymentAccountReference);
+    return Objects.hash(cardProvider, paymentAccountReference, lastFourDigits);
   }
 
   @Override
@@ -160,6 +190,7 @@ public class CardDetails {
     sb.append("class CardDetails {\n");
     sb.append("    cardProvider: ").append(toIndentedString(cardProvider)).append("\n");
     sb.append("    paymentAccountReference: ").append(toIndentedString(paymentAccountReference)).append("\n");
+    sb.append("    lastFourDigits: ").append(toIndentedString(lastFourDigits)).append("\n");
     sb.append("}");
     return sb.toString();
   }
