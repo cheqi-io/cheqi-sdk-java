@@ -1,24 +1,24 @@
 package com.cheqi.sdk.receipt;
 
 import com.cheqi.sdk.decryption.DecryptedReceipt;
-import com.cheqi.sdk.models.generated.CustomerContextEnvelope;
+import com.cheqi.sdk.models.generated.ReceiptContextEnvelope;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Merges customer details from the {@link CustomerContextEnvelope} into the receipt formats
+ * Merges receipt context from the {@link ReceiptContextEnvelope} into the receipt formats
  * contained in the {@link ReceiptEnvelope}.
  *
  * Two merges are performed:
  * <ul>
- *   <li>UBL XML: the {@code <cac:AccountingCustomerParty/>} placeholder is replaced with the xmlParty fragment</li>
+ *   <li>UBL XML: the {@code <cac:AccountingCustomerParty/>} placeholder is replaced with the xmlReceivingParty fragment</li>
  *   <li>UBL XML: xmlPaymentMeans is injected immediately after {@code AccountingCustomerParty} when present</li>
- *   <li>CheqiReceipt: the receivingParty is injected from the CustomerContextEnvelope</li>
+ *   <li>CheqiReceipt: the receivingParty is injected from the receipt context envelope</li>
  * </ul>
  *
  * The {@link DecryptedReceipt} is mutated in place — after calling {@link #merge(DecryptedReceipt)},
- * its {@code getUblPurchaseReceipt()} and {@code getCheqiReceipt()} return the complete, merged versions.
+ * its receipt envelope contains the complete, merged versions.
  */
 public class ReceiptMergeService {
     private static final Logger logger = LoggerFactory.getLogger(ReceiptMergeService.class);
@@ -26,17 +26,17 @@ public class ReceiptMergeService {
     private static final String CUSTOMER_PARTY_CLOSING_TAG = "</cac:AccountingCustomerParty>";
 
     /**
-     * Merges customer details into both receipt formats of the given {@link DecryptedReceipt}.
-     * Does nothing if no customer details are present.
+     * Merges receipt context into both receipt formats of the given {@link DecryptedReceipt}.
+     * Does nothing if no receipt context is present.
      *
-     * @param decryptedReceipt the decrypted receipt to merge customer details into
+     * @param decryptedReceipt the decrypted receipt to merge receipt context into
      */
     public void merge(DecryptedReceipt decryptedReceipt) {
-        if (!decryptedReceipt.hasCustomerDetails()) {
+        ReceiptContextEnvelope envelope = decryptedReceipt.getReceiptContextEnvelope();
+        if (envelope == null) {
             return;
         }
 
-        CustomerContextEnvelope envelope = decryptedReceipt.getCustomerContextEnvelope();
         ReceiptEnvelope receiptEnvelope = decryptedReceipt.getReceiptEnvelope();
 
         mergeXmlParty(envelope, receiptEnvelope);
@@ -46,20 +46,21 @@ public class ReceiptMergeService {
 
     /**
      * Replaces the {@code <cac:AccountingCustomerParty/>} placeholder in the UBL XML
-     * with the xmlParty fragment from the CustomerContextEnvelope.
+     * with the xmlReceivingParty fragment from the receipt context envelope.
      */
-    private void mergeXmlParty(CustomerContextEnvelope envelope, ReceiptEnvelope receiptEnvelope) {
-        if (envelope.getXmlParty() == null) {
+    private void mergeXmlParty(ReceiptContextEnvelope envelope, ReceiptEnvelope receiptEnvelope) {
+        if (envelope.getReceivingParty() == null || envelope.getReceivingParty().getXmlReceivingParty() == null) {
             return;
         }
 
+        String xmlReceivingParty = envelope.getReceivingParty().getXmlReceivingParty();
         receiptEnvelope.setUblPurchaseReceipt(
-                mergeXmlPayload(receiptEnvelope.getUblPurchaseReceipt(), envelope.getXmlParty(), "ublPurchaseReceipt"));
+                mergeXmlPayload(receiptEnvelope.getUblPurchaseReceipt(), xmlReceivingParty, "ublPurchaseReceipt"));
         receiptEnvelope.setUblInvoice(
-                mergeXmlPayload(receiptEnvelope.getUblInvoice(), envelope.getXmlParty(), "ublInvoice"));
+                mergeXmlPayload(receiptEnvelope.getUblInvoice(), xmlReceivingParty, "ublInvoice"));
     }
 
-    private String mergeXmlPayload(String xml, String xmlParty, String fieldName) {
+    private String mergeXmlPayload(String xml, String xmlReceivingParty, String fieldName) {
         if (xml == null) {
             return null;
         }
@@ -68,15 +69,15 @@ public class ReceiptMergeService {
             return xml;
         }
 
-        logger.debug("Merged xmlParty into {}, replacing AccountingCustomerParty placeholder", fieldName);
-        return xml.replace(CUSTOMER_PARTY_PLACEHOLDER, xmlParty);
+        logger.debug("Merged xmlReceivingParty into {}, replacing AccountingCustomerParty placeholder", fieldName);
+        return xml.replace(CUSTOMER_PARTY_PLACEHOLDER, xmlReceivingParty);
     }
 
     /**
-     * Injects the xmlPaymentMeans fragment from the CustomerContextEnvelope immediately after
+     * Injects the xmlPaymentMeans fragment from the receipt context envelope immediately after
      * the AccountingCustomerParty element in the UBL XML.
      */
-    private void mergeXmlPaymentMeans(CustomerContextEnvelope envelope, ReceiptEnvelope receiptEnvelope) {
+    private void mergeXmlPaymentMeans(ReceiptContextEnvelope envelope, ReceiptEnvelope receiptEnvelope) {
         if (envelope.getPaymentMeans() == null || envelope.getPaymentMeans().getXmlPaymentMeans() == null) {
             return;
         }
@@ -108,14 +109,16 @@ public class ReceiptMergeService {
     }
 
     /**
-     * Injects the receivingParty from the CustomerContextEnvelope into the CheqiReceipt.
+     * Injects the receivingParty from the receipt context envelope into the CheqiReceipt.
      */
-    private void mergeReceivingParty(CustomerContextEnvelope envelope, ReceiptEnvelope receiptEnvelope) {
-        if (envelope.getReceivingParty() == null || receiptEnvelope.getCheqi() == null) {
+    private void mergeReceivingParty(ReceiptContextEnvelope envelope, ReceiptEnvelope receiptEnvelope) {
+        if (envelope.getReceivingParty() == null
+                || envelope.getReceivingParty().getReceivingParty() == null
+                || receiptEnvelope.getCheqi() == null) {
             return;
         }
 
-        receiptEnvelope.getCheqi().setReceivingParty(envelope.getReceivingParty());
+        receiptEnvelope.getCheqi().setReceivingParty(envelope.getReceivingParty().getReceivingParty());
         logger.debug("Injected receivingParty into CheqiReceipt");
     }
 }

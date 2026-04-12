@@ -35,6 +35,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
+      - name: Check OpenAPI spec drift
+        run: make spec-check ENV=test
+
       - name: Verify generated models are committed
         run: |
           mvn -B -q generate-sources

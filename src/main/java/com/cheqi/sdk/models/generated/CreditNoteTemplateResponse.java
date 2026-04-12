@@ -30,15 +30,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * CreditNoteTemplateResponse
  */
 @JsonPropertyOrder({
-  CreditNoteTemplateResponse.JSON_PROPERTY_UBL,
+  CreditNoteTemplateResponse.JSON_PROPERTY_UBL_CREDIT_NOTE,
   CreditNoteTemplateResponse.JSON_PROPERTY_CHEQI
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class CreditNoteTemplateResponse {
-  public static final String JSON_PROPERTY_UBL = "ubl";
+  public static final String JSON_PROPERTY_UBL_CREDIT_NOTE = "ublCreditNote";
   @javax.annotation.Nullable
-  private String ubl;
+  private String ublCreditNote;
 
   public static final String JSON_PROPERTY_CHEQI = "cheqi";
   @javax.annotation.Nullable
@@ -47,27 +47,27 @@ public class CreditNoteTemplateResponse {
   public CreditNoteTemplateResponse() { 
   }
 
-  public CreditNoteTemplateResponse ubl(@javax.annotation.Nullable String ubl) {
-    this.ubl = ubl;
+  public CreditNoteTemplateResponse ublCreditNote(@javax.annotation.Nullable String ublCreditNote) {
+    this.ublCreditNote = ublCreditNote;
     return this;
   }
 
   /**
    * UBL XML credit note template as a serialized XML string following the CreditNote schema. See [UBL XML Credit Note Format](https://docs.cheqi.io/creditNote/ubl-format) for the full structure and field reference.
-   * @return ubl
+   * @return ublCreditNote
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_UBL)
+  @JsonProperty(JSON_PROPERTY_UBL_CREDIT_NOTE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getUbl() {
-    return ubl;
+  public String getUblCreditNote() {
+    return ublCreditNote;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_UBL)
+  @JsonProperty(JSON_PROPERTY_UBL_CREDIT_NOTE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setUbl(@javax.annotation.Nullable String ubl) {
-    this.ubl = ubl;
+  public void setUblCreditNote(@javax.annotation.Nullable String ublCreditNote) {
+    this.ublCreditNote = ublCreditNote;
   }
 
 
@@ -107,20 +107,20 @@ public class CreditNoteTemplateResponse {
       return false;
     }
     CreditNoteTemplateResponse creditNoteTemplateResponse = (CreditNoteTemplateResponse) o;
-    return Objects.equals(this.ubl, creditNoteTemplateResponse.ubl) &&
+    return Objects.equals(this.ublCreditNote, creditNoteTemplateResponse.ublCreditNote) &&
         Objects.equals(this.cheqi, creditNoteTemplateResponse.cheqi);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ubl, cheqi);
+    return Objects.hash(ublCreditNote, cheqi);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CreditNoteTemplateResponse {\n");
-    sb.append("    ubl: ").append(toIndentedString(ubl)).append("\n");
+    sb.append("    ublCreditNote: ").append(toIndentedString(ublCreditNote)).append("\n");
     sb.append("    cheqi: ").append(toIndentedString(cheqi)).append("\n");
     sb.append("}");
     return sb.toString();

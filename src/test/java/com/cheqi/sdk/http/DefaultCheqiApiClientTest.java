@@ -4,11 +4,7 @@ import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.models.Product;
 import com.cheqi.sdk.models.ReceiptTemplateRequest;
-import com.cheqi.sdk.models.generated.IdentificationDetails;
-import com.cheqi.sdk.models.generated.PaymentType;
-import com.cheqi.sdk.models.generated.ReceiptFormat;
-import com.cheqi.sdk.models.generated.ReceiptTemplateGenerationRequest;
-import com.cheqi.sdk.models.generated.UnitCode;
+import com.cheqi.sdk.models.generated.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
@@ -64,7 +60,8 @@ class DefaultCheqiApiClientTest {
         });
         try {
             DefaultCheqiApiClient client = new DefaultCheqiApiClient(configFor(server));
-            IdentificationDetails request = new IdentificationDetails()
+            IdentificationDetails request;
+            request = new IdentificationDetails()
                     .paymentType(PaymentType.CARD_PAYMENT)
                     .recipientEmail("customer@example.com");
 

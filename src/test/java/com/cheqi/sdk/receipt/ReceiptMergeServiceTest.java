@@ -1,9 +1,10 @@
 package com.cheqi.sdk.receipt;
 
 import com.cheqi.sdk.decryption.DecryptedReceipt;
-import com.cheqi.sdk.models.generated.CustomerContextEnvelope;
 import com.cheqi.sdk.models.generated.PaymentMeansEnvelope;
+import com.cheqi.sdk.models.generated.ReceiptContextEnvelope;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
+import com.cheqi.sdk.models.generated.ReceivingPartyEnvelope;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,10 +21,10 @@ class ReceiptMergeServiceTest {
         receiptEnvelope.setUblPurchaseReceipt("<PurchaseReceipt>" + PLACEHOLDER + "</PurchaseReceipt>");
         receiptEnvelope.setUblInvoice("<Invoice>" + PLACEHOLDER + "</Invoice>");
 
-        CustomerContextEnvelope customerContextEnvelope = new CustomerContextEnvelope();
-        customerContextEnvelope.setXmlParty(XML_PARTY);
+        ReceiptContextEnvelope receiptContextEnvelope = new ReceiptContextEnvelope();
+        receiptContextEnvelope.setReceivingParty(new ReceivingPartyEnvelope().xmlReceivingParty(XML_PARTY));
 
-        DecryptedReceipt decryptedReceipt = new DecryptedReceipt(receiptEnvelope, customerContextEnvelope);
+        DecryptedReceipt decryptedReceipt = new DecryptedReceipt(receiptEnvelope, receiptContextEnvelope);
 
         new ReceiptMergeService().merge(decryptedReceipt);
 
@@ -36,10 +37,10 @@ class ReceiptMergeServiceTest {
         ReceiptEnvelope receiptEnvelope = new ReceiptEnvelope();
         receiptEnvelope.setUblInvoice("<Invoice><cbc:ID>123</cbc:ID></Invoice>");
 
-        CustomerContextEnvelope customerContextEnvelope = new CustomerContextEnvelope();
-        customerContextEnvelope.setXmlParty(XML_PARTY);
+        ReceiptContextEnvelope receiptContextEnvelope = new ReceiptContextEnvelope();
+        receiptContextEnvelope.setReceivingParty(new ReceivingPartyEnvelope().xmlReceivingParty(XML_PARTY));
 
-        DecryptedReceipt decryptedReceipt = new DecryptedReceipt(receiptEnvelope, customerContextEnvelope);
+        DecryptedReceipt decryptedReceipt = new DecryptedReceipt(receiptEnvelope, receiptContextEnvelope);
 
         new ReceiptMergeService().merge(decryptedReceipt);
 
@@ -52,11 +53,11 @@ class ReceiptMergeServiceTest {
         receiptEnvelope.setUblPurchaseReceipt("<PurchaseReceipt>" + PLACEHOLDER + "</PurchaseReceipt>");
         receiptEnvelope.setUblInvoice("<Invoice>" + PLACEHOLDER + "</Invoice>");
 
-        CustomerContextEnvelope customerContextEnvelope = new CustomerContextEnvelope();
-        customerContextEnvelope.setXmlParty(XML_PARTY);
-        customerContextEnvelope.setPaymentMeans(new PaymentMeansEnvelope().xmlPaymentMeans(XML_PAYMENT_MEANS));
+        ReceiptContextEnvelope receiptContextEnvelope = new ReceiptContextEnvelope();
+        receiptContextEnvelope.setReceivingParty(new ReceivingPartyEnvelope().xmlReceivingParty(XML_PARTY));
+        receiptContextEnvelope.setPaymentMeans(new PaymentMeansEnvelope().xmlPaymentMeans(XML_PAYMENT_MEANS));
 
-        DecryptedReceipt decryptedReceipt = new DecryptedReceipt(receiptEnvelope, customerContextEnvelope);
+        DecryptedReceipt decryptedReceipt = new DecryptedReceipt(receiptEnvelope, receiptContextEnvelope);
 
         new ReceiptMergeService().merge(decryptedReceipt);
 

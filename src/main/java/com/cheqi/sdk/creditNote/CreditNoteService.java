@@ -283,8 +283,8 @@ public class CreditNoteService {
         if (acceptedFormats.contains(ReceiptFormat.CHEQI) && templateResponse.getCheqi() != null) {
             envelope.setCheqiCreditNote(templateResponse.getCheqi());
         }
-        if (acceptedFormats.contains(ReceiptFormat.UBL_CREDIT_NOTE) && templateResponse.getUbl() != null) {
-            envelope.setUblPurchaseReceipt(templateResponse.getUbl());
+        if (acceptedFormats.contains(ReceiptFormat.UBL_CREDIT_NOTE) && templateResponse.getUblCreditNote() != null) {
+            envelope.setUblPurchaseReceipt(templateResponse.getUblCreditNote());
         }
         return envelope;
     }
@@ -326,7 +326,7 @@ public class CreditNoteService {
 
         String templateContent = templateResponse.getCheqi() != null
                 ? objectMapper.writeValueAsString(templateResponse.getCheqi())
-                : templateResponse.getUbl();
+                : templateResponse.getUblCreditNote();
         String templateHash = HashUtils.sha256Hex(templateContent);
 
         logger.debug("Sending {} encrypted credit notes to backend", encryptedCreditNotes.size());

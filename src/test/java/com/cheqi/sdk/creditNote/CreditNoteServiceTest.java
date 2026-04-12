@@ -3,16 +3,7 @@ package com.cheqi.sdk.creditNote;
 import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.matching.MatchingService;
-import com.cheqi.sdk.models.generated.CreditNoteCreatedResponse;
-import com.cheqi.sdk.models.generated.CreditNoteTemplateGenerationRequest;
-import com.cheqi.sdk.models.generated.CreditNoteTemplateRequest;
-import com.cheqi.sdk.models.generated.CreditNoteTemplateResponse;
-import com.cheqi.sdk.models.generated.EncryptedCreditNote;
-import com.cheqi.sdk.models.generated.IdentificationDetails;
-import com.cheqi.sdk.models.generated.MatchedRecipient;
-import com.cheqi.sdk.models.generated.PaymentType;
-import com.cheqi.sdk.models.generated.ReceiptFormat;
-import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
+import com.cheqi.sdk.models.generated.*;
 import com.cheqi.sdk.utils.HashUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,7 +38,7 @@ class CreditNoteServiceTest {
     void processCompleteCreditNote_deliversEncryptedCreditNoteForMatchedCustomer() throws Exception {
         CreditNoteService service = new CreditNoteService(apiClient, encryptionService, matchingService);
         RecipientResolutionResponse matchResponse = matchedRecipientResponse();
-        CreditNoteTemplateResponse templateResponse = new CreditNoteTemplateResponse().ubl("<CreditNote>ok</CreditNote>");
+        CreditNoteTemplateResponse templateResponse = new CreditNoteTemplateResponse().ublCreditNote("<CreditNote>ok</CreditNote>");
         CreditNoteCreatedResponse createdResponse = new CreditNoteCreatedResponse()
                 .cheqiReceiptId("credit-note-123")
                 .parentCheqiReceiptId("receipt-123")

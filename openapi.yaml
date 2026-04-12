@@ -112,12 +112,6 @@ paths:
             '*/*':
               schema:
                 type: object
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to update this store
           content:
@@ -130,6 +124,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /webhook/subscription:
@@ -155,12 +155,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
         "409":
           description: Duplicate webhook subscription already exists
           content:
@@ -171,6 +165,12 @@ paths:
           description: Insufficient permissions - requires read_receipts scope
           content:
             '*/*':
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
       security:
@@ -206,6 +206,12 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
+        "200":
+          description: Recipient successfully resolved and matched
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RecipientResolutionResponse"
         "401":
           description: Authentication required
           content:
@@ -214,12 +220,6 @@ paths:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
         "400":
           description: Invalid identification details provided
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -340,14 +340,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "400":
-          description: Invalid encrypted receipt data
+        "201":
+          description: Receipt created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "201":
-          description: Receipt created successfully
+        "400":
+          description: Invalid encrypted receipt data
           content:
             '*/*':
               schema:
@@ -400,6 +400,12 @@ paths:
               $ref: "#/components/schemas/CreditNoteTemplateGenerationRequest"
         required: true
       responses:
+        "201":
+          description: Credit note template created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CreditNoteTemplateResponse"
         "400":
           description: Invalid template request data
           content:
@@ -412,12 +418,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteTemplateResponse"
-        "201":
-          description: Credit note template created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CreditNote"
       security:
       - cheqi_oauth:
         - write_receipts
@@ -611,18 +611,18 @@ paths:
               $ref: "#/components/schemas/CreateStoreRequest"
         required: true
       responses:
-        "403":
-          description: Not authorized to create stores for this company
-          content:
-            '*/*':
-              schema:
-                type: object
         "201":
           description: Store created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
+        "403":
+          description: Not authorized to create stores for this company
+          content:
+            '*/*':
+              schema:
+                type: object
         "404":
           description: Company not found
           content:
@@ -654,14 +654,14 @@ paths:
               $ref: "#/components/schemas/ProvisionCompanyRequest"
         required: true
       responses:
-        "403":
-          description: Client application is not a trusted partner
+        "201":
+          description: Company provisioned successfully for the trusted partner
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProvisionCompanyResponse"
-        "201":
-          description: Company provisioned successfully for the trusted partner
+        "403":
+          description: Client application is not a trusted partner
           content:
             '*/*':
               schema:
@@ -698,14 +698,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "403":
-          description: Not authorized to rotate webhook secret for this client application
+        "200":
+          description: Secret rotated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookSecretRotationResponse"
-        "200":
-          description: Secret rotated successfully
+        "403":
+          description: Not authorized to rotate webhook secret for this client application
           content:
             '*/*':
               schema:
@@ -736,14 +736,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
@@ -862,14 +862,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "403":
-          description: Not authorized to activate this store
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
+        "403":
+          description: Not authorized to activate this store
           content:
             '*/*':
               schema:
@@ -887,6 +887,12 @@ paths:
         **Accessible for:** Client Application, Company
       operationId: getQueuedReceipts
       responses:
+        "200":
+          description: Queued receipts returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptQueueDto"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
@@ -896,12 +902,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ReceiptQueueDto"
-        "200":
-          description: Queued receipts returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReceiptQueueDto"
       security:
       - cheqi_oauth:
         - read_receipts
@@ -949,14 +949,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "200":
-          description: Authorized resources retrieved successfully
+        "403":
+          description: Not a client application token
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "403":
-          description: Not a client application token
+        "200":
+          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
@@ -2187,1797 +2187,6 @@ components:
           type: string
           description: A note that the seller wants to include on the credit note
       description: Receipt template request with transaction details
-    Address:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        addressTypeCode:
-          $ref: "#/components/schemas/Code"
-        addressFormatCode:
-          $ref: "#/components/schemas/Code"
-        postbox:
-          type: string
-          xml:
-            name: Postbox
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        floor:
-          type: string
-          xml:
-            name: Floor
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        room:
-          type: string
-          xml:
-            name: Room
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        streetName:
-          type: string
-          xml:
-            name: StreetName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        additionalStreetName:
-          type: string
-          xml:
-            name: AdditionalStreetName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        blockName:
-          type: string
-          xml:
-            name: BlockName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        buildingName:
-          type: string
-          xml:
-            name: BuildingName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        buildingNumber:
-          type: string
-          xml:
-            name: BuildingNumber
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        description:
-          type: array
-          xml:
-            name: Description
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: Description
-        inhouseMail:
-          type: string
-          xml:
-            name: InhouseMail
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        department:
-          type: string
-          xml:
-            name: Department
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        markAttention:
-          type: string
-          xml:
-            name: MarkAttention
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        markCare:
-          type: string
-          xml:
-            name: MarkCare
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        plotIdentification:
-          type: string
-          xml:
-            name: PlotIdentification
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        citySubdivisionName:
-          type: string
-          xml:
-            name: CitySubdivisionName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        cityName:
-          type: string
-          xml:
-            name: CityName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        postalZone:
-          type: string
-          xml:
-            name: PostalZone
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        countrySubentity:
-          type: string
-          xml:
-            name: CountrySubentity
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        countrySubentityCode:
-          $ref: "#/components/schemas/Code"
-        region:
-          type: string
-          xml:
-            name: Region
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        district:
-          type: string
-          xml:
-            name: District
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        timezoneOffset:
-          type: string
-          xml:
-            name: TimezoneOffset
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        addressLine:
-          type: array
-          xml:
-            name: AddressLine
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/AddressLine"
-        country:
-          $ref: "#/components/schemas/Country"
-        locationCoordinate:
-          $ref: "#/components/schemas/LocationCoordinate"
-    AddressLine:
-      type: object
-      properties:
-        line:
-          type: string
-          xml:
-            name: Line
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-    AllowanceCharge:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        chargeIndicator:
-          type: boolean
-          xml:
-            name: ChargeIndicator
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        allowanceChargeReasonCode:
-          $ref: "#/components/schemas/Code"
-        allowanceChargeReason:
-          type: array
-          xml:
-            name: AllowanceChargeReason
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: AllowanceChargeReason
-        multiplierFactorNumeric:
-          type: number
-          format: double
-          xml:
-            name: MultiplierFactorNumeric
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        prepaidIndicator:
-          type: boolean
-          xml:
-            name: PrepaidIndicator
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        sequenceNumeric:
-          type: integer
-          format: int32
-          xml:
-            name: SequenceNumeric
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        amount:
-          $ref: "#/components/schemas/Amount"
-        taxInclusiveAmount:
-          $ref: "#/components/schemas/Amount"
-        baseAmount:
-          $ref: "#/components/schemas/Amount"
-        accountingCostCode:
-          $ref: "#/components/schemas/Code"
-        accountingCost:
-          type: string
-          xml:
-            name: AccountingCost
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        perUnitAmount:
-          $ref: "#/components/schemas/Amount"
-        taxCategory:
-          $ref: "#/components/schemas/TaxCategory"
-        taxTotal:
-          $ref: "#/components/schemas/TaxTotal"
-        paymentMeans:
-          type: array
-          xml:
-            name: PaymentMeans
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/PaymentMeans"
-    Amount:
-      type: object
-      properties:
-        currencyID:
-          type: string
-          xml:
-            attribute: true
-        value:
-          type: number
-    Attachment:
-      type: object
-      properties:
-        embeddedDocumentBinaryObject:
-          $ref: "#/components/schemas/EmbeddedDocument"
-        externalReference:
-          $ref: "#/components/schemas/ExternalReference"
-    Branch:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        name:
-          $ref: "#/components/schemas/Name"
-        financialInstitution:
-          $ref: "#/components/schemas/FinancialInstitution"
-        address:
-          $ref: "#/components/schemas/Address"
-    CardAccount:
-      type: object
-      properties:
-        primaryAccountNumberID:
-          $ref: "#/components/schemas/Identifier"
-        networkID:
-          $ref: "#/components/schemas/Identifier"
-        cardTypeCode:
-          $ref: "#/components/schemas/Code"
-        validityStartDate:
-          type: string
-          format: date
-          xml:
-            name: ValidityStartDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        expiryDate:
-          type: string
-          format: date
-          xml:
-            name: ExpiryDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        issuerID:
-          $ref: "#/components/schemas/Identifier"
-        issueNumberID:
-          $ref: "#/components/schemas/Identifier"
-        getcV2ID:
-          $ref: "#/components/schemas/Identifier"
-        cardChipCode:
-          $ref: "#/components/schemas/Code"
-        chipApplicationID:
-          $ref: "#/components/schemas/Identifier"
-        holderName:
-          type: string
-          xml:
-            name: HolderName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        roleCode:
-          $ref: "#/components/schemas/Code"
-    Certificate:
-      required:
-      - id
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        certificateTypeCode:
-          type: string
-          xml:
-            name: CertificateTypeCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        certificateType:
-          type: array
-          xml:
-            name: CertificateType
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: CertificateType
-        remarks:
-          type: array
-          xml:
-            name: Remarks
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: Remarks
-        issuerParty:
-          $ref: "#/components/schemas/Party"
-        documentReference:
-          type: array
-          xml:
-            name: DocumentReference
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/DocumentReference"
-        signature:
-          type: array
-          xml:
-            name: Signature
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Signature"
-    Clause:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        content:
-          type: array
-          items:
-            type: string
-    Code:
-      type: object
-      properties:
-        value:
-          type: string
-        languageID:
-          type: string
-          xml:
-            attribute: true
-        listAgencyID:
-          type: string
-          xml:
-            attribute: true
-        listAgencyName:
-          type: string
-          xml:
-            attribute: true
-        listID:
-          type: string
-          xml:
-            attribute: true
-        listName:
-          type: string
-          xml:
-            attribute: true
-        listSchemeURI:
-          type: string
-          xml:
-            attribute: true
-        listURI:
-          type: string
-          xml:
-            attribute: true
-        listVersionID:
-          type: string
-          xml:
-            attribute: true
-        name:
-          type: string
-          xml:
-            attribute: true
-    CommodityClassification:
-      type: object
-      properties:
-        natureCode:
-          type: string
-          xml:
-            name: NatureCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        cargoTypeCode:
-          type: string
-          xml:
-            name: CargoTypeCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        commodityCode:
-          type: string
-          xml:
-            name: CommodityCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        itemClassificationCode:
-          $ref: "#/components/schemas/Code"
-    Communication:
-      type: object
-      properties:
-        channelCode:
-          $ref: "#/components/schemas/Code"
-        channel:
-          type: string
-          xml:
-            name: Channel
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        value:
-          type: string
-          xml:
-            name: Value
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-    Contact:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        name:
-          type: string
-          xml:
-            name: Name
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        jobTitle:
-          type: string
-          xml:
-            name: JobTitle
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        department:
-          type: string
-          xml:
-            name: Department
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        telephone:
-          type: string
-          xml:
-            name: Telephone
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        telefax:
-          type: string
-          xml:
-            name: Telefax
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        electronicMail:
-          type: string
-          xml:
-            name: ElectronicMail
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        note:
-          type: string
-          xml:
-            name: Note
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        otherCommunication:
-          type: array
-          xml:
-            name: OtherCommunication
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Communication"
-    Country:
-      type: object
-      properties:
-        identificationCode:
-          type: string
-          xml:
-            name: IdentificationCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        name:
-          type: string
-          xml:
-            name: Name
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-    CreditAccount:
-      type: object
-      properties:
-        accountID:
-          $ref: "#/components/schemas/Identifier"
-    CreditNote:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        issueDate:
-          type: string
-          xml:
-            name: IssueDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        issueTime:
-          type: string
-          xml:
-            name: IssueTime
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        documentCurrencyCode:
-          type: string
-          xml:
-            name: DocumentCurrencyCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        note:
-          type: string
-          xml:
-            name: Note
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        creditNoteTypeCode:
-          $ref: "#/components/schemas/Code"
-        accountingSupplierParty:
-          $ref: "#/components/schemas/Party"
-        accountingCustomerParty:
-          $ref: "#/components/schemas/Party"
-        legalMonetaryTotal:
-          $ref: "#/components/schemas/MonetaryTotal"
-        originatorDocumentReference:
-          type: array
-          xml:
-            name: OriginatorDocumentReference
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/DocumentReference"
-        creditNoteLine:
-          type: array
-          xml:
-            name: CreditNoteLine
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            $ref: "#/components/schemas/CreditNoteLine"
-        taxTotal:
-          type: array
-          xml:
-            name: TaxTotal
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/TaxTotal"
-        receiptUuid:
-          type: string
-          xml:
-            name: UUID
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-      xml:
-        name: CreditNote
-        namespace: urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2
-    CreditNoteLine:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        creditedQuantity:
-          $ref: "#/components/schemas/Quantity"
-        lineExtensionAmount:
-          $ref: "#/components/schemas/Amount"
-        invoicePeriod:
-          $ref: "#/components/schemas/Period"
-        item:
-          $ref: "#/components/schemas/Item"
-        price:
-          $ref: "#/components/schemas/Price"
-        note:
-          type: string
-          xml:
-            name: Note
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        taxTotal:
-          type: array
-          xml:
-            name: TaxTotal
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/TaxTotal"
-    Dimension:
-      type: object
-      properties:
-        attributeID:
-          $ref: "#/components/schemas/Identifier"
-        measure:
-          $ref: "#/components/schemas/Measure"
-        description:
-          type: string
-          xml:
-            name: Description
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        minimumMeasure:
-          $ref: "#/components/schemas/Measure"
-        maximumMeasure:
-          $ref: "#/components/schemas/Measure"
-    DocumentDistribution:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        documentTypeCode:
-          $ref: "#/components/schemas/Code"
-        distributionTypeCode:
-          $ref: "#/components/schemas/Code"
-        distributionType:
-          type: array
-          xml:
-            name: DistributionType
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: DistributionType
-        printQualifier:
-          type: string
-          xml:
-            name: PrintQualifier
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        copyIndicator:
-          type: boolean
-          xml:
-            name: CopyIndicator
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        maximumCopiesNumeric:
-          type: number
-          format: double
-          xml:
-            name: MaximumCopiesNumeric
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        maximumOriginalsNumeric:
-          type: number
-          format: double
-          xml:
-            name: MaximumOriginalsNumeric
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        communication:
-          $ref: "#/components/schemas/Communication"
-        party:
-          $ref: "#/components/schemas/Party"
-    DocumentReference:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        copyIndicator:
-          type: boolean
-          xml:
-            name: CopyIndicator
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        uuid:
-          type: string
-          format: uuid
-          xml:
-            name: UUID
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        issueDate:
-          type: string
-          xml:
-            name: IssueDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        issueTime:
-          type: string
-          xml:
-            name: IssueTime
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        documentTypeCode:
-          type: string
-          xml:
-            name: DocumentTypeCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        referencedDocumentInternalAddress:
-          type: string
-          xml:
-            name: ReferencedDocumentInternalAddress
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        languageID:
-          type: string
-          xml:
-            name: LanguageID
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        localeCode:
-          type: string
-          xml:
-            name: LocaleCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        versionID:
-          type: string
-          xml:
-            name: VersionID
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        documentStatusCode:
-          type: string
-          xml:
-            name: DocumentStatusCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        documentDescription:
-          type: string
-          xml:
-            name: DocumentDescription
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        attachment:
-          $ref: "#/components/schemas/Attachment"
-        validityPeriod:
-          $ref: "#/components/schemas/Period"
-        issuerParty:
-          $ref: "#/components/schemas/Party"
-        resultOfVerification:
-          $ref: "#/components/schemas/ResultOfVerification"
-    EmbeddedDocument:
-      type: object
-      properties:
-        mimeCode:
-          type: string
-          xml:
-            attribute: true
-        filename:
-          type: string
-          xml:
-            attribute: true
-        embeddedDocumentBinaryObject:
-          type: string
-          format: byte
-          xml:
-            name: EmbeddedDocumentBinaryObject
-    EmissionCalculationMethod:
-      type: object
-      properties:
-        calculationMethodCode:
-          type: string
-          xml:
-            name: CalculationMethodCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        fullnessIndicationCode:
-          type: string
-          xml:
-            name: FullnessIndicationCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        measurementFromLocation:
-          $ref: "#/components/schemas/Location"
-        measurementToLocation:
-          $ref: "#/components/schemas/Location"
-    EnvironmentalEmission:
-      required:
-      - environmentalEmissionTypeCode
-      - valueMeasure
-      type: object
-      properties:
-        environmentalEmissionTypeCode:
-          type: string
-          xml:
-            name: EnvironmentalEmissionTypeCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        valueMeasure:
-          $ref: "#/components/schemas/Measure"
-        description:
-          type: array
-          xml:
-            name: Description
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: Description
-        emissionCalculationMethod:
-          type: array
-          xml:
-            name: EmissionCalculationMethod
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/EmissionCalculationMethod"
-    ExternalReference:
-      type: object
-      properties:
-        uri:
-          type: string
-          xml:
-            name: URI
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-    FinancialAccount:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        name:
-          $ref: "#/components/schemas/Name"
-        aliasName:
-          $ref: "#/components/schemas/Name"
-        accountTypeCode:
-          $ref: "#/components/schemas/Code"
-        accountFormatCode:
-          $ref: "#/components/schemas/Code"
-        currencyCode:
-          $ref: "#/components/schemas/Code"
-        paymentNote:
-          type: array
-          xml:
-            name: PaymentNote
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: PaymentNote
-        financialInstitutionBranch:
-          $ref: "#/components/schemas/Branch"
-        country:
-          $ref: "#/components/schemas/Country"
-    FinancialInstitution:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        name:
-          $ref: "#/components/schemas/Name"
-        address:
-          $ref: "#/components/schemas/Address"
-    Item:
-      type: object
-      properties:
-        description:
-          type: string
-          xml:
-            name: Description
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        packQuantity:
-          $ref: "#/components/schemas/Quantity"
-        packSizeNumeric:
-          type: number
-          format: double
-          xml:
-            name: PackSizeNumeric
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        catalogueIndicator:
-          type: boolean
-          xml:
-            name: CatalogueIndicator
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        name:
-          type: string
-          xml:
-            name: Name
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        itemTypeCode:
-          $ref: "#/components/schemas/Code"
-        hazardousRiskIndicator:
-          type: boolean
-          xml:
-            name: HazardousRiskIndicator
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        additionalInformation:
-          type: array
-          xml:
-            name: AdditionalInformation
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: AdditionalInformation
-        keyword:
-          type: array
-          xml:
-            name: Keyword
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: Keyword
-        brandName:
-          uniqueItems: true
-          type: array
-          xml:
-            name: BrandName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: BrandName
-        modelName:
-          type: array
-          xml:
-            name: ModelName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: ModelName
-        warrantyInformation:
-          type: array
-          xml:
-            name: WarrantyInformation
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: WarrantyInformation
-        buyersItemIdentification:
-          $ref: "#/components/schemas/ItemIdentification"
-        sellersItemIdentification:
-          $ref: "#/components/schemas/ItemIdentification"
-        manufacturersItemIdentification:
-          $ref: "#/components/schemas/ItemIdentification"
-        standardItemIdentification:
-          $ref: "#/components/schemas/ItemIdentification"
-        catalogueItemIdentification:
-          $ref: "#/components/schemas/ItemIdentification"
-        additionalItemIdentification:
-          type: array
-          xml:
-            name: AdditionalItemIdentification
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/ItemIdentification"
-        catalogueDocumentReference:
-          $ref: "#/components/schemas/DocumentReference"
-        itemSpecificationDocumentReference:
-          type: array
-          xml:
-            name: ItemSpecificationDocumentReference
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/DocumentReference"
-        originCountry:
-          $ref: "#/components/schemas/Country"
-        commodityClassification:
-          type: array
-          xml:
-            name: CommodityClassification
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/CommodityClassification"
-        transactionConditions:
-          type: array
-          xml:
-            name: TransactionConditions
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/TransactionConditions"
-        classifiedTaxCategory:
-          type: array
-          xml:
-            name: ClassifiedTaxCategory
-          items:
-            $ref: "#/components/schemas/TaxCategory"
-        additionalItemProperty:
-          type: array
-          xml:
-            name: AdditionalItemProperty
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/ItemProperty"
-        manufacturerParty:
-          type: array
-          xml:
-            name: ManufacturerParty
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Party"
-        informationContentProviderParty:
-          $ref: "#/components/schemas/Party"
-        originAddress:
-          type: array
-          xml:
-            name: OriginAddress
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Address"
-        itemInstance:
-          type: array
-          xml:
-            name: ItemInstance
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/ItemInstance"
-        certificate:
-          type: array
-          xml:
-            name: Certificate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Certificate"
-        dimension:
-          type: array
-          xml:
-            name: Dimension
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Dimension"
-        environmentalEmission:
-          type: array
-          xml:
-            name: EnvironmentalEmission
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/EnvironmentalEmission"
-    ItemIdentification:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        extendedID:
-          $ref: "#/components/schemas/Identifier"
-        barcodeSymbologyID:
-          $ref: "#/components/schemas/Identifier"
-        issuerScopeID:
-          $ref: "#/components/schemas/Identifier"
-        physicalAttribute:
-          type: array
-          xml:
-            name: PhysicalAttribute
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/PhysicalAttribute"
-        measurementDimension:
-          type: array
-          xml:
-            name: MeasurementDimension
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Dimension"
-        issuerParty:
-          $ref: "#/components/schemas/Party"
-    ItemInstance:
-      type: object
-      properties:
-        productTraceID:
-          $ref: "#/components/schemas/Identifier"
-        manufactureDate:
-          type: string
-          format: date
-          xml:
-            name: ManufactureDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        manufactureTime:
-          $ref: "#/components/schemas/LocalTime"
-        bestBeforeDate:
-          type: string
-          format: date
-          xml:
-            name: BestBeforeDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        registrationID:
-          $ref: "#/components/schemas/Identifier"
-        serialID:
-          $ref: "#/components/schemas/Identifier"
-        additionalItemProperty:
-          type: array
-          xml:
-            name: AdditionalItemProperty
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/ItemProperty"
-        lotIdentification:
-          $ref: "#/components/schemas/LotIdentification"
-    ItemProperty:
-      required:
-      - name
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        name:
-          $ref: "#/components/schemas/Name"
-        nameCode:
-          $ref: "#/components/schemas/Code"
-        testMethod:
-          type: string
-          xml:
-            name: TestMethod
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        value:
-          type: string
-          xml:
-            name: Value
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        valueQuantity:
-          $ref: "#/components/schemas/Quantity"
-        valueQualifier:
-          type: array
-          xml:
-            name: ValueQualifier
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: ValueQualifier
-        importanceCode:
-          $ref: "#/components/schemas/Code"
-        listValue:
-          type: array
-          xml:
-            name: ListValue
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: ListValue
-        usabilityPeriod:
-          $ref: "#/components/schemas/Period"
-        itemPropertyGroup:
-          type: array
-          xml:
-            name: ItemPropertyGroup
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/ItemPropertyGroup"
-        rangeDimension:
-          $ref: "#/components/schemas/Dimension"
-        itemPropertyRange:
-          $ref: "#/components/schemas/ItemPropertyRange"
-        standardPropertyIdentification:
-          $ref: "#/components/schemas/PropertyIdentification"
-    ItemPropertyGroup:
-      required:
-      - id
-      type: object
-      properties:
-        id:
-          type: string
-          xml:
-            name: ID
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        name:
-          type: string
-          xml:
-            name: Name
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        importanceCode:
-          type: string
-          xml:
-            name: ImportanceCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-    ItemPropertyRange:
-      type: object
-      properties:
-        minimumValue:
-          type: string
-          xml:
-            name: MinimumValue
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        maximumValue:
-          type: string
-          xml:
-            name: MaximumValue
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-    LocalTime:
-      type: object
-      properties:
-        hour:
-          type: integer
-          format: int32
-        minute:
-          type: integer
-          format: int32
-        second:
-          type: integer
-          format: int32
-        nano:
-          type: integer
-          format: int32
-    Location:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        description:
-          type: array
-          xml:
-            name: Description
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: Description
-        conditions:
-          type: array
-          xml:
-            name: Conditions
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: Conditions
-        countrySubentity:
-          type: string
-          xml:
-            name: CountrySubentity
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        countrySubentityCode:
-          $ref: "#/components/schemas/Code"
-        locationTypeCode:
-          $ref: "#/components/schemas/Code"
-        informationURI:
-          $ref: "#/components/schemas/Identifier"
-        name:
-          $ref: "#/components/schemas/Name"
-        validityPeriod:
-          type: array
-          xml:
-            name: ValidityPeriod
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Period"
-        address:
-          $ref: "#/components/schemas/Address"
-        locationCoordinate:
-          type: array
-          xml:
-            name: LocationCoordinate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/LocationCoordinate"
-    LocationCoordinate:
-      type: object
-      properties:
-        coordinateSystemCode:
-          $ref: "#/components/schemas/Code"
-        latitudeDegreesMeasure:
-          $ref: "#/components/schemas/Measure"
-        latitudeMinutesMeasure:
-          $ref: "#/components/schemas/Measure"
-        latitudeDirectionCode:
-          $ref: "#/components/schemas/Code"
-        longitudeDegreesMeasure:
-          $ref: "#/components/schemas/Measure"
-        longitudeMinutesMeasure:
-          $ref: "#/components/schemas/Measure"
-        longitudeDirectionCode:
-          $ref: "#/components/schemas/Code"
-        altitudeMeasure:
-          $ref: "#/components/schemas/Measure"
-    LotIdentification:
-      type: object
-      properties:
-        lotNumberID:
-          $ref: "#/components/schemas/Identifier"
-        expiryDate:
-          type: string
-          format: date
-          xml:
-            name: ExpiryDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        additionalItemProperty:
-          type: array
-          xml:
-            name: AdditionalItemProperty
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/ItemProperty"
-    Measure:
-      type: object
-      properties:
-        value:
-          type: number
-        unitCode:
-          type: string
-          xml:
-            attribute: true
-        unitCodeListVersionID:
-          type: string
-          xml:
-            attribute: true
-    MonetaryTotal:
-      type: object
-      properties:
-        lineExtensionAmount:
-          $ref: "#/components/schemas/Amount"
-        taxExclusiveAmount:
-          $ref: "#/components/schemas/Amount"
-        taxInclusiveAmount:
-          $ref: "#/components/schemas/Amount"
-        allowanceTotalAmount:
-          $ref: "#/components/schemas/Amount"
-        allowanceTotalTaxInclusiveAmount:
-          $ref: "#/components/schemas/Amount"
-        chargeTotalAmount:
-          $ref: "#/components/schemas/Amount"
-        chargeTotalTaxInclusiveAmount:
-          $ref: "#/components/schemas/Amount"
-        withholdingTaxTotalAmount:
-          $ref: "#/components/schemas/Amount"
-        prepaidAmount:
-          $ref: "#/components/schemas/Amount"
-        payableRoundingAmount:
-          $ref: "#/components/schemas/Amount"
-        payableAmount:
-          $ref: "#/components/schemas/Amount"
-        payableAlternativeAmount:
-          $ref: "#/components/schemas/Amount"
-    Name:
-      type: object
-      properties:
-        value:
-          type: string
-        languageID:
-          type: string
-          xml:
-            attribute: true
-        languageLocaleID:
-          type: string
-          xml:
-            attribute: true
-    Party:
-      type: object
-      properties:
-        endpointID:
-          $ref: "#/components/schemas/Identifier"
-        partyIdentification:
-          type: array
-          xml:
-            name: PartyIdentification
-          items:
-            $ref: "#/components/schemas/PartyIdentification"
-        partyName:
-          $ref: "#/components/schemas/PartyName"
-        postalAddress:
-          $ref: "#/components/schemas/Address"
-        partyTaxScheme:
-          type: array
-          xml:
-            name: PartyTaxScheme
-          items:
-            $ref: "#/components/schemas/PartyTaxScheme"
-        partyLegalEntity:
-          $ref: "#/components/schemas/PartyLegalEntity"
-        contact:
-          $ref: "#/components/schemas/Contact"
-        partyLegalEntities:
-          type: array
-          items:
-            $ref: "#/components/schemas/PartyLegalEntity"
-    PartyIdentification:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-    PartyLegalEntity:
-      type: object
-      properties:
-        registrationName:
-          type: string
-          xml:
-            name: RegistrationName
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        companyLegalForm:
-          type: string
-          xml:
-            name: CompanyLegalForm
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        companyID:
-          $ref: "#/components/schemas/Identifier"
-    PartyName:
-      type: object
-      properties:
-        name:
-          type: string
-          xml:
-            name: Name
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-    PartyTaxScheme:
-      type: object
-      properties:
-        companyID:
-          type: string
-          xml:
-            name: CompanyID
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        taxScheme:
-          $ref: "#/components/schemas/TaxScheme"
-    PaymentMandate:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        mandateTypeCode:
-          $ref: "#/components/schemas/Code"
-        maximumPaidAmount:
-          $ref: "#/components/schemas/Amount"
-        signatureID:
-          $ref: "#/components/schemas/Identifier"
-        payerParty:
-          $ref: "#/components/schemas/Party"
-        payerFinancialAccount:
-          $ref: "#/components/schemas/FinancialAccount"
-        validityPeriod:
-          $ref: "#/components/schemas/Period"
-        paymentReversalPeriod:
-          $ref: "#/components/schemas/Period"
-        clause:
-          $ref: "#/components/schemas/Clause"
-        maximumPaymentInstructionsNumeric:
-          type: number
-          format: double
-    PaymentMeans:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        paymentMeansCode:
-          $ref: "#/components/schemas/Code"
-        paymentMeansDescription:
-          type: array
-          xml:
-            name: PaymentMeansDescription
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: PaymentMeansDescription
-        paymentID:
-          type: array
-          xml:
-            name: PaymentID
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            $ref: "#/components/schemas/Identifier"
-        paymentDueDate:
-          type: string
-          format: date
-          xml:
-            name: PaymentDueDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        paymentChannelCode:
-          $ref: "#/components/schemas/Code"
-        instructionID:
-          $ref: "#/components/schemas/Identifier"
-        instructionNote:
-          type: array
-          xml:
-            name: InstructionNote
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: InstructionNote
-        chargeBearerCode:
-          $ref: "#/components/schemas/Code"
-        serviceLevelCode:
-          $ref: "#/components/schemas/Code"
-        cardAccount:
-          type: array
-          xml:
-            name: CardAccount
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/CardAccount"
-        payerFinancialAccount:
-          $ref: "#/components/schemas/FinancialAccount"
-        payeeFinancialAccount:
-          $ref: "#/components/schemas/FinancialAccount"
-        creditAccount:
-          $ref: "#/components/schemas/CreditAccount"
-        paymentMandate:
-          $ref: "#/components/schemas/PaymentMandate"
-        tradeFinancing:
-          $ref: "#/components/schemas/TradeFinancing"
-        remittanceDocumentDistribution:
-          $ref: "#/components/schemas/DocumentDistribution"
-    PhysicalAttribute:
-      type: object
-      properties:
-        attributeID:
-          $ref: "#/components/schemas/Identifier"
-        positionCode:
-          $ref: "#/components/schemas/Code"
-        descriptionCode:
-          $ref: "#/components/schemas/Code"
-        description:
-          type: array
-          xml:
-            name: Description
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: Description
-    Price:
-      required:
-      - priceAmount
-      type: object
-      properties:
-        priceAmount:
-          $ref: "#/components/schemas/Amount"
-        taxInclusivePriceAmount:
-          $ref: "#/components/schemas/Amount"
-        baseQuantity:
-          $ref: "#/components/schemas/Quantity"
-        priceChangeReason:
-          type: array
-          xml:
-            name: PriceChangeReason
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: PriceChangeReason
-        priceTypeCode:
-          $ref: "#/components/schemas/Code"
-        priceType:
-          type: string
-          xml:
-            name: PriceType
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        orderableUnitFactorRate:
-          type: number
-          xml:
-            name: OrderableUnitFactorRate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        validityPeriod:
-          type: array
-          xml:
-            name: ValidityPeriod
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Period"
-        priceList:
-          $ref: "#/components/schemas/PriceList"
-        allowanceCharge:
-          type: array
-          xml:
-            name: AllowanceCharge
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/AllowanceCharge"
-    PriceList:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        statusCode:
-          $ref: "#/components/schemas/Code"
-        validityPeriod:
-          type: array
-          xml:
-            name: ValidityPeriod
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/Period"
-    PropertyIdentification:
-      required:
-      - id
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        issuerScopeId:
-          $ref: "#/components/schemas/Identifier"
-        issuerParty:
-          $ref: "#/components/schemas/Party"
-    Quantity:
-      type: object
-      properties:
-        value:
-          type: number
-        unitCode:
-          type: string
-          xml:
-            attribute: true
-        unitCodeListAgencyID:
-          type: string
-          xml:
-            attribute: true
-        unitCodeListAgencyName:
-          type: string
-          xml:
-            attribute: true
-        unitCodeListID:
-          type: string
-          xml:
-            attribute: true
-    ResultOfVerification:
-      type: object
-      properties:
-        validatorID:
-          $ref: "#/components/schemas/Identifier"
-        validationResultCode:
-          type: string
-          xml:
-            name: ValidationResultCode
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        validationDate:
-          type: string
-          xml:
-            name: ValidationDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        validationTime:
-          type: string
-          xml:
-            name: ValidationTime
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        validateProcess:
-          type: string
-          xml:
-            name: ValidateProcess
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        validateTool:
-          type: string
-          xml:
-            name: ValidateTool
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        validateToolVersion:
-          type: string
-          xml:
-            name: ValidateToolVersion
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        signatoryParty:
-          $ref: "#/components/schemas/Party"
-    Signature:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        reasonCode:
-          $ref: "#/components/schemas/Code"
-        note:
-          type: array
-          xml:
-            name: Note
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: Note
-        validationDate:
-          type: string
-          format: date
-          xml:
-            name: ValidationDate
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        validationTime:
-          $ref: "#/components/schemas/LocalTime"
-        validatorID:
-          $ref: "#/components/schemas/Identifier"
-        canonicalizationMethod:
-          type: string
-          xml:
-            name: CanonicalizationMethod
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        signatureMethod:
-          type: string
-          xml:
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        signatoryParty:
-          $ref: "#/components/schemas/Party"
-        digitalSignatureAttachment:
-          $ref: "#/components/schemas/Attachment"
-        documentReference:
-          $ref: "#/components/schemas/DocumentReference"
-    TaxCategory:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        name:
-          $ref: "#/components/schemas/Name"
-        percent:
-          type: number
-          format: double
-          xml:
-            name: Percent
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        baseUnitMeasure:
-          $ref: "#/components/schemas/Measure"
-        perUnitAmount:
-          $ref: "#/components/schemas/Amount"
-        taxExemptionReasonCode:
-          $ref: "#/components/schemas/Code"
-        taxExemptionReason:
-          type: array
-          xml:
-            name: TaxExemptionReason
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: TaxExemptionReason
-        tierRange:
-          type: string
-          xml:
-            name: TierRange
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        tierRatePercent:
-          type: number
-          format: double
-          xml:
-            name: TierRatePercent
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        taxScheme:
-          $ref: "#/components/schemas/TaxScheme"
-    TaxScheme:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        name:
-          $ref: "#/components/schemas/Name"
-        taxTypeCode:
-          $ref: "#/components/schemas/Code"
-        currencyCode:
-          $ref: "#/components/schemas/Code"
-        jurisdictionRegionAddress:
-          $ref: "#/components/schemas/Address"
-    TaxSubtotal:
-      type: object
-      properties:
-        taxableAmount:
-          $ref: "#/components/schemas/Amount"
-        taxAmount:
-          $ref: "#/components/schemas/Amount"
-        taxInclusiveAmount:
-          $ref: "#/components/schemas/Amount"
-        calculationSequenceNumeric:
-          type: integer
-          format: int32
-          xml:
-            name: CalculationSequenceNumeric
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        transactionCurrencyTaxAmount:
-          $ref: "#/components/schemas/Amount"
-        percent:
-          type: number
-          format: double
-          xml:
-            name: Percent
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        baseUnitMeasure:
-          $ref: "#/components/schemas/Measure"
-        perUnitAmount:
-          $ref: "#/components/schemas/Amount"
-        tierRange:
-          type: string
-          xml:
-            name: TierRange
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        tierRatePercent:
-          type: number
-          format: double
-          xml:
-            name: TierRatePercent
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        taxCategory:
-          $ref: "#/components/schemas/TaxCategory"
-        country:
-          $ref: "#/components/schemas/Country"
-    TaxTotal:
-      type: object
-      properties:
-        taxAmount:
-          $ref: "#/components/schemas/Amount"
-        calculationSequenceNumeric:
-          type: integer
-          format: int32
-          xml:
-            name: CalculationSequenceNumeric
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        roundingAmount:
-          $ref: "#/components/schemas/Amount"
-        taxEvidenceIndicator:
-          type: boolean
-          xml:
-            name: TaxEvidenceIndicator
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        taxIncludedIndicator:
-          type: boolean
-          xml:
-            name: TaxIncludedIndicator
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-        taxSubtotals:
-          type: array
-          xml:
-            name: TaxSubtotal
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/TaxSubtotal"
-    TradeFinancing:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        financingInstrumentCode:
-          $ref: "#/components/schemas/Code"
-        contractDocumentReference:
-          $ref: "#/components/schemas/DocumentReference"
-        documentReference:
-          type: array
-          xml:
-            name: DocumentReference
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/DocumentReference"
-        financingParty:
-          $ref: "#/components/schemas/Party"
-        financingFinancialAccount:
-          $ref: "#/components/schemas/FinancialAccount"
-        clause:
-          $ref: "#/components/schemas/Clause"
-    TransactionConditions:
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Identifier"
-        actionCode:
-          $ref: "#/components/schemas/Code"
-        description:
-          type: array
-          xml:
-            name: Description
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2
-          items:
-            type: string
-            xml:
-              name: Description
-        documentReference:
-          type: array
-          xml:
-            name: DocumentReference
-            namespace: urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2
-          items:
-            $ref: "#/components/schemas/DocumentReference"
     CheqiCreditNote:
       type: object
       properties:
@@ -4070,7 +2279,7 @@ components:
     CreditNoteTemplateResponse:
       type: object
       properties:
-        ubl:
+        ublCreditNote:
           type: string
           description: "UBL XML credit note template as a serialized XML string following\
             \ the CreditNote schema. See [UBL XML Credit Note Format](https://docs.cheqi.io/creditNote/ubl-format)\
@@ -4820,23 +3029,6 @@ components:
         vatMetaData:
           $ref: "#/components/schemas/VatMetadata"
       description: "Receipt envelope, that is the encrypted receipt content"
-    CustomerContextEnvelope:
-      type: object
-      properties:
-        xmlParty:
-          type: string
-          description: Serialized UBL XML fragment for the receiving party. Include
-            this when the recipient accepts a UBL receipt format. Omit it from the
-            final encrypted envelope when no UBL format is requested.
-          example: <cac:AccountingCustomerParty><cac:Party>...</cac:Party></cac:AccountingCustomerParty>
-        receivingParty:
-          $ref: "#/components/schemas/ReceivingParty"
-        paymentMeans:
-          $ref: "#/components/schemas/PaymentMeansEnvelope"
-      description: Customer context envelope that is combined with the receipt template
-        before encrypting the final recipient payload. This object is generated by
-        Cheqi from the resolved customer match and must not be supplied by merchants
-        directly.
     PaymentMeansEnvelope:
       type: object
       properties:
@@ -4875,12 +3067,35 @@ components:
       description: Payment means data derived from the customer match. This metadata
         is generated by Cheqi and combined into the customer context envelope before
         encryption.
+    ReceiptContextEnvelope:
+      type: object
+      properties:
+        receivingParty:
+          $ref: "#/components/schemas/ReceivingPartyEnvelope"
+        paymentMeans:
+          $ref: "#/components/schemas/PaymentMeansEnvelope"
+      description: Receipt context envelope that is combined with the receipt template
+        before encrypting the final recipient payload. This object is generated by
+        Cheqi from the resolved customer match and must not be supplied by merchants
+        directly.
+    ReceivingPartyEnvelope:
+      type: object
+      properties:
+        xmlReceivingParty:
+          type: string
+          description: Serialized UBL XML fragment for the receiving party. Include
+            this when the recipient accepts a UBL receipt format.
+          example: <cac:AccountingCustomerParty><cac:Party>...</cac:Party></cac:AccountingCustomerParty>
+        receivingParty:
+          $ref: "#/components/schemas/ReceivingParty"
+      description: Receiving-party context in XML and Cheqi JSON forms for the resolved
+        recipient.
   securitySchemes:
     cheqi_oauth:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: http://teijes-macbook-air.home:8080/oauth/authorize
+          authorizationUrl: https://test.api.cheqi.io/oauth/authorize
           scopes:
             write_receipts: Write receipts
             read_receipts: Read receipts

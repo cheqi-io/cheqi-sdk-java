@@ -36,11 +36,11 @@ public class DecryptionService {
      * This method handles the complete hybrid decryption process:
      * 1. Decrypts the AES symmetric key using RSA private key
      * 2. Decrypts the receipt content using the AES key
-     * 3. Decrypts the customer details (if present)
+     * 3. Decrypts the receipt context (if present)
      *
      * @param encryptedReceipt The encrypted receipt DTO from Cheqi API or webhook
      * @param privateKeyBase64 The client's private key in Base64 PKCS#8 format
-     * @return DecryptedReceipt containing both receipt content and customer details
+     * @return DecryptedReceipt containing both receipt content and receipt context
      * @throws DecryptionException if decryption fails
      */
     public DecryptedReceipt decryptReceipt(EncryptedReceipt encryptedReceipt, String privateKeyBase64) {
@@ -56,21 +56,21 @@ public class DecryptionService {
                     receiptAesKey
             );
 
-            String decryptedCustomerDetails = null;
-            if (hasCustomerDetails(encryptedReceipt)) {
-                logger.debug("Decrypting customer envelope");
+            String decryptedReceiptContext = null;
+            if (hasReceiptContext(encryptedReceipt)) {
+                logger.debug("Decrypting receipt context envelope");
                 SecretKey customerAesKey = rsaKeyDecryptor.decryptKey(
                         encryptedReceipt.getEncryptedCustomerSymmetricKey(),
                         privateKeyBase64
                 );
 
-                decryptedCustomerDetails = aesDecryptor.decrypt(
+                decryptedReceiptContext = aesDecryptor.decrypt(
                         encryptedReceipt.getEncryptedCustomerDetails(),
                         customerAesKey
                 );
             }
 
-            return receiptFactory.create(decryptedReceiptContent, decryptedCustomerDetails);
+            return receiptFactory.create(decryptedReceiptContent, decryptedReceiptContext);
 
         } catch (Exception e) {
             throw new DecryptionException("Failed to decrypt receipt", e);
@@ -112,9 +112,9 @@ public class DecryptionService {
     }
 
     /**
-     * Checks if the encrypted receipt contains customer details.
+     * Checks if the encrypted receipt contains receipt context.
      */
-    private boolean hasCustomerDetails(EncryptedReceipt encryptedReceipt) {
+    private boolean hasReceiptContext(EncryptedReceipt encryptedReceipt) {
         return encryptedReceipt.getEncryptedCustomerDetails() != null &&
                !encryptedReceipt.getEncryptedCustomerDetails().trim().isEmpty() &&
                encryptedReceipt.getEncryptedCustomerSymmetricKey() != null;

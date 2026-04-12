@@ -4,7 +4,6 @@ import com.cheqi.sdk.models.generated.CreditNoteCreatedResponse;
 import com.cheqi.sdk.receipt.DeliveryStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 
 public class CreditNoteResult {

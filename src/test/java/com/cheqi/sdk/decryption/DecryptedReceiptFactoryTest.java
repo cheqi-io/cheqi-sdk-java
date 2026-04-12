@@ -23,7 +23,7 @@ class DecryptedReceiptFactoryTest {
 
         DecryptedReceipt decryptedReceipt = factory.create(receiptEnvelopeJson, null);
 
-        assertEquals("<Receipt/>", decryptedReceipt.getUblPurchaseReceipt());
+        assertEquals("<Receipt/>", decryptedReceipt.getReceiptEnvelope().getUblPurchaseReceipt());
         assertNotNull(decryptedReceipt.getReceiptEnvelope().getVatMetaData());
         assertEquals(BuyerType.BUSINESS, decryptedReceipt.getReceiptEnvelope().getVatMetaData().getBuyerType());
         assertTrue(decryptedReceipt.getReceiptEnvelope().getVatMetaData().getTaxesApplied());
@@ -34,7 +34,10 @@ class DecryptedReceiptFactoryTest {
         DecryptedReceiptFactory factory = new DecryptedReceiptFactory();
         String receiptEnvelopeJson = "{\"ublPurchaseReceipt\":\"<Receipt/>\"}";
         String customerEnvelopeJson = "{"
-                + "\"xmlParty\":\"<cac:AccountingCustomerParty/>\","
+                + "\"receivingParty\":{"
+                + "\"xmlReceivingParty\":\"<cac:AccountingCustomerParty/>\","
+                + "\"unknownField\":\"ignored\""
+                + "},"
                 + "\"paymentMeans\":{"
                 + "\"paymentMeansCode\":\"48\","
                 + "\"description\":\"Card payment\","
@@ -46,12 +49,12 @@ class DecryptedReceiptFactoryTest {
 
         DecryptedReceipt decryptedReceipt = factory.create(receiptEnvelopeJson, customerEnvelopeJson);
 
-        assertNotNull(decryptedReceipt.getCustomerContextEnvelope());
-        assertEquals("<cac:AccountingCustomerParty/>", decryptedReceipt.getXmlParty());
-        assertNull(decryptedReceipt.getReceivingParty());
-        assertNotNull(decryptedReceipt.getPaymentMeans());
-        assertEquals("48", decryptedReceipt.getPaymentMeans().getPaymentMeansCode());
-        assertEquals("MASTERCARD", decryptedReceipt.getPaymentMeans().getCardProvider());
-        assertEquals("7257", decryptedReceipt.getPaymentMeans().getCardLastFour());
+        assertNotNull(decryptedReceipt.getReceiptContextEnvelope());
+        assertEquals("<cac:AccountingCustomerParty/>", decryptedReceipt.getReceiptContextEnvelope().getReceivingParty().getXmlReceivingParty());
+        assertNull(decryptedReceipt.getReceiptContextEnvelope().getReceivingParty().getReceivingParty());
+        assertNotNull(decryptedReceipt.getReceiptContextEnvelope().getPaymentMeans());
+        assertEquals("48", decryptedReceipt.getReceiptContextEnvelope().getPaymentMeans().getPaymentMeansCode());
+        assertEquals("MASTERCARD", decryptedReceipt.getReceiptContextEnvelope().getPaymentMeans().getCardProvider());
+        assertEquals("7257", decryptedReceipt.getReceiptContextEnvelope().getPaymentMeans().getCardLastFour());
     }
 }

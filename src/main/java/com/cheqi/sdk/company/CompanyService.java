@@ -2,9 +2,7 @@ package com.cheqi.sdk.company;
 
 import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
-import com.cheqi.sdk.models.company.Company;
 import com.cheqi.sdk.models.generated.CompanyCreationRequest;
-import com.cheqi.sdk.models.generated.CompanyDTO;
 import com.cheqi.sdk.models.generated.ProvisionCompanyRequest;
 import com.cheqi.sdk.models.generated.ProvisionCompanyResponse;
 import org.slf4j.Logger;

@@ -3,7 +3,6 @@ package com.cheqi.sdk.receipt;
 import com.cheqi.sdk.models.generated.ReceiptCreatedResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 
 /**
