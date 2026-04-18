@@ -39,7 +39,7 @@ public class DecryptionService {
      * 3. Decrypts the receipt context (if present)
      *
      * @param encryptedReceipt The encrypted receipt DTO from Cheqi API or webhook
-     * @param privateKeyBase64 The client's private key in Base64 PKCS#8 format
+     * @param privateKeyBase64 The client's private key in PKCS#8 format
      * @return DecryptedReceipt containing both receipt content and receipt context
      * @throws DecryptionException if decryption fails
      */
@@ -85,7 +85,7 @@ public class DecryptionService {
      * 2. Decrypts the credit note content using the AES key
      *
      * @param encryptedCreditNote The encrypted credit note from Cheqi API or webhook
-     * @param privateKeyBase64 The issuer's private key in Base64 PKCS#8 format
+     * @param privateKeyBase64 The issuer's private key in PKCS#8 format
      * @return DecryptedCreditNote containing the credit note request details (JSON)
      * @throws DecryptionException if decryption fails
      */

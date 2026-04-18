@@ -28,7 +28,7 @@ public class RSAKeyDecryptor {
      * Decrypts an AES key that was encrypted with RSA-OAEP.
      *
      * @param encryptedKeyBase64 Base64-encoded encrypted AES key
-     * @param privateKeyBase64 Base64-encoded RSA private key in PKCS#8 format
+     * @param privateKeyBase64 RSA private key in PKCS#8 format
      * @return Decrypted AES SecretKey
      * @throws DecryptionException if decryption fails
      */
@@ -67,7 +67,7 @@ public class RSAKeyDecryptor {
     }
 
     /**
-     * Parses a Base64-encoded PKCS#8 private key.
+     * Parses an RSA private key from PKCS#8 input.
      */
     private PrivateKey parsePrivateKey(String privateKeyBase64) {
         try {
@@ -76,8 +76,10 @@ public class RSAKeyDecryptor {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
-            logger.error("Failed to parse RSA private key: {}", e.getMessage());
-            throw new DecryptionException("Failed to parse RSA private key", e);
+            String message = "Failed to parse RSA private key. Expected PKCS#8 format "
+                    + "(-----BEGIN PRIVATE KEY----- / Base64 PKCS#8 DER).";
+            logger.error("{} {}", message, e.getMessage());
+            throw new DecryptionException(message, e);
         }
     }
 }

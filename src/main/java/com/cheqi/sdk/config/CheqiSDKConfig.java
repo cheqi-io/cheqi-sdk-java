@@ -121,7 +121,7 @@ public class CheqiSDKConfig {
         /**
          * Sets the issuer's private key for decrypting credit note requests.
          *
-         * @param privateKeyBase64 RSA private key in Base64 PKCS#8 format
+         * @param privateKeyBase64 RSA private key in PKCS#8 format
          * @return this builder instance
          */
         public Builder privateKey(String privateKeyBase64) {

@@ -47,7 +47,7 @@ public class ReceiptProcessor {
      * </ul>
      * 
      * @param encryptedReceipt The encrypted receipt DTO
-     * @param privateKey The private key for decryption (Base64 PKCS#8 format)
+     * @param privateKey The private key for decryption (PKCS#8 format)
      * @return DecryptedReceipt with merged receipt context in both formats
      * @throws RuntimeException if decryption or parsing fails
      */
