@@ -33,6 +33,43 @@ tags:
   description: Endpoints for managing webhook subscriptions to receive real-time event
     notifications
 paths:
+  /company/{id}/receipt-delivery/devices/{deviceId}:
+    put:
+      tags:
+      - Company Management
+      summary: Update company receipt delivery for one device
+      description: |-
+        Enables or disables company receipt delivery for one of the authenticated user's devices.
+
+        **Accessible for:** User
+      operationId: updateReceiptDeliveryDevice
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCompanyReceiptDeliveryPreferenceRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyReceiptDeliveryDeviceDto"
+      x-accessible-for: User
   /company/{companyId}/stores/{storeId}:
     get:
       tags:
@@ -161,16 +198,16 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
-        "403":
-          description: Insufficient permissions - requires read_receipts scope
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
         "200":
           description: Webhook subscription created successfully
           content:
             application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+        "403":
+          description: Insufficient permissions - requires read_receipts scope
+          content:
+            '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
       security:
@@ -334,14 +371,14 @@ paths:
               $ref: "#/components/schemas/EncryptedReceiptsRequest"
         required: true
       responses:
-        "403":
-          description: Insufficient permissions - requires write_receipts scope
+        "201":
+          description: Receipt created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "201":
-          description: Receipt created successfully
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
           content:
             '*/*':
               schema:
@@ -400,12 +437,6 @@ paths:
               $ref: "#/components/schemas/CreditNoteTemplateGenerationRequest"
         required: true
       responses:
-        "201":
-          description: Credit note template created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CreditNoteTemplateResponse"
         "400":
           description: Invalid template request data
           content:
@@ -414,6 +445,12 @@ paths:
                 $ref: "#/components/schemas/CreditNoteTemplateResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CreditNoteTemplateResponse"
+        "201":
+          description: Credit note template created successfully
           content:
             '*/*':
               schema:
@@ -654,14 +691,14 @@ paths:
               $ref: "#/components/schemas/ProvisionCompanyRequest"
         required: true
       responses:
-        "201":
-          description: Company provisioned successfully for the trusted partner
+        "403":
+          description: Client application is not a trusted partner
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProvisionCompanyResponse"
-        "403":
-          description: Client application is not a trusted partner
+        "201":
+          description: Company provisioned successfully for the trusted partner
           content:
             '*/*':
               schema:
@@ -862,14 +899,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
+        "403":
+          description: Not authorized to activate this store
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "403":
-          description: Not authorized to activate this store
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
@@ -932,6 +969,31 @@ paths:
                 items:
                   $ref: "#/components/schemas/EncryptedCreditNoteDto"
       x-accessible-for: "Company, Client Application"
+  /company/{id}/receipt-delivery/devices:
+    get:
+      tags:
+      - Company Management
+      summary: Get company receipt delivery devices for the current user
+      description: |-
+        Returns the authenticated user's active devices and whether each one is enabled to receive company receipts for the specified company.
+
+        **Accessible for:** User
+      operationId: getReceiptDeliveryDevices
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyReceiptDeliverySettingsResponse"
+      x-accessible-for: User
   /client-application/authorized-resources:
     get:
       tags:
@@ -949,14 +1011,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "403":
-          description: Not a client application token
+        "200":
+          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "200":
-          description: Authorized resources retrieved successfully
+        "403":
+          description: Not a client application token
           content:
             '*/*':
               schema:
@@ -964,6 +1026,32 @@ paths:
       x-accessible-for: Client Application
 components:
   schemas:
+    UpdateCompanyReceiptDeliveryPreferenceRequest:
+      required:
+      - receiptDeliveryEnabled
+      type: object
+      properties:
+        receiptDeliveryEnabled:
+          type: boolean
+    CompanyReceiptDeliveryDeviceDto:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        deviceName:
+          type: string
+        platform:
+          type: string
+          enum:
+          - IOS
+          - ANDROID
+          - SERVER
+        createdAt:
+          type: string
+          format: date-time
+        receiptDeliveryEnabled:
+          type: boolean
     AddressDTO:
       required:
       - cityName
@@ -2847,6 +2935,15 @@ components:
           type: string
           description: Supplier party ID for storage
           format: uuid
+    CompanyReceiptDeliverySettingsResponse:
+      type: object
+      properties:
+        receiptRecipient:
+          type: boolean
+        devices:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompanyReceiptDeliveryDeviceDto"
     PublicKeyResponse:
       type: object
       properties:
