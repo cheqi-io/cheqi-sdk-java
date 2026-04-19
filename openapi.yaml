@@ -143,6 +143,12 @@ paths:
               $ref: "#/components/schemas/UpdateStoreRequest"
         required: true
       responses:
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -161,12 +167,6 @@ paths:
             '*/*':
               schema:
                 type: object
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /webhook/subscription:
@@ -198,16 +198,16 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
             '*/*':
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
       security:
@@ -648,12 +648,6 @@ paths:
               $ref: "#/components/schemas/CreateStoreRequest"
         required: true
       responses:
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to create stores for this company
           content:
@@ -666,6 +660,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "400":
           description: Invalid request data
           content:
@@ -735,14 +735,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Secret rotated successfully
+        "403":
+          description: Not authorized to rotate webhook secret for this client application
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookSecretRotationResponse"
-        "403":
-          description: Not authorized to rotate webhook secret for this client application
+        "200":
+          description: Secret rotated successfully
           content:
             '*/*':
               schema:
@@ -773,14 +773,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
@@ -849,14 +849,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store deactivated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
@@ -893,6 +893,12 @@ paths:
           type: string
           format: uuid
       responses:
+        "200":
+          description: Store activated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -901,12 +907,6 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to activate this store
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
           content:
             '*/*':
               schema:
@@ -1011,14 +1011,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "200":
-          description: Authorized resources retrieved successfully
+        "403":
+          description: Not a client application token
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "403":
-          description: Not a client application token
+        "200":
+          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
@@ -1892,12 +1892,6 @@ components:
       description: The type of identifier for a company
       example: COMPANY_REGISTRATION
       enum:
-      - COMPANY_REGISTRATION
-      - VAT
-      - TAX
-      - EIN
-      - DUNS
-      - OTHER
       - COMPANY_REGISTRATION
       - VAT
       - TAX
@@ -3187,6 +3181,17 @@ components:
           $ref: "#/components/schemas/ReceivingParty"
       description: Receiving-party context in XML and Cheqi JSON forms for the resolved
         recipient.
+    CreditNoteContextEnvelope:
+      type: object
+      properties:
+        receivingParty:
+          $ref: "#/components/schemas/ReceivingPartyEnvelope"
+        paymentMeans:
+          $ref: "#/components/schemas/PaymentMeansEnvelope"
+      description: Credit note context envelope that is combined with the credit note
+        template before encrypting the final recipient payload. This object is generated
+        by Cheqi from the resolved customer match and must not be supplied by merchants
+        directly.
   securitySchemes:
     cheqi_oauth:
       type: oauth2

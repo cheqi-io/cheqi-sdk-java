@@ -37,19 +37,7 @@ public enum CompanyIdentifierType {
   
   DUNS("DUNS"),
   
-  OTHER("OTHER"),
-  
-  COMPANY_REGISTRATION2("COMPANY_REGISTRATION"),
-  
-  VAT2("VAT"),
-  
-  TAX2("TAX"),
-  
-  EIN2("EIN"),
-  
-  DUNS2("DUNS"),
-  
-  OTHER2("OTHER");
+  OTHER("OTHER");
 
   private String value;
 

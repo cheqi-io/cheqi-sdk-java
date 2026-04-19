@@ -7,15 +7,15 @@ public class CreditNoteEnvelope {
     @JsonProperty("cheqiCreditNote")
     private CheqiCreditNote cheqiCreditNote;
 
-    @JsonProperty("ublPurchaseReceipt")
-    private String ublPurchaseReceipt;
+    @JsonProperty("ublCreditNote")
+    private String ublCreditNote;
 
     public CreditNoteEnvelope() {
     }
 
-    public CreditNoteEnvelope(CheqiCreditNote cheqiCreditNote, String ublPurchaseReceipt) {
+    public CreditNoteEnvelope(CheqiCreditNote cheqiCreditNote, String ublCreditNote) {
         this.cheqiCreditNote = cheqiCreditNote;
-        this.ublPurchaseReceipt = ublPurchaseReceipt;
+        this.ublCreditNote = ublCreditNote;
     }
 
     public CheqiCreditNote getCheqiCreditNote() {
@@ -26,11 +26,11 @@ public class CreditNoteEnvelope {
         this.cheqiCreditNote = cheqiCreditNote;
     }
 
-    public String getUblPurchaseReceipt() {
-        return ublPurchaseReceipt;
+    public String getUblCreditNote() {
+        return ublCreditNote;
     }
 
-    public void setUblPurchaseReceipt(String ublPurchaseReceipt) {
-        this.ublPurchaseReceipt = ublPurchaseReceipt;
+    public void setUblCreditNote(String ublCreditNote) {
+        this.ublCreditNote = ublCreditNote;
     }
 }

@@ -1,6 +1,7 @@
 package com.cheqi.sdk.decryption;
 
 import com.cheqi.sdk.creditNote.EncryptedCreditNoteInitiationRequest;
+import com.cheqi.sdk.models.generated.EncryptedCreditNoteDto;
 import com.cheqi.sdk.models.EncryptedReceipt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +109,42 @@ public class DecryptionService {
             logger.error("Failed to decrypt credit note for receipt {}: {}", 
                         encryptedCreditNote.getCheqiReceiptId(), e.getMessage(), e);
             throw new DecryptionException("Failed to decrypt credit note", e);
+        }
+    }
+
+    public DecryptedDeliveredCreditNote decryptDeliveredCreditNote(
+            EncryptedCreditNoteDto encryptedCreditNote,
+            String privateKeyBase64) {
+        try {
+            logger.debug("Decrypting delivered credit note envelope");
+            SecretKey creditNoteAesKey = rsaKeyDecryptor.decryptKey(
+                    encryptedCreditNote.getEncryptedSymmetricKey(),
+                    privateKeyBase64
+            );
+
+            String decryptedCreditNoteContent = aesDecryptor.decrypt(
+                    encryptedCreditNote.getEncryptedCreditNote(),
+                    creditNoteAesKey
+            );
+
+            String decryptedCreditNoteContext = null;
+            if (encryptedCreditNote.getEncryptedCustomerDetails() != null
+                    && !encryptedCreditNote.getEncryptedCustomerDetails().trim().isEmpty()
+                    && encryptedCreditNote.getEncryptedCustomerAesKey() != null
+                    && !encryptedCreditNote.getEncryptedCustomerAesKey().trim().isEmpty()) {
+                SecretKey customerAesKey = rsaKeyDecryptor.decryptKey(
+                        encryptedCreditNote.getEncryptedCustomerAesKey(),
+                        privateKeyBase64
+                );
+                decryptedCreditNoteContext = aesDecryptor.decrypt(
+                        encryptedCreditNote.getEncryptedCustomerDetails(),
+                        customerAesKey
+                );
+            }
+
+            return receiptFactory.createDeliveredCreditNote(decryptedCreditNoteContent, decryptedCreditNoteContext);
+        } catch (Exception e) {
+            throw new DecryptionException("Failed to decrypt delivered credit note", e);
         }
     }
 

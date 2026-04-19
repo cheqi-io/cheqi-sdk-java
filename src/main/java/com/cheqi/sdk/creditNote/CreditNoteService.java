@@ -1,6 +1,7 @@
 package com.cheqi.sdk.creditNote;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
+import com.cheqi.sdk.decryption.DecryptedDeliveredCreditNote;
 import com.cheqi.sdk.decryption.DecryptedCreditNote;
 import com.cheqi.sdk.decryption.DecryptionException;
 import com.cheqi.sdk.decryption.DecryptionService;
@@ -40,12 +41,14 @@ public class CreditNoteService {
     private final MatchingService matchingService;
     private final CheqiApiClient apiClient;
     private final EncryptionService encryptionService;
+    private final CreditNoteMergeService creditNoteMergeService;
 
     public CreditNoteService(CheqiApiClient apiClient, EncryptionService encryptionService, MatchingService matchingService) {
         this.apiClient = Objects.requireNonNull(apiClient, "apiClient cannot be null");
         this.encryptionService = Objects.requireNonNull(encryptionService, "encryptionService cannot be null");
         this.matchingService = Objects.requireNonNull(matchingService, "matchingService cannot be null");
         this.decryptionService = new DecryptionService();
+        this.creditNoteMergeService = new CreditNoteMergeService();
         this.objectMapper = ObjectMapperConfig.getInstance();
         logger.info("CreditNoteService initialized successfully");
     }
@@ -150,6 +153,17 @@ public class CreditNoteService {
             logger.error("Failed to parse credit note JSON: {}", e.getMessage());
             throw new CreditNoteProcessingException("Failed to parse credit note request", e);
         }
+    }
+
+    public DecryptedDeliveredCreditNote decryptDeliveredCreditNote(
+            EncryptedCreditNoteDto encryptedCreditNote,
+            String privateKeyBase64) {
+        DecryptedDeliveredCreditNote decryptedCreditNote = decryptionService.decryptDeliveredCreditNote(
+                encryptedCreditNote,
+                privateKeyBase64
+        );
+        creditNoteMergeService.merge(decryptedCreditNote);
+        return decryptedCreditNote;
     }
 
     /**
@@ -284,7 +298,7 @@ public class CreditNoteService {
             envelope.setCheqiCreditNote(templateResponse.getCheqi());
         }
         if (acceptedFormats.contains(ReceiptFormat.UBL_CREDIT_NOTE) && templateResponse.getUblCreditNote() != null) {
-            envelope.setUblPurchaseReceipt(templateResponse.getUblCreditNote());
+            envelope.setUblCreditNote(templateResponse.getUblCreditNote());
         }
         return envelope;
     }

@@ -1,5 +1,7 @@
 package com.cheqi.sdk.decryption;
 
+import com.cheqi.sdk.creditNote.CreditNoteEnvelope;
+import com.cheqi.sdk.models.generated.CreditNoteContextEnvelope;
 import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.models.generated.ReceiptContextEnvelope;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
@@ -37,6 +39,24 @@ public class DecryptedReceiptFactory {
             return new DecryptedReceipt(receiptEnvelope, receiptContextEnvelope);
         } catch (Exception e) {
             throw new DecryptionException("Failed to deserialize decrypted receipt envelopes", e);
+        }
+    }
+
+    public DecryptedDeliveredCreditNote createDeliveredCreditNote(String creditNoteEnvelopeJson, String customerEnvelopeJson) {
+        try {
+            CreditNoteEnvelope creditNoteEnvelope = objectMapper.readValue(creditNoteEnvelopeJson, CreditNoteEnvelope.class);
+            CreditNoteContextEnvelope creditNoteContextEnvelope = null;
+            if (customerEnvelopeJson != null && !customerEnvelopeJson.trim().isEmpty()) {
+                creditNoteContextEnvelope = objectMapper.readValue(customerEnvelopeJson, CreditNoteContextEnvelope.class);
+            }
+            return new DecryptedDeliveredCreditNote(
+                    creditNoteEnvelope,
+                    creditNoteContextEnvelope,
+                    creditNoteEnvelopeJson,
+                    customerEnvelopeJson
+            );
+        } catch (Exception e) {
+            throw new DecryptionException("Failed to deserialize decrypted credit note envelopes", e);
         }
     }
 }
