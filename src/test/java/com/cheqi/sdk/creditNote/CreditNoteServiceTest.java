@@ -51,7 +51,7 @@ class CreditNoteServiceTest {
 
         when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
         when(apiClient.generateCreditNoteTemplate(any(CreditNoteTemplateGenerationRequest.class))).thenReturn(templateResponse);
-        when(encryptionService.encryptCreditNoteForRecipient(eq("{\"ublPurchaseReceipt\":\"<CreditNote>ok</CreditNote>\"}"), any(MatchedRecipient.class)))
+        when(encryptionService.encryptCreditNoteForRecipient(eq("{\"ublCreditNote\":\"<CreditNote>ok</CreditNote>\"}"), any(MatchedRecipient.class)))
                 .thenReturn(encryptedCreditNote);
         when(apiClient.sendEncryptedCreditNotes(eq("match-123"), eq("receipt-123"), anySet(), any(String.class))).thenReturn(createdResponse);
 
