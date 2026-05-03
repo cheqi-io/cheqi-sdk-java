@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -79,6 +80,50 @@ class ReceiptServiceTest {
         ArgumentCaptor<String> templateHashCaptor = ArgumentCaptor.forClass(String.class);
         verify(apiClient).sendEncryptedReceipts(eq("match-123"), anySet(), templateHashCaptor.capture());
         assertEquals(HashUtils.sha256Hex("<Receipt>ok</Receipt>"), templateHashCaptor.getValue());
+    }
+
+    @Test
+    void processCompleteReceipt_encryptsOnlyAcceptedFormatsForEachRecipient() throws Exception {
+        ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
+        MatchedRecipient ublRecipient = new MatchedRecipient()
+                .id("ubl-recipient")
+                .publicKey("ubl-public-key")
+                .acceptedFormats(List.of(ReceiptFormat.UBL_PURCHASE_RECEIPT));
+        MatchedRecipient invoiceRecipient = new MatchedRecipient()
+                .id("invoice-recipient")
+                .publicKey("invoice-public-key")
+                .acceptedFormats(List.of(ReceiptFormat.UBL_INVOICE));
+        RecipientResolutionResponse matchResponse = new RecipientResolutionResponse()
+                .customerFound(true)
+                .matchId("match-123")
+                .recipients(List.of(ublRecipient, invoiceRecipient));
+        ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse()
+                .ublPurchaseReceipt("<Receipt>ok</Receipt>")
+                .ublInvoice("<Invoice>ok</Invoice>");
+        ReceiptCreatedResponse createdResponse = new ReceiptCreatedResponse()
+                .cheqiReceiptId("receipt-123")
+                .templateHash("hash-123")
+                .createdAt(OffsetDateTime.parse("2024-01-15T10:30:00Z"));
+
+        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
+        when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(templateResponse);
+        when(encryptionService.encryptReceiptForRecipients(any(String.class), any(MatchedRecipient.class)))
+                .thenAnswer(invocation -> {
+                    MatchedRecipient recipient = invocation.getArgument(1);
+                    return new EncryptedReceiptRequest()
+                            .recipientId(recipient.getId())
+                            .encryptedReceipt("ciphertext-" + recipient.getId())
+                            .encryptedSymmetricKey("wrapped-key-" + recipient.getId());
+                });
+        when(apiClient.sendEncryptedReceipts(eq("match-123"), anySet(), any(String.class))).thenReturn(createdResponse);
+
+        ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
+
+        assertTrue(result.isSuccess());
+        ArgumentCaptor<String> envelopeCaptor = ArgumentCaptor.forClass(String.class);
+        verify(encryptionService, times(2)).encryptReceiptForRecipients(envelopeCaptor.capture(), any(MatchedRecipient.class));
+        assertTrue(envelopeCaptor.getAllValues().contains("{\"ublPurchaseReceipt\":\"<Receipt>ok</Receipt>\"}"));
+        assertTrue(envelopeCaptor.getAllValues().contains("{\"ublInvoice\":\"<Invoice>ok</Invoice>\"}"));
     }
 
     private static RecipientResolutionResponse matchedRecipientResponse() {

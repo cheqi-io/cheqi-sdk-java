@@ -314,16 +314,11 @@ public class ReceiptService {
 
         logger.debug("Creating encrypted receipts for {} recipients", matchResponse.getRecipients().size());
 
-        ReceiptEnvelope envelope = new ReceiptEnvelope();
-        envelope.setCheqi(templateResponse.getCheqi());
-        envelope.setUblPurchaseReceipt(templateResponse.getUblPurchaseReceipt());
-        envelope.setUblInvoice(templateResponse.getUblInvoice());
-        envelope.setVatMetaData(templateResponse.getVatMetadata());
-
-        String envelopeJson = objectMapper.writeValueAsString(envelope);
         Set<EncryptedReceiptRequest> encryptedReceipts = new HashSet<>();
         for (MatchedRecipient recipient : matchResponse.getRecipients()) {
             logger.debug("Encrypting envelope for recipient: {} with formats: {}", recipient.getId(), recipient.getAcceptedFormats());
+            ReceiptEnvelope envelope = buildEnvelopeForRecipient(recipient, templateResponse);
+            String envelopeJson = objectMapper.writeValueAsString(envelope);
             encryptedReceipts.add(encryptionService.encryptReceiptForRecipients(envelopeJson, recipient));
         }
 
@@ -337,6 +332,28 @@ public class ReceiptService {
 
         logger.info("Receipt processing completed successfully");
         return ReceiptResult.deliveredToApp(response, templateContent);
+    }
+
+    private ReceiptEnvelope buildEnvelopeForRecipient(
+            MatchedRecipient recipient,
+            ReceiptTemplateResponse templateResponse) {
+
+        ReceiptEnvelope envelope = new ReceiptEnvelope();
+        List<ReceiptFormat> acceptedFormats = recipient.getAcceptedFormats();
+
+        if (acceptedFormats != null && acceptedFormats.contains(ReceiptFormat.CHEQI) && templateResponse.getCheqi() != null) {
+            envelope.setCheqi(templateResponse.getCheqi());
+        }
+        if (acceptedFormats != null && acceptedFormats.contains(ReceiptFormat.UBL_PURCHASE_RECEIPT) && templateResponse.getUblPurchaseReceipt() != null) {
+            envelope.setUblPurchaseReceipt(templateResponse.getUblPurchaseReceipt());
+        }
+        if (acceptedFormats != null && acceptedFormats.contains(ReceiptFormat.UBL_INVOICE) && templateResponse.getUblInvoice() != null) {
+            envelope.setUblInvoice(templateResponse.getUblInvoice());
+        }
+        if (templateResponse.getVatMetadata() != null) {
+            envelope.setVatMetaData(templateResponse.getVatMetadata());
+        }
+        return envelope;
     }
 
     // ===== VALIDATION =====

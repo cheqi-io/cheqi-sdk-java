@@ -33,7 +33,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         this.config = config;
         this.objectMapper = ObjectMapperConfig.getInstance();
 
-        this.httpClient = createHttpClient();
+        this.httpClient = createHttpClient(config);
         this.retryHandler = new RetryHandler(httpClient, config.getMaxRetries());
         this.responseHandler = new ResponseHandler(objectMapper);
         
@@ -672,7 +672,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     private Request buildPostRequest(Endpoints endpoint, String requestBody, String accessToken, String acceptHeader) {
         RequestBody body = RequestBody.create(requestBody, JSON);
         return new Request.Builder()
-                .url(config.getApiEndpoint() + endpoint.getPath())
+                .url(buildUrl(endpoint.getPath()))
                 .post(body)
                 .addHeader("Authorization", "Bearer " + accessToken)
                 .addHeader("Content-Type", "application/json")
@@ -692,7 +692,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         
         RequestBody body = RequestBody.create(requestBody, JSON);
         return new Request.Builder()
-                .url(config.getApiEndpoint() + endpoint.getPath())
+                .url(buildUrl(endpoint.getPath()))
                 .post(body)
                 .addHeader("Authorization", "Bearer " + config.getApiKey())
                 .addHeader("Content-Type", "application/json")
@@ -708,11 +708,26 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         return buildPostRequest(endpoint, requestBody, accessToken, "application/json");
     }
 
+    private String buildUrl(String path) {
+        String baseUrl = config.getApiEndpoint();
+        if (baseUrl.endsWith("/") && path.startsWith("/")) {
+            return baseUrl.substring(0, baseUrl.length() - 1) + path;
+        }
+        if (!baseUrl.endsWith("/") && !path.startsWith("/")) {
+            return baseUrl + "/" + path;
+        }
+        return baseUrl + path;
+    }
+
     /**
      * Creates configured OkHttpClient with timeouts, connection pooling, and interceptors.
      */
-    private OkHttpClient createHttpClient() {
-        return new OkHttpClient.Builder()
+    private OkHttpClient createHttpClient(CheqiSDKConfig config) {
+        OkHttpClient.Builder builder = config.getHttpClient() != null
+                ? config.getHttpClient().newBuilder()
+                : new OkHttpClient.Builder();
+
+        return builder
                 .connectTimeout(config.getTimeoutSeconds(), TimeUnit.SECONDS)
                 .readTimeout(config.getTimeoutSeconds(), TimeUnit.SECONDS)
                 .writeTimeout(config.getTimeoutSeconds(), TimeUnit.SECONDS)
@@ -764,7 +779,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
-            String url = config.getApiEndpoint() + Endpoints.COMPANY_STORES_ENDPOINT.getPath(companyId);
+            String url = buildUrl(Endpoints.COMPANY_STORES_ENDPOINT.getPath(companyId));
 
             Request httpRequest = buildJsonPostRequest(url, requestJson, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "createStore");
@@ -784,7 +799,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         validateAccessToken(accessToken);
 
         try {
-            String url = config.getApiEndpoint() + Endpoints.COMPANY_STORES_ENDPOINT.getPath(companyId);
+            String url = buildUrl(Endpoints.COMPANY_STORES_ENDPOINT.getPath(companyId));
             if (activeOnly != null && activeOnly) {
                 url += "?active=true";
             }
@@ -807,7 +822,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         validateAccessToken(accessToken);
 
         try {
-            String url = config.getApiEndpoint() + Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId);
+            String url = buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildGetRequest(url, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "getStore");
@@ -828,7 +843,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
-            String url = config.getApiEndpoint() + Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId);
+            String url = buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildPutRequest(url, requestJson, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "updateStore");
@@ -848,7 +863,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         validateAccessToken(accessToken);
 
         try {
-            String url = config.getApiEndpoint() + Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId);
+            String url = buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildDeleteRequest(url, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "deleteStore");
@@ -868,7 +883,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         validateAccessToken(accessToken);
 
         try {
-            String url = config.getApiEndpoint() + Endpoints.COMPANY_STORE_ACTIVATE_ENDPOINT.getPath(companyId, storeId);
+            String url = buildUrl(Endpoints.COMPANY_STORE_ACTIVATE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildPatchRequest(url, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "activateStore");
@@ -888,7 +903,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         validateAccessToken(accessToken);
 
         try {
-            String url = config.getApiEndpoint() + Endpoints.COMPANY_STORE_DEACTIVATE_ENDPOINT.getPath(companyId, storeId);
+            String url = buildUrl(Endpoints.COMPANY_STORE_DEACTIVATE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildPatchRequest(url, accessToken);
             Response response = retryHandler.executeWithRetry(httpRequest, "deactivateStore");

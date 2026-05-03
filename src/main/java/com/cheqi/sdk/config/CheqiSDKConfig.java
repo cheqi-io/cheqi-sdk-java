@@ -1,6 +1,7 @@
 package com.cheqi.sdk.config;
 
 import com.cheqi.sdk.encryption.EncryptionConfig;
+import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ public class CheqiSDKConfig {
     private final EncryptionConfig encryptionConfig;
     private final int timeoutSeconds;
     private final int maxRetries;
+    private final OkHttpClient httpClient;
 
     private CheqiSDKConfig(Builder builder) {
         this.apiEndpoint = builder.apiEndpoint;
@@ -31,6 +33,7 @@ public class CheqiSDKConfig {
         this.encryptionConfig = builder.encryptionConfig;
         this.timeoutSeconds = builder.timeoutSeconds;
         this.maxRetries = builder.maxRetries;
+        this.httpClient = builder.httpClient;
     }
 
     public static Builder builder() {
@@ -61,6 +64,10 @@ public class CheqiSDKConfig {
         return privateKeyBase64;
     }
 
+    public OkHttpClient getHttpClient() {
+        return httpClient;
+    }
+
     public static class Builder {
         private String apiEndpoint;
         private String apiKey;
@@ -68,6 +75,7 @@ public class CheqiSDKConfig {
         private EncryptionConfig encryptionConfig;
         private int timeoutSeconds = 30;
         private int maxRetries = 3;
+        private OkHttpClient httpClient;
 
         /**
          * Sets the API endpoint using a predefined environment.
@@ -115,6 +123,11 @@ public class CheqiSDKConfig {
 
         public Builder maxRetries(int maxRetries) {
             this.maxRetries = maxRetries;
+            return this;
+        }
+
+        public Builder httpClient(OkHttpClient httpClient) {
+            this.httpClient = httpClient;
             return this;
         }
 

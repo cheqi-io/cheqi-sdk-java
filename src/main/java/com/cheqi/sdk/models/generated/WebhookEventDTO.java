@@ -69,7 +69,9 @@ public class WebhookEventDTO {
     
     RETURN_REQUESTED(String.valueOf("RETURN_REQUESTED")),
     
-    CREDIT_NOTE_CREATED(String.valueOf("CREDIT_NOTE_CREATED"));
+    CREDIT_NOTE_CREATED(String.valueOf("CREDIT_NOTE_CREATED")),
+    
+    CREDIT_NOTE_FINALIZED(String.valueOf("CREDIT_NOTE_FINALIZED"));
 
     private String value;
 

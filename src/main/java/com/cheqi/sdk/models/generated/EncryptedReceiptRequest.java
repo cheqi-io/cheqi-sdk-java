@@ -43,15 +43,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class EncryptedReceiptRequest {
   public static final String JSON_PROPERTY_RECIPIENT_ID = "recipientId";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String recipientId;
 
   public static final String JSON_PROPERTY_ENCRYPTED_RECEIPT = "encryptedReceipt";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String encryptedReceipt;
 
   public static final String JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY = "encryptedSymmetricKey";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String encryptedSymmetricKey;
 
   public static final String JSON_PROPERTY_FINAL_HASH = "finalHash";
@@ -59,7 +59,7 @@ public class EncryptedReceiptRequest {
   private String finalHash;
 
   public static final String JSON_PROPERTY_PUBLIC_KEY = "publicKey";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String publicKey;
 
   public static final String JSON_PROPERTY_SUPPLIER_PARTY_ID = "supplierPartyId";
@@ -73,7 +73,7 @@ public class EncryptedReceiptRequest {
   public EncryptedReceiptRequest() { 
   }
 
-  public EncryptedReceiptRequest recipientId(@javax.annotation.Nullable String recipientId) {
+  public EncryptedReceiptRequest recipientId(@javax.annotation.Nonnull String recipientId) {
     this.recipientId = recipientId;
     return this;
   }
@@ -82,22 +82,22 @@ public class EncryptedReceiptRequest {
    * Temporary recipient identifier returned by recipient resolution for a single matched recipient. This is not the final device or client-application id.
    * @return recipientId
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_RECIPIENT_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getRecipientId() {
     return recipientId;
   }
 
 
   @JsonProperty(JSON_PROPERTY_RECIPIENT_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setRecipientId(@javax.annotation.Nullable String recipientId) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setRecipientId(@javax.annotation.Nonnull String recipientId) {
     this.recipientId = recipientId;
   }
 
 
-  public EncryptedReceiptRequest encryptedReceipt(@javax.annotation.Nullable String encryptedReceipt) {
+  public EncryptedReceiptRequest encryptedReceipt(@javax.annotation.Nonnull String encryptedReceipt) {
     this.encryptedReceipt = encryptedReceipt;
     return this;
   }
@@ -106,22 +106,22 @@ public class EncryptedReceiptRequest {
    * Base64 ciphertext of the receipt envelope.
    * @return encryptedReceipt
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_RECEIPT)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getEncryptedReceipt() {
     return encryptedReceipt;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_RECEIPT)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedReceipt(@javax.annotation.Nullable String encryptedReceipt) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setEncryptedReceipt(@javax.annotation.Nonnull String encryptedReceipt) {
     this.encryptedReceipt = encryptedReceipt;
   }
 
 
-  public EncryptedReceiptRequest encryptedSymmetricKey(@javax.annotation.Nullable String encryptedSymmetricKey) {
+  public EncryptedReceiptRequest encryptedSymmetricKey(@javax.annotation.Nonnull String encryptedSymmetricKey) {
     this.encryptedSymmetricKey = encryptedSymmetricKey;
     return this;
   }
@@ -130,17 +130,17 @@ public class EncryptedReceiptRequest {
    * Wrapped symmetric content-encryption key for this recipient. Encrypt the content key with the recipient public key and submit the wrapped value here.
    * @return encryptedSymmetricKey
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getEncryptedSymmetricKey() {
     return encryptedSymmetricKey;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedSymmetricKey(@javax.annotation.Nullable String encryptedSymmetricKey) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setEncryptedSymmetricKey(@javax.annotation.Nonnull String encryptedSymmetricKey) {
     this.encryptedSymmetricKey = encryptedSymmetricKey;
   }
 
@@ -169,7 +169,7 @@ public class EncryptedReceiptRequest {
   }
 
 
-  public EncryptedReceiptRequest publicKey(@javax.annotation.Nullable String publicKey) {
+  public EncryptedReceiptRequest publicKey(@javax.annotation.Nonnull String publicKey) {
     this.publicKey = publicKey;
     return this;
   }
@@ -178,17 +178,17 @@ public class EncryptedReceiptRequest {
    * Recipient public key that was used to encrypt the symmetric content key and ciphertext payload.
    * @return publicKey
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPublicKey() {
     return publicKey;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPublicKey(@javax.annotation.Nullable String publicKey) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setPublicKey(@javax.annotation.Nonnull String publicKey) {
     this.publicKey = publicKey;
   }
 

@@ -15,6 +15,7 @@ import com.cheqi.sdk.models.EncryptedReceipt;
 import com.cheqi.sdk.receipt.ReceiptProcessor;
 import com.cheqi.sdk.receipt.ReceiptService;
 import com.cheqi.sdk.verification.VerificationService;
+import okhttp3.OkHttpClient;
 
 /**
  * Main entry point for the Cheqi SDK providing end-to-end encrypted receipt processing.
@@ -265,6 +266,11 @@ public class CheqiSDK {
 
         public CheqiSDKBuilder maxRetries(int maxRetries) {
             configBuilder.maxRetries(maxRetries);
+            return this;
+        }
+
+        public CheqiSDKBuilder httpClient(OkHttpClient httpClient) {
+            configBuilder.httpClient(httpClient);
             return this;
         }
 

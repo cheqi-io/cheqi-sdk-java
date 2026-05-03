@@ -62,7 +62,7 @@ public class CompanyCreationRequest {
   private String companyLegalName;
 
   public static final String JSON_PROPERTY_TAX_NUMBER = "taxNumber";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private String taxNumber;
 
   public static final String JSON_PROPERTY_ADDRESS = "address";
@@ -156,26 +156,26 @@ public class CompanyCreationRequest {
   }
 
 
-  public CompanyCreationRequest taxNumber(@javax.annotation.Nonnull String taxNumber) {
+  public CompanyCreationRequest taxNumber(@javax.annotation.Nullable String taxNumber) {
     this.taxNumber = taxNumber;
     return this;
   }
 
   /**
-   * Tax identification number of the company
+   * Legacy tax identification number of the company. Prefer identifiers for new integrations.
    * @return taxNumber
    */
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_TAX_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getTaxNumber() {
     return taxNumber;
   }
 
 
   @JsonProperty(JSON_PROPERTY_TAX_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setTaxNumber(@javax.annotation.Nonnull String taxNumber) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTaxNumber(@javax.annotation.Nullable String taxNumber) {
     this.taxNumber = taxNumber;
   }
 

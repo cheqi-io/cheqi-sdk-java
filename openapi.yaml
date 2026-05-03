@@ -143,12 +143,6 @@ paths:
               $ref: "#/components/schemas/UpdateStoreRequest"
         required: true
       responses:
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -167,6 +161,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /webhook/subscription:
@@ -371,12 +371,6 @@ paths:
               $ref: "#/components/schemas/EncryptedReceiptsRequest"
         required: true
       responses:
-        "201":
-          description: Receipt created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ReceiptCreatedResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
           content:
@@ -385,6 +379,12 @@ paths:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
         "400":
           description: Invalid encrypted receipt data
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReceiptCreatedResponse"
+        "201":
+          description: Receipt created successfully
           content:
             '*/*':
               schema:
@@ -660,18 +660,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "400":
           description: Invalid request data
           content:
             '*/*':
               schema:
                 type: object
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /company/provision:
@@ -735,14 +735,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "403":
-          description: Not authorized to rotate webhook secret for this client application
+        "200":
+          description: Secret rotated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookSecretRotationResponse"
-        "200":
-          description: Secret rotated successfully
+        "403":
+          description: Not authorized to rotate webhook secret for this client application
           content:
             '*/*':
               schema:
@@ -849,14 +849,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store deactivated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
@@ -924,12 +924,6 @@ paths:
         **Accessible for:** Client Application, Company
       operationId: getQueuedReceipts
       responses:
-        "200":
-          description: Queued receipts returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReceiptQueueDto"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
@@ -939,6 +933,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ReceiptQueueDto"
+        "200":
+          description: Queued receipts returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptQueueDto"
       security:
       - cheqi_oauth:
         - read_receipts
@@ -993,6 +993,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompanyReceiptDeliverySettingsResponse"
+      x-accessible-for: User
+  /company/identifier-requirements:
+    get:
+      tags:
+      - Company Management
+      description: |2-
+
+
+        **Accessible for:** User
+      operationId: getIdentifierRequirements
+      parameters:
+      - name: countryCode
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CompanyIdentifierRequirement"
       x-accessible-for: User
   /client-application/authorized-resources:
     get:
@@ -1158,6 +1183,7 @@ components:
             - RECEIPT_FINALIZED
             - RETURN_REQUESTED
             - CREDIT_NOTE_CREATED
+            - CREDIT_NOTE_FINALIZED
         notificationUrl:
           type: string
       description: Webhook subscription request with URL and event types
@@ -1219,8 +1245,6 @@ components:
             \ and used for display and receipt metadata only."
       description: Card payment details.
     IdentificationDetails:
-      required:
-      - paymentType
       type: object
       properties:
         paymentType:
@@ -1246,15 +1270,16 @@ components:
           description: "The Cheqi receipt ID, only needed for credit notes"
           example: CHQ-12345678-123456-123456
         pairingCode:
+          pattern: "\\d{8}"
           type: string
-          description: A temporary 6-digit pairing code generated by the receipt recipient.
-          example: "847392"
+          description: A temporary 8-digit pairing code generated by the receipt recipient.
+          example: "84739201"
       description: "Identification and payment details used to resolve the receipt\
-        \ recipient. For non-cash payments, you must provide either cardDetails or\
-        \ paymentAccountDetails. For card payments, cardDetails may also include optional\
-        \ lastFourDigits for richer receipt metadata. For cash payments, cardDetails\
-        \ and paymentAccountDetails are not required, but you must provide either\
-        \ recipientEmail or pairingCode."
+        \ recipient. paymentType is optional when pairingCode is supplied because\
+        \ the pairing code carries the customer-selected payment method. For card\
+        \ payments without pairingCode, provide cardDetails. For direct debit without\
+        \ pairingCode, provide paymentAccountDetails. For cash payments, provide recipientEmail\
+        \ or pairingCode."
     PaymentAccountDetails:
       required:
       - accountIdentifierType
@@ -1874,6 +1899,10 @@ components:
           type: string
           description: The actual identifier value
           example: "12345678"
+        label:
+          type: string
+          description: Human-readable display label for this identifier
+          example: KVK Number
         countryCode:
           type: string
           description: ISO 3166-1 alpha-2 country code
@@ -2043,6 +2072,11 @@ components:
         failureReason:
           type: string
     EncryptedReceiptRequest:
+      required:
+      - encryptedReceipt
+      - encryptedSymmetricKey
+      - publicKey
+      - recipientId
       type: object
       properties:
         recipientId:
@@ -2497,7 +2531,6 @@ components:
       - companyEmail
       - companyLegalName
       - companyName
-      - taxNumber
       type: object
       properties:
         companyName:
@@ -2510,7 +2543,9 @@ components:
           example: Example Coffee Shop B.V.
         taxNumber:
           type: string
-          description: Tax identification number of the company
+          description: Legacy tax identification number of the company. Prefer identifiers
+            for new integrations.
+          nullable: true
           example: NL123456789B01
         address:
           $ref: "#/components/schemas/AddressDTO"
@@ -2938,6 +2973,33 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CompanyReceiptDeliveryDeviceDto"
+    CompanyIdentifierRequirement:
+      type: object
+      properties:
+        identifierType:
+          $ref: "#/components/schemas/CompanyIdentifierType"
+        registrationScheme:
+          type: string
+          description: Optional registry or local scheme
+          nullable: true
+          example: KVK
+        label:
+          type: string
+          description: User-facing label
+          example: KVK number
+        placeholder:
+          type: string
+          description: Input placeholder
+          example: e.g. 12345678
+        required:
+          type: boolean
+          description: Whether this identifier should be collected for this country
+        receiptRelevant:
+          type: boolean
+          description: Whether this identifier is typically printed on receipts or
+            invoices
+      description: Country-specific company identifier option for onboarding and company
+        creation.
     PublicKeyResponse:
       type: object
       properties:
@@ -3079,6 +3141,7 @@ components:
           - RECEIPT_FINALIZED
           - RETURN_REQUESTED
           - CREDIT_NOTE_CREATED
+          - CREDIT_NOTE_FINALIZED
         created_at:
           type: string
           format: date-time
@@ -3197,7 +3260,7 @@ components:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: https://test.api.cheqi.io/oauth/authorize
+          authorizationUrl: https://test.api.cheqi.io/oauth2/authorize
           scopes:
             write_receipts: Write receipts
             read_receipts: Read receipts

@@ -36,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CompanyIdentifierDTO.JSON_PROPERTY_IDENTIFIER_TYPE,
   CompanyIdentifierDTO.JSON_PROPERTY_REGISTRATION_SCHEME,
   CompanyIdentifierDTO.JSON_PROPERTY_VALUE,
+  CompanyIdentifierDTO.JSON_PROPERTY_LABEL,
   CompanyIdentifierDTO.JSON_PROPERTY_COUNTRY_CODE,
   CompanyIdentifierDTO.JSON_PROPERTY_IS_VERIFIED,
   CompanyIdentifierDTO.JSON_PROPERTY_VERIFIED_AT
@@ -111,6 +112,10 @@ public class CompanyIdentifierDTO {
   public static final String JSON_PROPERTY_VALUE = "value";
   @javax.annotation.Nullable
   private String value;
+
+  public static final String JSON_PROPERTY_LABEL = "label";
+  @javax.annotation.Nullable
+  private String label;
 
   public static final String JSON_PROPERTY_COUNTRY_CODE = "countryCode";
   @javax.annotation.Nullable
@@ -223,6 +228,30 @@ public class CompanyIdentifierDTO {
   }
 
 
+  public CompanyIdentifierDTO label(@javax.annotation.Nullable String label) {
+    this.label = label;
+    return this;
+  }
+
+  /**
+   * Human-readable display label for this identifier
+   * @return label
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_LABEL)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getLabel() {
+    return label;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_LABEL)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLabel(@javax.annotation.Nullable String label) {
+    this.label = label;
+  }
+
+
   public CompanyIdentifierDTO countryCode(@javax.annotation.Nullable String countryCode) {
     this.countryCode = countryCode;
     return this;
@@ -311,6 +340,7 @@ public class CompanyIdentifierDTO {
         Objects.equals(this.identifierType, companyIdentifierDTO.identifierType) &&
         Objects.equals(this.registrationScheme, companyIdentifierDTO.registrationScheme) &&
         Objects.equals(this.value, companyIdentifierDTO.value) &&
+        Objects.equals(this.label, companyIdentifierDTO.label) &&
         Objects.equals(this.countryCode, companyIdentifierDTO.countryCode) &&
         Objects.equals(this.isVerified, companyIdentifierDTO.isVerified) &&
         Objects.equals(this.verifiedAt, companyIdentifierDTO.verifiedAt);
@@ -318,7 +348,7 @@ public class CompanyIdentifierDTO {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, identifierType, registrationScheme, value, countryCode, isVerified, verifiedAt);
+    return Objects.hash(id, identifierType, registrationScheme, value, label, countryCode, isVerified, verifiedAt);
   }
 
   @Override
@@ -329,6 +359,7 @@ public class CompanyIdentifierDTO {
     sb.append("    identifierType: ").append(toIndentedString(identifierType)).append("\n");
     sb.append("    registrationScheme: ").append(toIndentedString(registrationScheme)).append("\n");
     sb.append("    value: ").append(toIndentedString(value)).append("\n");
+    sb.append("    label: ").append(toIndentedString(label)).append("\n");
     sb.append("    countryCode: ").append(toIndentedString(countryCode)).append("\n");
     sb.append("    isVerified: ").append(toIndentedString(isVerified)).append("\n");
     sb.append("    verifiedAt: ").append(toIndentedString(verifiedAt)).append("\n");
