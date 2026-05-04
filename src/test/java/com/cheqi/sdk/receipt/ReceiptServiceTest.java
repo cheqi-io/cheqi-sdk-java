@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -80,6 +81,61 @@ class ReceiptServiceTest {
         ArgumentCaptor<String> templateHashCaptor = ArgumentCaptor.forClass(String.class);
         verify(apiClient).sendEncryptedReceipts(eq("match-123"), anySet(), templateHashCaptor.capture());
         assertEquals(HashUtils.sha256Hex("<Receipt>ok</Receipt>"), templateHashCaptor.getValue());
+    }
+
+    @Test
+    void processCompleteReceipt_infersTaxesAppliedWhenMissing() throws Exception {
+        ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
+        RecipientResolutionResponse matchResponse = matchedRecipientResponse();
+        ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse().ublPurchaseReceipt("<Receipt>ok</Receipt>");
+        ReceiptCreatedResponse createdResponse = new ReceiptCreatedResponse()
+                .cheqiReceiptId("receipt-123")
+                .templateHash("hash-123")
+                .createdAt(OffsetDateTime.parse("2024-01-15T10:30:00Z"));
+
+        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
+        when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(templateResponse);
+        when(encryptionService.encryptReceiptForRecipients(any(String.class), any(MatchedRecipient.class))).thenReturn(new EncryptedReceiptRequest()
+                .recipientId("recipient-1")
+                .encryptedReceipt("ciphertext")
+                .encryptedSymmetricKey("wrapped-key"));
+        when(apiClient.sendEncryptedReceipts(eq("match-123"), anySet(), any(String.class))).thenReturn(createdResponse);
+
+        service.processCompleteReceipt(identificationDetails(null), receiptRequest());
+
+        ArgumentCaptor<ReceiptTemplateGenerationRequest> requestCaptor = ArgumentCaptor.forClass(ReceiptTemplateGenerationRequest.class);
+        verify(apiClient).generateReceiptTemplate(requestCaptor.capture(), any());
+        assertTrue(requestCaptor.getValue().getTaxesApplied());
+    }
+
+    @Test
+    void processCompleteReceipt_attachesNotificationDisplayCodeToEncryptedReceipts() throws Exception {
+        ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
+        RecipientResolutionResponse matchResponse = matchedRecipientResponse();
+        ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse().ublPurchaseReceipt("<Receipt>ok</Receipt>");
+        ReceiptCreatedResponse createdResponse = new ReceiptCreatedResponse()
+                .cheqiReceiptId("receipt-123")
+                .templateHash("hash-123")
+                .createdAt(OffsetDateTime.parse("2024-01-15T10:30:00Z"));
+        NotificationDisplayCode notificationDisplayCode = new NotificationDisplayCode()
+                .type(BarcodeType.QR_CODE)
+                .data("https://example.com/receipt/INV-001");
+
+        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
+        when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(templateResponse);
+        when(encryptionService.encryptReceiptForRecipients(any(String.class), any(MatchedRecipient.class))).thenReturn(new EncryptedReceiptRequest()
+                .recipientId("recipient-1")
+                .encryptedReceipt("ciphertext")
+                .encryptedSymmetricKey("wrapped-key"));
+        when(apiClient.sendEncryptedReceipts(eq("match-123"), anySet(), any(String.class))).thenReturn(createdResponse);
+
+        service.processCompleteReceipt(identificationDetails(null), receiptRequest(), notificationDisplayCode);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Set<EncryptedReceiptRequest>> receiptsCaptor = ArgumentCaptor.forClass(Set.class);
+        verify(apiClient).sendEncryptedReceipts(eq("match-123"), receiptsCaptor.capture(), any(String.class));
+        EncryptedReceiptRequest encryptedReceipt = receiptsCaptor.getValue().iterator().next();
+        assertEquals(notificationDisplayCode, encryptedReceipt.getNotificationDisplayCode());
     }
 
     @Test

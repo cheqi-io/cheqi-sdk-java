@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 /**
  * Service for handling receipt operations in the Cheqi SDK.
@@ -291,8 +292,18 @@ public class ReceiptService {
                 .buyerType(request.getBuyerType() != null
                         ? request.getBuyerType()
                         : matchResponse.getBuyerType())
-                .taxesApplied(request.getTaxesApplied())
+                .taxesApplied(resolveTaxesApplied(request))
                 .build();
+    }
+
+    private Boolean resolveTaxesApplied(ReceiptTemplateRequest request) {
+        if (request.getTaxesApplied() != null) {
+            return request.getTaxesApplied();
+        }
+        if (request.getTotalTaxAmount() != null && request.getTotalTaxAmount().compareTo(BigDecimal.ZERO) > 0) {
+            return true;
+        }
+        return request.getTaxes() != null && !request.getTaxes().isEmpty();
     }
 
     private ReceiptTemplateGenerationRequest buildGenerationRequest(
@@ -319,7 +330,9 @@ public class ReceiptService {
             logger.debug("Encrypting envelope for recipient: {} with formats: {}", recipient.getId(), recipient.getAcceptedFormats());
             ReceiptEnvelope envelope = buildEnvelopeForRecipient(recipient, templateResponse);
             String envelopeJson = objectMapper.writeValueAsString(envelope);
-            encryptedReceipts.add(encryptionService.encryptReceiptForRecipients(envelopeJson, recipient));
+            EncryptedReceiptRequest encryptedReceipt = encryptionService.encryptReceiptForRecipients(envelopeJson, recipient);
+            encryptedReceipt.setNotificationDisplayCode(notificationDisplayCode);
+            encryptedReceipts.add(encryptedReceipt);
         }
 
         String templateContent = templateResponse.getCheqi() != null

@@ -229,7 +229,7 @@ public class CheqiSDK {
         /**
          * Sets the API endpoint using a predefined environment.
          *
-         * @param apiEndpoint the predefined environment (SANDBOX, TEST, PRODUCTION, LOCAL)
+         * @param apiEndpoint the predefined environment (SANDBOX or PRODUCTION)
          * @return this builder instance
          */
         public CheqiSDKBuilder apiEndpoint(Environment apiEndpoint) {
