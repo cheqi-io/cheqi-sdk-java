@@ -16,14 +16,14 @@ Maven:
 <dependency>
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
 Gradle:
 
 ```gradle
-implementation 'io.cheqi:cheqi-sdk:1.0.2'
+implementation 'io.cheqi:cheqi-sdk:1.0.5'
 ```
 
 ## Environments
