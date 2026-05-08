@@ -100,14 +100,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store retrieved successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
@@ -143,6 +143,12 @@ paths:
               $ref: "#/components/schemas/UpdateStoreRequest"
         required: true
       responses:
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -161,12 +167,6 @@ paths:
             '*/*':
               schema:
                 type: object
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /webhook/subscription:
@@ -243,12 +243,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/RecipientResolutionResponse"
         "401":
           description: Authentication required
           content:
@@ -257,6 +251,12 @@ paths:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
         "400":
           description: Invalid identification details provided
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RecipientResolutionResponse"
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -377,14 +377,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "400":
-          description: Invalid encrypted receipt data
+        "201":
+          description: Receipt created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "201":
-          description: Receipt created successfully
+        "400":
+          description: Invalid encrypted receipt data
           content:
             '*/*':
               schema:
@@ -514,14 +514,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "403":
-          description: Insufficient permissions - requires write_receipts scope
+        "201":
+          description: Encrypted credit note queued successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "201":
-          description: Encrypted credit note queued successfully
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
           content:
             '*/*':
               schema:
@@ -660,18 +660,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "400":
-          description: Invalid request data
-          content:
-            '*/*':
-              schema:
-                type: object
         "201":
           description: Store created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
+        "400":
+          description: Invalid request data
+          content:
+            '*/*':
+              schema:
+                type: object
       security:
       - bearerAuth: []
   /company/provision:
@@ -697,15 +697,15 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProvisionCompanyResponse"
-        "201":
-          description: Company provisioned successfully for the trusted partner
+        "409":
+          description: Company already exists and should be connected through OAuth
+            instead
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProvisionCompanyResponse"
-        "409":
-          description: Company already exists and should be connected through OAuth
-            instead
+        "201":
+          description: Company provisioned successfully for the trusted partner
           content:
             '*/*':
               schema:
@@ -849,14 +849,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store deactivated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
@@ -924,6 +924,12 @@ paths:
         **Accessible for:** Client Application, Company
       operationId: getQueuedReceipts
       responses:
+        "200":
+          description: Queued receipts returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptQueueDto"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
@@ -933,12 +939,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ReceiptQueueDto"
-        "200":
-          description: Queued receipts returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReceiptQueueDto"
       security:
       - cheqi_oauth:
         - read_receipts
@@ -1030,6 +1030,12 @@ paths:
         **Accessible for:** Client Application
       operationId: getAuthorizedResources
       responses:
+        "200":
+          description: Authorized resources retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthorizedResourcesResponse"
         "401":
           description: Invalid or missing access token
           content:
@@ -1038,12 +1044,6 @@ paths:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
         "403":
           description: Not a client application token
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "200":
-          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
