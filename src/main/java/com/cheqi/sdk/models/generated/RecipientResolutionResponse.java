@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({
   RecipientResolutionResponse.JSON_PROPERTY_RECIPIENTS,
-  RecipientResolutionResponse.JSON_PROPERTY_CUSTOMER_FOUND,
+  RecipientResolutionResponse.JSON_PROPERTY_ROUTE_FOUND,
   RecipientResolutionResponse.JSON_PROPERTY_MATCH_ID,
   RecipientResolutionResponse.JSON_PROPERTY_MATCHED_RECIPIENTS,
   RecipientResolutionResponse.JSON_PROPERTY_EXPIRES_AT,
@@ -50,9 +50,9 @@ public class RecipientResolutionResponse {
   @javax.annotation.Nullable
   private List<MatchedRecipient> recipients = new ArrayList<>();
 
-  public static final String JSON_PROPERTY_CUSTOMER_FOUND = "customerFound";
+  public static final String JSON_PROPERTY_ROUTE_FOUND = "routeFound";
   @javax.annotation.Nullable
-  private Boolean customerFound;
+  private Boolean routeFound;
 
   public static final String JSON_PROPERTY_MATCH_ID = "matchId";
   @javax.annotation.Nullable
@@ -113,27 +113,27 @@ public class RecipientResolutionResponse {
   }
 
 
-  public RecipientResolutionResponse customerFound(@javax.annotation.Nullable Boolean customerFound) {
-    this.customerFound = customerFound;
+  public RecipientResolutionResponse routeFound(@javax.annotation.Nullable Boolean routeFound) {
+    this.routeFound = routeFound;
     return this;
   }
 
   /**
-   * Indicates if a customer was found for the given recipient
-   * @return customerFound
+   * Indicates if Cheqi found a delivery route for the receipt
+   * @return routeFound
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_CUSTOMER_FOUND)
+  @JsonProperty(JSON_PROPERTY_ROUTE_FOUND)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Boolean getCustomerFound() {
-    return customerFound;
+  public Boolean getRouteFound() {
+    return routeFound;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_CUSTOMER_FOUND)
+  @JsonProperty(JSON_PROPERTY_ROUTE_FOUND)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCustomerFound(@javax.annotation.Nullable Boolean customerFound) {
-    this.customerFound = customerFound;
+  public void setRouteFound(@javax.annotation.Nullable Boolean routeFound) {
+    this.routeFound = routeFound;
   }
 
 
@@ -302,7 +302,7 @@ public class RecipientResolutionResponse {
     }
     RecipientResolutionResponse recipientResolutionResponse = (RecipientResolutionResponse) o;
     return Objects.equals(this.recipients, recipientResolutionResponse.recipients) &&
-        Objects.equals(this.customerFound, recipientResolutionResponse.customerFound) &&
+        Objects.equals(this.routeFound, recipientResolutionResponse.routeFound) &&
         Objects.equals(this.matchId, recipientResolutionResponse.matchId) &&
         Objects.equals(this.matchedRecipients, recipientResolutionResponse.matchedRecipients) &&
         Objects.equals(this.expiresAt, recipientResolutionResponse.expiresAt) &&
@@ -313,7 +313,7 @@ public class RecipientResolutionResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(recipients, customerFound, matchId, matchedRecipients, expiresAt, instructions, buyerCountryCode, buyerType);
+    return Objects.hash(recipients, routeFound, matchId, matchedRecipients, expiresAt, instructions, buyerCountryCode, buyerType);
   }
 
   @Override
@@ -321,7 +321,7 @@ public class RecipientResolutionResponse {
     StringBuilder sb = new StringBuilder();
     sb.append("class RecipientResolutionResponse {\n");
     sb.append("    recipients: ").append(toIndentedString(recipients)).append("\n");
-    sb.append("    customerFound: ").append(toIndentedString(customerFound)).append("\n");
+    sb.append("    routeFound: ").append(toIndentedString(routeFound)).append("\n");
     sb.append("    matchId: ").append(toIndentedString(matchId)).append("\n");
     sb.append("    matchedRecipients: ").append(toIndentedString(matchedRecipients)).append("\n");
     sb.append("    expiresAt: ").append(toIndentedString(expiresAt)).append("\n");

@@ -84,7 +84,7 @@ public class CreditNoteService {
         try {
             RecipientResolutionResponse matchResponse = matchCustomer(identificationDetails, accessToken);
 
-            if (!matchResponse.getCustomerFound() && isBlank(identificationDetails.getRecipientEmail())) {
+            if (!matchResponse.getRouteFound() && isBlank(identificationDetails.getRecipientEmail())) {
                 logger.info("Customer not found and no email provided - skipping template generation");
                 return CreditNoteResult.customerNotFound();
             }
@@ -100,7 +100,7 @@ public class CreditNoteService {
 
             CreditNoteTemplateResponse templateResponse = generateCreditNoteTemplate(templateGenerationRequest, accessToken);
 
-            if (!matchResponse.getCustomerFound()) {
+            if (!matchResponse.getRouteFound()) {
                 logger.info("Customer not found but email provided - credit note template generated but not sent");
                 return CreditNoteResult.customerNotFound();
             }
@@ -221,7 +221,7 @@ public class CreditNoteService {
         }
         requireNonEmpty(templateHash, "Template hash");
         requireNonNull(recipientResolutionResponse, "Customer match response");
-        if (!recipientResolutionResponse.getCustomerFound()) {
+        if (!recipientResolutionResponse.getRouteFound()) {
             throw new CheqiSDKException("Cannot send credit notes: customer was not found during matching",
                     CheqiSDKException.ErrorCodes.CUSTOMER_NOT_FOUND, 400, null);
         }

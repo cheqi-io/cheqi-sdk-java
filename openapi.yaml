@@ -100,14 +100,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store retrieved successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store retrieved successfully
           content:
             '*/*':
               schema:
@@ -143,12 +143,6 @@ paths:
               $ref: "#/components/schemas/UpdateStoreRequest"
         required: true
       responses:
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -167,6 +161,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /webhook/subscription:
@@ -243,6 +243,12 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
+        "200":
+          description: Recipient successfully resolved and matched
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RecipientResolutionResponse"
         "401":
           description: Authentication required
           content:
@@ -251,12 +257,6 @@ paths:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
         "400":
           description: Invalid identification details provided
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -514,14 +514,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "201":
-          description: Encrypted credit note queued successfully
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "403":
-          description: Insufficient permissions - requires write_receipts scope
+        "201":
+          description: Encrypted credit note queued successfully
           content:
             '*/*':
               schema:
@@ -648,6 +648,12 @@ paths:
               $ref: "#/components/schemas/CreateStoreRequest"
         required: true
       responses:
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to create stores for this company
           content:
@@ -660,12 +666,6 @@ paths:
             '*/*':
               schema:
                 type: object
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "400":
           description: Invalid request data
           content:
@@ -697,15 +697,15 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProvisionCompanyResponse"
-        "409":
-          description: Company already exists and should be connected through OAuth
-            instead
+        "201":
+          description: Company provisioned successfully for the trusted partner
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ProvisionCompanyResponse"
-        "201":
-          description: Company provisioned successfully for the trusted partner
+        "409":
+          description: Company already exists and should be connected through OAuth
+            instead
           content:
             '*/*':
               schema:
@@ -849,14 +849,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store deactivated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
@@ -893,14 +893,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store activated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
@@ -1030,12 +1030,6 @@ paths:
         **Accessible for:** Client Application
       operationId: getAuthorizedResources
       responses:
-        "200":
-          description: Authorized resources retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AuthorizedResourcesResponse"
         "401":
           description: Invalid or missing access token
           content:
@@ -1044,6 +1038,12 @@ paths:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
         "403":
           description: Not a client application token
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthorizedResourcesResponse"
+        "200":
+          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
@@ -1347,14 +1347,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MatchedRecipient"
-        customerFound:
+        routeFound:
           type: boolean
-          description: Indicates if a customer was found for the given recipient
+          description: Indicates if Cheqi found a delivery route for the receipt
           example: true
         matchId:
           type: string
           description: The unique identifier for the matching process
-          example: 123e4567-e89b-12d3-a456-426614174000
         matchedRecipients:
           type: array
           description: The list of recipients found for the given recipient
@@ -2441,8 +2440,6 @@ components:
           type: string
           description: The original receipt ID
           example: UUID
-        receiverType:
-          $ref: "#/components/schemas/ReceiverType"
         encryptedCreditNote:
           type: string
           description: The encrypted credit note
@@ -2497,14 +2494,6 @@ components:
           description: Hash of the credit-note template basis used when building and
             encrypting the recipient envelopes.
       description: Encrypted credit note request with device-specific encryption
-    ReceiverType:
-      type: string
-      description: Type of receiver for this receipt
-      example: WEBHOOK/DEVICE
-      enum:
-      - DEVICE
-      - CLIENT_APPLICATION
-      - COMPANY
     CreditNoteCreatedResponse:
       type: object
       properties:
@@ -2590,6 +2579,11 @@ components:
         notificationCodeEnabled:
           type: boolean
           description: Whether notification-code based receipt retrieval is enabled
+          nullable: true
+        emailFallbackEnabled:
+          type: boolean
+          description: Whether receipts may fall back to PDF email delivery when recipient
+            matching does not find a Cheqi recipient
           nullable: true
       description: Request payload for creating or provisioning a company.
     ContactDetailDto:
@@ -2703,6 +2697,11 @@ components:
         notificationCodeEnabled:
           type: boolean
           description: Whether notification-code based receipt retrieval is enabled
+          nullable: true
+        emailFallbackEnabled:
+          type: boolean
+          description: Whether receipts may fall back to PDF email delivery when recipient
+            matching does not find a Cheqi recipient
           nullable: true
       description: Company response body returned by company creation endpoints.
     CompanyRole:
@@ -2941,7 +2940,14 @@ components:
           description: The original receipt ID
           example: UUID
         receiverType:
-          $ref: "#/components/schemas/ReceiverType"
+          type: string
+          description: Type of receiver for this receipt
+          example: WEBHOOK/DEVICE
+          enum:
+          - DEVICE
+          - CLIENT_APPLICATION
+          - COMPANY
+          - EMAIL_FALLBACK
         encryptedCreditNote:
           type: string
           description: The encrypted credit note
@@ -3103,7 +3109,13 @@ components:
         receiptId:
           type: string
         receiverType:
-          $ref: "#/components/schemas/ReceiverType"
+          type: string
+          description: Type of receiver for this receipt
+          enum:
+          - DEVICE
+          - CLIENT_APPLICATION
+          - COMPANY
+          - EMAIL_FALLBACK
         encryptedReceipt:
           type: string
         encryptedSymmetricKey:

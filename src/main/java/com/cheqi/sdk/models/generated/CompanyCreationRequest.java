@@ -48,7 +48,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CompanyCreationRequest.JSON_PROPERTY_RETURN_DAYS,
   CompanyCreationRequest.JSON_PROPERTY_COMPANY_RECEIPT_TEXT,
   CompanyCreationRequest.JSON_PROPERTY_RETURN_PROCESSING_MODE,
-  CompanyCreationRequest.JSON_PROPERTY_NOTIFICATION_CODE_ENABLED
+  CompanyCreationRequest.JSON_PROPERTY_NOTIFICATION_CODE_ENABLED,
+  CompanyCreationRequest.JSON_PROPERTY_EMAIL_FALLBACK_ENABLED
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -104,6 +105,10 @@ public class CompanyCreationRequest {
   public static final String JSON_PROPERTY_NOTIFICATION_CODE_ENABLED = "notificationCodeEnabled";
   @javax.annotation.Nullable
   private Boolean notificationCodeEnabled;
+
+  public static final String JSON_PROPERTY_EMAIL_FALLBACK_ENABLED = "emailFallbackEnabled";
+  @javax.annotation.Nullable
+  private Boolean emailFallbackEnabled;
 
   public CompanyCreationRequest() { 
   }
@@ -438,6 +443,30 @@ public class CompanyCreationRequest {
   }
 
 
+  public CompanyCreationRequest emailFallbackEnabled(@javax.annotation.Nullable Boolean emailFallbackEnabled) {
+    this.emailFallbackEnabled = emailFallbackEnabled;
+    return this;
+  }
+
+  /**
+   * Whether receipts may fall back to PDF email delivery when recipient matching does not find a Cheqi recipient
+   * @return emailFallbackEnabled
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EMAIL_FALLBACK_ENABLED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getEmailFallbackEnabled() {
+    return emailFallbackEnabled;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EMAIL_FALLBACK_ENABLED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEmailFallbackEnabled(@javax.annotation.Nullable Boolean emailFallbackEnabled) {
+    this.emailFallbackEnabled = emailFallbackEnabled;
+  }
+
+
   /**
    * Return true if this CompanyCreationRequest object is equal to o.
    */
@@ -462,12 +491,13 @@ public class CompanyCreationRequest {
         Objects.equals(this.returnDays, companyCreationRequest.returnDays) &&
         Objects.equals(this.companyReceiptText, companyCreationRequest.companyReceiptText) &&
         Objects.equals(this.returnProcessingMode, companyCreationRequest.returnProcessingMode) &&
-        Objects.equals(this.notificationCodeEnabled, companyCreationRequest.notificationCodeEnabled);
+        Objects.equals(this.notificationCodeEnabled, companyCreationRequest.notificationCodeEnabled) &&
+        Objects.equals(this.emailFallbackEnabled, companyCreationRequest.emailFallbackEnabled);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(companyName, companyLegalName, taxNumber, address, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, returnProcessingMode, notificationCodeEnabled);
+    return Objects.hash(companyName, companyLegalName, taxNumber, address, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, returnProcessingMode, notificationCodeEnabled, emailFallbackEnabled);
   }
 
   @Override
@@ -487,6 +517,7 @@ public class CompanyCreationRequest {
     sb.append("    companyReceiptText: ").append(toIndentedString(companyReceiptText)).append("\n");
     sb.append("    returnProcessingMode: ").append(toIndentedString(returnProcessingMode)).append("\n");
     sb.append("    notificationCodeEnabled: ").append(toIndentedString(notificationCodeEnabled)).append("\n");
+    sb.append("    emailFallbackEnabled: ").append(toIndentedString(emailFallbackEnabled)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -77,7 +77,7 @@ public class ReceiptService {
         try {
             RecipientResolutionResponse matchResponse = matchCustomer(identificationDetails, accessToken);
 
-            if (!matchResponse.getCustomerFound() && isBlank(identificationDetails.getRecipientEmail())) {
+            if (!matchResponse.getRouteFound() && isBlank(identificationDetails.getRecipientEmail())) {
                 logger.info("Customer not found and no email provided - skipping template generation");
                 return ReceiptResult.customerNotFound();
             }
@@ -86,7 +86,7 @@ public class ReceiptService {
             ReceiptTemplateRequest enrichedRequest = enrichWithVatContext(receiptRequest, matchResponse);
             ReceiptTemplateResponse templateResponse = generateReceiptTemplate(enrichedRequest, formats, accessToken);
 
-            if (matchResponse.getCustomerFound()) {
+            if (matchResponse.getRouteFound()) {
                 return deliverEncryptedReceipts(matchResponse, templateResponse, notificationDisplayCode, accessToken);
             }
 
@@ -177,7 +177,7 @@ public class ReceiptService {
         }
         requireNonEmpty(templateHash, "Template hash");
         requireNonNull(recipientResolutionResponse, "Customer match response");
-        if (!recipientResolutionResponse.getCustomerFound()) {
+        if (!recipientResolutionResponse.getRouteFound()) {
             throw new CheqiSDKException("Cannot send receipts: customer was not found during matching",
                     CheqiSDKException.ErrorCodes.CUSTOMER_NOT_FOUND, 400, null);
         }

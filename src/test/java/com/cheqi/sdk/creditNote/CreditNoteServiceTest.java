@@ -73,7 +73,7 @@ class CreditNoteServiceTest {
                 .acceptedFormats(List.of(ReceiptFormat.UBL_CREDIT_NOTE));
 
         return new RecipientResolutionResponse()
-                .customerFound(true)
+                .routeFound(true)
                 .matchId("match-123")
                 .buyerCountryCode("NL")
                 .recipients(List.of(recipient));

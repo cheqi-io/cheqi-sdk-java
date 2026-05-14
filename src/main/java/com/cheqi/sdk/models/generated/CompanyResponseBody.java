@@ -57,7 +57,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CompanyResponseBody.JSON_PROPERTY_USER_ROLE,
   CompanyResponseBody.JSON_PROPERTY_ACCOUNT_PAUSED,
   CompanyResponseBody.JSON_PROPERTY_ACCOUNT_PAUSED_REASON,
-  CompanyResponseBody.JSON_PROPERTY_NOTIFICATION_CODE_ENABLED
+  CompanyResponseBody.JSON_PROPERTY_NOTIFICATION_CODE_ENABLED,
+  CompanyResponseBody.JSON_PROPERTY_EMAIL_FALLBACK_ENABLED
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -137,6 +138,10 @@ public class CompanyResponseBody {
   public static final String JSON_PROPERTY_NOTIFICATION_CODE_ENABLED = "notificationCodeEnabled";
   @javax.annotation.Nullable
   private Boolean notificationCodeEnabled;
+
+  public static final String JSON_PROPERTY_EMAIL_FALLBACK_ENABLED = "emailFallbackEnabled";
+  @javax.annotation.Nullable
+  private Boolean emailFallbackEnabled;
 
   public CompanyResponseBody() { 
   }
@@ -615,6 +620,30 @@ public class CompanyResponseBody {
   }
 
 
+  public CompanyResponseBody emailFallbackEnabled(@javax.annotation.Nullable Boolean emailFallbackEnabled) {
+    this.emailFallbackEnabled = emailFallbackEnabled;
+    return this;
+  }
+
+  /**
+   * Whether receipts may fall back to PDF email delivery when recipient matching does not find a Cheqi recipient
+   * @return emailFallbackEnabled
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EMAIL_FALLBACK_ENABLED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getEmailFallbackEnabled() {
+    return emailFallbackEnabled;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EMAIL_FALLBACK_ENABLED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEmailFallbackEnabled(@javax.annotation.Nullable Boolean emailFallbackEnabled) {
+    this.emailFallbackEnabled = emailFallbackEnabled;
+  }
+
+
   /**
    * Return true if this CompanyResponseBody object is equal to o.
    */
@@ -645,12 +674,13 @@ public class CompanyResponseBody {
         Objects.equals(this.userRole, companyResponseBody.userRole) &&
         Objects.equals(this.accountPaused, companyResponseBody.accountPaused) &&
         Objects.equals(this.accountPausedReason, companyResponseBody.accountPausedReason) &&
-        Objects.equals(this.notificationCodeEnabled, companyResponseBody.notificationCodeEnabled);
+        Objects.equals(this.notificationCodeEnabled, companyResponseBody.notificationCodeEnabled) &&
+        Objects.equals(this.emailFallbackEnabled, companyResponseBody.emailFallbackEnabled);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, companyName, companyLegalName, taxNumber, address, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, companyLogoUrl, companyLogoUrlExpiresAt, returnProcessingMode, userRole, accountPaused, accountPausedReason, notificationCodeEnabled);
+    return Objects.hash(id, companyName, companyLegalName, taxNumber, address, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, companyLogoUrl, companyLogoUrlExpiresAt, returnProcessingMode, userRole, accountPaused, accountPausedReason, notificationCodeEnabled, emailFallbackEnabled);
   }
 
   @Override
@@ -676,6 +706,7 @@ public class CompanyResponseBody {
     sb.append("    accountPaused: ").append(toIndentedString(accountPaused)).append("\n");
     sb.append("    accountPausedReason: ").append(toIndentedString(accountPausedReason)).append("\n");
     sb.append("    notificationCodeEnabled: ").append(toIndentedString(notificationCodeEnabled)).append("\n");
+    sb.append("    emailFallbackEnabled: ").append(toIndentedString(emailFallbackEnabled)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -232,7 +232,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             Response response = retryHandler.executeWithRetry(httpRequest, "matchCustomer");
 
             RecipientResolutionResponse result = responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
-            logger.info("Customer match successful: customerFound={}", result.getCustomerFound());
+            logger.info("Customer match successful: routeFound={}", result.getRouteFound());
             return result;
         } catch (CheqiApiException e) {
             throw e;
@@ -292,7 +292,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
 
             RecipientResolutionResponse result = responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
 
-            logger.info("Customer match successful: customerFound={}", result.getCustomerFound());
+            logger.info("Customer match successful: routeFound={}", result.getRouteFound());
             return result;
         } catch (CheqiApiException e) {
             throw e;

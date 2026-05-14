@@ -56,7 +56,7 @@ class DefaultCheqiApiClientTest {
         HttpServer server = httpServer("/recipient/resolve", exchange -> {
             authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
             path.set(exchange.getRequestURI().getPath());
-            send(exchange, 200, "{\"customerFound\":true,\"matchId\":\"match-123\",\"recipients\":[]}");
+            send(exchange, 200, "{\"routeFound\":true,\"matchId\":\"match-123\",\"recipients\":[]}");
         });
         try {
             DefaultCheqiApiClient client = new DefaultCheqiApiClient(configFor(server));
@@ -69,7 +69,7 @@ class DefaultCheqiApiClientTest {
             assertEquals("Bearer token-abc", authorization.get());
             assertEquals("/recipient/resolve", path.get());
             assertEquals("match-123", response.getMatchId());
-            assertEquals(Boolean.TRUE, response.getCustomerFound());
+            assertEquals(Boolean.TRUE, response.getRouteFound());
             assertNotNull(response.getRecipients());
         } finally {
             server.stop(0);

@@ -16,7 +16,6 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.ReceiverType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -34,7 +33,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   EncryptedCreditNote.JSON_PROPERTY_RECIPIENT_ID,
   EncryptedCreditNote.JSON_PROPERTY_CREDIT_NOTE_ID,
   EncryptedCreditNote.JSON_PROPERTY_ORIGINAL_RECEIPT_ID,
-  EncryptedCreditNote.JSON_PROPERTY_RECEIVER_TYPE,
   EncryptedCreditNote.JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE,
   EncryptedCreditNote.JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY,
   EncryptedCreditNote.JSON_PROPERTY_ENCRYPTED_CUSTOMER_DETAILS,
@@ -57,10 +55,6 @@ public class EncryptedCreditNote {
   public static final String JSON_PROPERTY_ORIGINAL_RECEIPT_ID = "originalReceiptId";
   @javax.annotation.Nullable
   private String originalReceiptId;
-
-  public static final String JSON_PROPERTY_RECEIVER_TYPE = "receiverType";
-  @javax.annotation.Nullable
-  private ReceiverType receiverType;
 
   public static final String JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE = "encryptedCreditNote";
   @javax.annotation.Nonnull
@@ -162,30 +156,6 @@ public class EncryptedCreditNote {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setOriginalReceiptId(@javax.annotation.Nullable String originalReceiptId) {
     this.originalReceiptId = originalReceiptId;
-  }
-
-
-  public EncryptedCreditNote receiverType(@javax.annotation.Nullable ReceiverType receiverType) {
-    this.receiverType = receiverType;
-    return this;
-  }
-
-  /**
-   * Get receiverType
-   * @return receiverType
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_RECEIVER_TYPE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public ReceiverType getReceiverType() {
-    return receiverType;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_RECEIVER_TYPE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReceiverType(@javax.annotation.Nullable ReceiverType receiverType) {
-    this.receiverType = receiverType;
   }
 
 
@@ -372,7 +342,6 @@ public class EncryptedCreditNote {
     return Objects.equals(this.recipientId, encryptedCreditNote.recipientId) &&
         Objects.equals(this.creditNoteId, encryptedCreditNote.creditNoteId) &&
         Objects.equals(this.originalReceiptId, encryptedCreditNote.originalReceiptId) &&
-        Objects.equals(this.receiverType, encryptedCreditNote.receiverType) &&
         Objects.equals(this.encryptedCreditNote, encryptedCreditNote.encryptedCreditNote) &&
         Objects.equals(this.encryptedSymmetricKey, encryptedCreditNote.encryptedSymmetricKey) &&
         Objects.equals(this.encryptedCustomerDetails, encryptedCreditNote.encryptedCustomerDetails) &&
@@ -384,7 +353,7 @@ public class EncryptedCreditNote {
 
   @Override
   public int hashCode() {
-    return Objects.hash(recipientId, creditNoteId, originalReceiptId, receiverType, encryptedCreditNote, encryptedSymmetricKey, encryptedCustomerDetails, encryptedCustomerAesKey, finalHash, publicKey, supplierPartyId);
+    return Objects.hash(recipientId, creditNoteId, originalReceiptId, encryptedCreditNote, encryptedSymmetricKey, encryptedCustomerDetails, encryptedCustomerAesKey, finalHash, publicKey, supplierPartyId);
   }
 
   @Override
@@ -394,7 +363,6 @@ public class EncryptedCreditNote {
     sb.append("    recipientId: ").append(toIndentedString(recipientId)).append("\n");
     sb.append("    creditNoteId: ").append(toIndentedString(creditNoteId)).append("\n");
     sb.append("    originalReceiptId: ").append(toIndentedString(originalReceiptId)).append("\n");
-    sb.append("    receiverType: ").append(toIndentedString(receiverType)).append("\n");
     sb.append("    encryptedCreditNote: ").append(toIndentedString(encryptedCreditNote)).append("\n");
     sb.append("    encryptedSymmetricKey: ").append(toIndentedString(encryptedSymmetricKey)).append("\n");
     sb.append("    encryptedCustomerDetails: ").append(toIndentedString(encryptedCustomerDetails)).append("\n");

@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.HashMap;
 import com.cheqi.sdk.models.generated.NotificationDisplayCode;
 import com.cheqi.sdk.models.generated.ReceiptFormat;
-import com.cheqi.sdk.models.generated.ReceiverType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -66,9 +65,48 @@ public class EncryptedReceiptDto {
   @javax.annotation.Nullable
   private String receiptId;
 
+  /**
+   * Type of receiver for this receipt
+   */
+  public enum ReceiverTypeEnum {
+    DEVICE(String.valueOf("DEVICE")),
+    
+    CLIENT_APPLICATION(String.valueOf("CLIENT_APPLICATION")),
+    
+    COMPANY(String.valueOf("COMPANY")),
+    
+    EMAIL_FALLBACK(String.valueOf("EMAIL_FALLBACK"));
+
+    private String value;
+
+    ReceiverTypeEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static ReceiverTypeEnum fromValue(String value) {
+      for (ReceiverTypeEnum b : ReceiverTypeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
   public static final String JSON_PROPERTY_RECEIVER_TYPE = "receiverType";
   @javax.annotation.Nullable
-  private ReceiverType receiverType;
+  private ReceiverTypeEnum receiverType;
 
   public static final String JSON_PROPERTY_ENCRYPTED_RECEIPT = "encryptedReceipt";
   @javax.annotation.Nullable
@@ -189,26 +227,26 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto receiverType(@javax.annotation.Nullable ReceiverType receiverType) {
+  public EncryptedReceiptDto receiverType(@javax.annotation.Nullable ReceiverTypeEnum receiverType) {
     this.receiverType = receiverType;
     return this;
   }
 
   /**
-   * Get receiverType
+   * Type of receiver for this receipt
    * @return receiverType
    */
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_RECEIVER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public ReceiverType getReceiverType() {
+  public ReceiverTypeEnum getReceiverType() {
     return receiverType;
   }
 
 
   @JsonProperty(JSON_PROPERTY_RECEIVER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReceiverType(@javax.annotation.Nullable ReceiverType receiverType) {
+  public void setReceiverType(@javax.annotation.Nullable ReceiverTypeEnum receiverType) {
     this.receiverType = receiverType;
   }
 

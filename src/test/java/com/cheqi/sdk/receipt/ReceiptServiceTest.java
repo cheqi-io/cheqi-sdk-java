@@ -44,7 +44,7 @@ class ReceiptServiceTest {
     @Test
     void processCompleteReceipt_returnsCustomerNotFoundWithoutTemplateGeneration() throws Exception {
         ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
-        RecipientResolutionResponse matchResponse = new RecipientResolutionResponse().customerFound(false);
+        RecipientResolutionResponse matchResponse = new RecipientResolutionResponse().routeFound(false);
         when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
 
         ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
@@ -150,7 +150,7 @@ class ReceiptServiceTest {
                 .publicKey("invoice-public-key")
                 .acceptedFormats(List.of(ReceiptFormat.UBL_INVOICE));
         RecipientResolutionResponse matchResponse = new RecipientResolutionResponse()
-                .customerFound(true)
+                .routeFound(true)
                 .matchId("match-123")
                 .recipients(List.of(ublRecipient, invoiceRecipient));
         ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse()
@@ -189,7 +189,7 @@ class ReceiptServiceTest {
                 .acceptedFormats(List.of(ReceiptFormat.UBL_PURCHASE_RECEIPT));
 
         return new RecipientResolutionResponse()
-                .customerFound(true)
+                .routeFound(true)
                 .matchId("match-123")
                 .recipients(List.of(recipient));
     }
