@@ -10,7 +10,6 @@ public enum Endpoints {
     ENCRYPTED_CREDIT_NOTE_ENDPOINT("/credit-note/encrypted"),
     CREDIT_NOTE_TEMPLATE_ENDPOINT("/credit-note/template"),
     EMAIL_RECEIPT_ENDPOINT("/receipt/email"),
-    COMPANY_PROVISION_ENDPOINT("/company/provision"),
     COMPANY_STORES_ENDPOINT("/company/%s/stores"),
     COMPANY_STORE_ENDPOINT("/company/%s/stores/%s"),
     COMPANY_STORE_ACTIVATE_ENDPOINT("/company/%s/stores/%s/activate"),

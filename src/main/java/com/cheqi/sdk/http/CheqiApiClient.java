@@ -205,13 +205,6 @@ public interface CheqiApiClient {
      */
     void sendReceiptViaEmail(String customerEmail, CheqiReceipt purchaseReceipt) throws CheqiApiException;
 
-    /**
-     * Provision a new company using API key from SDK config.
-     * Uses Bearer token authentication with the API key configured during SDK initialization.
-     * Only available for partner-tier API keys.
-     */
-    ProvisionCompanyResponse provisionCompany(ProvisionCompanyRequest request) throws CheqiApiException;
-
     // Store management
     StoreDTO createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiApiException;
     List<StoreDTO> getStores(UUID companyId, Boolean activeOnly, String accessToken) throws CheqiApiException;

@@ -738,41 +738,6 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public ProvisionCompanyResponse provisionCompany(ProvisionCompanyRequest request) throws CheqiApiException {
-        logger.info("Provisioning company: {}", request.getCompany().getCompanyName());
-
-        try {
-            String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Serialized company provisioning request");
-
-            Request httpRequest = buildPostRequestWithApiKey(Endpoints.COMPANY_PROVISION_ENDPOINT, requestJson);
-            Response response = retryHandler.executeWithRetry(httpRequest, "provisionCompany");
-
-            return responseHandler.handleJsonResponse(response, ProvisionCompanyResponse.class, "Company provisioning");
-        } catch (CheqiApiException e) {
-            throw e;
-        } catch (IOException e) {
-            logger.error("Network error during company provisioning", e);
-            throw new CheqiApiException(
-                    "Network error during company provisioning: " + e.getMessage(),
-                    e,
-                    0,
-                    CheqiApiException.ErrorCodes.NETWORK_ERROR,
-                    null
-            );
-        } catch (Exception e) {
-            logger.error("Unexpected error during company provisioning", e);
-            throw new CheqiApiException(
-                    "Company provisioning failed: " + e.getMessage(),
-                    e,
-                    0,
-                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR,
-                    null
-            );
-        }
-    }
-
-    @Override
     public StoreDTO createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiApiException {
         logger.info("Creating store for company: {}", companyId);
         validateAccessToken(accessToken);

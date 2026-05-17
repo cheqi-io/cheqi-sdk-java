@@ -193,7 +193,7 @@ public class CheqiSDK {
     }
 
     /**
-     * Gets the company service for company provisioning.
+     * Gets the company service.
      *
      * @return CompanyService instance
      */

@@ -16,6 +16,7 @@ SPEC_URL := $(SPEC_PROD_URL)
 else
 $(error Unsupported ENV '$(ENV)'. Use one of: local, test, sandbox, prod)
 endif
+GENERATED_DIR := src/main/java/com/cheqi/sdk/models/generated
 
 fetch-spec:
 	curl -fsSL $(SPEC_URL) -o openapi.yaml
@@ -25,8 +26,9 @@ fetch-spec-local:
 	$(MAKE) fetch-spec ENV=local
 
 generate:
+	rm -rf $(GENERATED_DIR)
 	mvn generate-sources -pl .
-	@echo "Models generated in src/main/java/com/cheqi/sdk/models/generated/"
+	@echo "Models generated in $(GENERATED_DIR)/"
 
 spec-check:
 	@curl -fsSL $(SPEC_URL) -o openapi.yaml.tmp

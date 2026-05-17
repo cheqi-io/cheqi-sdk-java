@@ -1,6 +1,6 @@
 # Cheqi Java SDK
 
-Java SDK for issuing end-to-end encrypted Cheqi receipts, sending email fallback receipts, handling encrypted credit notes, provisioning companies, and managing stores.
+Java SDK for issuing end-to-end encrypted Cheqi receipts, sending email fallback receipts, handling encrypted credit notes, and managing stores.
 
 ## Requirements
 
@@ -247,17 +247,6 @@ List<StoreDTO> stores = sdk.getStoreService()
 
 StoreDTO updated = sdk.getStoreService()
     .updateStore(companyId, storeId, updateStoreRequest, accessToken);
-```
-
-## Company Provisioning
-
-Partner-tier API keys can provision a company and receive immediate token access.
-
-```java
-ProvisionCompanyResponse response = sdk.getCompanyService()
-    .provisionCompany(provisionCompanyRequest);
-
-String accessToken = response.getAccessToken();
 ```
 
 ## Credit Notes
