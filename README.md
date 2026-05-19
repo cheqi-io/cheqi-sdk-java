@@ -109,6 +109,8 @@ ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
     .totalAmount(new BigDecimal("12.10"))
     .addProduct(Product.builder()
         .name("Coffee beans")
+        .brandName("Cheqi Coffee")
+        .identifier("SKU-COFFEE-001")
         .quantity(1.0)
         .baseQuantity(1.0)
         .unitCode(UnitCode.C62)
@@ -170,6 +172,8 @@ ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
     .taxesApplied(true)
     .addProduct(Product.builder()
         .name("Coffee beans")
+        .brandName("Cheqi Coffee")
+        .identifier("SKU-COFFEE-002")
         .quantity(1.0)
         .baseQuantity(1.0)
         .unitCode(UnitCode.C62)
@@ -198,6 +202,40 @@ ReceiptResult result = sdk.getReceiptService()
 ```
 
 For `CODE_128`, the backend limits `data` to 32 characters. Use `QR_CODE` for longer values.
+
+## Embedded Barcodes
+
+Receipts can include embedded barcodes or QR codes at the receipt level or on individual product lines. Use these for return codes, loyalty references, tickets, serial numbers, product identifiers, or other scannable metadata.
+
+Product-level barcode:
+
+```java
+Product product = Product.builder()
+    .name("Coffee beans")
+    .brandName("Cheqi Coffee")
+    .identifier("SKU-COFFEE-001")
+    .quantity(1.0)
+    .baseQuantity(1.0)
+    .unitCode(UnitCode.C62)
+    .unitPrice("10.00")
+    .subtotal("10.00")
+    .total("12.10")
+    .addTax(21.0, "VAT", "10.00", "2.10")
+    .addBarcode(BarcodeType.EAN_13, "8712345678901", "EAN")
+    .addQrCode("https://example.com/product/SKU-COFFEE-001", "Product QR")
+    .build();
+```
+
+Receipt-level barcode:
+
+```java
+ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
+    .documentNumber("POS-2026-0003")
+    // other required receipt fields...
+    .addProduct(product)
+    .addBarcode(BarcodeType.QR_CODE, "https://example.com/return/POS-2026-0003", "Return code")
+    .build();
+```
 
 ## Email Fallback
 
@@ -293,14 +331,26 @@ try {
 
 ## Development
 
-Run tests:
+Run tests with Gradle:
 
 ```bash
 ./gradlew test
 ```
 
-Build:
+Build with Gradle:
 
 ```bash
 ./gradlew build
+```
+
+Build with Maven:
+
+```bash
+mvn -q -DskipTests compile
+```
+
+Regenerate OpenAPI models:
+
+```bash
+make generate
 ```

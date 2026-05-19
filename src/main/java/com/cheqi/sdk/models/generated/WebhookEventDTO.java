@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.cheqi.sdk.models.generated.EncryptedCreditNoteDto;
 import com.cheqi.sdk.models.generated.EncryptedCreditNoteInitiationRequest;
-import com.cheqi.sdk.models.generated.EncryptedReceiptDto;
+import com.cheqi.sdk.models.generated.EncryptedReceipt;
 import com.cheqi.sdk.models.generated.RoutingIdentifier;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -118,7 +118,7 @@ public class WebhookEventDTO {
 
   public static final String JSON_PROPERTY_ENCRYPTED_RECEIPT = "encryptedReceipt";
   @javax.annotation.Nullable
-  private EncryptedReceiptDto encryptedReceipt;
+  private EncryptedReceipt encryptedReceipt;
 
   public static final String JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE_INITIATION_REQUEST = "encryptedCreditNoteInitiationRequest";
   @javax.annotation.Nullable
@@ -287,7 +287,7 @@ public class WebhookEventDTO {
   }
 
 
-  public WebhookEventDTO encryptedReceipt(@javax.annotation.Nullable EncryptedReceiptDto encryptedReceipt) {
+  public WebhookEventDTO encryptedReceipt(@javax.annotation.Nullable EncryptedReceipt encryptedReceipt) {
     this.encryptedReceipt = encryptedReceipt;
     return this;
   }
@@ -299,14 +299,14 @@ public class WebhookEventDTO {
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_RECEIPT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public EncryptedReceiptDto getEncryptedReceipt() {
+  public EncryptedReceipt getEncryptedReceipt() {
     return encryptedReceipt;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_RECEIPT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedReceipt(@javax.annotation.Nullable EncryptedReceiptDto encryptedReceipt) {
+  public void setEncryptedReceipt(@javax.annotation.Nullable EncryptedReceipt encryptedReceipt) {
     this.encryptedReceipt = encryptedReceipt;
   }
 
