@@ -143,18 +143,18 @@ paths:
               $ref: "#/components/schemas/UpdateStoreRequest"
         required: true
       responses:
-        "404":
-          description: Store or company not found
-          content:
-            '*/*':
-              schema:
-                type: object
         "200":
           description: Store updated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
+        "404":
+          description: Store or company not found
+          content:
+            '*/*':
+              schema:
+                type: object
         "403":
           description: Not authorized to update this store
           content:
@@ -186,6 +186,12 @@ paths:
               $ref: "#/components/schemas/WebhookRequestBody"
         required: true
       responses:
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
         "400":
           description: Invalid webhook request data
           content:
@@ -202,12 +208,6 @@ paths:
           description: Insufficient permissions - requires read_receipts scope
           content:
             '*/*':
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
       security:
@@ -231,6 +231,12 @@ paths:
               $ref: "#/components/schemas/IdentificationDetails"
         required: true
       responses:
+        "200":
+          description: Recipient successfully resolved and matched
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RecipientResolutionResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
           content:
@@ -239,12 +245,6 @@ paths:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
         "404":
           description: No recipient found matching the provided identification details
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -377,14 +377,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "400":
-          description: Invalid encrypted receipt data
+        "201":
+          description: Receipt created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "201":
-          description: Receipt created successfully
+        "400":
+          description: Invalid encrypted receipt data
           content:
             '*/*':
               schema:
@@ -806,14 +806,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store deactivated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
@@ -850,6 +850,12 @@ paths:
           type: string
           format: uuid
       responses:
+        "200":
+          description: Store activated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -858,12 +864,6 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to activate this store
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
           content:
             '*/*':
               schema:
@@ -881,6 +881,12 @@ paths:
         **Accessible for:** Client Application, Company
       operationId: getQueuedReceipts
       responses:
+        "200":
+          description: Queued receipts returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptQueueDto"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
@@ -890,12 +896,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ReceiptQueueDto"
-        "200":
-          description: Queued receipts returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReceiptQueueDto"
       security:
       - cheqi_oauth:
         - read_receipts
@@ -911,6 +911,12 @@ paths:
         **Accessible for:** Company, Client Application
       operationId: getAllCreditNotes
       responses:
+        "200":
+          description: Credit notes retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EncryptedCreditNoteDto"
         "403":
           description: Not authorized to access credit notes
           content:
@@ -919,12 +925,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/EncryptedCreditNoteDto"
-        "200":
-          description: Credit notes retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/EncryptedCreditNoteDto"
       x-accessible-for: "Company, Client Application"
   /company/{id}/receipt-delivery/devices:
     get:
@@ -993,14 +993,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "200":
-          description: Authorized resources retrieved successfully
+        "403":
+          description: Not a client application token
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "403":
-          description: Not a client application token
+        "200":
+          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
@@ -2856,14 +2856,7 @@ components:
           description: The original receipt ID
           example: UUID
         receiverType:
-          type: string
-          description: Type of receiver for this receipt
-          example: WEBHOOK/DEVICE
-          enum:
-          - DEVICE
-          - CLIENT_APPLICATION
-          - COMPANY
-          - EMAIL_FALLBACK
+          $ref: "#/components/schemas/ReceiverType"
         encryptedCreditNote:
           type: string
           description: The encrypted credit note
@@ -2886,6 +2879,15 @@ components:
           type: string
           description: Supplier party ID for storage
           format: uuid
+    ReceiverType:
+      type: string
+      description: Type of receiver for this receipt
+      example: WEBHOOK/DEVICE
+      enum:
+      - DEVICE
+      - CLIENT_APPLICATION
+      - COMPANY
+      - EMAIL_FALLBACK
     CompanyReceiptDeliverySettingsResponse:
       type: object
       properties:
@@ -3012,7 +3014,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AuthorizedEmailDTO"
-    EncryptedReceiptDto:
+    EncryptedReceipt:
       type: object
       properties:
         additionalProperties:
@@ -3025,13 +3027,7 @@ components:
         receiptId:
           type: string
         receiverType:
-          type: string
-          description: Type of receiver for this receipt
-          enum:
-          - DEVICE
-          - CLIENT_APPLICATION
-          - COMPANY
-          - EMAIL_FALLBACK
+          $ref: "#/components/schemas/ReceiverType"
         encryptedReceipt:
           type: string
         encryptedSymmetricKey:
@@ -3078,7 +3074,7 @@ components:
         routingIdentifier:
           $ref: "#/components/schemas/RoutingIdentifier"
         encryptedReceipt:
-          $ref: "#/components/schemas/EncryptedReceiptDto"
+          $ref: "#/components/schemas/EncryptedReceipt"
         encryptedCreditNoteInitiationRequest:
           $ref: "#/components/schemas/EncryptedCreditNoteInitiationRequest"
         encryptedCreditNoteDto:

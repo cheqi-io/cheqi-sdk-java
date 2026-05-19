@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.cheqi.sdk.models.generated.NotificationDisplayCode;
 import com.cheqi.sdk.models.generated.ReceiptFormat;
+import com.cheqi.sdk.models.generated.ReceiverType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -33,26 +34,26 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * EncryptedReceiptDto
+ * EncryptedReceipt
  */
 @JsonPropertyOrder({
-  EncryptedReceiptDto.JSON_PROPERTY_ADDITIONAL_PROPERTIES,
-  EncryptedReceiptDto.JSON_PROPERTY_RECIPIENT_ID,
-  EncryptedReceiptDto.JSON_PROPERTY_RECEIPT_ID,
-  EncryptedReceiptDto.JSON_PROPERTY_RECEIVER_TYPE,
-  EncryptedReceiptDto.JSON_PROPERTY_ENCRYPTED_RECEIPT,
-  EncryptedReceiptDto.JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY,
-  EncryptedReceiptDto.JSON_PROPERTY_ENCRYPTED_CUSTOMER_DETAILS,
-  EncryptedReceiptDto.JSON_PROPERTY_ENCRYPTED_CUSTOMER_AES_KEY,
-  EncryptedReceiptDto.JSON_PROPERTY_FINAL_HASH,
-  EncryptedReceiptDto.JSON_PROPERTY_PUBLIC_KEY,
-  EncryptedReceiptDto.JSON_PROPERTY_SUPPLIER_PARTY_ID,
-  EncryptedReceiptDto.JSON_PROPERTY_RECEIPT_FORMATS,
-  EncryptedReceiptDto.JSON_PROPERTY_NOTIFICATION_DISPLAY_CODE
+  EncryptedReceipt.JSON_PROPERTY_ADDITIONAL_PROPERTIES,
+  EncryptedReceipt.JSON_PROPERTY_RECIPIENT_ID,
+  EncryptedReceipt.JSON_PROPERTY_RECEIPT_ID,
+  EncryptedReceipt.JSON_PROPERTY_RECEIVER_TYPE,
+  EncryptedReceipt.JSON_PROPERTY_ENCRYPTED_RECEIPT,
+  EncryptedReceipt.JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY,
+  EncryptedReceipt.JSON_PROPERTY_ENCRYPTED_CUSTOMER_DETAILS,
+  EncryptedReceipt.JSON_PROPERTY_ENCRYPTED_CUSTOMER_AES_KEY,
+  EncryptedReceipt.JSON_PROPERTY_FINAL_HASH,
+  EncryptedReceipt.JSON_PROPERTY_PUBLIC_KEY,
+  EncryptedReceipt.JSON_PROPERTY_SUPPLIER_PARTY_ID,
+  EncryptedReceipt.JSON_PROPERTY_RECEIPT_FORMATS,
+  EncryptedReceipt.JSON_PROPERTY_NOTIFICATION_DISPLAY_CODE
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class EncryptedReceiptDto {
+public class EncryptedReceipt {
   public static final String JSON_PROPERTY_ADDITIONAL_PROPERTIES = "additionalProperties";
   @javax.annotation.Nullable
   private Map<String, Object> additionalProperties = new HashMap<>();
@@ -65,48 +66,9 @@ public class EncryptedReceiptDto {
   @javax.annotation.Nullable
   private String receiptId;
 
-  /**
-   * Type of receiver for this receipt
-   */
-  public enum ReceiverTypeEnum {
-    DEVICE(String.valueOf("DEVICE")),
-    
-    CLIENT_APPLICATION(String.valueOf("CLIENT_APPLICATION")),
-    
-    COMPANY(String.valueOf("COMPANY")),
-    
-    EMAIL_FALLBACK(String.valueOf("EMAIL_FALLBACK"));
-
-    private String value;
-
-    ReceiverTypeEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static ReceiverTypeEnum fromValue(String value) {
-      for (ReceiverTypeEnum b : ReceiverTypeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
   public static final String JSON_PROPERTY_RECEIVER_TYPE = "receiverType";
   @javax.annotation.Nullable
-  private ReceiverTypeEnum receiverType;
+  private ReceiverType receiverType;
 
   public static final String JSON_PROPERTY_ENCRYPTED_RECEIPT = "encryptedReceipt";
   @javax.annotation.Nullable
@@ -144,15 +106,15 @@ public class EncryptedReceiptDto {
   @javax.annotation.Nullable
   private NotificationDisplayCode notificationDisplayCode;
 
-  public EncryptedReceiptDto() { 
+  public EncryptedReceipt() { 
   }
 
-  public EncryptedReceiptDto additionalProperties(@javax.annotation.Nullable Map<String, Object> additionalProperties) {
+  public EncryptedReceipt additionalProperties(@javax.annotation.Nullable Map<String, Object> additionalProperties) {
     this.additionalProperties = additionalProperties;
     return this;
   }
 
-  public EncryptedReceiptDto putAdditionalPropertiesItem(String key, Object additionalPropertiesItem) {
+  public EncryptedReceipt putAdditionalPropertiesItem(String key, Object additionalPropertiesItem) {
     if (this.additionalProperties == null) {
       this.additionalProperties = new HashMap<>();
     }
@@ -179,7 +141,7 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto recipientId(@javax.annotation.Nullable UUID recipientId) {
+  public EncryptedReceipt recipientId(@javax.annotation.Nullable UUID recipientId) {
     this.recipientId = recipientId;
     return this;
   }
@@ -203,7 +165,7 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto receiptId(@javax.annotation.Nullable String receiptId) {
+  public EncryptedReceipt receiptId(@javax.annotation.Nullable String receiptId) {
     this.receiptId = receiptId;
     return this;
   }
@@ -227,31 +189,31 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto receiverType(@javax.annotation.Nullable ReceiverTypeEnum receiverType) {
+  public EncryptedReceipt receiverType(@javax.annotation.Nullable ReceiverType receiverType) {
     this.receiverType = receiverType;
     return this;
   }
 
   /**
-   * Type of receiver for this receipt
+   * Get receiverType
    * @return receiverType
    */
   @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_RECEIVER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public ReceiverTypeEnum getReceiverType() {
+  public ReceiverType getReceiverType() {
     return receiverType;
   }
 
 
   @JsonProperty(JSON_PROPERTY_RECEIVER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReceiverType(@javax.annotation.Nullable ReceiverTypeEnum receiverType) {
+  public void setReceiverType(@javax.annotation.Nullable ReceiverType receiverType) {
     this.receiverType = receiverType;
   }
 
 
-  public EncryptedReceiptDto encryptedReceipt(@javax.annotation.Nullable String encryptedReceipt) {
+  public EncryptedReceipt encryptedReceipt(@javax.annotation.Nullable String encryptedReceipt) {
     this.encryptedReceipt = encryptedReceipt;
     return this;
   }
@@ -275,7 +237,7 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto encryptedSymmetricKey(@javax.annotation.Nullable String encryptedSymmetricKey) {
+  public EncryptedReceipt encryptedSymmetricKey(@javax.annotation.Nullable String encryptedSymmetricKey) {
     this.encryptedSymmetricKey = encryptedSymmetricKey;
     return this;
   }
@@ -299,7 +261,7 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto encryptedCustomerDetails(@javax.annotation.Nullable String encryptedCustomerDetails) {
+  public EncryptedReceipt encryptedCustomerDetails(@javax.annotation.Nullable String encryptedCustomerDetails) {
     this.encryptedCustomerDetails = encryptedCustomerDetails;
     return this;
   }
@@ -323,7 +285,7 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto encryptedCustomerAesKey(@javax.annotation.Nullable String encryptedCustomerAesKey) {
+  public EncryptedReceipt encryptedCustomerAesKey(@javax.annotation.Nullable String encryptedCustomerAesKey) {
     this.encryptedCustomerAesKey = encryptedCustomerAesKey;
     return this;
   }
@@ -347,7 +309,7 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto finalHash(@javax.annotation.Nullable String finalHash) {
+  public EncryptedReceipt finalHash(@javax.annotation.Nullable String finalHash) {
     this.finalHash = finalHash;
     return this;
   }
@@ -371,7 +333,7 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto publicKey(@javax.annotation.Nullable String publicKey) {
+  public EncryptedReceipt publicKey(@javax.annotation.Nullable String publicKey) {
     this.publicKey = publicKey;
     return this;
   }
@@ -395,7 +357,7 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto supplierPartyId(@javax.annotation.Nullable UUID supplierPartyId) {
+  public EncryptedReceipt supplierPartyId(@javax.annotation.Nullable UUID supplierPartyId) {
     this.supplierPartyId = supplierPartyId;
     return this;
   }
@@ -419,12 +381,12 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto receiptFormats(@javax.annotation.Nullable List<ReceiptFormat> receiptFormats) {
+  public EncryptedReceipt receiptFormats(@javax.annotation.Nullable List<ReceiptFormat> receiptFormats) {
     this.receiptFormats = receiptFormats;
     return this;
   }
 
-  public EncryptedReceiptDto addReceiptFormatsItem(ReceiptFormat receiptFormatsItem) {
+  public EncryptedReceipt addReceiptFormatsItem(ReceiptFormat receiptFormatsItem) {
     if (this.receiptFormats == null) {
       this.receiptFormats = new ArrayList<>();
     }
@@ -451,7 +413,7 @@ public class EncryptedReceiptDto {
   }
 
 
-  public EncryptedReceiptDto notificationDisplayCode(@javax.annotation.Nullable NotificationDisplayCode notificationDisplayCode) {
+  public EncryptedReceipt notificationDisplayCode(@javax.annotation.Nullable NotificationDisplayCode notificationDisplayCode) {
     this.notificationDisplayCode = notificationDisplayCode;
     return this;
   }
@@ -476,7 +438,7 @@ public class EncryptedReceiptDto {
 
 
   /**
-   * Return true if this EncryptedReceiptDto object is equal to o.
+   * Return true if this EncryptedReceipt object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -486,20 +448,20 @@ public class EncryptedReceiptDto {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    EncryptedReceiptDto encryptedReceiptDto = (EncryptedReceiptDto) o;
-    return Objects.equals(this.additionalProperties, encryptedReceiptDto.additionalProperties) &&
-        Objects.equals(this.recipientId, encryptedReceiptDto.recipientId) &&
-        Objects.equals(this.receiptId, encryptedReceiptDto.receiptId) &&
-        Objects.equals(this.receiverType, encryptedReceiptDto.receiverType) &&
-        Objects.equals(this.encryptedReceipt, encryptedReceiptDto.encryptedReceipt) &&
-        Objects.equals(this.encryptedSymmetricKey, encryptedReceiptDto.encryptedSymmetricKey) &&
-        Objects.equals(this.encryptedCustomerDetails, encryptedReceiptDto.encryptedCustomerDetails) &&
-        Objects.equals(this.encryptedCustomerAesKey, encryptedReceiptDto.encryptedCustomerAesKey) &&
-        Objects.equals(this.finalHash, encryptedReceiptDto.finalHash) &&
-        Objects.equals(this.publicKey, encryptedReceiptDto.publicKey) &&
-        Objects.equals(this.supplierPartyId, encryptedReceiptDto.supplierPartyId) &&
-        Objects.equals(this.receiptFormats, encryptedReceiptDto.receiptFormats) &&
-        Objects.equals(this.notificationDisplayCode, encryptedReceiptDto.notificationDisplayCode);
+    EncryptedReceipt encryptedReceipt = (EncryptedReceipt) o;
+    return Objects.equals(this.additionalProperties, encryptedReceipt.additionalProperties) &&
+        Objects.equals(this.recipientId, encryptedReceipt.recipientId) &&
+        Objects.equals(this.receiptId, encryptedReceipt.receiptId) &&
+        Objects.equals(this.receiverType, encryptedReceipt.receiverType) &&
+        Objects.equals(this.encryptedReceipt, encryptedReceipt.encryptedReceipt) &&
+        Objects.equals(this.encryptedSymmetricKey, encryptedReceipt.encryptedSymmetricKey) &&
+        Objects.equals(this.encryptedCustomerDetails, encryptedReceipt.encryptedCustomerDetails) &&
+        Objects.equals(this.encryptedCustomerAesKey, encryptedReceipt.encryptedCustomerAesKey) &&
+        Objects.equals(this.finalHash, encryptedReceipt.finalHash) &&
+        Objects.equals(this.publicKey, encryptedReceipt.publicKey) &&
+        Objects.equals(this.supplierPartyId, encryptedReceipt.supplierPartyId) &&
+        Objects.equals(this.receiptFormats, encryptedReceipt.receiptFormats) &&
+        Objects.equals(this.notificationDisplayCode, encryptedReceipt.notificationDisplayCode);
   }
 
   @Override
@@ -510,7 +472,7 @@ public class EncryptedReceiptDto {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class EncryptedReceiptDto {\n");
+    sb.append("class EncryptedReceipt {\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("    recipientId: ").append(toIndentedString(recipientId)).append("\n");
     sb.append("    receiptId: ").append(toIndentedString(receiptId)).append("\n");
