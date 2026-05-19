@@ -94,6 +94,12 @@ paths:
           type: string
           format: uuid
       responses:
+        "200":
+          description: Store retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to view this store
           content:
@@ -102,12 +108,6 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store retrieved successfully
           content:
             '*/*':
               schema:
@@ -143,12 +143,6 @@ paths:
               $ref: "#/components/schemas/UpdateStoreRequest"
         required: true
       responses:
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -167,6 +161,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /webhook/subscription:
@@ -231,12 +231,6 @@ paths:
               $ref: "#/components/schemas/IdentificationDetails"
         required: true
       responses:
-        "200":
-          description: Recipient successfully resolved and matched
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/RecipientResolutionResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
           content:
@@ -257,6 +251,12 @@ paths:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
         "400":
           description: Invalid identification details provided
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RecipientResolutionResponse"
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -282,6 +282,12 @@ paths:
               $ref: "#/components/schemas/ReceiptTemplateGenerationRequest"
         required: true
       responses:
+        "201":
+          description: Receipt template created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReceiptTemplateResponse"
         "400":
           description: Invalid template request data
           content:
@@ -290,12 +296,6 @@ paths:
                 $ref: "#/components/schemas/ReceiptTemplateResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ReceiptTemplateResponse"
-        "201":
-          description: Receipt template created successfully
           content:
             '*/*':
               schema:
@@ -514,14 +514,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "403":
-          description: Insufficient permissions - requires write_receipts scope
+        "201":
+          description: Encrypted credit note queued successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "201":
-          description: Encrypted credit note queued successfully
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
           content:
             '*/*':
               schema:
@@ -660,18 +660,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "400":
           description: Invalid request data
           content:
             '*/*':
               schema:
                 type: object
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /client-application/{id}/webhook/rotate-secret:
@@ -730,14 +730,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
@@ -2487,12 +2487,6 @@ components:
           type: string
           description: Legal registered name of the company
           example: Example Coffee Shop B.V.
-        taxNumber:
-          type: string
-          description: Legacy tax identification number of the company. Prefer identifiers
-            for new integrations.
-          nullable: true
-          example: NL123456789B01
         address:
           $ref: "#/components/schemas/AddressDTO"
         companyEmail:
@@ -2590,10 +2584,6 @@ components:
           type: string
           description: Legal registered name of the company
           example: Example Coffee Shop B.V.
-        taxNumber:
-          type: string
-          description: Tax identification number of the company
-          example: NL123456789B01
         address:
           $ref: "#/components/schemas/AddressDTO"
         companyEmail:
@@ -2953,8 +2943,6 @@ components:
         companyName:
           type: string
         companyLegalName:
-          type: string
-        taxNumber:
           type: string
         identifiers:
           type: array

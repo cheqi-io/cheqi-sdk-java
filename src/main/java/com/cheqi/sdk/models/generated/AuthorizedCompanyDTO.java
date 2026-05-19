@@ -37,7 +37,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   AuthorizedCompanyDTO.JSON_PROPERTY_ID,
   AuthorizedCompanyDTO.JSON_PROPERTY_COMPANY_NAME,
   AuthorizedCompanyDTO.JSON_PROPERTY_COMPANY_LEGAL_NAME,
-  AuthorizedCompanyDTO.JSON_PROPERTY_TAX_NUMBER,
   AuthorizedCompanyDTO.JSON_PROPERTY_IDENTIFIERS,
   AuthorizedCompanyDTO.JSON_PROPERTY_PAYMENT_ACCOUNTS
 })
@@ -55,10 +54,6 @@ public class AuthorizedCompanyDTO {
   public static final String JSON_PROPERTY_COMPANY_LEGAL_NAME = "companyLegalName";
   @javax.annotation.Nullable
   private String companyLegalName;
-
-  public static final String JSON_PROPERTY_TAX_NUMBER = "taxNumber";
-  @javax.annotation.Nullable
-  private String taxNumber;
 
   public static final String JSON_PROPERTY_IDENTIFIERS = "identifiers";
   @javax.annotation.Nullable
@@ -143,30 +138,6 @@ public class AuthorizedCompanyDTO {
   }
 
 
-  public AuthorizedCompanyDTO taxNumber(@javax.annotation.Nullable String taxNumber) {
-    this.taxNumber = taxNumber;
-    return this;
-  }
-
-  /**
-   * Get taxNumber
-   * @return taxNumber
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_TAX_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getTaxNumber() {
-    return taxNumber;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_TAX_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTaxNumber(@javax.annotation.Nullable String taxNumber) {
-    this.taxNumber = taxNumber;
-  }
-
-
   public AuthorizedCompanyDTO identifiers(@javax.annotation.Nullable List<CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
     return this;
@@ -246,14 +217,13 @@ public class AuthorizedCompanyDTO {
     return Objects.equals(this.id, authorizedCompanyDTO.id) &&
         Objects.equals(this.companyName, authorizedCompanyDTO.companyName) &&
         Objects.equals(this.companyLegalName, authorizedCompanyDTO.companyLegalName) &&
-        Objects.equals(this.taxNumber, authorizedCompanyDTO.taxNumber) &&
         Objects.equals(this.identifiers, authorizedCompanyDTO.identifiers) &&
         Objects.equals(this.paymentAccounts, authorizedCompanyDTO.paymentAccounts);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, companyName, companyLegalName, taxNumber, identifiers, paymentAccounts);
+    return Objects.hash(id, companyName, companyLegalName, identifiers, paymentAccounts);
   }
 
   @Override
@@ -263,7 +233,6 @@ public class AuthorizedCompanyDTO {
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    companyName: ").append(toIndentedString(companyName)).append("\n");
     sb.append("    companyLegalName: ").append(toIndentedString(companyLegalName)).append("\n");
-    sb.append("    taxNumber: ").append(toIndentedString(taxNumber)).append("\n");
     sb.append("    identifiers: ").append(toIndentedString(identifiers)).append("\n");
     sb.append("    paymentAccounts: ").append(toIndentedString(paymentAccounts)).append("\n");
     sb.append("}");
