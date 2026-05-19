@@ -42,7 +42,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CompanyResponseBody.JSON_PROPERTY_ID,
   CompanyResponseBody.JSON_PROPERTY_COMPANY_NAME,
   CompanyResponseBody.JSON_PROPERTY_COMPANY_LEGAL_NAME,
-  CompanyResponseBody.JSON_PROPERTY_TAX_NUMBER,
   CompanyResponseBody.JSON_PROPERTY_ADDRESS,
   CompanyResponseBody.JSON_PROPERTY_COMPANY_EMAIL,
   CompanyResponseBody.JSON_PROPERTY_PHONE_NUMBER,
@@ -74,10 +73,6 @@ public class CompanyResponseBody {
   public static final String JSON_PROPERTY_COMPANY_LEGAL_NAME = "companyLegalName";
   @javax.annotation.Nullable
   private String companyLegalName;
-
-  public static final String JSON_PROPERTY_TAX_NUMBER = "taxNumber";
-  @javax.annotation.Nullable
-  private String taxNumber;
 
   public static final String JSON_PROPERTY_ADDRESS = "address";
   @javax.annotation.Nullable
@@ -215,30 +210,6 @@ public class CompanyResponseBody {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setCompanyLegalName(@javax.annotation.Nullable String companyLegalName) {
     this.companyLegalName = companyLegalName;
-  }
-
-
-  public CompanyResponseBody taxNumber(@javax.annotation.Nullable String taxNumber) {
-    this.taxNumber = taxNumber;
-    return this;
-  }
-
-  /**
-   * Tax identification number of the company
-   * @return taxNumber
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_TAX_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getTaxNumber() {
-    return taxNumber;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_TAX_NUMBER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTaxNumber(@javax.annotation.Nullable String taxNumber) {
-    this.taxNumber = taxNumber;
   }
 
 
@@ -659,7 +630,6 @@ public class CompanyResponseBody {
     return Objects.equals(this.id, companyResponseBody.id) &&
         Objects.equals(this.companyName, companyResponseBody.companyName) &&
         Objects.equals(this.companyLegalName, companyResponseBody.companyLegalName) &&
-        Objects.equals(this.taxNumber, companyResponseBody.taxNumber) &&
         Objects.equals(this.address, companyResponseBody.address) &&
         Objects.equals(this.companyEmail, companyResponseBody.companyEmail) &&
         Objects.equals(this.phoneNumber, companyResponseBody.phoneNumber) &&
@@ -680,7 +650,7 @@ public class CompanyResponseBody {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, companyName, companyLegalName, taxNumber, address, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, companyLogoUrl, companyLogoUrlExpiresAt, returnProcessingMode, userRole, accountPaused, accountPausedReason, notificationCodeEnabled, emailFallbackEnabled);
+    return Objects.hash(id, companyName, companyLegalName, address, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, companyLogoUrl, companyLogoUrlExpiresAt, returnProcessingMode, userRole, accountPaused, accountPausedReason, notificationCodeEnabled, emailFallbackEnabled);
   }
 
   @Override
@@ -690,7 +660,6 @@ public class CompanyResponseBody {
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    companyName: ").append(toIndentedString(companyName)).append("\n");
     sb.append("    companyLegalName: ").append(toIndentedString(companyLegalName)).append("\n");
-    sb.append("    taxNumber: ").append(toIndentedString(taxNumber)).append("\n");
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
     sb.append("    companyEmail: ").append(toIndentedString(companyEmail)).append("\n");
     sb.append("    phoneNumber: ").append(toIndentedString(phoneNumber)).append("\n");
