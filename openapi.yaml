@@ -94,12 +94,6 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to view this store
           content:
@@ -108,6 +102,12 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
+        "200":
+          description: Store retrieved successfully
           content:
             '*/*':
               schema:
@@ -149,6 +149,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to update this store
           content:
@@ -161,12 +167,6 @@ paths:
             '*/*':
               schema:
                 type: object
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
       security:
       - bearerAuth: []
   /webhook/subscription:
@@ -186,12 +186,6 @@ paths:
               $ref: "#/components/schemas/WebhookRequestBody"
         required: true
       responses:
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
         "400":
           description: Invalid webhook request data
           content:
@@ -208,6 +202,12 @@ paths:
           description: Insufficient permissions - requires read_receipts scope
           content:
             '*/*':
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
       security:
@@ -243,6 +243,12 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
+        "200":
+          description: Recipient successfully resolved and matched
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RecipientResolutionResponse"
         "401":
           description: Authentication required
           content:
@@ -251,12 +257,6 @@ paths:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
         "400":
           description: Invalid identification details provided
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -282,12 +282,6 @@ paths:
               $ref: "#/components/schemas/ReceiptTemplateGenerationRequest"
         required: true
       responses:
-        "201":
-          description: Receipt template created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ReceiptTemplateResponse"
         "400":
           description: Invalid template request data
           content:
@@ -296,6 +290,12 @@ paths:
                 $ref: "#/components/schemas/ReceiptTemplateResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReceiptTemplateResponse"
+        "201":
+          description: Receipt template created successfully
           content:
             '*/*':
               schema:
@@ -437,6 +437,12 @@ paths:
               $ref: "#/components/schemas/CreditNoteTemplateGenerationRequest"
         required: true
       responses:
+        "201":
+          description: Credit note template created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CreditNoteTemplateResponse"
         "400":
           description: Invalid template request data
           content:
@@ -445,12 +451,6 @@ paths:
                 $ref: "#/components/schemas/CreditNoteTemplateResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CreditNoteTemplateResponse"
-        "201":
-          description: Credit note template created successfully
           content:
             '*/*':
               schema:
@@ -514,14 +514,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "201":
-          description: Encrypted credit note queued successfully
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "403":
-          description: Insufficient permissions - requires write_receipts scope
+        "201":
+          description: Encrypted credit note queued successfully
           content:
             '*/*':
               schema:
@@ -692,14 +692,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Secret rotated successfully
+        "403":
+          description: Not authorized to rotate webhook secret for this client application
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookSecretRotationResponse"
-        "403":
-          description: Not authorized to rotate webhook secret for this client application
+        "200":
+          description: Secret rotated successfully
           content:
             '*/*':
               schema:
@@ -806,14 +806,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store deactivated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
@@ -850,12 +850,6 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store activated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
@@ -864,6 +858,12 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to activate this store
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
@@ -3172,7 +3172,7 @@ components:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: https://test.api.cheqi.io/oauth2/authorize
+          authorizationUrl: https://api.cheqi.io/oauth2/authorize
           scopes:
             write_receipts: Write receipts
             read_receipts: Read receipts

@@ -85,8 +85,9 @@ class CreditNoteServiceTest {
                 .cheqiReceiptId("receipt-123");
     }
 
-    private static CreditNoteTemplateRequest creditNoteTemplateRequest() {
-        return new CreditNoteTemplateRequest()
-                .documentNumber("CN-001");
+    private static com.cheqi.sdk.models.CreditNoteTemplateRequest creditNoteTemplateRequest() {
+        return com.cheqi.sdk.models.CreditNoteTemplateRequest.builder()
+                .documentNumber("CN-001")
+                .build();
     }
 }

@@ -12,6 +12,7 @@ import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.matching.MatchingService;
 import com.cheqi.sdk.models.generated.*;
+import com.cheqi.sdk.models.CreditNoteTemplateRequest;
 import com.cheqi.sdk.utils.HashUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
