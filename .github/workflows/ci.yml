@@ -36,7 +36,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Check OpenAPI spec drift
-        run: make spec-check ENV=test
+        run: make spec-check ENV=prod
 
       - name: Verify generated models are committed
         run: |
