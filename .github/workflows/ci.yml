@@ -43,5 +43,8 @@ jobs:
           mvn -B -q generate-sources
           git diff --exit-code -I '^@javax\.annotation\.Generated' -- src/main/java/com/cheqi/sdk/models/generated
 
+      - name: Run tests
+        run: ./gradlew test --no-daemon --console=plain
+
       - name: Validate build and release artifacts
-        run: ./gradlew clean check javadocJar sourcesJar publishToMavenLocal --no-daemon --console=plain
+        run: ./gradlew clean build javadocJar sourcesJar publishToMavenLocal -x test --no-daemon --console=plain
