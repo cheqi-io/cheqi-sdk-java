@@ -52,9 +52,9 @@ class ReceiptTemplateGenerationRequestTest {
         assertTrue(node.has("receiptTemplateRequest"));
         assertTrue(node.has("formats"));
         assertEquals(1, node.get("formats").size());
-        // The generated model marks these fields as ALWAYS included, so they serialize as explicit nulls.
-        assertTrue(node.has("buyerCountryCode"));
-        assertTrue(node.get("buyerCountryCode").isNull());
+        // buyerCountryCode is optional in the spec, so the generated model omits it when null.
+        assertFalse(node.has("buyerCountryCode"));
+        // buyerType and taxesApplied are required (ALWAYS included), so they serialize as explicit nulls.
         assertTrue(node.has("buyerType"));
         assertTrue(node.get("buyerType").isNull());
         assertTrue(node.has("taxesApplied"));

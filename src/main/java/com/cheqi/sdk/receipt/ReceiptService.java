@@ -343,6 +343,11 @@ public class ReceiptService {
         logger.debug("Sending {} encrypted receipts to backend", encryptedReceipts.size());
         ReceiptCreatedResponse response = sendEncryptedReceipts(encryptedReceipts, templateHash, matchResponse, accessToken);
 
+        if (response.getDownloadUrl() != null) {
+            logger.info("Receipt processing completed via download fallback");
+            return ReceiptResult.deliveredViaDownload(response, templateContent);
+        }
+
         logger.info("Receipt processing completed successfully");
         return ReceiptResult.deliveredToApp(response, templateContent);
     }

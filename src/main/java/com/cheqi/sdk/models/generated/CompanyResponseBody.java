@@ -57,7 +57,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CompanyResponseBody.JSON_PROPERTY_ACCOUNT_PAUSED,
   CompanyResponseBody.JSON_PROPERTY_ACCOUNT_PAUSED_REASON,
   CompanyResponseBody.JSON_PROPERTY_NOTIFICATION_CODE_ENABLED,
-  CompanyResponseBody.JSON_PROPERTY_EMAIL_FALLBACK_ENABLED
+  CompanyResponseBody.JSON_PROPERTY_EMAIL_FALLBACK_ENABLED,
+  CompanyResponseBody.JSON_PROPERTY_DOWNLOAD_FALLBACK_ENABLED
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -137,6 +138,10 @@ public class CompanyResponseBody {
   public static final String JSON_PROPERTY_EMAIL_FALLBACK_ENABLED = "emailFallbackEnabled";
   @javax.annotation.Nullable
   private Boolean emailFallbackEnabled;
+
+  public static final String JSON_PROPERTY_DOWNLOAD_FALLBACK_ENABLED = "downloadFallbackEnabled";
+  @javax.annotation.Nullable
+  private Boolean downloadFallbackEnabled;
 
   public CompanyResponseBody() { 
   }
@@ -615,6 +620,30 @@ public class CompanyResponseBody {
   }
 
 
+  public CompanyResponseBody downloadFallbackEnabled(@javax.annotation.Nullable Boolean downloadFallbackEnabled) {
+    this.downloadFallbackEnabled = downloadFallbackEnabled;
+    return this;
+  }
+
+  /**
+   * Whether receipts may fall back to QR-code download delivery when recipient matching does not find a Cheqi recipient
+   * @return downloadFallbackEnabled
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DOWNLOAD_FALLBACK_ENABLED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getDownloadFallbackEnabled() {
+    return downloadFallbackEnabled;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DOWNLOAD_FALLBACK_ENABLED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDownloadFallbackEnabled(@javax.annotation.Nullable Boolean downloadFallbackEnabled) {
+    this.downloadFallbackEnabled = downloadFallbackEnabled;
+  }
+
+
   /**
    * Return true if this CompanyResponseBody object is equal to o.
    */
@@ -645,12 +674,13 @@ public class CompanyResponseBody {
         Objects.equals(this.accountPaused, companyResponseBody.accountPaused) &&
         Objects.equals(this.accountPausedReason, companyResponseBody.accountPausedReason) &&
         Objects.equals(this.notificationCodeEnabled, companyResponseBody.notificationCodeEnabled) &&
-        Objects.equals(this.emailFallbackEnabled, companyResponseBody.emailFallbackEnabled);
+        Objects.equals(this.emailFallbackEnabled, companyResponseBody.emailFallbackEnabled) &&
+        Objects.equals(this.downloadFallbackEnabled, companyResponseBody.downloadFallbackEnabled);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, companyName, companyLegalName, address, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, companyLogoUrl, companyLogoUrlExpiresAt, returnProcessingMode, userRole, accountPaused, accountPausedReason, notificationCodeEnabled, emailFallbackEnabled);
+    return Objects.hash(id, companyName, companyLegalName, address, companyEmail, phoneNumber, contactDetails, identifiers, website, returnDays, companyReceiptText, companyLogoUrl, companyLogoUrlExpiresAt, returnProcessingMode, userRole, accountPaused, accountPausedReason, notificationCodeEnabled, emailFallbackEnabled, downloadFallbackEnabled);
   }
 
   @Override
@@ -676,6 +706,7 @@ public class CompanyResponseBody {
     sb.append("    accountPausedReason: ").append(toIndentedString(accountPausedReason)).append("\n");
     sb.append("    notificationCodeEnabled: ").append(toIndentedString(notificationCodeEnabled)).append("\n");
     sb.append("    emailFallbackEnabled: ").append(toIndentedString(emailFallbackEnabled)).append("\n");
+    sb.append("    downloadFallbackEnabled: ").append(toIndentedString(downloadFallbackEnabled)).append("\n");
     sb.append("}");
     return sb.toString();
   }

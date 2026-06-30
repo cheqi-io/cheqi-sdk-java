@@ -33,7 +33,9 @@ public enum ReceiverType {
   
   COMPANY("COMPANY"),
   
-  EMAIL_FALLBACK("EMAIL_FALLBACK");
+  EMAIL_FALLBACK("EMAIL_FALLBACK"),
+  
+  DOWNLOAD_FALLBACK("DOWNLOAD_FALLBACK");
 
   private String value;
 

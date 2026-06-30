@@ -32,7 +32,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
   ReceiptCreatedResponse.JSON_PROPERTY_CHEQI_RECEIPT_ID,
   ReceiptCreatedResponse.JSON_PROPERTY_CREATED_AT,
-  ReceiptCreatedResponse.JSON_PROPERTY_TEMPLATE_HASH
+  ReceiptCreatedResponse.JSON_PROPERTY_TEMPLATE_HASH,
+  ReceiptCreatedResponse.JSON_PROPERTY_DOWNLOAD_URL
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -48,6 +49,10 @@ public class ReceiptCreatedResponse {
   public static final String JSON_PROPERTY_TEMPLATE_HASH = "templateHash";
   @javax.annotation.Nullable
   private String templateHash;
+
+  public static final String JSON_PROPERTY_DOWNLOAD_URL = "downloadUrl";
+  @javax.annotation.Nullable
+  private String downloadUrl;
 
   public ReceiptCreatedResponse() { 
   }
@@ -124,6 +129,30 @@ public class ReceiptCreatedResponse {
   }
 
 
+  public ReceiptCreatedResponse downloadUrl(@javax.annotation.Nullable String downloadUrl) {
+    this.downloadUrl = downloadUrl;
+    return this;
+  }
+
+  /**
+   * Public self-service download URL for the receipt. Only populated for the QR-code download fallback route (DOWNLOAD_FALLBACK); the merchant terminal renders this as a QR code for the customer to scan.
+   * @return downloadUrl
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DOWNLOAD_URL)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getDownloadUrl() {
+    return downloadUrl;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DOWNLOAD_URL)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDownloadUrl(@javax.annotation.Nullable String downloadUrl) {
+    this.downloadUrl = downloadUrl;
+  }
+
+
   /**
    * Return true if this ReceiptCreatedResponse object is equal to o.
    */
@@ -138,12 +167,13 @@ public class ReceiptCreatedResponse {
     ReceiptCreatedResponse receiptCreatedResponse = (ReceiptCreatedResponse) o;
     return Objects.equals(this.cheqiReceiptId, receiptCreatedResponse.cheqiReceiptId) &&
         Objects.equals(this.createdAt, receiptCreatedResponse.createdAt) &&
-        Objects.equals(this.templateHash, receiptCreatedResponse.templateHash);
+        Objects.equals(this.templateHash, receiptCreatedResponse.templateHash) &&
+        Objects.equals(this.downloadUrl, receiptCreatedResponse.downloadUrl);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cheqiReceiptId, createdAt, templateHash);
+    return Objects.hash(cheqiReceiptId, createdAt, templateHash, downloadUrl);
   }
 
   @Override
@@ -153,6 +183,7 @@ public class ReceiptCreatedResponse {
     sb.append("    cheqiReceiptId: ").append(toIndentedString(cheqiReceiptId)).append("\n");
     sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
     sb.append("    templateHash: ").append(toIndentedString(templateHash)).append("\n");
+    sb.append("    downloadUrl: ").append(toIndentedString(downloadUrl)).append("\n");
     sb.append("}");
     return sb.toString();
   }

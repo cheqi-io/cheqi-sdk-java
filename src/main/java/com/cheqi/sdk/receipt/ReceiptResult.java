@@ -23,6 +23,8 @@ public class ReceiptResult {
     private final String canonicalJson;
     @JsonProperty("emailAddress")
     private final String emailAddress;
+    @JsonProperty("downloadUrl")
+    private final String downloadUrl;
     @JsonProperty("message")
     private final String message;
 
@@ -34,6 +36,7 @@ public class ReceiptResult {
             String templateHash,
             String canonicalJson,
             String emailAddress,
+            String downloadUrl,
             String message) {
         this.success = success;
         this.deliveryStatus = deliveryStatus;
@@ -42,6 +45,7 @@ public class ReceiptResult {
         this.templateHash = templateHash;
         this.canonicalJson = canonicalJson;
         this.emailAddress = emailAddress;
+        this.downloadUrl = downloadUrl;
         this.message = message;
     }
 
@@ -54,7 +58,26 @@ public class ReceiptResult {
                 response.getTemplateHash(),
                 canonicalJson,
                 null,
+                null,
                 "Receipt delivered to customer's Cheqi app"
+        );
+    }
+
+    /**
+     * QR-code self-service download fallback: the receipt was created and Cheqi returned a public
+     * download URL. The merchant terminal renders {@code downloadUrl} as a QR code for the customer.
+     */
+    public static ReceiptResult deliveredViaDownload(ReceiptCreatedResponse response, String canonicalJson) {
+        return new ReceiptResult(
+                true,
+                DeliveryStatus.DELIVERED_DOWNLOAD,
+                response.getCheqiReceiptId(),
+                response.getCreatedAt(),
+                response.getTemplateHash(),
+                canonicalJson,
+                null,
+                response.getDownloadUrl(),
+                "Receipt available for self-service download"
         );
     }
 
@@ -67,6 +90,7 @@ public class ReceiptResult {
                 null,
                 null,
                 emailAddress,
+                null,
                 "Receipt sent via email to " + emailAddress
         );
     }
@@ -80,6 +104,7 @@ public class ReceiptResult {
                 null,
                 null,
                 null,
+                null,
                 "Customer not found with provided payment details"
         );
     }
@@ -88,6 +113,7 @@ public class ReceiptResult {
         return new ReceiptResult(
                 false,
                 DeliveryStatus.FAILED,
+                null,
                 null,
                 null,
                 null,
@@ -111,6 +137,9 @@ public class ReceiptResult {
 
     // Email flow
     public String getEmailAddress() { return emailAddress; }
+
+    // Download fallback flow
+    public String getDownloadUrl() { return downloadUrl; }
 
     @Override
     public String toString() {
