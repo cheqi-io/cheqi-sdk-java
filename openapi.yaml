@@ -95,12 +95,6 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to view this store
           content:
@@ -109,6 +103,12 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
+        "200":
+          description: Store retrieved successfully
           content:
             '*/*':
               schema:
@@ -244,14 +244,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "401":
-          description: Authentication required
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
+        "401":
+          description: Authentication required
           content:
             '*/*':
               schema:
@@ -372,14 +372,14 @@ paths:
               $ref: "#/components/schemas/EncryptedReceiptsRequest"
         required: true
       responses:
-        "403":
-          description: Insufficient permissions - requires write_receipts scope
+        "201":
+          description: Receipt created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "201":
-          description: Receipt created successfully
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
           content:
             '*/*':
               schema:
@@ -509,14 +509,14 @@ paths:
               $ref: "#/components/schemas/EncryptedCreditNotesRequest"
         required: true
       responses:
-        "400":
-          description: Invalid encrypted credit note data
+        "201":
+          description: Encrypted credit note queued successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CreditNoteCreatedResponse"
-        "201":
-          description: Encrypted credit note queued successfully
+        "400":
+          description: Invalid encrypted credit note data
           content:
             '*/*':
               schema:
@@ -731,14 +731,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
@@ -882,12 +882,6 @@ paths:
         **Accessible for:** Client Application, Company
       operationId: getQueuedReceipts
       responses:
-        "200":
-          description: Queued receipts returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReceiptQueueDto"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
@@ -897,6 +891,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ReceiptQueueDto"
+        "200":
+          description: Queued receipts returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptQueueDto"
       security:
       - cheqi_oauth:
         - read_receipts
@@ -912,12 +912,6 @@ paths:
         **Accessible for:** Company, Client Application
       operationId: getAllCreditNotes
       responses:
-        "200":
-          description: Credit notes retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/EncryptedCreditNoteDto"
         "403":
           description: Not authorized to access credit notes
           content:
@@ -926,6 +920,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/EncryptedCreditNoteDto"
+        "200":
+          description: Credit notes retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EncryptedCreditNoteDto"
       x-accessible-for: "Company, Client Application"
   /company/{id}/receipt-delivery/devices:
     get:
@@ -1301,10 +1301,6 @@ components:
     RecipientResolutionResponse:
       type: object
       properties:
-        recipients:
-          type: array
-          items:
-            $ref: "#/components/schemas/MatchedRecipient"
         routeFound:
           type: boolean
           description: Indicates if Cheqi found a delivery route for the receipt
@@ -1312,7 +1308,7 @@ components:
         matchId:
           type: string
           description: The unique identifier for the matching process
-        matchedRecipients:
+        recipients:
           type: array
           description: The list of recipients found for the given recipient
           items:
@@ -1322,9 +1318,6 @@ components:
           description: The expiration time for the matching process
           format: date-time
           example: 2023-01-01T00:00:00Z
-        instructions:
-          type: string
-          description: Instructions on what to do with this response
         buyerCountryCode:
           type: string
           description: The country code of the buyer
@@ -1512,7 +1505,6 @@ components:
         one product.
     ReceiptTemplateGenerationRequest:
       required:
-      - buyerCountryCode
       - buyerType
       - formats
       - receiptTemplateRequest
@@ -1528,7 +1520,10 @@ components:
             $ref: "#/components/schemas/ReceiptFormat"
         buyerCountryCode:
           type: string
-          description: "ISO country code of the buyer, used for tax metadata enrichment"
+          description: "ISO country code of the buyer, used for tax metadata enrichment.\
+            \ Optional: when omitted (e.g. an anonymous download fallback with no\
+            \ known buyer), the supplier's country is used, treating the transaction\
+            \ as domestic."
         buyerType:
           $ref: "#/components/schemas/BuyerType"
         taxesApplied:
@@ -2119,6 +2114,12 @@ components:
           description: Template hash associated with the locally built recipient envelopes.
             This should match the templateHash submitted in the request and can be
             stored for audit and verification.
+        downloadUrl:
+          type: string
+          description: Public self-service download URL for the receipt. Only populated
+            for the QR-code download fallback route (DOWNLOAD_FALLBACK); the merchant
+            terminal renders this as a QR code for the customer to scan.
+          example: https://receipt.cheqi.io/xQ8...token
     EmailReceiptRequest:
       required:
       - cheqiReceipt
@@ -2537,6 +2538,11 @@ components:
           description: Whether receipts may fall back to PDF email delivery when recipient
             matching does not find a Cheqi recipient
           nullable: true
+        downloadFallbackEnabled:
+          type: boolean
+          description: Whether receipts may fall back to QR-code download delivery
+            when recipient matching does not find a Cheqi recipient
+          nullable: true
       description: Request payload for creating or provisioning a company.
     ContactDetailDto:
       type: object
@@ -2650,6 +2656,11 @@ components:
           type: boolean
           description: Whether receipts may fall back to PDF email delivery when recipient
             matching does not find a Cheqi recipient
+          nullable: true
+        downloadFallbackEnabled:
+          type: boolean
+          description: Whether receipts may fall back to QR-code download delivery
+            when recipient matching does not find a Cheqi recipient
           nullable: true
       description: Company response body returned by company creation endpoints.
     CompanyRole:
@@ -2879,6 +2890,7 @@ components:
       - CLIENT_APPLICATION
       - COMPANY
       - EMAIL_FALLBACK
+      - DOWNLOAD_FALLBACK
     CompanyReceiptDeliverySettingsResponse:
       type: object
       properties:

@@ -52,7 +52,7 @@ public class ReceiptTemplateGenerationRequest {
   private List<ReceiptFormat> formats = new ArrayList<>();
 
   public static final String JSON_PROPERTY_BUYER_COUNTRY_CODE = "buyerCountryCode";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private String buyerCountryCode;
 
   public static final String JSON_PROPERTY_BUYER_TYPE = "buyerType";
@@ -122,26 +122,26 @@ public class ReceiptTemplateGenerationRequest {
   }
 
 
-  public ReceiptTemplateGenerationRequest buyerCountryCode(@javax.annotation.Nonnull String buyerCountryCode) {
+  public ReceiptTemplateGenerationRequest buyerCountryCode(@javax.annotation.Nullable String buyerCountryCode) {
     this.buyerCountryCode = buyerCountryCode;
     return this;
   }
 
   /**
-   * ISO country code of the buyer, used for tax metadata enrichment
+   * ISO country code of the buyer, used for tax metadata enrichment. Optional: when omitted (e.g. an anonymous download fallback with no known buyer), the supplier&#39;s country is used, treating the transaction as domestic.
    * @return buyerCountryCode
    */
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_BUYER_COUNTRY_CODE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getBuyerCountryCode() {
     return buyerCountryCode;
   }
 
 
   @JsonProperty(JSON_PROPERTY_BUYER_COUNTRY_CODE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setBuyerCountryCode(@javax.annotation.Nonnull String buyerCountryCode) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setBuyerCountryCode(@javax.annotation.Nullable String buyerCountryCode) {
     this.buyerCountryCode = buyerCountryCode;
   }
 

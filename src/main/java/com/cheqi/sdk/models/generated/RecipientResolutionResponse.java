@@ -34,22 +34,16 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * RecipientResolutionResponse
  */
 @JsonPropertyOrder({
-  RecipientResolutionResponse.JSON_PROPERTY_RECIPIENTS,
   RecipientResolutionResponse.JSON_PROPERTY_ROUTE_FOUND,
   RecipientResolutionResponse.JSON_PROPERTY_MATCH_ID,
-  RecipientResolutionResponse.JSON_PROPERTY_MATCHED_RECIPIENTS,
+  RecipientResolutionResponse.JSON_PROPERTY_RECIPIENTS,
   RecipientResolutionResponse.JSON_PROPERTY_EXPIRES_AT,
-  RecipientResolutionResponse.JSON_PROPERTY_INSTRUCTIONS,
   RecipientResolutionResponse.JSON_PROPERTY_BUYER_COUNTRY_CODE,
   RecipientResolutionResponse.JSON_PROPERTY_BUYER_TYPE
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class RecipientResolutionResponse {
-  public static final String JSON_PROPERTY_RECIPIENTS = "recipients";
-  @javax.annotation.Nullable
-  private List<MatchedRecipient> recipients = new ArrayList<>();
-
   public static final String JSON_PROPERTY_ROUTE_FOUND = "routeFound";
   @javax.annotation.Nullable
   private Boolean routeFound;
@@ -58,17 +52,13 @@ public class RecipientResolutionResponse {
   @javax.annotation.Nullable
   private String matchId;
 
-  public static final String JSON_PROPERTY_MATCHED_RECIPIENTS = "matchedRecipients";
+  public static final String JSON_PROPERTY_RECIPIENTS = "recipients";
   @javax.annotation.Nullable
-  private List<MatchedRecipient> matchedRecipients = new ArrayList<>();
+  private List<MatchedRecipient> recipients = new ArrayList<>();
 
   public static final String JSON_PROPERTY_EXPIRES_AT = "expiresAt";
   @javax.annotation.Nullable
   private OffsetDateTime expiresAt;
-
-  public static final String JSON_PROPERTY_INSTRUCTIONS = "instructions";
-  @javax.annotation.Nullable
-  private String instructions;
 
   public static final String JSON_PROPERTY_BUYER_COUNTRY_CODE = "buyerCountryCode";
   @javax.annotation.Nullable
@@ -80,38 +70,6 @@ public class RecipientResolutionResponse {
 
   public RecipientResolutionResponse() { 
   }
-
-  public RecipientResolutionResponse recipients(@javax.annotation.Nullable List<MatchedRecipient> recipients) {
-    this.recipients = recipients;
-    return this;
-  }
-
-  public RecipientResolutionResponse addRecipientsItem(MatchedRecipient recipientsItem) {
-    if (this.recipients == null) {
-      this.recipients = new ArrayList<>();
-    }
-    this.recipients.add(recipientsItem);
-    return this;
-  }
-
-  /**
-   * Get recipients
-   * @return recipients
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_RECIPIENTS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<MatchedRecipient> getRecipients() {
-    return recipients;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_RECIPIENTS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setRecipients(@javax.annotation.Nullable List<MatchedRecipient> recipients) {
-    this.recipients = recipients;
-  }
-
 
   public RecipientResolutionResponse routeFound(@javax.annotation.Nullable Boolean routeFound) {
     this.routeFound = routeFound;
@@ -161,35 +119,35 @@ public class RecipientResolutionResponse {
   }
 
 
-  public RecipientResolutionResponse matchedRecipients(@javax.annotation.Nullable List<MatchedRecipient> matchedRecipients) {
-    this.matchedRecipients = matchedRecipients;
+  public RecipientResolutionResponse recipients(@javax.annotation.Nullable List<MatchedRecipient> recipients) {
+    this.recipients = recipients;
     return this;
   }
 
-  public RecipientResolutionResponse addMatchedRecipientsItem(MatchedRecipient matchedRecipientsItem) {
-    if (this.matchedRecipients == null) {
-      this.matchedRecipients = new ArrayList<>();
+  public RecipientResolutionResponse addRecipientsItem(MatchedRecipient recipientsItem) {
+    if (this.recipients == null) {
+      this.recipients = new ArrayList<>();
     }
-    this.matchedRecipients.add(matchedRecipientsItem);
+    this.recipients.add(recipientsItem);
     return this;
   }
 
   /**
    * The list of recipients found for the given recipient
-   * @return matchedRecipients
+   * @return recipients
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_MATCHED_RECIPIENTS)
+  @JsonProperty(JSON_PROPERTY_RECIPIENTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<MatchedRecipient> getMatchedRecipients() {
-    return matchedRecipients;
+  public List<MatchedRecipient> getRecipients() {
+    return recipients;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_MATCHED_RECIPIENTS)
+  @JsonProperty(JSON_PROPERTY_RECIPIENTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setMatchedRecipients(@javax.annotation.Nullable List<MatchedRecipient> matchedRecipients) {
-    this.matchedRecipients = matchedRecipients;
+  public void setRecipients(@javax.annotation.Nullable List<MatchedRecipient> recipients) {
+    this.recipients = recipients;
   }
 
 
@@ -214,30 +172,6 @@ public class RecipientResolutionResponse {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setExpiresAt(@javax.annotation.Nullable OffsetDateTime expiresAt) {
     this.expiresAt = expiresAt;
-  }
-
-
-  public RecipientResolutionResponse instructions(@javax.annotation.Nullable String instructions) {
-    this.instructions = instructions;
-    return this;
-  }
-
-  /**
-   * Instructions on what to do with this response
-   * @return instructions
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_INSTRUCTIONS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getInstructions() {
-    return instructions;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_INSTRUCTIONS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setInstructions(@javax.annotation.Nullable String instructions) {
-    this.instructions = instructions;
   }
 
 
@@ -301,31 +235,27 @@ public class RecipientResolutionResponse {
       return false;
     }
     RecipientResolutionResponse recipientResolutionResponse = (RecipientResolutionResponse) o;
-    return Objects.equals(this.recipients, recipientResolutionResponse.recipients) &&
-        Objects.equals(this.routeFound, recipientResolutionResponse.routeFound) &&
+    return Objects.equals(this.routeFound, recipientResolutionResponse.routeFound) &&
         Objects.equals(this.matchId, recipientResolutionResponse.matchId) &&
-        Objects.equals(this.matchedRecipients, recipientResolutionResponse.matchedRecipients) &&
+        Objects.equals(this.recipients, recipientResolutionResponse.recipients) &&
         Objects.equals(this.expiresAt, recipientResolutionResponse.expiresAt) &&
-        Objects.equals(this.instructions, recipientResolutionResponse.instructions) &&
         Objects.equals(this.buyerCountryCode, recipientResolutionResponse.buyerCountryCode) &&
         Objects.equals(this.buyerType, recipientResolutionResponse.buyerType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(recipients, routeFound, matchId, matchedRecipients, expiresAt, instructions, buyerCountryCode, buyerType);
+    return Objects.hash(routeFound, matchId, recipients, expiresAt, buyerCountryCode, buyerType);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class RecipientResolutionResponse {\n");
-    sb.append("    recipients: ").append(toIndentedString(recipients)).append("\n");
     sb.append("    routeFound: ").append(toIndentedString(routeFound)).append("\n");
     sb.append("    matchId: ").append(toIndentedString(matchId)).append("\n");
-    sb.append("    matchedRecipients: ").append(toIndentedString(matchedRecipients)).append("\n");
+    sb.append("    recipients: ").append(toIndentedString(recipients)).append("\n");
     sb.append("    expiresAt: ").append(toIndentedString(expiresAt)).append("\n");
-    sb.append("    instructions: ").append(toIndentedString(instructions)).append("\n");
     sb.append("    buyerCountryCode: ").append(toIndentedString(buyerCountryCode)).append("\n");
     sb.append("    buyerType: ").append(toIndentedString(buyerType)).append("\n");
     sb.append("}");
