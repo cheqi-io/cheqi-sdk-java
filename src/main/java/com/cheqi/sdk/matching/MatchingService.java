@@ -138,18 +138,31 @@ public class MatchingService {
     }
     
     /**
-     * Validates that the payment details contain at least one identifier.
+     * Validates that the payment details are usable for resolution.
+     *
+     * <p>A request is valid when it carries a customer locator (card details, payment account
+     * details, cheqiReceiptId, email or pairing code) <em>or</em> just a payment type. The latter
+     * is the anonymous "no customer" case: the backend resolves it to the QR-code download fallback
+     * route and returns a self-service download URL.
      */
     private boolean hasValidIdentifiers(IdentificationDetails identificationDetails) {
         if (identificationDetails == null) {
             return false;
         }
-        
+
         return hasCardDetails(identificationDetails) ||
                hasPaymentAccountDetails(identificationDetails) ||
                hasCheqiReceiptId(identificationDetails) ||
                hasEmail(identificationDetails) ||
-               hasPairingCode(identificationDetails);
+               hasPairingCode(identificationDetails) ||
+               hasPaymentType(identificationDetails);
+    }
+
+    /**
+     * Checks if a payment type is present (anonymous "no customer" download-fallback case).
+     */
+    private boolean hasPaymentType(IdentificationDetails identificationDetails) {
+        return identificationDetails.getPaymentType() != null;
     }
     
     /**
