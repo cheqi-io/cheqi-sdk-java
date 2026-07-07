@@ -12,7 +12,7 @@ Please do not report security vulnerabilities through public GitHub issues.
 
 To report a vulnerability, use GitHub's private vulnerability reporting feature
 for this repository if it is available. If private reporting is unavailable,
-contact Cheqi at security@cheqi.io with:
+contact Cheqi at dev@cheqi.io with:
 
 - A description of the vulnerability and affected SDK version.
 - Steps to reproduce or a minimal proof of concept.
