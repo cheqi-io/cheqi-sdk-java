@@ -7,6 +7,7 @@ public enum Endpoints {
     TEMPLATE_ENDPOINT("/receipt/template"),
     CUSTOMER_MATCH_ENDPOINT("/recipient/resolve"),
     ENCRYPTED_RECEIPT_ENDPOINT("/receipt/encrypted"),
+    CLIENT_RECEIPT_DOWNLOAD_ENDPOINT("/receipt/download"),
     ENCRYPTED_CREDIT_NOTE_ENDPOINT("/credit-note/encrypted"),
     CREDIT_NOTE_TEMPLATE_ENDPOINT("/credit-note/template"),
     EMAIL_RECEIPT_ENDPOINT("/receipt/email"),

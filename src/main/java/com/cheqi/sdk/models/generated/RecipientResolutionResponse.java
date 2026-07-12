@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({
   RecipientResolutionResponse.JSON_PROPERTY_ROUTE_FOUND,
+  RecipientResolutionResponse.JSON_PROPERTY_DELIVERY_ROUTE_TYPE,
   RecipientResolutionResponse.JSON_PROPERTY_MATCH_ID,
   RecipientResolutionResponse.JSON_PROPERTY_RECIPIENTS,
   RecipientResolutionResponse.JSON_PROPERTY_EXPIRES_AT,
@@ -47,6 +48,47 @@ public class RecipientResolutionResponse {
   public static final String JSON_PROPERTY_ROUTE_FOUND = "routeFound";
   @javax.annotation.Nullable
   private Boolean routeFound;
+
+  /**
+   * The selected receipt delivery route
+   */
+  public enum DeliveryRouteTypeEnum {
+    DIGITAL(String.valueOf("DIGITAL")),
+    
+    EMAIL_FALLBACK(String.valueOf("EMAIL_FALLBACK")),
+    
+    DOWNLOAD_FALLBACK(String.valueOf("DOWNLOAD_FALLBACK"));
+
+    private String value;
+
+    DeliveryRouteTypeEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static DeliveryRouteTypeEnum fromValue(String value) {
+      for (DeliveryRouteTypeEnum b : DeliveryRouteTypeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_DELIVERY_ROUTE_TYPE = "deliveryRouteType";
+  @javax.annotation.Nullable
+  private DeliveryRouteTypeEnum deliveryRouteType;
 
   public static final String JSON_PROPERTY_MATCH_ID = "matchId";
   @javax.annotation.Nullable
@@ -92,6 +134,30 @@ public class RecipientResolutionResponse {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setRouteFound(@javax.annotation.Nullable Boolean routeFound) {
     this.routeFound = routeFound;
+  }
+
+
+  public RecipientResolutionResponse deliveryRouteType(@javax.annotation.Nullable DeliveryRouteTypeEnum deliveryRouteType) {
+    this.deliveryRouteType = deliveryRouteType;
+    return this;
+  }
+
+  /**
+   * The selected receipt delivery route
+   * @return deliveryRouteType
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DELIVERY_ROUTE_TYPE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public DeliveryRouteTypeEnum getDeliveryRouteType() {
+    return deliveryRouteType;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DELIVERY_ROUTE_TYPE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDeliveryRouteType(@javax.annotation.Nullable DeliveryRouteTypeEnum deliveryRouteType) {
+    this.deliveryRouteType = deliveryRouteType;
   }
 
 
@@ -236,6 +302,7 @@ public class RecipientResolutionResponse {
     }
     RecipientResolutionResponse recipientResolutionResponse = (RecipientResolutionResponse) o;
     return Objects.equals(this.routeFound, recipientResolutionResponse.routeFound) &&
+        Objects.equals(this.deliveryRouteType, recipientResolutionResponse.deliveryRouteType) &&
         Objects.equals(this.matchId, recipientResolutionResponse.matchId) &&
         Objects.equals(this.recipients, recipientResolutionResponse.recipients) &&
         Objects.equals(this.expiresAt, recipientResolutionResponse.expiresAt) &&
@@ -245,7 +312,7 @@ public class RecipientResolutionResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(routeFound, matchId, recipients, expiresAt, buyerCountryCode, buyerType);
+    return Objects.hash(routeFound, deliveryRouteType, matchId, recipients, expiresAt, buyerCountryCode, buyerType);
   }
 
   @Override
@@ -253,6 +320,7 @@ public class RecipientResolutionResponse {
     StringBuilder sb = new StringBuilder();
     sb.append("class RecipientResolutionResponse {\n");
     sb.append("    routeFound: ").append(toIndentedString(routeFound)).append("\n");
+    sb.append("    deliveryRouteType: ").append(toIndentedString(deliveryRouteType)).append("\n");
     sb.append("    matchId: ").append(toIndentedString(matchId)).append("\n");
     sb.append("    recipients: ").append(toIndentedString(recipients)).append("\n");
     sb.append("    expiresAt: ").append(toIndentedString(expiresAt)).append("\n");

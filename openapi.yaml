@@ -95,12 +95,6 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to view this store
           content:
@@ -109,6 +103,12 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
+        "200":
+          description: Store retrieved successfully
           content:
             '*/*':
               schema:
@@ -199,16 +199,16 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
             '*/*':
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
       security:
@@ -372,14 +372,14 @@ paths:
               $ref: "#/components/schemas/EncryptedReceiptsRequest"
         required: true
       responses:
-        "201":
-          description: Receipt created successfully
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptCreatedResponse"
-        "403":
-          description: Insufficient permissions - requires write_receipts scope
+        "201":
+          description: Receipt created successfully
           content:
             '*/*':
               schema:
@@ -417,6 +417,57 @@ paths:
           description: Invalid email receipt request data
         "201":
           description: Receipt sent successfully via email
+      security:
+      - cheqi_oauth:
+        - write_receipts
+      x-accessible-for: "Company, Client Application"
+  /receipt/download:
+    post:
+      tags:
+      - Receipt Management
+      summary: Upload a client-encrypted receipt for a client-generated download link
+      description: |-
+        Stores the ciphertext behind a download id the SDK generated locally, so the QR code worked before this upload. First write wins: resubmitting the same downloadId with identical bytes returns 200 with the original identifiers (safe retry); different bytes or a different principal conflict with 409 and never replace the stored receipt. Requires write_receipts OAuth scope.
+
+        **Accessible for:** Company, Client Application
+      operationId: uploadClientEncryptedReceipt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientReceiptDownloadRequest"
+        required: true
+      responses:
+        "409":
+          description: A different receipt is already stored under this download id
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
+        "400":
+          description: "Invalid download id, IV, or ciphertext"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
+        "200":
+          description: Idempotent replay of an identical earlier upload
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
+        "201":
+          description: Encrypted receipt stored
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
       security:
       - cheqi_oauth:
         - write_receipts
@@ -661,18 +712,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "400":
-          description: Invalid request data
-          content:
-            '*/*':
-              schema:
-                type: object
         "201":
           description: Store created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
+        "400":
+          description: Invalid request data
+          content:
+            '*/*':
+              schema:
+                type: object
       security:
       - bearerAuth: []
   /client-application/{id}/webhook/rotate-secret:
@@ -857,14 +908,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "403":
-          description: Not authorized to activate this store
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
+        "403":
+          description: Not authorized to activate this store
           content:
             '*/*':
               schema:
@@ -882,12 +933,6 @@ paths:
         **Accessible for:** Client Application, Company
       operationId: getQueuedReceipts
       responses:
-        "200":
-          description: Queued receipts returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReceiptQueueDto"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
@@ -897,6 +942,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ReceiptQueueDto"
+        "200":
+          description: Queued receipts returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptQueueDto"
       security:
       - cheqi_oauth:
         - read_receipts
@@ -988,12 +1039,6 @@ paths:
         **Accessible for:** Client Application
       operationId: getAuthorizedResources
       responses:
-        "200":
-          description: Authorized resources retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AuthorizedResourcesResponse"
         "401":
           description: Invalid or missing access token
           content:
@@ -1002,6 +1047,12 @@ paths:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
         "403":
           description: Not a client application token
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthorizedResourcesResponse"
+        "200":
+          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
@@ -1307,6 +1358,14 @@ components:
           type: boolean
           description: Indicates if Cheqi found a delivery route for the receipt
           example: true
+        deliveryRouteType:
+          type: string
+          description: The selected receipt delivery route
+          example: DIGITAL
+          enum:
+          - DIGITAL
+          - EMAIL_FALLBACK
+          - DOWNLOAD_FALLBACK
         matchId:
           type: string
           description: The unique identifier for the matching process
@@ -2133,6 +2192,48 @@ components:
         cheqiReceipt:
           $ref: "#/components/schemas/CheqiReceipt"
       description: Email receipt request with customer email and receipt details
+    ClientReceiptDownloadRequest:
+      required:
+      - ciphertext
+      - downloadId
+      type: object
+      properties:
+        downloadId:
+          pattern: "^[A-Za-z0-9_-]{22,64}$"
+          type: string
+          description: "Client-generated download identifier: at least 16 CSPRNG bytes\
+            \ encoded as base64url without padding. Must be exactly the id embedded\
+            \ in the QR URL path. Resubmitting the same id with identical payload\
+            \ bytes is an idempotent replay."
+          example: Zk9qYx3vT1KpN8wL2sRd_g
+        ciphertext:
+          type: string
+          description: "Base64-encoded AES-256-GCM blob framed as iv || ciphertext\
+            \ || tag (12-byte IV, 128-bit tag) of the receipt envelope, encrypted\
+            \ client-side with the key from the QR URL fragment. Cheqi never receives\
+            \ that key and cannot decrypt this payload."
+        templateHash:
+          type: string
+          description: Optional locally computed template hash for audit and reconciliation.
+          nullable: true
+      description: Client-encrypted receipt payload
+    ClientReceiptDownloadResponse:
+      type: object
+      properties:
+        cheqiReceiptId:
+          type: string
+          description: "Stable Cheqi receipt identifier minted at upload time, for\
+            \ merchant back-office reconciliation. The customer-facing reference is\
+            \ the download URL itself."
+          example: CHQ-12345678-123456-123456
+        createdAt:
+          type: string
+          description: Timestamp when Cheqi first accepted this upload.
+          format: date-time
+        expiresAt:
+          type: string
+          description: Timestamp after which the download link stops resolving.
+          format: date-time
     CreditNoteTemplateGenerationRequest:
       required:
       - buyerCountryCode

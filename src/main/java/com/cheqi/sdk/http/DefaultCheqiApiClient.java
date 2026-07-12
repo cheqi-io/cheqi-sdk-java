@@ -21,7 +21,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     private static final Logger logger = LoggerFactory.getLogger(DefaultCheqiApiClient.class);
 
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
-    private static final String USER_AGENT = "CheqiSDK/1.0";
+    private static final String USER_AGENT = "CheqiSDK/1.1.0";
 
     private final CheqiSDKConfig config;
     private final OkHttpClient httpClient;
@@ -363,6 +363,53 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
                     CheqiApiException.ErrorCodes.UNKNOWN_ERROR,
                     null
             );
+        }
+    }
+
+    @Override
+    public ClientReceiptDownloadResponse uploadClientEncryptedReceipt(ClientReceiptDownloadRequest request) throws CheqiApiException {
+        return uploadClientEncryptedReceiptInternal(request, null);
+    }
+
+    @Override
+    public ClientReceiptDownloadResponse uploadClientEncryptedReceipt(
+            ClientReceiptDownloadRequest request, String accessToken) throws CheqiApiException {
+        if (accessToken == null || accessToken.trim().isEmpty()) {
+            throw new CheqiApiException("Access token is required for receipt download upload", 400,
+                    CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
+        }
+        return uploadClientEncryptedReceiptInternal(request, accessToken);
+    }
+
+    private ClientReceiptDownloadResponse uploadClientEncryptedReceiptInternal(
+            ClientReceiptDownloadRequest request, String accessToken) throws CheqiApiException {
+        if (request == null
+                || request.getDownloadId() == null
+                || !request.getDownloadId().matches("[A-Za-z0-9_-]{22,64}")) {
+            throw new CheqiApiException("downloadId must be 22-64 base64url characters", 400,
+                    CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
+        }
+        if (request.getCiphertext() == null || request.getCiphertext().trim().isEmpty()) {
+            throw new CheqiApiException("ciphertext is required", 400,
+                    CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
+        }
+
+        try {
+            String requestJson = objectMapper.writeValueAsString(request);
+            Request httpRequest = accessToken == null
+                    ? buildPostRequestWithApiKey(Endpoints.CLIENT_RECEIPT_DOWNLOAD_ENDPOINT, requestJson)
+                    : buildJsonPostRequest(Endpoints.CLIENT_RECEIPT_DOWNLOAD_ENDPOINT, requestJson, accessToken);
+            Response response = retryHandler.executeWithRetry(httpRequest, "uploadClientEncryptedReceipt");
+            return responseHandler.handleJsonResponse(
+                    response, ClientReceiptDownloadResponse.class, "Upload client-encrypted receipt");
+        } catch (CheqiApiException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new CheqiApiException("Network error during client-encrypted receipt upload: " + e.getMessage(),
+                    e, 0, CheqiApiException.ErrorCodes.NETWORK_ERROR, null);
+        } catch (Exception e) {
+            throw new CheqiApiException("Client-encrypted receipt upload failed: " + e.getMessage(),
+                    e, 0, CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
         }
     }
 

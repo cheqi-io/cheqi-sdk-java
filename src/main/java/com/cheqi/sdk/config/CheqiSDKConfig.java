@@ -19,6 +19,8 @@ public class CheqiSDKConfig {
     private static final Logger logger = LoggerFactory.getLogger(CheqiSDKConfig.class);
 
     private final String apiEndpoint;
+    private final Environment environment;
+    private final String receiptDownloadBaseUrl;
     private final String apiKey;
     private final String privateKeyBase64;
     private final EncryptionConfig encryptionConfig;
@@ -28,6 +30,8 @@ public class CheqiSDKConfig {
 
     private CheqiSDKConfig(Builder builder) {
         this.apiEndpoint = builder.apiEndpoint;
+        this.environment = builder.environment;
+        this.receiptDownloadBaseUrl = builder.receiptDownloadBaseUrl;
         this.apiKey = builder.apiKey;
         this.privateKeyBase64 = builder.privateKeyBase64;
         this.encryptionConfig = builder.encryptionConfig;
@@ -42,6 +46,14 @@ public class CheqiSDKConfig {
 
     public String getApiEndpoint() {
         return apiEndpoint;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public String getReceiptDownloadBaseUrl() {
+        return receiptDownloadBaseUrl;
     }
 
     public String getApiKey() {
@@ -70,6 +82,8 @@ public class CheqiSDKConfig {
 
     public static class Builder {
         private String apiEndpoint;
+        private Environment environment;
+        private String receiptDownloadBaseUrl;
         private String apiKey;
         private String privateKeyBase64;
         private EncryptionConfig encryptionConfig;
@@ -84,6 +98,7 @@ public class CheqiSDKConfig {
          * @return this builder instance
          */
         public Builder apiEndpoint(Environment apiEndpoint) {
+            this.environment = apiEndpoint;
             this.apiEndpoint = apiEndpoint.getBaseUrl();
             return this;
         }
@@ -95,7 +110,13 @@ public class CheqiSDKConfig {
          * @return this builder instance
          */
         public Builder customApiEndpoint(String customUrl) {
+            this.environment = null;
             this.apiEndpoint = customUrl;
+            return this;
+        }
+
+        public Builder receiptDownloadBaseUrl(String receiptDownloadBaseUrl) {
+            this.receiptDownloadBaseUrl = receiptDownloadBaseUrl;
             return this;
         }
 
@@ -178,6 +199,12 @@ public class CheqiSDKConfig {
             if (encryptionConfig == null) {
                 logger.debug("No encryption config provided, using default");
                 encryptionConfig = EncryptionConfig.builder().build();
+            }
+
+            if (receiptDownloadBaseUrl == null && environment != null) {
+                receiptDownloadBaseUrl = environment == Environment.PRODUCTION
+                        ? "https://receipt.cheqi.io"
+                        : "https://sandbox.receipt.cheqi.io";
             }
             
             CheqiSDKConfig config = new CheqiSDKConfig(this);

@@ -1,6 +1,8 @@
 package com.cheqi.sdk.receipt;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
+import com.cheqi.sdk.download.DownloadLink;
+import com.cheqi.sdk.download.DownloadService;
 import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
@@ -37,11 +39,24 @@ public class ReceiptService {
     private final EncryptionService encryptionService;
     private final MatchingService matchingService;
     private final ObjectMapper objectMapper;
+    private final DownloadService downloadService;
+    private final String receiptDownloadBaseUrl;
 
     public ReceiptService(CheqiApiClient apiClient, EncryptionService encryptionService, MatchingService matchingService) {
+        this(apiClient, encryptionService, matchingService, new DownloadService(), null);
+    }
+
+    public ReceiptService(
+            CheqiApiClient apiClient,
+            EncryptionService encryptionService,
+            MatchingService matchingService,
+            DownloadService downloadService,
+            String receiptDownloadBaseUrl) {
         this.apiClient = Objects.requireNonNull(apiClient, "apiClient cannot be null");
         this.encryptionService = Objects.requireNonNull(encryptionService, "encryptionService cannot be null");
         this.matchingService = Objects.requireNonNull(matchingService, "matchingService cannot be null");
+        this.downloadService = Objects.requireNonNull(downloadService, "downloadService cannot be null");
+        this.receiptDownloadBaseUrl = receiptDownloadBaseUrl;
         this.objectMapper = ObjectMapperConfig.getInstance();
         logger.info("ReceiptService initialized successfully");
     }
@@ -75,7 +90,22 @@ public class ReceiptService {
         }
 
         try {
-            RecipientResolutionResponse matchResponse = matchCustomer(identificationDetails, accessToken);
+            RecipientResolutionResponse matchResponse;
+            try {
+                matchResponse = matchCustomer(identificationDetails, accessToken);
+            } catch (CheqiApiException e) {
+                if (isDeferredFailure(e)) {
+                    DownloadLink link = createDownloadLink();
+                    return ReceiptResult.pendingDownloadTemplate(link.getUrl(), e.getMessage());
+                }
+                throw e;
+            }
+
+            if (matchResponse.getRouteFound() && matchResponse.getDeliveryRouteType() == null) {
+                throw new CheqiSDKException(
+                        "Matching response did not include deliveryRouteType; "
+                                + "refusing legacy fallback-compatible submission");
+            }
 
             if (!matchResponse.getRouteFound() && isBlank(identificationDetails.getRecipientEmail())) {
                 logger.info("Customer not found and no email provided - skipping template generation");
@@ -84,9 +114,22 @@ public class ReceiptService {
 
             List<ReceiptFormat> formats = determineFormats(matchResponse);
             ReceiptTemplateRequest enrichedRequest = enrichWithVatContext(receiptRequest, matchResponse);
-            ReceiptTemplateResponse templateResponse = generateReceiptTemplate(enrichedRequest, formats, accessToken);
+            ReceiptTemplateResponse templateResponse;
+            try {
+                templateResponse = generateReceiptTemplate(enrichedRequest, formats, accessToken);
+            } catch (CheqiSDKException e) {
+                if (isDeferredFailure(e)) {
+                    DownloadLink link = createDownloadLink();
+                    return ReceiptResult.pendingDownloadTemplate(link.getUrl(), e.getMessage());
+                }
+                throw e;
+            }
 
             if (matchResponse.getRouteFound()) {
+                if (matchResponse.getDeliveryRouteType()
+                        == RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK) {
+                    return deliverClientEncryptedDownload(createDownloadLink(), templateResponse, accessToken);
+                }
                 return deliverEncryptedReceipts(matchResponse, templateResponse, notificationDisplayCode, accessToken);
             }
 
@@ -154,6 +197,24 @@ public class ReceiptService {
     public ReceiptTemplateResponse generateReceiptTemplate(
             ReceiptTemplateRequest request, List<ReceiptFormat> receiptFormats) throws CheqiSDKException {
         return generateReceiptTemplate(request, receiptFormats, null);
+    }
+
+    /** Uploads exact ciphertext for a client-generated receipt download link. */
+    public ClientReceiptDownloadResponse uploadClientEncryptedReceipt(
+            ClientReceiptDownloadRequest request, String accessToken) throws CheqiSDKException {
+        requireNonNull(request, "Client receipt download request");
+        try {
+            return accessToken == null
+                    ? apiClient.uploadClientEncryptedReceipt(request)
+                    : apiClient.uploadClientEncryptedReceipt(request, accessToken);
+        } catch (Exception e) {
+            throw new CheqiSDKException("Failed to upload client-encrypted receipt: " + e.getMessage(), e);
+        }
+    }
+
+    public ClientReceiptDownloadResponse uploadClientEncryptedReceipt(
+            ClientReceiptDownloadRequest request) throws CheqiSDKException {
+        return uploadClientEncryptedReceipt(request, null);
     }
 
     /**
@@ -350,6 +411,55 @@ public class ReceiptService {
 
         logger.info("Receipt processing completed successfully");
         return ReceiptResult.deliveredToApp(response, templateContent);
+    }
+
+    private ReceiptResult deliverClientEncryptedDownload(
+            DownloadLink link,
+            ReceiptTemplateResponse templateResponse,
+            String accessToken) throws Exception {
+        ReceiptEnvelope envelope = downloadService.buildDownloadEnvelope(templateResponse);
+        String canonicalJson = objectMapper.writeValueAsString(templateResponse.getCheqi());
+        String templateHash = HashUtils.sha256Hex(canonicalJson);
+        String ciphertext = downloadService.encryptDownloadEnvelope(envelope, link.getContentKey());
+        ClientReceiptDownloadRequest request = new ClientReceiptDownloadRequest()
+                .downloadId(link.getDownloadId())
+                .ciphertext(ciphertext)
+                .templateHash(templateHash);
+        try {
+            ClientReceiptDownloadResponse response = uploadClientEncryptedReceipt(request, accessToken);
+            return ReceiptResult.deliveredViaClientDownload(response, templateHash, canonicalJson, link.getUrl());
+        } catch (CheqiSDKException e) {
+            if (isDeferredFailure(e)) {
+                return ReceiptResult.pendingDownloadUpload(
+                        link.getUrl(), ciphertext, templateHash, canonicalJson, e.getMessage());
+            }
+            throw e;
+        }
+    }
+
+    private DownloadLink createDownloadLink() throws CheqiSDKException {
+        if (isBlank(receiptDownloadBaseUrl)) {
+            throw new CheqiSDKException(
+                    "Receipt download base URL is required for automatic encrypted fallback; "
+                            + "configure a standard Environment or receiptDownloadBaseUrl");
+        }
+        return downloadService.generateDownloadLink(receiptDownloadBaseUrl);
+    }
+
+    private boolean isDeferredFailure(Throwable error) {
+        Throwable current = error;
+        while (current != null) {
+            if (current instanceof CheqiApiException) {
+                CheqiApiException apiError = (CheqiApiException) current;
+                int status = apiError.getHttpStatusCode();
+                return CheqiApiException.ErrorCodes.NETWORK_ERROR.equals(apiError.getErrorCode())
+                        || status == 408
+                        || status == 429
+                        || status >= 500;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 
     private ReceiptEnvelope buildEnvelopeForRecipient(

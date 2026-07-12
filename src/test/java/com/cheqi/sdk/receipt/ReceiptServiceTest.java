@@ -1,7 +1,10 @@
 package com.cheqi.sdk.receipt;
 
 import com.cheqi.sdk.encryption.EncryptionService;
+import com.cheqi.sdk.download.DownloadService;
+import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
+import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.matching.MatchingService;
 import com.cheqi.sdk.models.Product;
 import com.cheqi.sdk.models.ReceiptTemplateRequest;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
@@ -81,6 +85,66 @@ class ReceiptServiceTest {
         ArgumentCaptor<String> templateHashCaptor = ArgumentCaptor.forClass(String.class);
         verify(apiClient).sendEncryptedReceipts(eq("match-123"), anySet(), templateHashCaptor.capture());
         assertEquals(HashUtils.sha256Hex("<Receipt>ok</Receipt>"), templateHashCaptor.getValue());
+    }
+
+    @Test
+    void processCompleteReceipt_replacesLegacyDownloadFallbackWithClientEncryptedUpload() throws Exception {
+        ReceiptService service = new ReceiptService(
+                apiClient, encryptionService, matchingService, new DownloadService(), "https://receipt.cheqi.io");
+        RecipientResolutionResponse matchResponse = new RecipientResolutionResponse()
+                .routeFound(true)
+                .deliveryRouteType(RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK)
+                .matchId("legacy-fallback-match")
+                .recipients(List.of(new MatchedRecipient().acceptedFormats(List.of(ReceiptFormat.CHEQI))));
+        ReceiptTemplateResponse template = new ReceiptTemplateResponse()
+                .cheqi(new CheqiReceipt().documentNumber("INV-001"));
+        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
+        when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(template);
+        when(apiClient.uploadClientEncryptedReceipt(any(ClientReceiptDownloadRequest.class)))
+                .thenReturn(new ClientReceiptDownloadResponse().cheqiReceiptId("download-1"));
+
+        ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
+
+        assertEquals(DeliveryStatus.DELIVERED_DOWNLOAD, result.getDeliveryStatus());
+        assertEquals("download-1", result.getCheqiReceiptId());
+        assertTrue(result.getDownloadUrl().startsWith("https://receipt.cheqi.io/"));
+        verify(apiClient, never()).sendEncryptedReceipts(any(), anySet(), any());
+        verify(encryptionService, never()).encryptReceiptForRecipients(any(), any());
+        verify(apiClient).uploadClientEncryptedReceipt(any(ClientReceiptDownloadRequest.class));
+    }
+
+    @Test
+    void processCompleteReceipt_rejectsRouteWithoutExplicitType() throws Exception {
+        ReceiptService service = new ReceiptService(
+                apiClient, encryptionService, matchingService, new DownloadService(), "https://receipt.cheqi.io");
+        RecipientResolutionResponse incompatibleResponse = new RecipientResolutionResponse()
+                .routeFound(true)
+                .matchId("legacy-match")
+                .recipients(List.of(new MatchedRecipient().acceptedFormats(List.of(ReceiptFormat.CHEQI))));
+        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(incompatibleResponse);
+
+        CheqiSDKException error = assertThrows(CheqiSDKException.class,
+                () -> service.processCompleteReceipt(identificationDetails(null), receiptRequest()));
+
+        assertTrue(error.getMessage().contains("deliveryRouteType"));
+        verify(apiClient, never()).generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any());
+        verify(apiClient, never()).sendEncryptedReceipts(any(), anySet(), any());
+        verify(apiClient, never()).uploadClientEncryptedReceipt(any(ClientReceiptDownloadRequest.class));
+    }
+
+    @Test
+    void processCompleteReceipt_returnsPendingEncryptedDownloadWhenMatchingIsUnavailable() throws Exception {
+        ReceiptService service = new ReceiptService(
+                apiClient, encryptionService, matchingService, new DownloadService(), "https://receipt.cheqi.io");
+        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenThrow(new CheqiApiException(
+                "network unavailable", new java.io.IOException("offline"), 0,
+                CheqiApiException.ErrorCodes.NETWORK_ERROR, null));
+
+        ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
+
+        assertEquals(DeliveryStatus.PENDING_DOWNLOAD_TEMPLATE, result.getDeliveryStatus());
+        assertTrue(result.getDownloadUrl().startsWith("https://receipt.cheqi.io/"));
+        verify(apiClient, never()).generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any());
     }
 
     @Test
@@ -151,6 +215,7 @@ class ReceiptServiceTest {
                 .acceptedFormats(List.of(ReceiptFormat.UBL_INVOICE));
         RecipientResolutionResponse matchResponse = new RecipientResolutionResponse()
                 .routeFound(true)
+                .deliveryRouteType(RecipientResolutionResponse.DeliveryRouteTypeEnum.DIGITAL)
                 .matchId("match-123")
                 .recipients(List.of(ublRecipient, invoiceRecipient));
         ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse()
@@ -190,6 +255,7 @@ class ReceiptServiceTest {
 
         return new RecipientResolutionResponse()
                 .routeFound(true)
+                .deliveryRouteType(RecipientResolutionResponse.DeliveryRouteTypeEnum.DIGITAL)
                 .matchId("match-123")
                 .recipients(List.of(recipient));
     }

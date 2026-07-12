@@ -6,6 +6,7 @@ import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.config.Environment;
 import com.cheqi.sdk.creditNote.CreditNoteService;
 import com.cheqi.sdk.decryption.DecryptionService;
+import com.cheqi.sdk.download.DownloadService;
 import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.DefaultCheqiApiClient;
@@ -92,6 +93,7 @@ public class CheqiSDK {
     private final CheqiSDKConfig config;
     private final EncryptionService encryptionService;
     private final DecryptionService decryptionService;
+    private final DownloadService downloadService;
     private final CheqiApiClient apiClient;
     private final MatchingService matchingService;
     private final ReceiptService receiptService;
@@ -106,11 +108,13 @@ public class CheqiSDK {
         this.config = config;
         this.verificationService = new VerificationService();
         this.decryptionService = new DecryptionService();
+        this.downloadService = new DownloadService();
         this.receiptProcessor = new ReceiptProcessor(decryptionService);
         this.encryptionService = new EncryptionService();
         this.apiClient = new DefaultCheqiApiClient(config);
         this.matchingService = new MatchingService(apiClient);
-        this.receiptService = new ReceiptService(apiClient, encryptionService, matchingService);
+        this.receiptService = new ReceiptService(
+                apiClient, encryptionService, matchingService, downloadService, config.getReceiptDownloadBaseUrl());
         this.companyService = new CompanyService(apiClient);
         this.storeService = new StoreService(apiClient);
         this.creditNoteService = new CreditNoteService(apiClient, encryptionService, matchingService);
@@ -139,6 +143,11 @@ public class CheqiSDK {
      */
     public DecryptionService getDecryptionService() {
         return decryptionService;
+    }
+
+    /** Gets stateless client-encrypted receipt download helpers. */
+    public DownloadService getDownloadService() {
+        return downloadService;
     }
 
     /**
@@ -246,6 +255,12 @@ public class CheqiSDK {
          */
         public CheqiSDKBuilder customApiEndpoint(String customUrl) {
             configBuilder.customApiEndpoint(customUrl);
+            return this;
+        }
+
+        /** Sets the customer-facing receipt origin for a custom API endpoint. */
+        public CheqiSDKBuilder receiptDownloadBaseUrl(String receiptDownloadBaseUrl) {
+            configBuilder.receiptDownloadBaseUrl(receiptDownloadBaseUrl);
             return this;
         }
 
