@@ -156,6 +156,24 @@ public class ReceiptService {
         return generateReceiptTemplate(request, receiptFormats, null);
     }
 
+    /** Uploads exact ciphertext for a client-generated receipt download link. */
+    public ClientReceiptDownloadResponse uploadClientEncryptedReceipt(
+            ClientReceiptDownloadRequest request, String accessToken) throws CheqiSDKException {
+        requireNonNull(request, "Client receipt download request");
+        try {
+            return accessToken == null
+                    ? apiClient.uploadClientEncryptedReceipt(request)
+                    : apiClient.uploadClientEncryptedReceipt(request, accessToken);
+        } catch (Exception e) {
+            throw new CheqiSDKException("Failed to upload client-encrypted receipt: " + e.getMessage(), e);
+        }
+    }
+
+    public ClientReceiptDownloadResponse uploadClientEncryptedReceipt(
+            ClientReceiptDownloadRequest request) throws CheqiSDKException {
+        return uploadClientEncryptedReceipt(request, null);
+    }
+
     /**
      * Sends encrypted receipts to the backend for delivery.
      *

@@ -155,6 +155,16 @@ public interface CheqiApiClient {
      */
     ReceiptCreatedResponse sendEncryptedReceipts(String matchId, Set<EncryptedReceiptRequest> encryptedReceipts, String templateHash) throws CheqiApiException;
 
+    default ClientReceiptDownloadResponse uploadClientEncryptedReceipt(
+            ClientReceiptDownloadRequest request, String accessToken) throws CheqiApiException {
+        throw new UnsupportedOperationException("Client-encrypted receipt download upload is not implemented");
+    }
+
+    default ClientReceiptDownloadResponse uploadClientEncryptedReceipt(
+            ClientReceiptDownloadRequest request) throws CheqiApiException {
+        throw new UnsupportedOperationException("Client-encrypted receipt download upload is not implemented");
+    }
+
 
     CreditNoteCreatedResponse sendEncryptedCreditNotes(String matchId, String parentCheqiReceiptId, Set<EncryptedCreditNote> encryptedCreditNotes, String templateHash, String accessToken) throws CheqiApiException;
 

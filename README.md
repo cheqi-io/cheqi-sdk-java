@@ -272,6 +272,42 @@ ReceiptCreatedResponse created = sdk.getReceiptService()
     .sendEncryptedReceipts(Set.of(encrypted), templateHash, match, accessToken);
 ```
 
+## Deferred Receipt Download Links
+
+The SDK can generate a customer URL without contacting Cheqi. The merchant integration
+owns persistence, scheduling, retries, and retention; the SDK does not start background
+workers or choose a storage implementation.
+
+```java
+DownloadLink link = sdk.getDownloadService()
+    .generateDownloadLink("https://receipt.cheqi.io");
+
+// Persist the complete receipt request, link.getDownloadId(), and protected
+// link.getContentKey() before exposing link.getUrl() to the customer.
+receiptJobs.create(receipt, link);
+printQr(link.getUrl());
+
+// Later, on compute and a schedule controlled by the merchant integration:
+ReceiptTemplateResponse template = sdk.getReceiptService()
+    .generateReceiptTemplate(receipt, List.of(ReceiptFormat.CHEQI));
+ReceiptEnvelope envelope = sdk.getDownloadService().buildDownloadEnvelope(template);
+String ciphertext = sdk.getDownloadService()
+    .encryptDownloadEnvelope(envelope, link.getContentKey());
+
+// Persist these exact bytes before the first upload attempt. Every retry must reuse
+// the same ciphertext because encrypting again creates a different GCM IV.
+receiptJobs.markReady(link.getDownloadId(), ciphertext);
+ClientReceiptDownloadResponse response = sdk.getReceiptService()
+    .uploadClientEncryptedReceipt(new ClientReceiptDownloadRequest()
+        .downloadId(link.getDownloadId())
+        .ciphertext(ciphertext));
+```
+
+The customer may open the URL before upload; the download page shows that the receipt is
+not yet available. When resuming deferred processing, use `parseDownloadUrl` to recover
+the original id and key. Do not build CHEQI or UBL receipt content locally: call the normal
+template endpoint after connectivity returns.
+
 ## Store Management
 
 Store operations require an OAuth access token with the relevant store scopes.

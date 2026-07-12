@@ -76,6 +76,31 @@ class DefaultCheqiApiClientTest {
         }
     }
 
+    @Test
+    void uploadClientEncryptedReceipt_postsContractBody() throws Exception {
+        AtomicReference<String> requestBody = new AtomicReference<>();
+        AtomicReference<String> authorization = new AtomicReference<>();
+        HttpServer server = httpServer("/receipt/download", exchange -> {
+            authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
+            requestBody.set(new String(exchange.getRequestBody().readAllBytes()));
+            send(exchange, 201, "{\"cheqiReceiptId\":\"CHQ-JAVA-1\"}");
+        });
+        try {
+            DefaultCheqiApiClient client = new DefaultCheqiApiClient(configFor(server));
+            ClientReceiptDownloadResponse response = client.uploadClientEncryptedReceipt(
+                    new ClientReceiptDownloadRequest()
+                            .downloadId("Zk9qYx3vT1KpN8wL2sRd_g")
+                            .ciphertext("AAAA")
+                            .templateHash("hash-1"));
+
+            assertEquals("Bearer sk_test_123", authorization.get());
+            assertEquals("Zk9qYx3vT1KpN8wL2sRd_g", OBJECT_MAPPER.readTree(requestBody.get()).get("downloadId").asText());
+            assertEquals("CHQ-JAVA-1", response.getCheqiReceiptId());
+        } finally {
+            server.stop(0);
+        }
+    }
+
     private static CheqiSDKConfig configFor(HttpServer server) {
         return CheqiSDKConfig.builder()
                 .customApiEndpoint("http://127.0.0.1:" + server.getAddress().getPort())
