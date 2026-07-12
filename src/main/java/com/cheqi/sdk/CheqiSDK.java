@@ -113,7 +113,8 @@ public class CheqiSDK {
         this.encryptionService = new EncryptionService();
         this.apiClient = new DefaultCheqiApiClient(config);
         this.matchingService = new MatchingService(apiClient);
-        this.receiptService = new ReceiptService(apiClient, encryptionService, matchingService);
+        this.receiptService = new ReceiptService(
+                apiClient, encryptionService, matchingService, downloadService, config.getReceiptDownloadBaseUrl());
         this.companyService = new CompanyService(apiClient);
         this.storeService = new StoreService(apiClient);
         this.creditNoteService = new CreditNoteService(apiClient, encryptionService, matchingService);
@@ -254,6 +255,12 @@ public class CheqiSDK {
          */
         public CheqiSDKBuilder customApiEndpoint(String customUrl) {
             configBuilder.customApiEndpoint(customUrl);
+            return this;
+        }
+
+        /** Sets the customer-facing receipt origin for a custom API endpoint. */
+        public CheqiSDKBuilder receiptDownloadBaseUrl(String receiptDownloadBaseUrl) {
+            configBuilder.receiptDownloadBaseUrl(receiptDownloadBaseUrl);
             return this;
         }
 

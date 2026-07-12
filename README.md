@@ -308,6 +308,14 @@ not yet available. When resuming deferred processing, use `parseDownloadUrl` to 
 the original id and key. Do not build CHEQI or UBL receipt content locally: call the normal
 template endpoint after connectivity returns.
 
+`processCompleteReceipt` uses the same client-encrypted route automatically. A backend
+`DIGITAL` match is delivered normally, `EMAIL_FALLBACK` retains the explicit email behavior,
+and `DOWNLOAD_FALLBACK` bypasses the legacy Cheqi-held fallback key and uploads fragment-key
+ciphertext through `/receipt/download`. Connectivity failures during matching or template
+generation return `PENDING_DOWNLOAD_TEMPLATE`; an unconfirmed encrypted upload returns
+`PENDING_DOWNLOAD_UPLOAD` with `getDownloadCiphertext()` so the integration can persist and
+retry the exact bytes. The SDK never stores or schedules these pending results.
+
 ## Store Management
 
 Store operations require an OAuth access token with the relevant store scopes.

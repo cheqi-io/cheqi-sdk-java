@@ -1,6 +1,7 @@
 package com.cheqi.sdk.receipt;
 
 import com.cheqi.sdk.models.generated.ReceiptCreatedResponse;
+import com.cheqi.sdk.models.generated.ClientReceiptDownloadResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.OffsetDateTime;
@@ -25,6 +26,8 @@ public class ReceiptResult {
     private final String emailAddress;
     @JsonProperty("downloadUrl")
     private final String downloadUrl;
+    @JsonProperty("downloadCiphertext")
+    private final String downloadCiphertext;
     @JsonProperty("message")
     private final String message;
 
@@ -37,6 +40,7 @@ public class ReceiptResult {
             String canonicalJson,
             String emailAddress,
             String downloadUrl,
+            String downloadCiphertext,
             String message) {
         this.success = success;
         this.deliveryStatus = deliveryStatus;
@@ -46,6 +50,7 @@ public class ReceiptResult {
         this.canonicalJson = canonicalJson;
         this.emailAddress = emailAddress;
         this.downloadUrl = downloadUrl;
+        this.downloadCiphertext = downloadCiphertext;
         this.message = message;
     }
 
@@ -57,6 +62,7 @@ public class ReceiptResult {
                 response.getCreatedAt(),
                 response.getTemplateHash(),
                 canonicalJson,
+                null,
                 null,
                 null,
                 "Receipt delivered to customer's Cheqi app"
@@ -77,6 +83,7 @@ public class ReceiptResult {
                 canonicalJson,
                 null,
                 response.getDownloadUrl(),
+                null,
                 "Receipt available for self-service download"
         );
     }
@@ -91,6 +98,7 @@ public class ReceiptResult {
                 null,
                 emailAddress,
                 null,
+                null,
                 "Receipt sent via email to " + emailAddress
         );
     }
@@ -99,6 +107,7 @@ public class ReceiptResult {
         return new ReceiptResult(
                 false,
                 DeliveryStatus.CUSTOMER_NOT_FOUND,
+                null,
                 null,
                 null,
                 null,
@@ -119,8 +128,30 @@ public class ReceiptResult {
                 null,
                 null,
                 null,
+                null,
                 message
         );
+    }
+
+    public static ReceiptResult deliveredViaClientDownload(
+            ClientReceiptDownloadResponse response,
+            String templateHash,
+            String canonicalJson,
+            String downloadUrl) {
+        return new ReceiptResult(true, DeliveryStatus.DELIVERED_DOWNLOAD,
+                response.getCheqiReceiptId(), response.getCreatedAt(), templateHash, canonicalJson,
+                null, downloadUrl, null, "Receipt available through an encrypted download link");
+    }
+
+    public static ReceiptResult pendingDownloadTemplate(String downloadUrl, String message) {
+        return new ReceiptResult(true, DeliveryStatus.PENDING_DOWNLOAD_TEMPLATE,
+                null, null, null, null, null, downloadUrl, null, message);
+    }
+
+    public static ReceiptResult pendingDownloadUpload(
+            String downloadUrl, String ciphertext, String templateHash, String canonicalJson, String message) {
+        return new ReceiptResult(true, DeliveryStatus.PENDING_DOWNLOAD_UPLOAD,
+                null, null, templateHash, canonicalJson, null, downloadUrl, ciphertext, message);
     }
 
     // Core status checks
@@ -140,6 +171,7 @@ public class ReceiptResult {
 
     // Download fallback flow
     public String getDownloadUrl() { return downloadUrl; }
+    public String getDownloadCiphertext() { return downloadCiphertext; }
 
     @Override
     public String toString() {
