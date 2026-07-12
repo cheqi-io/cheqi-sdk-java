@@ -1,6 +1,7 @@
 package com.cheqi.sdk.download;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
+import com.cheqi.sdk.config.Environment;
 import com.cheqi.sdk.decryption.AESDecryptor;
 import com.cheqi.sdk.encryption.AESEncryptor;
 import com.cheqi.sdk.encryption.EncryptedData;
@@ -23,6 +24,8 @@ import java.util.Objects;
 public class DownloadService {
     public static final int DOWNLOAD_ID_LENGTH = 16;
     public static final int CONTENT_KEY_LENGTH = 32;
+    public static final String PRODUCTION_BASE_URL = "https://receipt.cheqi.io";
+    public static final String SANDBOX_BASE_URL = "https://sandbox.receipt.cheqi.io";
 
     private final SecureRandom secureRandom;
     private final ObjectMapper objectMapper;
@@ -36,7 +39,17 @@ public class DownloadService {
         this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
     }
 
-    /** Generates a URL locally without contacting Cheqi. */
+    /** Generates a URL for the customer-facing origin corresponding to the API environment. */
+    public DownloadLink generateDownloadLink(Environment environment) {
+        if (environment == null) {
+            throw new IllegalArgumentException("environment cannot be null");
+        }
+        return generateDownloadLink(environment == Environment.PRODUCTION
+                ? PRODUCTION_BASE_URL
+                : SANDBOX_BASE_URL);
+    }
+
+    /** Generates a URL locally for a custom origin such as a localhost frontend. */
     public DownloadLink generateDownloadLink(String baseUrl) {
         if (baseUrl == null || baseUrl.trim().isEmpty()) {
             throw new IllegalArgumentException("baseUrl cannot be null or empty");

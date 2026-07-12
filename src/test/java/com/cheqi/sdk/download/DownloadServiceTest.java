@@ -1,6 +1,7 @@
 package com.cheqi.sdk.download;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
+import com.cheqi.sdk.config.Environment;
 import com.cheqi.sdk.models.generated.CheqiReceipt;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
 import com.cheqi.sdk.models.generated.ReceiptTemplateResponse;
@@ -16,7 +17,7 @@ class DownloadServiceTest {
     @Test
     void generatesAndParsesContractV1Link() {
         DownloadService service = new DownloadService();
-        DownloadLink link = service.generateDownloadLink("https://receipt.cheqi.io/");
+        DownloadLink link = service.generateDownloadLink(Environment.PRODUCTION);
 
         assertTrue(link.getDownloadId().matches("[A-Za-z0-9_-]{22}"));
         assertTrue(link.getContentKey().matches("[A-Za-z0-9_-]{43}"));
@@ -26,6 +27,18 @@ class DownloadServiceTest {
         assertEquals(link.getDownloadId(), parsed.getDownloadId());
         assertEquals(link.getContentKey(), parsed.getContentKey());
         assertFalse(link.toString().contains(link.getContentKey()));
+    }
+
+    @Test
+    void apiEnvironmentsMapToCustomerFacingReceiptOrigins() {
+        DownloadService service = new DownloadService();
+
+        assertEquals("https://receipt.cheqi.io", DownloadService.PRODUCTION_BASE_URL);
+        assertEquals("https://sandbox.receipt.cheqi.io", DownloadService.SANDBOX_BASE_URL);
+        assertTrue(service.generateDownloadLink(Environment.PRODUCTION).getUrl()
+                .startsWith("https://receipt.cheqi.io/"));
+        assertTrue(service.generateDownloadLink(Environment.SANDBOX).getUrl()
+                .startsWith("https://sandbox.receipt.cheqi.io/"));
     }
 
     @Test

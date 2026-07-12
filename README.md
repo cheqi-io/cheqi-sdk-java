@@ -280,7 +280,7 @@ workers or choose a storage implementation.
 
 ```java
 DownloadLink link = sdk.getDownloadService()
-    .generateDownloadLink("https://receipt.cheqi.io");
+    .generateDownloadLink(Environment.PRODUCTION);
 
 // Persist the complete receipt request, link.getDownloadId(), and protected
 // link.getContentKey() before exposing link.getUrl() to the customer.
