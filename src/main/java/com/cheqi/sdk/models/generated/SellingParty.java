@@ -36,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   SellingParty.JSON_PROPERTY_COMPANY_NAME,
   SellingParty.JSON_PROPERTY_COMPANY_LEGAL_NAME,
   SellingParty.JSON_PROPERTY_TAX_NUMBER,
+  SellingParty.JSON_PROPERTY_PHONE_NUMBER,
   SellingParty.JSON_PROPERTY_IDENTIFIERS,
   SellingParty.JSON_PROPERTY_ADDRESS
 })
@@ -53,6 +54,10 @@ public class SellingParty {
   public static final String JSON_PROPERTY_TAX_NUMBER = "taxNumber";
   @javax.annotation.Nullable
   private String taxNumber;
+
+  public static final String JSON_PROPERTY_PHONE_NUMBER = "phoneNumber";
+  @javax.annotation.Nullable
+  private String phoneNumber;
 
   public static final String JSON_PROPERTY_IDENTIFIERS = "identifiers";
   @javax.annotation.Nullable
@@ -137,6 +142,30 @@ public class SellingParty {
   }
 
 
+  public SellingParty phoneNumber(@javax.annotation.Nullable String phoneNumber) {
+    this.phoneNumber = phoneNumber;
+    return this;
+  }
+
+  /**
+   * The phone number of the selling party
+   * @return phoneNumber
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_PHONE_NUMBER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getPhoneNumber() {
+    return phoneNumber;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PHONE_NUMBER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPhoneNumber(@javax.annotation.Nullable String phoneNumber) {
+    this.phoneNumber = phoneNumber;
+  }
+
+
   public SellingParty identifiers(@javax.annotation.Nullable List<CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
     return this;
@@ -208,13 +237,14 @@ public class SellingParty {
     return Objects.equals(this.companyName, sellingParty.companyName) &&
         Objects.equals(this.companyLegalName, sellingParty.companyLegalName) &&
         Objects.equals(this.taxNumber, sellingParty.taxNumber) &&
+        Objects.equals(this.phoneNumber, sellingParty.phoneNumber) &&
         Objects.equals(this.identifiers, sellingParty.identifiers) &&
         Objects.equals(this.address, sellingParty.address);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(companyName, companyLegalName, taxNumber, identifiers, address);
+    return Objects.hash(companyName, companyLegalName, taxNumber, phoneNumber, identifiers, address);
   }
 
   @Override
@@ -224,6 +254,7 @@ public class SellingParty {
     sb.append("    companyName: ").append(toIndentedString(companyName)).append("\n");
     sb.append("    companyLegalName: ").append(toIndentedString(companyLegalName)).append("\n");
     sb.append("    taxNumber: ").append(toIndentedString(taxNumber)).append("\n");
+    sb.append("    phoneNumber: ").append(toIndentedString(phoneNumber)).append("\n");
     sb.append("    identifiers: ").append(toIndentedString(identifiers)).append("\n");
     sb.append("    address: ").append(toIndentedString(address)).append("\n");
     sb.append("}");
