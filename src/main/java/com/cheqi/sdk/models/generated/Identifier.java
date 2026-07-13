@@ -29,15 +29,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * The identifiers for the purchase, given by the seller, for example order reference, transaction number
  */
 @JsonPropertyOrder({
-  Identifier.JSON_PROPERTY_NAME,
+  Identifier.JSON_PROPERTY_TYPE,
   Identifier.JSON_PROPERTY_VALUE
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class Identifier {
-  public static final String JSON_PROPERTY_NAME = "name";
+  public static final String JSON_PROPERTY_TYPE = "type";
   @javax.annotation.Nullable
-  private String name;
+  private String type;
 
   public static final String JSON_PROPERTY_VALUE = "value";
   @javax.annotation.Nullable
@@ -46,27 +46,27 @@ public class Identifier {
   public Identifier() { 
   }
 
-  public Identifier name(@javax.annotation.Nullable String name) {
-    this.name = name;
+  public Identifier type(@javax.annotation.Nullable String type) {
+    this.type = type;
     return this;
   }
 
   /**
-   * Get name
-   * @return name
+   * Get type
+   * @return type
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_NAME)
+  @JsonProperty(JSON_PROPERTY_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getName() {
-    return name;
+  public String getType() {
+    return type;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_NAME)
+  @JsonProperty(JSON_PROPERTY_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setName(@javax.annotation.Nullable String name) {
-    this.name = name;
+  public void setType(@javax.annotation.Nullable String type) {
+    this.type = type;
   }
 
 
@@ -106,20 +106,20 @@ public class Identifier {
       return false;
     }
     Identifier identifier = (Identifier) o;
-    return Objects.equals(this.name, identifier.name) &&
+    return Objects.equals(this.type, identifier.type) &&
         Objects.equals(this.value, identifier.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, value);
+    return Objects.hash(type, value);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Identifier {\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
+    sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    value: ").append(toIndentedString(value)).append("\n");
     sb.append("}");
     return sb.toString();
