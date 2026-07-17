@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * Payload delivered to registered webhook notification URLs when subscribed events occur.
  */
 @JsonPropertyOrder({
+  WebhookEventDTO.JSON_PROPERTY_CLIENT_ID,
   WebhookEventDTO.JSON_PROPERTY_COMPANY_ID,
   WebhookEventDTO.JSON_PROPERTY_USER_ID,
   WebhookEventDTO.JSON_PROPERTY_EVENT,
@@ -51,6 +52,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class WebhookEventDTO {
+  public static final String JSON_PROPERTY_CLIENT_ID = "clientId";
+  @javax.annotation.Nullable
+  private String clientId;
+
   public static final String JSON_PROPERTY_COMPANY_ID = "companyId";
   @javax.annotation.Nullable
   private UUID companyId;
@@ -142,6 +147,30 @@ public class WebhookEventDTO {
 
   public WebhookEventDTO() { 
   }
+
+  public WebhookEventDTO clientId(@javax.annotation.Nullable String clientId) {
+    this.clientId = clientId;
+    return this;
+  }
+
+  /**
+   * Public OAuth client ID of the client application that owns the webhook subscription.
+   * @return clientId
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CLIENT_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getClientId() {
+    return clientId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CLIENT_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setClientId(@javax.annotation.Nullable String clientId) {
+    this.clientId = clientId;
+  }
+
 
   public WebhookEventDTO companyId(@javax.annotation.Nullable UUID companyId) {
     this.companyId = companyId;
@@ -443,7 +472,8 @@ public class WebhookEventDTO {
       return false;
     }
     WebhookEventDTO webhookEventDTO = (WebhookEventDTO) o;
-    return Objects.equals(this.companyId, webhookEventDTO.companyId) &&
+    return Objects.equals(this.clientId, webhookEventDTO.clientId) &&
+        Objects.equals(this.companyId, webhookEventDTO.companyId) &&
         Objects.equals(this.userId, webhookEventDTO.userId) &&
         Objects.equals(this.event, webhookEventDTO.event) &&
         Objects.equals(this.createdAt, webhookEventDTO.createdAt) &&
@@ -459,13 +489,14 @@ public class WebhookEventDTO {
 
   @Override
   public int hashCode() {
-    return Objects.hash(companyId, userId, event, createdAt, cheqiReceiptId, routingIdentifier, encryptedReceipt, encryptedCreditNoteInitiationRequest, encryptedCreditNoteDto, finalHash, finalizedAt, deviceId);
+    return Objects.hash(clientId, companyId, userId, event, createdAt, cheqiReceiptId, routingIdentifier, encryptedReceipt, encryptedCreditNoteInitiationRequest, encryptedCreditNoteDto, finalHash, finalizedAt, deviceId);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class WebhookEventDTO {\n");
+    sb.append("    clientId: ").append(toIndentedString(clientId)).append("\n");
     sb.append("    companyId: ").append(toIndentedString(companyId)).append("\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("    event: ").append(toIndentedString(event)).append("\n");
