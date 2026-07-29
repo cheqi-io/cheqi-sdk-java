@@ -26,76 +26,47 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Additional issuer-supplied receipt references.
+ * CompanyGrantActionRequest
  */
 @JsonPropertyOrder({
-  Identifier.JSON_PROPERTY_TYPE,
-  Identifier.JSON_PROPERTY_VALUE
+  CompanyGrantActionRequest.JSON_PROPERTY_REASON
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class Identifier {
-  public static final String JSON_PROPERTY_TYPE = "type";
+public class CompanyGrantActionRequest {
+  public static final String JSON_PROPERTY_REASON = "reason";
   @javax.annotation.Nonnull
-  private String type;
+  private String reason;
 
-  public static final String JSON_PROPERTY_VALUE = "value";
-  @javax.annotation.Nonnull
-  private String value;
-
-  public Identifier() { 
+  public CompanyGrantActionRequest() { 
   }
 
-  public Identifier type(@javax.annotation.Nonnull String type) {
-    this.type = type;
+  public CompanyGrantActionRequest reason(@javax.annotation.Nonnull String reason) {
+    this.reason = reason;
     return this;
   }
 
   /**
-   * The type of identifier
-   * @return type
+   * Get reason
+   * @return reason
    */
   @javax.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_TYPE)
+  @JsonProperty(JSON_PROPERTY_REASON)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getType() {
-    return type;
+  public String getReason() {
+    return reason;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_TYPE)
+  @JsonProperty(JSON_PROPERTY_REASON)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setType(@javax.annotation.Nonnull String type) {
-    this.type = type;
-  }
-
-
-  public Identifier value(@javax.annotation.Nonnull String value) {
-    this.value = value;
-    return this;
-  }
-
-  /**
-   * The value of the identifier
-   * @return value
-   */
-  @javax.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_VALUE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getValue() {
-    return value;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_VALUE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setValue(@javax.annotation.Nonnull String value) {
-    this.value = value;
+  public void setReason(@javax.annotation.Nonnull String reason) {
+    this.reason = reason;
   }
 
 
   /**
-   * Return true if this Identifier object is equal to o.
+   * Return true if this CompanyGrantActionRequest object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -105,22 +76,20 @@ public class Identifier {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Identifier identifier = (Identifier) o;
-    return Objects.equals(this.type, identifier.type) &&
-        Objects.equals(this.value, identifier.value);
+    CompanyGrantActionRequest companyGrantActionRequest = (CompanyGrantActionRequest) o;
+    return Objects.equals(this.reason, companyGrantActionRequest.reason);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, value);
+    return Objects.hash(reason);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Identifier {\n");
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    value: ").append(toIndentedString(value)).append("\n");
+    sb.append("class CompanyGrantActionRequest {\n");
+    sb.append("    reason: ").append(toIndentedString(reason)).append("\n");
     sb.append("}");
     return sb.toString();
   }

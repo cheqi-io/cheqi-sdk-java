@@ -1,128 +1,66 @@
 package com.cheqi.sdk.creditNote;
 
-import com.cheqi.sdk.models.generated.CreditNoteCreatedResponse;
-import com.cheqi.sdk.receipt.DeliveryStatus;
+import com.cheqi.sdk.models.generated.ReceiptSubmissionResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.OffsetDateTime;
 
+/** Result returned after Cheqi accepts an encrypted credit-note processing job. */
 public class CreditNoteResult {
-    @JsonProperty("success")
-    private final boolean success;
-    @JsonProperty("deliveryStatus")
-    private final DeliveryStatus deliveryStatus;
     @JsonProperty("cheqiReceiptId")
     private final String cheqiReceiptId;
-    @JsonProperty("cheqiCreditNoteId")
+    @JsonProperty("parentCheqiReceiptId")
     private final String parentCheqiReceiptId;
+    @JsonProperty("matchId")
+    private final String matchId;
+    @JsonProperty("status")
+    private final ReceiptSubmissionResponse.StatusEnum status;
     @JsonProperty("createdAt")
     private final OffsetDateTime createdAt;
-    @JsonProperty("templateHash")
-    private final String templateHash;
-    @JsonProperty("canonicalJson")
-    private final String canonicalJson;
-    @JsonProperty("emailAddress")
-    private final String emailAddress;
-    @JsonProperty("message")
-    private final String message;
 
-    private CreditNoteResult(
-            boolean success,
-            DeliveryStatus deliveryStatus,
-            String cheqiReceiptId,
-            String parentCheqiReceiptId,
-            OffsetDateTime createdAt,
-            String templateHash,
-            String canonicalJson,
-            String emailAddress,
-            String message) {
-        this.success = success;
-        this.deliveryStatus = deliveryStatus;
-        this.cheqiReceiptId = cheqiReceiptId;
+    private CreditNoteResult(String parentCheqiReceiptId, ReceiptSubmissionResponse response) {
+        this.cheqiReceiptId = response.getCheqiReceiptId();
         this.parentCheqiReceiptId = parentCheqiReceiptId;
-        this.createdAt = createdAt;
-        this.templateHash = templateHash;
-        this.canonicalJson = canonicalJson;
-        this.emailAddress = emailAddress;
-        this.message = message;
+        this.matchId = response.getMatchId();
+        this.status = response.getStatus();
+        this.createdAt = response.getCreatedAt();
     }
 
-    public static CreditNoteResult deliveredToApp(CreditNoteCreatedResponse response, String canonicalJson) {
-        return new CreditNoteResult(
-                true,
-                DeliveryStatus.DELIVERED_DIGITAL,
-                response.getCheqiReceiptId(),
-                response.getParentCheqiReceiptId(),
-                response.getCreatedAt(),
-                response.getTemplateHash(),
-                canonicalJson,
-                null,
-                "Receipt delivered to customer's Cheqi app"
-        );
+    public static CreditNoteResult accepted(
+            String parentCheqiReceiptId,
+            ReceiptSubmissionResponse response
+    ) {
+        if (response == null) {
+            throw new IllegalArgumentException("response cannot be null");
+        }
+        return new CreditNoteResult(parentCheqiReceiptId, response);
     }
 
-    public static CreditNoteResult deliveredViaEmail(String cheqiReceiptId, String parentCheqiReceiptId, String emailAddress) {
-        return new CreditNoteResult(
-                true,
-                DeliveryStatus.DELIVERED_EMAIL,
-                cheqiReceiptId,
-                parentCheqiReceiptId,
-                OffsetDateTime.now(),
-                null,
-                null,
-                emailAddress,
-                "Receipt sent via email to " + emailAddress
-        );
+    public boolean isAccepted() {
+        return cheqiReceiptId != null && !cheqiReceiptId.trim().isEmpty();
     }
 
-    public static CreditNoteResult customerNotFound() {
-        return new CreditNoteResult(
-                false,
-                DeliveryStatus.CUSTOMER_NOT_FOUND,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "Customer not found with provided payment details"
-        );
+    public boolean isSuccess() {
+        return isAccepted();
     }
 
-    public static CreditNoteResult failed(String message) {
-        return new CreditNoteResult(
-                false,
-                DeliveryStatus.FAILED,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                message
-        );
+    public String getCheqiReceiptId() {
+        return cheqiReceiptId;
     }
 
-    // Core status checks
-    public boolean isSuccess() { return success; }
-    public boolean isCustomerNotFound() { return deliveryStatus == DeliveryStatus.CUSTOMER_NOT_FOUND; }
-    public DeliveryStatus getDeliveryStatus() { return deliveryStatus; }
-    public String getMessage() { return message; }
+    public String getParentCheqiReceiptId() {
+        return parentCheqiReceiptId;
+    }
 
-    // Archival data
-    public String getCheqiReceiptId() { return cheqiReceiptId; }
-    public OffsetDateTime getCreatedAt() { return createdAt; }
-    public String getTemplateHash() { return templateHash; }
-    public String getCanonicalJson() { return canonicalJson; }
+    public String getMatchId() {
+        return matchId;
+    }
 
-    public String getParentCheqiReceiptId() { return parentCheqiReceiptId; }
+    public ReceiptSubmissionResponse.StatusEnum getStatus() {
+        return status;
+    }
 
-    // Email flow
-    public String getEmailAddress() { return emailAddress; }
-
-    @Override
-    public String toString() {
-        return "CreditNoteResult{success=" + success + ", deliveryStatus=" + deliveryStatus +
-                ", cheqiReceiptId='" + cheqiReceiptId + "'}";
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
     }
 }

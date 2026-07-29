@@ -16,14 +16,14 @@ Maven:
 <dependency>
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>1.2.1</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
 Gradle:
 
 ```gradle
-implementation 'io.cheqi:cheqi-sdk:1.2.1'
+implementation 'io.cheqi:cheqi-sdk:2.0.0'
 ```
 
 ## Environments
@@ -298,7 +298,7 @@ String ciphertext = sdk.getDownloadService()
 // the same ciphertext because encrypting again creates a different GCM IV.
 receiptJobs.markReady(link.getDownloadId(), ciphertext);
 ClientReceiptDownloadResponse response = sdk.getReceiptService()
-    .uploadClientEncryptedReceipt(new ClientReceiptDownloadRequest()
+    .uploadEncryptedDownloadReceipt(new ClientReceiptDownloadRequest()
         .downloadId(link.getDownloadId())
         .ciphertext(ciphertext));
 ```

@@ -1,290 +1,158 @@
 package com.cheqi.sdk.receipt;
 
 import com.cheqi.sdk.encryption.EncryptionService;
-import com.cheqi.sdk.download.DownloadService;
-import com.cheqi.sdk.exceptions.CheqiSDKException;
+import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.http.CheqiApiClient;
-import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.matching.MatchingService;
 import com.cheqi.sdk.models.Product;
-import com.cheqi.sdk.models.ReceiptTemplateRequest;
-import com.cheqi.sdk.models.generated.*;
-import com.cheqi.sdk.utils.HashUtils;
+import com.cheqi.sdk.models.ReceiptPayload;
+import com.cheqi.sdk.models.generated.EncryptedReceiptEnvelope;
+import com.cheqi.sdk.models.generated.EncryptedReceiptPayload;
+import com.cheqi.sdk.models.generated.IdentificationDetails;
+import com.cheqi.sdk.models.generated.MatchedRecipient;
+import com.cheqi.sdk.models.generated.ReceiptSubmissionResponse;
+import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
+import com.cheqi.sdk.models.generated.UnitCode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class ReceiptServiceTest {
-
-    @Mock
     private CheqiApiClient apiClient;
-
-    @Mock
-    private EncryptionService encryptionService;
-
-    @Mock
+    private StubEncryptionService encryptionService;
     private MatchingService matchingService;
+    private ReceiptService service;
 
-    @Test
-    void processCompleteReceipt_returnsCustomerNotFoundWithoutTemplateGeneration() throws Exception {
-        ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
-        RecipientResolutionResponse matchResponse = new RecipientResolutionResponse().routeFound(false);
-        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
-
-        ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
-
-        assertTrue(result.isCustomerNotFound());
-        verify(apiClient, never()).generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any());
+    @BeforeEach
+    void setUp() {
+        apiClient = mock(CheqiApiClient.class);
+        encryptionService = new StubEncryptionService();
+        matchingService = new MatchingService(apiClient);
+        service = new ReceiptService(apiClient, encryptionService, matchingService);
     }
 
     @Test
-    void processCompleteReceipt_deliversEncryptedReceiptForMatchedCustomer() throws Exception {
-        ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
-        RecipientResolutionResponse matchResponse = matchedRecipientResponse();
-        ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse().ublPurchaseReceipt("<Receipt>ok</Receipt>");
-        ReceiptCreatedResponse createdResponse = new ReceiptCreatedResponse()
-                .cheqiReceiptId("receipt-123")
-                .templateHash("hash-123")
-                .createdAt(OffsetDateTime.parse("2024-01-15T10:30:00Z"));
-        EncryptedReceiptRequest encrypted = new EncryptedReceiptRequest()
-                .recipientId("recipient-1")
-                .encryptedReceipt("ciphertext")
-                .encryptedSymmetricKey("wrapped-key");
-
-        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
-        when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(templateResponse);
-        when(encryptionService.encryptReceiptForRecipients(eq("{\"ublPurchaseReceipt\":\"<Receipt>ok</Receipt>\"}"), any(MatchedRecipient.class))).thenReturn(encrypted);
-        when(apiClient.sendEncryptedReceipts(eq("match-123"), anySet(), any(String.class))).thenReturn(createdResponse);
-
-        ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
-
-        assertTrue(result.isSuccess());
-        assertEquals("receipt-123", result.getCheqiReceiptId());
-        assertEquals("hash-123", result.getTemplateHash());
-
-        ArgumentCaptor<String> templateHashCaptor = ArgumentCaptor.forClass(String.class);
-        verify(apiClient).sendEncryptedReceipts(eq("match-123"), anySet(), templateHashCaptor.capture());
-        assertEquals(HashUtils.sha256Hex("<Receipt>ok</Receipt>"), templateHashCaptor.getValue());
-    }
-
-    @Test
-    void processCompleteReceipt_replacesLegacyDownloadFallbackWithClientEncryptedUpload() throws Exception {
-        ReceiptService service = new ReceiptService(
-                apiClient, encryptionService, matchingService, new DownloadService(), "https://receipt.cheqi.io");
-        RecipientResolutionResponse matchResponse = new RecipientResolutionResponse()
+    void issuesDefinitivePayloadUnchangedToEveryResolvedDevice() throws Exception {
+        MatchedRecipient first = new MatchedRecipient().id("device-1").publicKey("key-1");
+        MatchedRecipient second = new MatchedRecipient().id("device-2").publicKey("key-2");
+        RecipientResolutionResponse resolution = new RecipientResolutionResponse()
                 .routeFound(true)
-                .deliveryRouteType(RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK)
-                .matchId("legacy-fallback-match")
-                .recipients(List.of(new MatchedRecipient().acceptedFormats(List.of(ReceiptFormat.CHEQI))));
-        ReceiptTemplateResponse template = new ReceiptTemplateResponse()
-                .cheqi(new CheqiReceipt().documentNumber("INV-001"));
-        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
-        when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(template);
-        when(apiClient.uploadClientEncryptedReceipt(any(ClientReceiptDownloadRequest.class)))
-                .thenReturn(new ClientReceiptDownloadResponse().cheqiReceiptId("download-1"));
-
-        ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
-
-        assertEquals(DeliveryStatus.DELIVERED_DOWNLOAD, result.getDeliveryStatus());
-        assertEquals("download-1", result.getCheqiReceiptId());
-        assertTrue(result.getDownloadUrl().startsWith("https://receipt.cheqi.io/"));
-        verify(apiClient, never()).sendEncryptedReceipts(any(), anySet(), any());
-        verify(encryptionService, never()).encryptReceiptForRecipients(any(), any());
-        verify(apiClient).uploadClientEncryptedReceipt(any(ClientReceiptDownloadRequest.class));
-    }
-
-    @Test
-    void processCompleteReceipt_rejectsRouteWithoutExplicitType() throws Exception {
-        ReceiptService service = new ReceiptService(
-                apiClient, encryptionService, matchingService, new DownloadService(), "https://receipt.cheqi.io");
-        RecipientResolutionResponse incompatibleResponse = new RecipientResolutionResponse()
-                .routeFound(true)
-                .matchId("legacy-match")
-                .recipients(List.of(new MatchedRecipient().acceptedFormats(List.of(ReceiptFormat.CHEQI))));
-        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(incompatibleResponse);
-
-        CheqiSDKException error = assertThrows(CheqiSDKException.class,
-                () -> service.processCompleteReceipt(identificationDetails(null), receiptRequest()));
-
-        assertTrue(error.getMessage().contains("deliveryRouteType"));
-        verify(apiClient, never()).generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any());
-        verify(apiClient, never()).sendEncryptedReceipts(any(), anySet(), any());
-        verify(apiClient, never()).uploadClientEncryptedReceipt(any(ClientReceiptDownloadRequest.class));
-    }
-
-    @Test
-    void processCompleteReceipt_returnsPendingEncryptedDownloadWhenMatchingIsUnavailable() throws Exception {
-        ReceiptService service = new ReceiptService(
-                apiClient, encryptionService, matchingService, new DownloadService(), "https://receipt.cheqi.io");
-        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenThrow(new CheqiApiException(
-                "network unavailable", new java.io.IOException("offline"), 0,
-                CheqiApiException.ErrorCodes.NETWORK_ERROR, null));
-
-        ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
-
-        assertEquals(DeliveryStatus.PENDING_DOWNLOAD_TEMPLATE, result.getDeliveryStatus());
-        assertTrue(result.getDownloadUrl().startsWith("https://receipt.cheqi.io/"));
-        verify(apiClient, never()).generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any());
-    }
-
-    @Test
-    void processCompleteReceipt_infersTaxesAppliedWhenMissing() throws Exception {
-        ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
-        RecipientResolutionResponse matchResponse = matchedRecipientResponse();
-        ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse().ublPurchaseReceipt("<Receipt>ok</Receipt>");
-        ReceiptCreatedResponse createdResponse = new ReceiptCreatedResponse()
-                .cheqiReceiptId("receipt-123")
-                .templateHash("hash-123")
-                .createdAt(OffsetDateTime.parse("2024-01-15T10:30:00Z"));
-
-        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
-        when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(templateResponse);
-        when(encryptionService.encryptReceiptForRecipients(any(String.class), any(MatchedRecipient.class))).thenReturn(new EncryptedReceiptRequest()
-                .recipientId("recipient-1")
-                .encryptedReceipt("ciphertext")
-                .encryptedSymmetricKey("wrapped-key"));
-        when(apiClient.sendEncryptedReceipts(eq("match-123"), anySet(), any(String.class))).thenReturn(createdResponse);
-
-        service.processCompleteReceipt(identificationDetails(null), receiptRequest());
-
-        ArgumentCaptor<ReceiptTemplateGenerationRequest> requestCaptor = ArgumentCaptor.forClass(ReceiptTemplateGenerationRequest.class);
-        verify(apiClient).generateReceiptTemplate(requestCaptor.capture(), any());
-        assertTrue(requestCaptor.getValue().getTaxesApplied());
-    }
-
-    @Test
-    void processCompleteReceipt_attachesNotificationDisplayCodeToEncryptedReceipts() throws Exception {
-        ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
-        RecipientResolutionResponse matchResponse = matchedRecipientResponse();
-        ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse().ublPurchaseReceipt("<Receipt>ok</Receipt>");
-        ReceiptCreatedResponse createdResponse = new ReceiptCreatedResponse()
-                .cheqiReceiptId("receipt-123")
-                .templateHash("hash-123")
-                .createdAt(OffsetDateTime.parse("2024-01-15T10:30:00Z"));
-        NotificationDisplayCode notificationDisplayCode = new NotificationDisplayCode()
-                .type(BarcodeType.QR_CODE)
-                .data("https://example.com/receipt/INV-001");
-
-        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
-        when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(templateResponse);
-        when(encryptionService.encryptReceiptForRecipients(any(String.class), any(MatchedRecipient.class))).thenReturn(new EncryptedReceiptRequest()
-                .recipientId("recipient-1")
-                .encryptedReceipt("ciphertext")
-                .encryptedSymmetricKey("wrapped-key"));
-        when(apiClient.sendEncryptedReceipts(eq("match-123"), anySet(), any(String.class))).thenReturn(createdResponse);
-
-        service.processCompleteReceipt(identificationDetails(null), receiptRequest(), notificationDisplayCode);
-
-        @SuppressWarnings("unchecked")
-        ArgumentCaptor<Set<EncryptedReceiptRequest>> receiptsCaptor = ArgumentCaptor.forClass(Set.class);
-        verify(apiClient).sendEncryptedReceipts(eq("match-123"), receiptsCaptor.capture(), any(String.class));
-        EncryptedReceiptRequest encryptedReceipt = receiptsCaptor.getValue().iterator().next();
-        assertEquals(notificationDisplayCode, encryptedReceipt.getNotificationDisplayCode());
-    }
-
-    @Test
-    void processCompleteReceipt_encryptsOnlyAcceptedFormatsForEachRecipient() throws Exception {
-        ReceiptService service = new ReceiptService(apiClient, encryptionService, matchingService);
-        MatchedRecipient ublRecipient = new MatchedRecipient()
-                .id("ubl-recipient")
-                .publicKey("ubl-public-key")
-                .acceptedFormats(List.of(ReceiptFormat.UBL_PURCHASE_RECEIPT));
-        MatchedRecipient invoiceRecipient = new MatchedRecipient()
-                .id("invoice-recipient")
-                .publicKey("invoice-public-key")
-                .acceptedFormats(List.of(ReceiptFormat.UBL_INVOICE));
-        RecipientResolutionResponse matchResponse = new RecipientResolutionResponse()
-                .routeFound(true)
-                .deliveryRouteType(RecipientResolutionResponse.DeliveryRouteTypeEnum.DIGITAL)
                 .matchId("match-123")
-                .recipients(List.of(ublRecipient, invoiceRecipient));
-        ReceiptTemplateResponse templateResponse = new ReceiptTemplateResponse()
-                .ublPurchaseReceipt("<Receipt>ok</Receipt>")
-                .ublInvoice("<Invoice>ok</Invoice>");
-        ReceiptCreatedResponse createdResponse = new ReceiptCreatedResponse()
-                .cheqiReceiptId("receipt-123")
-                .templateHash("hash-123")
-                .createdAt(OffsetDateTime.parse("2024-01-15T10:30:00Z"));
+                .recipients(List.of(first, second));
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+                .thenReturn(resolution);
 
-        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
-        when(apiClient.generateReceiptTemplate(any(ReceiptTemplateGenerationRequest.class), any())).thenReturn(templateResponse);
-        when(encryptionService.encryptReceiptForRecipients(any(String.class), any(MatchedRecipient.class)))
-                .thenAnswer(invocation -> {
-                    MatchedRecipient recipient = invocation.getArgument(1);
-                    return new EncryptedReceiptRequest()
-                            .recipientId(recipient.getId())
-                            .encryptedReceipt("ciphertext-" + recipient.getId())
-                            .encryptedSymmetricKey("wrapped-key-" + recipient.getId());
-                });
-        when(apiClient.sendEncryptedReceipts(eq("match-123"), anySet(), any(String.class))).thenReturn(createdResponse);
+        EncryptedReceiptPayload firstDelivery = encrypted("device-1", "cipher-1");
+        EncryptedReceiptPayload secondDelivery = encrypted("device-2", "cipher-2");
+        encryptionService.deliveries = List.of(firstDelivery, secondDelivery);
 
-        ReceiptResult result = service.processCompleteReceipt(identificationDetails(null), receiptRequest());
+        OffsetDateTime createdAt = OffsetDateTime.parse("2026-07-29T10:15:30Z");
+        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class)))
+                .thenReturn(new ReceiptSubmissionResponse()
+                        .cheqiReceiptId("CHQ-123")
+                        .matchId("match-123")
+                        .status(ReceiptSubmissionResponse.StatusEnum.PENDING)
+                        .createdAt(createdAt));
 
-        assertTrue(result.isSuccess());
-        ArgumentCaptor<String> envelopeCaptor = ArgumentCaptor.forClass(String.class);
-        verify(encryptionService, times(2)).encryptReceiptForRecipients(envelopeCaptor.capture(), any(MatchedRecipient.class));
-        assertTrue(envelopeCaptor.getAllValues().contains("{\"ublPurchaseReceipt\":\"<Receipt>ok</Receipt>\"}"));
-        assertTrue(envelopeCaptor.getAllValues().contains("{\"ublInvoice\":\"<Invoice>ok</Invoice>\"}"));
+        UUID storeId = UUID.randomUUID();
+        ReceiptResult result = service.issueReceipt(
+                new IdentificationDetails().recipientEmail("buyer@example.com"),
+                receipt(),
+                storeId
+        );
+
+        assertTrue(result.isAccepted());
+        assertEquals("CHQ-123", result.getCheqiReceiptId());
+        assertEquals("match-123", result.getMatchId());
+        assertEquals(ReceiptSubmissionResponse.StatusEnum.PENDING, result.getStatus());
+        assertEquals(createdAt, result.getCreatedAt());
+
+        assertEquals(List.of(first, second), encryptionService.recipients);
+        assertEquals(encryptionService.plaintexts.get(0), encryptionService.plaintexts.get(1));
+        String json = encryptionService.plaintexts.get(1);
+        assertTrue(json.contains("\"documentNumber\":\"R-100\""));
+        assertEquals("10.1", ObjectMapperConfig.getInstance().readTree(json)
+                .get("receiptSubtotal").asText());
+        assertEquals("12.34", ObjectMapperConfig.getInstance().readTree(json)
+                .get("totalAmount").asText());
+        assertTrue(!json.contains("receiptTemplateRequest"));
+
+        ArgumentCaptor<EncryptedReceiptEnvelope> envelope =
+                ArgumentCaptor.forClass(EncryptedReceiptEnvelope.class);
+        verify(apiClient).submitEncryptedReceipt(envelope.capture());
+        assertEquals("match-123", envelope.getValue().getMatchId());
+        assertEquals(storeId, envelope.getValue().getStoreId());
+        assertEquals(List.of(firstDelivery, secondDelivery), envelope.getValue().getDeviceDeliveries());
     }
 
-    private static RecipientResolutionResponse matchedRecipientResponse() {
-        MatchedRecipient recipient = new MatchedRecipient()
-                .id("recipient-1")
-                .publicKey("public-key")
-                .acceptedFormats(List.of(ReceiptFormat.UBL_PURCHASE_RECEIPT));
+    @Test
+    void doesNotEncryptOrSubmitWhenNoOwnerDeviceRouteExists() throws Exception {
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+                .thenReturn(new RecipientResolutionResponse().routeFound(false));
 
-        return new RecipientResolutionResponse()
-                .routeFound(true)
-                .deliveryRouteType(RecipientResolutionResponse.DeliveryRouteTypeEnum.DIGITAL)
-                .matchId("match-123")
-                .recipients(List.of(recipient));
+        assertThrows(
+                com.cheqi.sdk.exceptions.CheqiSDKException.class,
+                () -> service.issueReceipt(
+                        new IdentificationDetails().recipientEmail("buyer@example.com"), receipt())
+        );
+
+        assertTrue(encryptionService.plaintexts.isEmpty());
     }
 
-    private static IdentificationDetails identificationDetails(String email) {
-        return new IdentificationDetails()
-                .paymentType(PaymentType.CARD_PAYMENT)
-                .recipientEmail(email);
+    private static EncryptedReceiptPayload encrypted(String recipientId, String content) {
+        return new EncryptedReceiptPayload()
+                .deviceRecipientId(recipientId)
+                .encryptedContent(content)
+                .encryptedAesKey("encrypted-key-" + recipientId);
     }
 
-    private static ReceiptTemplateRequest receiptRequest() {
-        return ReceiptTemplateRequest.builder()
-                .documentNumber("INV-001")
-                .issueDate(Instant.parse("2024-01-15T10:30:00Z"))
+    private static ReceiptPayload receipt() {
+        return ReceiptPayload.builder()
+                .documentNumber("R-100")
+                .issueDate(OffsetDateTime.parse("2026-07-29T10:00:00Z"))
                 .currency("EUR")
-                .receiptSubtotal(new BigDecimal("100.00"))
-                .totalBeforeTax(new BigDecimal("100.00"))
-                .totalTaxAmount(new BigDecimal("21.00"))
-                .totalAmount(new BigDecimal("121.00"))
+                .receiptSubtotal("10.10")
+                .totalBeforeTax("10.10")
+                .totalTaxAmount("2.24")
+                .totalAmount("12.34")
+                .taxesApplied(true)
                 .addProduct(Product.builder()
-                        .name("Widget")
+                        .name("Coffee")
+                        .identifier("COFFEE-1")
                         .quantity(1.0)
                         .unitCode(UnitCode.C62)
-                        .unitPrice("100.00")
-                        .subtotal("100.00")
-                        .total("121.00")
-                        .addTax(21.0, "VAT", "100.00", "21.00")
+                        .unitPrice("10.10")
+                        .subtotal("10.10")
+                        .total("12.34")
                         .build())
-                .addTax(21.0, "VAT", "100.00", "21.00")
                 .build();
+    }
+
+    private static final class StubEncryptionService extends EncryptionService {
+        private final List<String> plaintexts = new ArrayList<>();
+        private final List<MatchedRecipient> recipients = new ArrayList<>();
+        private List<EncryptedReceiptPayload> deliveries = List.of();
+
+        @Override
+        public EncryptedReceiptPayload encryptReceiptForRecipient(
+                String receiptPayloadJson,
+                MatchedRecipient recipient
+        ) {
+            plaintexts.add(receiptPayloadJson);
+            recipients.add(recipient);
+            return deliveries.get(plaintexts.size() - 1);
+        }
     }
 }

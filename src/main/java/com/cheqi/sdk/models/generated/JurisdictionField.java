@@ -21,92 +21,91 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.math.BigDecimal;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Issuer-supplied receipt-level discounts.
+ * JurisdictionField
  */
 @JsonPropertyOrder({
-  Discount.JSON_PROPERTY_AMOUNT,
-  Discount.JSON_PROPERTY_PERCENTAGE,
-  Discount.JSON_PROPERTY_LABEL
+  JurisdictionField.JSON_PROPERTY_CODE,
+  JurisdictionField.JSON_PROPERTY_VALUE,
+  JurisdictionField.JSON_PROPERTY_LABEL
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class Discount {
-  public static final String JSON_PROPERTY_AMOUNT = "amount";
+public class JurisdictionField {
+  public static final String JSON_PROPERTY_CODE = "code";
   @javax.annotation.Nonnull
-  private BigDecimal amount;
+  private String code;
 
-  public static final String JSON_PROPERTY_PERCENTAGE = "percentage";
-  @javax.annotation.Nullable
-  private Double percentage;
+  public static final String JSON_PROPERTY_VALUE = "value";
+  @javax.annotation.Nonnull
+  private String value;
 
   public static final String JSON_PROPERTY_LABEL = "label";
   @javax.annotation.Nullable
   private String label;
 
-  public Discount() { 
+  public JurisdictionField() { 
   }
 
-  public Discount amount(@javax.annotation.Nonnull BigDecimal amount) {
-    this.amount = amount;
+  public JurisdictionField code(@javax.annotation.Nonnull String code) {
+    this.code = code;
     return this;
   }
 
   /**
-   * The total discount amount
-   * @return amount
+   * Stable uppercase, preferably country-namespaced field code
+   * @return code
    */
   @javax.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_AMOUNT)
+  @JsonProperty(JSON_PROPERTY_CODE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public BigDecimal getAmount() {
-    return amount;
+  public String getCode() {
+    return code;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_AMOUNT)
+  @JsonProperty(JSON_PROPERTY_CODE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAmount(@javax.annotation.Nonnull BigDecimal amount) {
-    this.amount = amount;
+  public void setCode(@javax.annotation.Nonnull String code) {
+    this.code = code;
   }
 
 
-  public Discount percentage(@javax.annotation.Nullable Double percentage) {
-    this.percentage = percentage;
+  public JurisdictionField value(@javax.annotation.Nonnull String value) {
+    this.value = value;
     return this;
   }
 
   /**
-   * The percentage discount
-   * @return percentage
+   * Exact value supplied by the fiscal/POS system
+   * @return value
    */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_PERCENTAGE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Double getPercentage() {
-    return percentage;
+  @javax.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_VALUE)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public String getValue() {
+    return value;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_PERCENTAGE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPercentage(@javax.annotation.Nullable Double percentage) {
-    this.percentage = percentage;
+  @JsonProperty(JSON_PROPERTY_VALUE)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setValue(@javax.annotation.Nonnull String value) {
+    this.value = value;
   }
 
 
-  public Discount label(@javax.annotation.Nullable String label) {
+  public JurisdictionField label(@javax.annotation.Nullable String label) {
     this.label = label;
     return this;
   }
 
   /**
-   * A human-readable label for the discount
+   * Optional display label
    * @return label
    */
   @javax.annotation.Nullable
@@ -125,7 +124,7 @@ public class Discount {
 
 
   /**
-   * Return true if this Discount object is equal to o.
+   * Return true if this JurisdictionField object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -135,23 +134,23 @@ public class Discount {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Discount discount = (Discount) o;
-    return Objects.equals(this.amount, discount.amount) &&
-        Objects.equals(this.percentage, discount.percentage) &&
-        Objects.equals(this.label, discount.label);
+    JurisdictionField jurisdictionField = (JurisdictionField) o;
+    return Objects.equals(this.code, jurisdictionField.code) &&
+        Objects.equals(this.value, jurisdictionField.value) &&
+        Objects.equals(this.label, jurisdictionField.label);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(amount, percentage, label);
+    return Objects.hash(code, value, label);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Discount {\n");
-    sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
-    sb.append("    percentage: ").append(toIndentedString(percentage)).append("\n");
+    sb.append("class JurisdictionField {\n");
+    sb.append("    code: ").append(toIndentedString(code)).append("\n");
+    sb.append("    value: ").append(toIndentedString(value)).append("\n");
     sb.append("    label: ").append(toIndentedString(label)).append("\n");
     sb.append("}");
     return sb.toString();

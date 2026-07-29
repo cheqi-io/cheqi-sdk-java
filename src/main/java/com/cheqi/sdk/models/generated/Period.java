@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The billing or service period covered by this receipt. Use this when the purchase covers a specific time range rather than a single point in time.
+ * Optional billing or service period covered by the receipt.
  */
 @JsonPropertyOrder({
   Period.JSON_PROPERTY_START_DATE,
@@ -82,7 +82,7 @@ public class Period {
   }
 
   /**
-   * The end date of the period
+   * The end date of the periodo
    * @return endDate
    */
   @javax.annotation.Nonnull

@@ -7,7 +7,6 @@ import com.cheqi.sdk.encryption.AESEncryptor;
 import com.cheqi.sdk.encryption.EncryptedData;
 import com.cheqi.sdk.encryption.EncryptionException;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
-import com.cheqi.sdk.models.generated.ReceiptTemplateResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.crypto.SecretKey;
@@ -80,18 +79,6 @@ public class DownloadService {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid receipt download URL", e);
         }
-    }
-
-    /** Maps the canonical server template response to the standard encrypted envelope. */
-    public ReceiptEnvelope buildDownloadEnvelope(ReceiptTemplateResponse template) {
-        if (template == null) {
-            throw new IllegalArgumentException("template cannot be null");
-        }
-        return new ReceiptEnvelope()
-                .cheqi(template.getCheqi())
-                .ublPurchaseReceipt(template.getUblPurchaseReceipt())
-                .ublInvoice(template.getUblInvoice())
-                .vatMetaData(template.getVatMetadata());
     }
 
     /** Returns Base64(iv || ciphertext || tag), compatible with the JavaScript SDK. */

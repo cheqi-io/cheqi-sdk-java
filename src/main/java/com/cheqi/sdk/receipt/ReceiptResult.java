@@ -1,181 +1,177 @@
 package com.cheqi.sdk.receipt;
 
-import com.cheqi.sdk.models.generated.ReceiptCreatedResponse;
 import com.cheqi.sdk.models.generated.ClientReceiptDownloadResponse;
+import com.cheqi.sdk.models.generated.ReceiptSubmissionResponse;
+import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.OffsetDateTime;
 
 /**
- * Result of processing a receipt through the SDK.
+ * Outcome of receipt routing.
+ *
+ * <p>A digital route is submitted immediately. A download fallback first returns
+ * {@link #isDownloadEnvelopeRequired()} so the caller can generate the final
+ * {@code ReceiptEnvelope} locally and pass it to
+ * {@link ReceiptService#completeDownloadFallback(ReceiptResult,
+ * com.cheqi.sdk.models.generated.ReceiptEnvelope, String, String)}.</p>
  */
 public class ReceiptResult {
-    @JsonProperty("success")
-    private final boolean success;
-    @JsonProperty("deliveryStatus")
-    private final DeliveryStatus deliveryStatus;
     @JsonProperty("cheqiReceiptId")
     private final String cheqiReceiptId;
+    @JsonProperty("matchId")
+    private final String matchId;
+    @JsonProperty("deliveryRouteType")
+    private final RecipientResolutionResponse.DeliveryRouteTypeEnum deliveryRouteType;
+    @JsonProperty("status")
+    private final ReceiptSubmissionResponse.StatusEnum status;
     @JsonProperty("createdAt")
     private final OffsetDateTime createdAt;
-    @JsonProperty("templateHash")
-    private final String templateHash;
-    @JsonProperty("canonicalJson")
-    private final String canonicalJson;
-    @JsonProperty("emailAddress")
-    private final String emailAddress;
+    @JsonProperty("expiresAt")
+    private final OffsetDateTime expiresAt;
     @JsonProperty("downloadUrl")
     private final String downloadUrl;
-    @JsonProperty("downloadCiphertext")
-    private final String downloadCiphertext;
-    @JsonProperty("message")
-    private final String message;
+    @JsonProperty("downloadEnvelopeRequired")
+    private final boolean downloadEnvelopeRequired;
+    @JsonProperty("emailReceiptRequired")
+    private final boolean emailReceiptRequired;
 
     private ReceiptResult(
-            boolean success,
-            DeliveryStatus deliveryStatus,
             String cheqiReceiptId,
+            String matchId,
+            RecipientResolutionResponse.DeliveryRouteTypeEnum deliveryRouteType,
+            ReceiptSubmissionResponse.StatusEnum status,
             OffsetDateTime createdAt,
-            String templateHash,
-            String canonicalJson,
-            String emailAddress,
+            OffsetDateTime expiresAt,
             String downloadUrl,
-            String downloadCiphertext,
-            String message) {
-        this.success = success;
-        this.deliveryStatus = deliveryStatus;
+            boolean downloadEnvelopeRequired,
+            boolean emailReceiptRequired
+    ) {
         this.cheqiReceiptId = cheqiReceiptId;
+        this.matchId = matchId;
+        this.deliveryRouteType = deliveryRouteType;
+        this.status = status;
         this.createdAt = createdAt;
-        this.templateHash = templateHash;
-        this.canonicalJson = canonicalJson;
-        this.emailAddress = emailAddress;
+        this.expiresAt = expiresAt;
         this.downloadUrl = downloadUrl;
-        this.downloadCiphertext = downloadCiphertext;
-        this.message = message;
+        this.downloadEnvelopeRequired = downloadEnvelopeRequired;
+        this.emailReceiptRequired = emailReceiptRequired;
     }
 
-    public static ReceiptResult deliveredToApp(ReceiptCreatedResponse response, String canonicalJson) {
+    public static ReceiptResult accepted(ReceiptSubmissionResponse response) {
+        return accepted(response, RecipientResolutionResponse.DeliveryRouteTypeEnum.DIGITAL);
+    }
+
+    static ReceiptResult accepted(
+            ReceiptSubmissionResponse response,
+            RecipientResolutionResponse.DeliveryRouteTypeEnum deliveryRouteType
+    ) {
+        if (response == null) {
+            throw new IllegalArgumentException("response cannot be null");
+        }
         return new ReceiptResult(
-                true,
-                DeliveryStatus.DELIVERED_DIGITAL,
                 response.getCheqiReceiptId(),
+                response.getMatchId(),
+                deliveryRouteType,
+                response.getStatus(),
                 response.getCreatedAt(),
-                response.getTemplateHash(),
-                canonicalJson,
                 null,
                 null,
-                null,
-                "Receipt delivered to customer's Cheqi app"
-        );
-    }
-
-    /**
-     * QR-code self-service download fallback: the receipt was created and Cheqi returned a public
-     * download URL. The merchant terminal renders {@code downloadUrl} as a QR code for the customer.
-     */
-    public static ReceiptResult deliveredViaDownload(ReceiptCreatedResponse response, String canonicalJson) {
-        return new ReceiptResult(
-                true,
-                DeliveryStatus.DELIVERED_DOWNLOAD,
-                response.getCheqiReceiptId(),
-                response.getCreatedAt(),
-                response.getTemplateHash(),
-                canonicalJson,
-                null,
-                response.getDownloadUrl(),
-                null,
-                "Receipt available for self-service download"
-        );
-    }
-
-    public static ReceiptResult deliveredViaEmail(String emailAddress) {
-        return new ReceiptResult(
-                true,
-                DeliveryStatus.DELIVERED_EMAIL,
-                null,
-                OffsetDateTime.now(),
-                null,
-                null,
-                emailAddress,
-                null,
-                null,
-                "Receipt sent via email to " + emailAddress
-        );
-    }
-
-    public static ReceiptResult customerNotFound() {
-        return new ReceiptResult(
                 false,
-                DeliveryStatus.CUSTOMER_NOT_FOUND,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "Customer not found with provided payment details"
+                false
         );
     }
 
-    public static ReceiptResult failed(String message) {
+    static ReceiptResult downloadEnvelopeRequired(RecipientResolutionResponse resolution) {
         return new ReceiptResult(
-                false,
-                DeliveryStatus.FAILED,
+                null,
+                resolution.getMatchId(),
+                RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK,
                 null,
                 null,
+                resolution.getExpiresAt(),
                 null,
-                null,
-                null,
-                null,
-                null,
-                message
+                true,
+                false
         );
     }
 
-    public static ReceiptResult deliveredViaClientDownload(
+    static ReceiptResult emailReceiptRequired(RecipientResolutionResponse resolution) {
+        return new ReceiptResult(
+                null,
+                resolution.getMatchId(),
+                RecipientResolutionResponse.DeliveryRouteTypeEnum.EMAIL_FALLBACK,
+                null,
+                null,
+                resolution.getExpiresAt(),
+                null,
+                false,
+                true
+        );
+    }
+
+    static ReceiptResult downloadAccepted(
+            String matchId,
             ClientReceiptDownloadResponse response,
-            String templateHash,
-            String canonicalJson,
-            String downloadUrl) {
-        return new ReceiptResult(true, DeliveryStatus.DELIVERED_DOWNLOAD,
-                response.getCheqiReceiptId(), response.getCreatedAt(), templateHash, canonicalJson,
-                null, downloadUrl, null, "Receipt available through an encrypted download link");
+            String downloadUrl
+    ) {
+        if (response == null) {
+            throw new IllegalArgumentException("response cannot be null");
+        }
+        return new ReceiptResult(
+                response.getCheqiReceiptId(),
+                matchId,
+                RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK,
+                null,
+                response.getCreatedAt(),
+                response.getExpiresAt(),
+                downloadUrl,
+                false,
+                false
+        );
     }
 
-    public static ReceiptResult pendingDownloadTemplate(String downloadUrl, String message) {
-        return new ReceiptResult(true, DeliveryStatus.PENDING_DOWNLOAD_TEMPLATE,
-                null, null, null, null, null, downloadUrl, null, message);
+    public boolean isAccepted() {
+        return cheqiReceiptId != null && !cheqiReceiptId.trim().isEmpty();
     }
 
-    public static ReceiptResult pendingDownloadUpload(
-            String downloadUrl, String ciphertext, String templateHash, String canonicalJson, String message) {
-        return new ReceiptResult(true, DeliveryStatus.PENDING_DOWNLOAD_UPLOAD,
-                null, null, templateHash, canonicalJson, null, downloadUrl, ciphertext, message);
+    public boolean isSuccess() {
+        return isAccepted();
     }
 
-    // Core status checks
-    public boolean isSuccess() { return success; }
-    public boolean isCustomerNotFound() { return deliveryStatus == DeliveryStatus.CUSTOMER_NOT_FOUND; }
-    public DeliveryStatus getDeliveryStatus() { return deliveryStatus; }
-    public String getMessage() { return message; }
+    public boolean isDownloadEnvelopeRequired() {
+        return downloadEnvelopeRequired;
+    }
 
-    // Archival data
-    public String getCheqiReceiptId() { return cheqiReceiptId; }
-    public OffsetDateTime getCreatedAt() { return createdAt; }
-    public String getTemplateHash() { return templateHash; }
-    public String getCanonicalJson() { return canonicalJson; }
+    public boolean isEmailReceiptRequired() {
+        return emailReceiptRequired;
+    }
 
-    // Email flow
-    public String getEmailAddress() { return emailAddress; }
+    public String getCheqiReceiptId() {
+        return cheqiReceiptId;
+    }
 
-    // Download fallback flow
-    public String getDownloadUrl() { return downloadUrl; }
-    public String getDownloadCiphertext() { return downloadCiphertext; }
+    public String getMatchId() {
+        return matchId;
+    }
 
-    @Override
-    public String toString() {
-        return "ReceiptResult{success=" + success + ", deliveryStatus=" + deliveryStatus +
-                ", cheqiReceiptId='" + cheqiReceiptId + "'}";
+    public RecipientResolutionResponse.DeliveryRouteTypeEnum getDeliveryRouteType() {
+        return deliveryRouteType;
+    }
+
+    public ReceiptSubmissionResponse.StatusEnum getStatus() {
+        return status;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public OffsetDateTime getExpiresAt() {
+        return expiresAt;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
     }
 }

@@ -4,8 +4,6 @@ import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.config.Environment;
 import com.cheqi.sdk.models.generated.CheqiReceipt;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
-import com.cheqi.sdk.models.generated.ReceiptTemplateResponse;
-import com.cheqi.sdk.models.generated.VatMetadata;
 import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
@@ -39,27 +37,6 @@ class DownloadServiceTest {
                 .startsWith("https://receipt.cheqi.io/"));
         assertTrue(service.generateDownloadLink(Environment.SANDBOX).getUrl()
                 .startsWith("https://sandbox.receipt.cheqi.io/"));
-    }
-
-    @Test
-    void buildsCanonicalEnvelopeAndRoundTripsEncryption() {
-        DownloadService service = new DownloadService();
-        DownloadLink link = service.generateDownloadLink("https://receipt.cheqi.io");
-        VatMetadata vat = new VatMetadata().taxesApplied(true);
-        ReceiptTemplateResponse template = new ReceiptTemplateResponse()
-                .cheqi(new CheqiReceipt().documentNumber("JAVA-1"))
-                .ublPurchaseReceipt("<PurchaseReceipt/>")
-                .ublInvoice("<Invoice/>")
-                .vatMetadata(vat);
-
-        ReceiptEnvelope envelope = service.buildDownloadEnvelope(template);
-        String ciphertext = service.encryptDownloadEnvelope(envelope, link.getContentKey());
-        ReceiptEnvelope decrypted = service.decryptDownloadEnvelope(ciphertext, link.getContentKey());
-
-        assertEquals("JAVA-1", decrypted.getCheqi().getDocumentNumber());
-        assertEquals("<PurchaseReceipt/>", decrypted.getUblPurchaseReceipt());
-        assertEquals("<Invoice/>", decrypted.getUblInvoice());
-        assertTrue(decrypted.getVatMetaData().getTaxesApplied());
     }
 
     @Test
