@@ -26,12 +26,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * JurisdictionLegalText
+ * Exact jurisdictional legal text for structured CHEQI and UBL output. This does not populate the merchant-configured receipt note.
  */
 @JsonPropertyOrder({
   JurisdictionLegalText.JSON_PROPERTY_CODE,
   JurisdictionLegalText.JSON_PROPERTY_TEXT,
-  JurisdictionLegalText.JSON_PROPERTY_LANGUAGE_CODE
+  JurisdictionLegalText.JSON_PROPERTY_LANGUAGE_CODE,
+  JurisdictionLegalText.JSON_PROPERTY_DISPLAY_ROLE
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -47,6 +48,47 @@ public class JurisdictionLegalText {
   public static final String JSON_PROPERTY_LANGUAGE_CODE = "languageCode";
   @javax.annotation.Nullable
   private String languageCode;
+
+  /**
+   * Semantic presentation role for exact jurisdictional legal text
+   */
+  public enum DisplayRoleEnum {
+    DOCUMENT_HEADING(String.valueOf("DOCUMENT_HEADING")),
+    
+    NOTICE(String.valueOf("NOTICE")),
+    
+    FOOTER(String.valueOf("FOOTER"));
+
+    private String value;
+
+    DisplayRoleEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static DisplayRoleEnum fromValue(String value) {
+      for (DisplayRoleEnum b : DisplayRoleEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_DISPLAY_ROLE = "displayRole";
+  @javax.annotation.Nullable
+  private DisplayRoleEnum displayRole;
 
   public JurisdictionLegalText() { 
   }
@@ -123,6 +165,30 @@ public class JurisdictionLegalText {
   }
 
 
+  public JurisdictionLegalText displayRole(@javax.annotation.Nullable DisplayRoleEnum displayRole) {
+    this.displayRole = displayRole;
+    return this;
+  }
+
+  /**
+   * Semantic presentation role for exact jurisdictional legal text
+   * @return displayRole
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DISPLAY_ROLE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public DisplayRoleEnum getDisplayRole() {
+    return displayRole;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DISPLAY_ROLE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDisplayRole(@javax.annotation.Nullable DisplayRoleEnum displayRole) {
+    this.displayRole = displayRole;
+  }
+
+
   /**
    * Return true if this JurisdictionLegalText object is equal to o.
    */
@@ -137,12 +203,13 @@ public class JurisdictionLegalText {
     JurisdictionLegalText jurisdictionLegalText = (JurisdictionLegalText) o;
     return Objects.equals(this.code, jurisdictionLegalText.code) &&
         Objects.equals(this.text, jurisdictionLegalText.text) &&
-        Objects.equals(this.languageCode, jurisdictionLegalText.languageCode);
+        Objects.equals(this.languageCode, jurisdictionLegalText.languageCode) &&
+        Objects.equals(this.displayRole, jurisdictionLegalText.displayRole);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(code, text, languageCode);
+    return Objects.hash(code, text, languageCode, displayRole);
   }
 
   @Override
@@ -152,6 +219,7 @@ public class JurisdictionLegalText {
     sb.append("    code: ").append(toIndentedString(code)).append("\n");
     sb.append("    text: ").append(toIndentedString(text)).append("\n");
     sb.append("    languageCode: ").append(toIndentedString(languageCode)).append("\n");
+    sb.append("    displayRole: ").append(toIndentedString(displayRole)).append("\n");
     sb.append("}");
     return sb.toString();
   }

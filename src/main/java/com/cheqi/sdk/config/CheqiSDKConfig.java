@@ -202,9 +202,13 @@ public class CheqiSDKConfig {
             }
 
             if (receiptDownloadBaseUrl == null && environment != null) {
-                receiptDownloadBaseUrl = environment == Environment.PRODUCTION
-                        ? "https://receipt.cheqi.io"
-                        : "https://sandbox.receipt.cheqi.io";
+                if (environment == Environment.PRODUCTION) {
+                    receiptDownloadBaseUrl = "https://receipt.cheqi.io";
+                } else if (environment == Environment.SANDBOX) {
+                    receiptDownloadBaseUrl = "https://sandbox.receipt.cheqi.io";
+                } else {
+                    receiptDownloadBaseUrl = "https://test.receipt.cheqi.io";
+                }
             }
             
             CheqiSDKConfig config = new CheqiSDKConfig(this);

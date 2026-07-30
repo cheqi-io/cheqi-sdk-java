@@ -158,7 +158,6 @@ public class ReceiptPayload extends com.cheqi.sdk.models.generated.ReceiptPayloa
             payload.setTransactionDate(transactionDate);
             payload.setPurchaseDate(purchaseDate);
             payload.setPeriod(period);
-            payload.setNote(note);
             payload.setBarcodes(emptyToNull(barcodes));
             payload.setJurisdictionalData(jurisdictionalData);
             return payload;

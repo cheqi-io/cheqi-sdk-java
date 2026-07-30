@@ -35,8 +35,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({
   JurisdictionalData.JSON_PROPERTY_COUNTRY_CODE,
-  JurisdictionalData.JSON_PROPERTY_PROFILE,
-  JurisdictionalData.JSON_PROPERTY_PROFILE_VERSION,
+  JurisdictionalData.JSON_PROPERTY_REGIME,
+  JurisdictionalData.JSON_PROPERTY_REGIME_VERSION,
   JurisdictionalData.JSON_PROPERTY_FISCALIZATION,
   JurisdictionalData.JSON_PROPERTY_LEGAL_TEXTS,
   JurisdictionalData.JSON_PROPERTY_ADDITIONAL_FIELDS
@@ -48,13 +48,13 @@ public class JurisdictionalData {
   @javax.annotation.Nullable
   private String countryCode;
 
-  public static final String JSON_PROPERTY_PROFILE = "profile";
-  @javax.annotation.Nonnull
-  private String profile;
-
-  public static final String JSON_PROPERTY_PROFILE_VERSION = "profileVersion";
+  public static final String JSON_PROPERTY_REGIME = "regime";
   @javax.annotation.Nullable
-  private String profileVersion;
+  private String regime;
+
+  public static final String JSON_PROPERTY_REGIME_VERSION = "regimeVersion";
+  @javax.annotation.Nullable
+  private String regimeVersion;
 
   public static final String JSON_PROPERTY_FISCALIZATION = "fiscalization";
   @javax.annotation.Nullable
@@ -95,51 +95,51 @@ public class JurisdictionalData {
   }
 
 
-  public JurisdictionalData profile(@javax.annotation.Nonnull String profile) {
-    this.profile = profile;
+  public JurisdictionalData regime(@javax.annotation.Nullable String regime) {
+    this.regime = regime;
     return this;
   }
 
   /**
-   * Country/regime profile selected by the merchant POS
-   * @return profile
-   */
-  @javax.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_PROFILE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public String getProfile() {
-    return profile;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_PROFILE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setProfile(@javax.annotation.Nonnull String profile) {
-    this.profile = profile;
-  }
-
-
-  public JurisdictionalData profileVersion(@javax.annotation.Nullable String profileVersion) {
-    this.profileVersion = profileVersion;
-    return this;
-  }
-
-  /**
-   * Get profileVersion
-   * @return profileVersion
+   * Optional external fiscal, authority, or regulated-system regime selected by the merchant POS
+   * @return regime
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_PROFILE_VERSION)
+  @JsonProperty(JSON_PROPERTY_REGIME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getProfileVersion() {
-    return profileVersion;
+  public String getRegime() {
+    return regime;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_PROFILE_VERSION)
+  @JsonProperty(JSON_PROPERTY_REGIME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setProfileVersion(@javax.annotation.Nullable String profileVersion) {
-    this.profileVersion = profileVersion;
+  public void setRegime(@javax.annotation.Nullable String regime) {
+    this.regime = regime;
+  }
+
+
+  public JurisdictionalData regimeVersion(@javax.annotation.Nullable String regimeVersion) {
+    this.regimeVersion = regimeVersion;
+    return this;
+  }
+
+  /**
+   * Version of Cheqi&#39;s data contract for the selected external regime
+   * @return regimeVersion
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_REGIME_VERSION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getRegimeVersion() {
+    return regimeVersion;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_REGIME_VERSION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRegimeVersion(@javax.annotation.Nullable String regimeVersion) {
+    this.regimeVersion = regimeVersion;
   }
 
 
@@ -181,7 +181,7 @@ public class JurisdictionalData {
   }
 
   /**
-   * Get legalTexts
+   * Exact jurisdictional legal text for structured CHEQI and UBL output. This does not populate the merchant-configured receipt note.
    * @return legalTexts
    */
   @javax.annotation.Nullable
@@ -244,8 +244,8 @@ public class JurisdictionalData {
     }
     JurisdictionalData jurisdictionalData = (JurisdictionalData) o;
     return Objects.equals(this.countryCode, jurisdictionalData.countryCode) &&
-        Objects.equals(this.profile, jurisdictionalData.profile) &&
-        Objects.equals(this.profileVersion, jurisdictionalData.profileVersion) &&
+        Objects.equals(this.regime, jurisdictionalData.regime) &&
+        Objects.equals(this.regimeVersion, jurisdictionalData.regimeVersion) &&
         Objects.equals(this.fiscalization, jurisdictionalData.fiscalization) &&
         Objects.equals(this.legalTexts, jurisdictionalData.legalTexts) &&
         Objects.equals(this.additionalFields, jurisdictionalData.additionalFields);
@@ -253,7 +253,7 @@ public class JurisdictionalData {
 
   @Override
   public int hashCode() {
-    return Objects.hash(countryCode, profile, profileVersion, fiscalization, legalTexts, additionalFields);
+    return Objects.hash(countryCode, regime, regimeVersion, fiscalization, legalTexts, additionalFields);
   }
 
   @Override
@@ -261,8 +261,8 @@ public class JurisdictionalData {
     StringBuilder sb = new StringBuilder();
     sb.append("class JurisdictionalData {\n");
     sb.append("    countryCode: ").append(toIndentedString(countryCode)).append("\n");
-    sb.append("    profile: ").append(toIndentedString(profile)).append("\n");
-    sb.append("    profileVersion: ").append(toIndentedString(profileVersion)).append("\n");
+    sb.append("    regime: ").append(toIndentedString(regime)).append("\n");
+    sb.append("    regimeVersion: ").append(toIndentedString(regimeVersion)).append("\n");
     sb.append("    fiscalization: ").append(toIndentedString(fiscalization)).append("\n");
     sb.append("    legalTexts: ").append(toIndentedString(legalTexts)).append("\n");
     sb.append("    additionalFields: ").append(toIndentedString(additionalFields)).append("\n");

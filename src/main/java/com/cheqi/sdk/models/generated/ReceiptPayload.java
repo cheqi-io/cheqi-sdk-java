@@ -57,7 +57,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   ReceiptPayload.JSON_PROPERTY_TRANSACTION_DATE,
   ReceiptPayload.JSON_PROPERTY_PURCHASE_DATE,
   ReceiptPayload.JSON_PROPERTY_PERIOD,
-  ReceiptPayload.JSON_PROPERTY_NOTE,
   ReceiptPayload.JSON_PROPERTY_BARCODES,
   ReceiptPayload.JSON_PROPERTY_JURISDICTIONAL_DATA
 })
@@ -127,10 +126,6 @@ public class ReceiptPayload {
   public static final String JSON_PROPERTY_PERIOD = "period";
   @javax.annotation.Nullable
   private Period period;
-
-  public static final String JSON_PROPERTY_NOTE = "note";
-  @javax.annotation.Nullable
-  private String note;
 
   public static final String JSON_PROPERTY_BARCODES = "barcodes";
   @javax.annotation.Nullable
@@ -567,30 +562,6 @@ public class ReceiptPayload {
   }
 
 
-  public ReceiptPayload note(@javax.annotation.Nullable String note) {
-    this.note = note;
-    return this;
-  }
-
-  /**
-   * Optional issuer-supplied receipt note.
-   * @return note
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_NOTE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getNote() {
-    return note;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_NOTE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setNote(@javax.annotation.Nullable String note) {
-    this.note = note;
-  }
-
-
   public ReceiptPayload barcodes(@javax.annotation.Nullable List<Barcode> barcodes) {
     this.barcodes = barcodes;
     return this;
@@ -675,14 +646,13 @@ public class ReceiptPayload {
         Objects.equals(this.transactionDate, receiptPayload.transactionDate) &&
         Objects.equals(this.purchaseDate, receiptPayload.purchaseDate) &&
         Objects.equals(this.period, receiptPayload.period) &&
-        Objects.equals(this.note, receiptPayload.note) &&
         Objects.equals(this.barcodes, receiptPayload.barcodes) &&
         Objects.equals(this.jurisdictionalData, receiptPayload.jurisdictionalData);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, taxesApplied, products, discounts, charges, taxes, transactionDate, purchaseDate, period, note, barcodes, jurisdictionalData);
+    return Objects.hash(documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, taxesApplied, products, discounts, charges, taxes, transactionDate, purchaseDate, period, barcodes, jurisdictionalData);
   }
 
   @Override
@@ -705,7 +675,6 @@ public class ReceiptPayload {
     sb.append("    transactionDate: ").append(toIndentedString(transactionDate)).append("\n");
     sb.append("    purchaseDate: ").append(toIndentedString(purchaseDate)).append("\n");
     sb.append("    period: ").append(toIndentedString(period)).append("\n");
-    sb.append("    note: ").append(toIndentedString(note)).append("\n");
     sb.append("    barcodes: ").append(toIndentedString(barcodes)).append("\n");
     sb.append("    jurisdictionalData: ").append(toIndentedString(jurisdictionalData)).append("\n");
     sb.append("}");

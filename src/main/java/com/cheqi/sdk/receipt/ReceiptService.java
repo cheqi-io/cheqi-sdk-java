@@ -69,9 +69,6 @@ public class ReceiptService {
         this.matchingService = Objects.requireNonNull(matchingService, "matchingService cannot be null");
         this.objectMapper = ObjectMapperConfig.getInstance();
         this.downloadService = Objects.requireNonNull(downloadService, "downloadService cannot be null");
-        if (downloadBaseUrl == null || downloadBaseUrl.trim().isEmpty()) {
-            throw new IllegalArgumentException("downloadBaseUrl cannot be null or empty");
-        }
         this.downloadBaseUrl = downloadBaseUrl;
     }
 
@@ -86,7 +83,6 @@ public class ReceiptService {
         if (accessToken != null && accessToken.trim().isEmpty()) {
             throw validationError("accessToken cannot be empty");
         }
-
         try {
             RecipientResolutionResponse resolution = accessToken == null
                     ? matchingService.matchCustomer(identificationDetails)
@@ -201,6 +197,9 @@ public class ReceiptService {
         }
         if (accessToken != null && accessToken.trim().isEmpty()) {
             throw validationError("accessToken cannot be empty");
+        }
+        if (downloadBaseUrl == null || downloadBaseUrl.trim().isEmpty()) {
+            throw validationError("A receipt download base URL is required to complete download fallback");
         }
 
         try {

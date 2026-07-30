@@ -11,7 +11,11 @@ public class JurisdictionalData extends com.cheqi.sdk.models.generated.Jurisdict
 
     public static final class Builder {
         private String countryCode;
+        /** @deprecated Profiles are no longer part of the generated jurisdictional contract. */
+        @Deprecated
         private String profile;
+        /** @deprecated Profiles are no longer part of the generated jurisdictional contract. */
+        @Deprecated
         private String profileVersion;
         private com.cheqi.sdk.models.generated.FiscalizationData fiscalization;
         private final List<com.cheqi.sdk.models.generated.JurisdictionLegalText> legalTexts =
@@ -23,9 +27,12 @@ public class JurisdictionalData extends com.cheqi.sdk.models.generated.Jurisdict
         }
 
         public Builder countryCode(String value) { countryCode = value; return this; }
+        /** @deprecated Profiles are no longer serialized; use countryCode and supported fields. */
+        @Deprecated
         public Builder profile(String value) { profile = value; return this; }
+        /** @deprecated Profiles are no longer serialized; use countryCode and supported fields. */
+        @Deprecated
         public Builder profileVersion(String value) { profileVersion = value; return this; }
-
         public Builder fiscalization(com.cheqi.sdk.models.generated.FiscalizationData value) {
             fiscalization = value;
             return this;
@@ -54,13 +61,8 @@ public class JurisdictionalData extends com.cheqi.sdk.models.generated.Jurisdict
         }
 
         public JurisdictionalData build() {
-            if (profile == null || profile.trim().isEmpty()) {
-                throw new IllegalStateException("profile is required");
-            }
             JurisdictionalData data = new JurisdictionalData();
             data.setCountryCode(countryCode);
-            data.setProfile(profile);
-            data.setProfileVersion(profileVersion);
             data.setFiscalization(fiscalization);
             data.setLegalTexts(legalTexts.isEmpty() ? null : legalTexts);
             data.setAdditionalFields(additionalFields.isEmpty() ? null : additionalFields);

@@ -2,8 +2,8 @@ package com.cheqi.sdk.decryption;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.models.generated.EncryptedCreditNoteInitiationRequest;
-import com.cheqi.sdk.models.generated.EncryptedReceiptDeliveryResponse;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
+import com.cheqi.sdk.models.generated.ReceiptDelivery;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.crypto.SecretKey;
@@ -15,18 +15,26 @@ public class DecryptionService {
     private final ObjectMapper objectMapper = ObjectMapperConfig.getInstance();
 
     public ReceiptEnvelope decryptReceipt(
-            EncryptedReceiptDeliveryResponse delivery,
+            ReceiptDelivery delivery,
             String privateKeyBase64
     ) {
         if (delivery == null) {
             throw new IllegalArgumentException("delivery cannot be null");
         }
+        if (delivery.getEncryptedEnvelope() == null
+                || delivery.getEncryptedEnvelope().isBlank()) {
+            throw new IllegalArgumentException("delivery.encryptedEnvelope cannot be null or empty");
+        }
+        if (delivery.getEncryptedEnvelopeKey() == null
+                || delivery.getEncryptedEnvelopeKey().isBlank()) {
+            throw new IllegalArgumentException("delivery.encryptedEnvelopeKey cannot be null or empty");
+        }
         try {
             SecretKey aesKey = rsaKeyDecryptor.decryptKey(
-                    delivery.getEncryptedSymmetricKey(),
+                    delivery.getEncryptedEnvelopeKey(),
                     privateKeyBase64
             );
-            String plaintext = aesDecryptor.decrypt(delivery.getEncryptedReceipt(), aesKey);
+            String plaintext = aesDecryptor.decrypt(delivery.getEncryptedEnvelope(), aesKey);
             return objectMapper.readValue(plaintext, ReceiptEnvelope.class);
         } catch (Exception exception) {
             throw new DecryptionException("Failed to decrypt receipt envelope", exception);

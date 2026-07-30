@@ -89,6 +89,8 @@ paths:
           type: string
           format: uuid
       responses:
+        "400":
+          description: Invalid OAuth2 parameters
         "302":
           description: Redirect to the authorization page
           headers:
@@ -98,8 +100,6 @@ paths:
               schema:
                 type: string
                 format: uri
-        "400":
-          description: Invalid OAuth2 parameters
       security: []
   /oauth2/authorization-code/exchange:
     post:
@@ -184,6 +184,18 @@ paths:
               $ref: "#/components/schemas/ClientCredentialsTokenRequest"
         required: true
       responses:
+        "401":
+          description: Invalid client credentials
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
+        "400":
+          description: Invalid authorization code or request parameters
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
         "200":
           description: OAuth exchange completed successfully
           content:
@@ -199,18 +211,6 @@ paths:
                     token_type: bearer
                     expires_in: 900
                     scope: receipts.issue
-        "401":
-          description: Invalid client credentials
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
-        "400":
-          description: Invalid authorization code or request parameters
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
       security: []
   /company/{id}/receipt-delivery/devices/{deviceId}:
     put:
@@ -406,12 +406,6 @@ paths:
               $ref: "#/components/schemas/IdentificationDetails"
         required: true
       responses:
-        "200":
-          description: Recipient successfully resolved and matched
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/RecipientResolutionResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
           content:
@@ -432,6 +426,12 @@ paths:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
         "400":
           description: Invalid identification details provided
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RecipientResolutionResponse"
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -519,14 +519,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "400":
-          description: Invalid encrypted generation request
+        "202":
+          description: Encrypted receipt payload accepted for on-device formatting
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "202":
-          description: Encrypted receipt payload accepted for on-device formatting
+        "400":
+          description: Invalid encrypted generation request
           content:
             '*/*':
               schema:
@@ -579,6 +579,18 @@ paths:
               $ref: "#/components/schemas/ClientReceiptDownloadRequest"
         required: true
       responses:
+        "200":
+          description: Idempotent replay of an identical earlier upload
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
+        "201":
+          description: Encrypted receipt stored
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
         "409":
           description: A different receipt is already stored under this download id
           content:
@@ -593,18 +605,6 @@ paths:
                 $ref: "#/components/schemas/ClientReceiptDownloadResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "201":
-          description: Encrypted receipt stored
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "200":
-          description: Idempotent replay of an identical earlier upload
           content:
             '*/*':
               schema:
@@ -761,14 +761,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "202":
-          description: Encrypted credit-note generation job accepted
+        "403":
+          description: Insufficient permissions - requires write_receipts scope
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "403":
-          description: Insufficient permissions - requires write_receipts scope
+        "202":
+          description: Encrypted credit-note generation job accepted
           content:
             '*/*':
               schema:
@@ -893,6 +893,12 @@ paths:
               $ref: "#/components/schemas/CreateStoreRequest"
         required: true
       responses:
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to create stores for this company
           content:
@@ -911,12 +917,6 @@ paths:
             '*/*':
               schema:
                 type: object
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
   /client-application/{clientApplicationId}/public-key:
     get:
       tags:
@@ -1085,14 +1085,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store activated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
@@ -1114,6 +1114,12 @@ paths:
         **Accessible for:** Client Application, Company
       operationId: getQueuedReceipts
       responses:
+        "200":
+          description: Queued receipts returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncryptedReceiptDeliveryResponse"
         "403":
           description: Insufficient permissions - requires read_receipts scope
           content:
@@ -1123,12 +1129,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/EncryptedReceiptDeliveryResponse"
-        "200":
-          description: Queued receipts returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EncryptedReceiptDeliveryResponse"
       security:
       - cheqi_oauth:
         - read_receipts
@@ -1478,6 +1478,19 @@ components:
             type: string
             description: The payment IDs that are used to identify the payment on
               your side
+        merchantId:
+          type: string
+          description: Optional merchant identifier assigned by the card acquirer
+            or payment processor. It is preserved as receipt payment metadata and
+            is not used for customer matching. This is not the Cheqi company ID.
+          example: MID-from-payment-terminal
+        paymentTerminalId:
+          type: string
+          description: Optional terminal identifier assigned by the card acquirer
+            or payment processor. It is preserved as receipt payment metadata and
+            is not used for customer matching. This is not a fiscal cash-register
+            or device identifier.
+          example: TID-from-payment-terminal
         recipientEmail:
           type: string
           description: Recipient email used as a fallback customer identifier.
@@ -1529,6 +1542,7 @@ components:
     BuyerType:
       type: string
       description: Type of recipient entity
+      example: BUSINESS/CONSUMER
       enum:
       - BUSINESS
       - CONSUMER
@@ -1802,8 +1816,6 @@ components:
         receiptUuid:
           type: string
           description: The verification nonce of the receipt
-      description: Cheqi JSON receipt payload. Include this when the recipient accepts
-        the CHEQI format.
     CompanyIdentifierDTO:
       type: object
       properties:
@@ -3057,54 +3069,71 @@ components:
       description: Payload delivered to registered webhook notification URLs when
         subscribed events occur.
     ReceiptEnvelope:
+      required:
+      - cheqiReceiptId
+      - documents
+      - envelopeVersion
+      - receiptGeneratorVersion
+      - receiptUuid
       type: object
       properties:
-        cheqi:
-          $ref: "#/components/schemas/CheqiReceipt"
-        ublPurchaseReceipt:
+        cheqiReceiptId:
           type: string
-          description: Serialized UBL PurchaseReceipt XML payload. Include this when
-            the recipient accepts UBL_PURCHASE_RECEIPT.
-          example: <?xml version="1.0" encoding="UTF-8"?><PurchaseReceipt xmlns="urn:oasis:names:specification:ubl:schema:xsd:PurchaseReceipt-2">...</PurchaseReceipt>
-        ublInvoice:
+          description: Stable Cheqi receipt or credit-note identifier.
+          example: CHQ-20260724-135304-36DEC3
+        documents:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/ReceiptEnvelopeDocument"
+          description: "Generated documents keyed by ReceiptFormat name: CHEQI, UBL_PURCHASE_RECEIPT,\
+            \ UBL_INVOICE, or UBL_CREDIT_NOTE. Only formats included for this recipient\
+            \ are present. Each document's content is serialized JSON or XML, not\
+            \ a nested parsed document."
+        envelopeVersion:
+          maximum: 1
+          minimum: 1
+          type: integer
+          description: Schema version of this encrypted plaintext envelope.
+          format: int32
+          example: 1
+        receiptGeneratorVersion:
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._+\\-]{0,63}$"
           type: string
-          description: Serialized UBL Invoice XML payload. Include this when the recipient
-            accepts UBL_INVOICE.
-          example: <?xml version="1.0" encoding="UTF-8"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">...</Invoice>
-        vatMetaData:
-          $ref: "#/components/schemas/VatMetadata"
-      description: "Receipt envelope, that is the encrypted receipt content"
-    VatMetadata:
+          description: Version of the Rust receipt-template engine that generated
+            the documents.
+          example: 0.3.0
+        receiptUuid:
+          type: string
+          description: Shared UUID embedded in every generated representation of this
+            receipt.
+          format: uuid
+          example: 2a061905-30da-430d-b6b9-0be2189a6902
+      description: Versioned plaintext receipt package encrypted independently for
+        one recipient.
+      x-tags:
+      - Receipt Management
+    ReceiptEnvelopeDocument:
+      required:
+      - content
+      - mediaType
       type: object
       properties:
-        supplierCountry:
+        content:
           type: string
-        buyerCountry:
+          description: Complete generated JSON or XML document serialized as a string.
+            Parse this value according to mediaType after parsing the outer envelope.
+          example: "{\"documentNumber\":\"INV-2026-000042\",\"currency\":\"EUR\",\"\
+            totalAmount\":121.0}"
+        mediaType:
           type: string
-        crossBorder:
-          type: boolean
-        buyerType:
-          $ref: "#/components/schemas/BuyerType"
-        vatOnReceipt:
-          type: boolean
-        vatRegime:
-          $ref: "#/components/schemas/VatRegime"
-        taxesApplied:
-          type: boolean
-      description: VAT metadata that accompanies the receipt formats and supports
-        verification and tax handling.
-    VatRegime:
-      type: string
-      description: The VAT regime compute for given selling party and recipient
-      enum:
-      - DOMESTIC
-      - DOMESTIC_NO_VAT
-      - REVERSE_CHARGE_EU
-      - REVERSE_CHARGE_NON_EU
-      - INTRA_EU_VAT_CHARGED
-      - EXPORT
-      - FOREIGN_VAT
-      - TAX_EXEMPT
+          description: Media type of content.
+          example: application/json
+          enum:
+          - application/json
+          - application/xml
+      description: One generated document inside a recipient receipt envelope.
+      x-tags:
+      - Receipt Management
     FiscalizationData:
       required:
       - status
@@ -3192,9 +3221,16 @@ components:
           type: string
           description: Optional BCP 47 language tag
           example: pt-PT
+        displayRole:
+          type: string
+          description: Semantic presentation role for exact jurisdictional legal text
+          enum:
+          - DOCUMENT_HEADING
+          - NOTICE
+          - FOOTER
+      description: Exact jurisdictional legal text for structured CHEQI and UBL output.
+        This does not populate the merchant-configured receipt note.
     JurisdictionalData:
-      required:
-      - profile
       type: object
       properties:
         countryCode:
@@ -3202,16 +3238,22 @@ components:
           description: "Optional ISO 3166-1 alpha-2 issuance country; when omitted,\
             \ the on-device engine uses supplierParty.address.countryIsoCode"
           example: DE
-        profile:
+        regime:
           type: string
-          description: Country/regime profile selected by the merchant POS
+          description: "Optional external fiscal, authority, or regulated-system regime\
+            \ selected by the merchant POS"
           example: DE_KASSENSICHV
-        profileVersion:
+        regimeVersion:
           type: string
+          description: Version of Cheqi's data contract for the selected external
+            regime
+          example: 2026-07
         fiscalization:
           $ref: "#/components/schemas/FiscalizationData"
         legalTexts:
           type: array
+          description: Exact jurisdictional legal text for structured CHEQI and UBL
+            output. This does not populate the merchant-configured receipt note.
           items:
             $ref: "#/components/schemas/JurisdictionLegalText"
         additionalFields:
@@ -3294,9 +3336,6 @@ components:
           format: date-time
         period:
           $ref: "#/components/schemas/Period"
-        note:
-          type: string
-          description: Optional issuer-supplied receipt note.
         barcodes:
           type: array
           description: Issuer-supplied receipt-level barcodes or QR-code payloads.
