@@ -10,9 +10,10 @@ import java.time.OffsetDateTime;
 /**
  * Outcome of receipt routing.
  *
- * <p>A digital route is submitted immediately. A download fallback first returns
- * {@link #isDownloadEnvelopeRequired()} so the caller can generate the final
- * {@code ReceiptEnvelope} locally and pass it to
+ * <p>A digital route is submitted immediately. A download fallback with locally supplied
+ * payment context is also completed immediately from the generated receipt payload and the
+ * original generated identification details. A fallback without local payment context returns
+ * {@link #isDownloadEnvelopeRequired()} so the caller can pass a final {@code ReceiptEnvelope} to
  * {@link ReceiptService#completeDownloadFallback(ReceiptResult,
  * com.cheqi.sdk.models.generated.ReceiptEnvelope, String, String)}.</p>
  */

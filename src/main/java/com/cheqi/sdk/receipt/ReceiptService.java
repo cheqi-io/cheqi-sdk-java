@@ -16,9 +16,13 @@ import com.cheqi.sdk.models.generated.IdentificationDetails;
 import com.cheqi.sdk.models.generated.MatchedRecipient;
 import com.cheqi.sdk.models.generated.ReceiptPayload;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
+import com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument;
 import com.cheqi.sdk.models.generated.ReceiptSubmissionResponse;
 import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
+import com.cheqi.sdk.verification.VerificationService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +37,14 @@ import java.util.UUID;
  * only ciphertext to Cheqi.</p>
  */
 public class ReceiptService {
+    private static final String PAYLOAD_DOCUMENT_VERSION = "receipt-payload-v1";
+
     private final CheqiApiClient apiClient;
     private final EncryptionService encryptionService;
     private final MatchingService matchingService;
     private final ObjectMapper objectMapper;
     private final DownloadService downloadService;
+    private final VerificationService verificationService;
     private final String downloadBaseUrl;
 
     public ReceiptService(
@@ -69,6 +76,7 @@ public class ReceiptService {
         this.matchingService = Objects.requireNonNull(matchingService, "matchingService cannot be null");
         this.objectMapper = ObjectMapperConfig.getInstance();
         this.downloadService = Objects.requireNonNull(downloadService, "downloadService cannot be null");
+        this.verificationService = new VerificationService();
         this.downloadBaseUrl = downloadBaseUrl;
     }
 
@@ -91,7 +99,15 @@ public class ReceiptService {
 
             RecipientResolutionResponse.DeliveryRouteTypeEnum route = resolveRoute(resolution);
             if (route == RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK) {
-                return ReceiptResult.downloadEnvelopeRequired(resolution);
+                if (identificationDetails.getPaymentType() == null) {
+                    return ReceiptResult.downloadEnvelopeRequired(resolution);
+                }
+                return deliverClientEncryptedDownload(
+                        resolution.getMatchId(),
+                        identificationDetails,
+                        receiptPayload,
+                        accessToken
+                );
             }
             if (route == RecipientResolutionResponse.DeliveryRouteTypeEnum.EMAIL_FALLBACK) {
                 return ReceiptResult.emailReceiptRequired(resolution);
@@ -125,6 +141,53 @@ public class ReceiptService {
                     exception
             );
         }
+    }
+
+    /**
+     * Creates a client-encrypted download receipt without attempting recipient matching.
+     * Use this for an explicit "Customer without Cheqi" flow where only local payment context
+     * is available.
+     */
+    public ReceiptResult issueDownloadReceipt(
+            IdentificationDetails identificationDetails,
+            ReceiptPayload receiptPayload,
+            String accessToken
+    ) throws CheqiSDKException {
+        requireNonNull(identificationDetails, "identificationDetails");
+        requireNonNull(receiptPayload, "receiptPayload");
+        if (identificationDetails.getPaymentType() == null) {
+            throw validationError("identificationDetails.paymentType is required");
+        }
+        if (accessToken != null && accessToken.trim().isEmpty()) {
+            throw validationError("accessToken cannot be empty");
+        }
+        try {
+            return deliverClientEncryptedDownload(
+                    null,
+                    identificationDetails,
+                    receiptPayload,
+                    accessToken
+            );
+        } catch (CheqiSDKException exception) {
+            throw exception;
+        } catch (CheqiApiException exception) {
+            throw new CheqiSDKException(
+                    "Encrypted download receipt submission failed: " + exception.getMessage(),
+                    exception
+            );
+        } catch (Exception exception) {
+            throw new CheqiSDKException(
+                    "Download receipt processing failed: " + exception.getMessage(),
+                    exception
+            );
+        }
+    }
+
+    public ReceiptResult issueDownloadReceipt(
+            IdentificationDetails identificationDetails,
+            ReceiptPayload receiptPayload
+    ) throws CheqiSDKException {
+        return issueDownloadReceipt(identificationDetails, receiptPayload, null);
     }
 
     public ReceiptResult issueReceipt(
@@ -257,6 +320,56 @@ public class ReceiptService {
             deliveries.add(encryptionService.encryptReceiptForRecipient(plaintextJson, recipient));
         }
         return deliveries;
+    }
+
+    private ReceiptResult deliverClientEncryptedDownload(
+            String matchId,
+            IdentificationDetails identificationDetails,
+            ReceiptPayload receiptPayload,
+            String accessToken
+    ) throws Exception {
+        if (downloadBaseUrl == null || downloadBaseUrl.trim().isEmpty()) {
+            throw validationError("A receipt download base URL is required to complete download fallback");
+        }
+
+        DownloadLink link = downloadService.generateDownloadLink(downloadBaseUrl);
+        String cheqiDocument = buildDownloadCheqiDocument(receiptPayload, identificationDetails);
+        ReceiptEnvelope envelope = new ReceiptEnvelope()
+                .cheqiReceiptId(link.getDownloadId())
+                .envelopeVersion(1)
+                .receiptGeneratorVersion(PAYLOAD_DOCUMENT_VERSION)
+                .receiptUuid(UUID.randomUUID())
+                .putDocumentsItem(
+                        "CHEQI",
+                        new ReceiptEnvelopeDocument()
+                                .mediaType(ReceiptEnvelopeDocument.MediaTypeEnum.APPLICATION_JSON)
+                                .content(cheqiDocument)
+                );
+        String ciphertext = downloadService.encryptDownloadEnvelope(envelope, link.getContentKey());
+        String templateHash = verificationService.calculateCheqiReceiptHash(cheqiDocument);
+        ClientReceiptDownloadRequest request = new ClientReceiptDownloadRequest()
+                .downloadId(link.getDownloadId())
+                .ciphertext(ciphertext)
+                .templateHash(templateHash);
+        ClientReceiptDownloadResponse response = accessToken == null
+                ? apiClient.uploadEncryptedDownloadReceipt(request)
+                : apiClient.uploadEncryptedDownloadReceipt(request, accessToken);
+        return ReceiptResult.downloadAccepted(matchId, response, link.getUrl());
+    }
+
+    /**
+     * Builds the CHEQI JSON used only by the browser download route. The generated receipt payload
+     * remains the base contract; the same generated identification details supplied for matching
+     * are included unchanged so cash, card, direct-debit, and PAR context survive fallback.
+     */
+    String buildDownloadCheqiDocument(
+            ReceiptPayload receiptPayload,
+            IdentificationDetails identificationDetails
+    ) throws Exception {
+        ObjectNode document = objectMapper.valueToTree(receiptPayload);
+        JsonNode identification = objectMapper.valueToTree(identificationDetails);
+        document.set("identificationDetails", identification);
+        return objectMapper.writeValueAsString(document);
     }
 
     private static void validateResolvedRoute(RecipientResolutionResponse resolution)

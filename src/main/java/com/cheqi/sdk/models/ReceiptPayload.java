@@ -35,6 +35,7 @@ public class ReceiptPayload extends com.cheqi.sdk.models.generated.ReceiptPayloa
         private com.cheqi.sdk.models.generated.Period period;
         private String note;
         private List<com.cheqi.sdk.models.generated.Barcode> barcodes = new ArrayList<>();
+        private com.cheqi.sdk.models.generated.PaymentDetails paymentDetails;
         private com.cheqi.sdk.models.generated.JurisdictionalData jurisdictionalData;
 
         private Builder() {
@@ -56,6 +57,12 @@ public class ReceiptPayload extends com.cheqi.sdk.models.generated.ReceiptPayloa
         public Builder purchaseDate(OffsetDateTime value) { purchaseDate = value; return this; }
         public Builder period(com.cheqi.sdk.models.generated.Period value) { period = value; return this; }
         public Builder note(String value) { note = value; return this; }
+        public Builder paymentDetails(
+                com.cheqi.sdk.models.generated.PaymentDetails value
+        ) {
+            paymentDetails = value;
+            return this;
+        }
         public Builder jurisdictionalData(
                 com.cheqi.sdk.models.generated.JurisdictionalData value
         ) {
@@ -159,6 +166,7 @@ public class ReceiptPayload extends com.cheqi.sdk.models.generated.ReceiptPayloa
             payload.setPurchaseDate(purchaseDate);
             payload.setPeriod(period);
             payload.setBarcodes(emptyToNull(barcodes));
+            payload.setPaymentDetails(paymentDetails);
             payload.setJurisdictionalData(jurisdictionalData);
             return payload;
         }

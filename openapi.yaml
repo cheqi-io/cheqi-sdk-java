@@ -89,8 +89,6 @@ paths:
           type: string
           format: uuid
       responses:
-        "400":
-          description: Invalid OAuth2 parameters
         "302":
           description: Redirect to the authorization page
           headers:
@@ -100,6 +98,8 @@ paths:
               schema:
                 type: string
                 format: uri
+        "400":
+          description: Invalid OAuth2 parameters
       security: []
   /oauth2/authorization-code/exchange:
     post:
@@ -158,14 +158,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/OAuthGrantDetailsResponse"
-        "200":
-          description: Grant details retrieved successfully
+        "403":
+          description: The token is not authorized for this Grant or lacks read_stores
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/OAuthGrantDetailsResponse"
-        "403":
-          description: The token is not authorized for this Grant or lacks read_stores
+        "200":
+          description: Grant details retrieved successfully
           content:
             '*/*':
               schema:
@@ -184,18 +184,6 @@ paths:
               $ref: "#/components/schemas/ClientCredentialsTokenRequest"
         required: true
       responses:
-        "401":
-          description: Invalid client credentials
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
-        "400":
-          description: Invalid authorization code or request parameters
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
         "200":
           description: OAuth exchange completed successfully
           content:
@@ -211,6 +199,18 @@ paths:
                     token_type: bearer
                     expires_in: 900
                     scope: receipts.issue
+        "401":
+          description: Invalid client credentials
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
+        "400":
+          description: Invalid authorization code or request parameters
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
       security: []
   /company/{id}/receipt-delivery/devices/{deviceId}:
     put:
@@ -326,6 +326,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to update this store
           content:
@@ -338,12 +344,6 @@ paths:
             '*/*':
               schema:
                 type: object
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
   /webhook/subscription:
     post:
       tags:
@@ -424,14 +424,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "400":
-          description: Invalid identification details provided
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
+        "400":
+          description: Invalid identification details provided
           content:
             '*/*':
               schema:
@@ -519,14 +519,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "202":
-          description: Encrypted receipt payload accepted for on-device formatting
+        "400":
+          description: Invalid encrypted generation request
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "400":
-          description: Invalid encrypted generation request
+        "202":
+          description: Encrypted receipt payload accepted for on-device formatting
           content:
             '*/*':
               schema:
@@ -579,18 +579,6 @@ paths:
               $ref: "#/components/schemas/ClientReceiptDownloadRequest"
         required: true
       responses:
-        "200":
-          description: Idempotent replay of an identical earlier upload
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "201":
-          description: Encrypted receipt stored
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
         "409":
           description: A different receipt is already stored under this download id
           content:
@@ -605,6 +593,18 @@ paths:
                 $ref: "#/components/schemas/ClientReceiptDownloadResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
+        "200":
+          description: Idempotent replay of an identical earlier upload
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
+        "201":
+          description: Encrypted receipt stored
           content:
             '*/*':
               schema:
@@ -893,12 +893,6 @@ paths:
               $ref: "#/components/schemas/CreateStoreRequest"
         required: true
       responses:
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to create stores for this company
           content:
@@ -911,6 +905,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "400":
           description: Invalid request data
           content:
@@ -936,14 +936,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
@@ -1043,14 +1043,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store deactivated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
@@ -1085,14 +1085,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
@@ -1478,19 +1478,6 @@ components:
             type: string
             description: The payment IDs that are used to identify the payment on
               your side
-        merchantId:
-          type: string
-          description: Optional merchant identifier assigned by the card acquirer
-            or payment processor. It is preserved as receipt payment metadata and
-            is not used for customer matching. This is not the Cheqi company ID.
-          example: MID-from-payment-terminal
-        paymentTerminalId:
-          type: string
-          description: Optional terminal identifier assigned by the card acquirer
-            or payment processor. It is preserved as receipt payment metadata and
-            is not used for customer matching. This is not a fiscal cash-register
-            or device identifier.
-          example: TID-from-payment-terminal
         recipientEmail:
           type: string
           description: Recipient email used as a fallback customer identifier.
@@ -3261,6 +3248,45 @@ components:
           items:
             $ref: "#/components/schemas/JurisdictionField"
       description: Optional country-specific fiscalization and legal receipt data.
+    PaymentDetails:
+      type: object
+      properties:
+        paymentMeansCode:
+          type: string
+          description: "Issuer-supplied payment means code, such as 10 for cash, 48\
+            \ for card, or 49 for direct debit."
+          example: "48"
+        description:
+          type: string
+          description: Issuer-supplied display description for the payment method.
+        cardProvider:
+          type: string
+          description: Card scheme or provider when applicable.
+          example: VISA
+        cardLastFour:
+          type: string
+          description: Last four card digits when the issuer is permitted to include
+            them.
+          example: "4242"
+        accountIdentifier:
+          type: string
+          description: Payment-account identifier when applicable.
+        accountIdentifierType:
+          type: string
+          description: Type of the payment-account identifier when applicable.
+          example: IBAN
+        merchantId:
+          type: string
+          description: Merchant identifier assigned by the card acquirer or payment
+            processor.
+          example: MID-from-payment-terminal
+        paymentTerminalId:
+          type: string
+          description: Terminal identifier assigned by the card acquirer or payment
+            processor.
+          example: TID-from-payment-terminal
+      description: Definitive issuer-supplied payment information encrypted as part
+        of the ReceiptPayload. Cheqi never receives this object in plaintext.
     ReceiptPayload:
       required:
       - currency
@@ -3341,6 +3367,8 @@ components:
           description: Issuer-supplied receipt-level barcodes or QR-code payloads.
           items:
             $ref: "#/components/schemas/Barcode"
+        paymentDetails:
+          $ref: "#/components/schemas/PaymentDetails"
         jurisdictionalData:
           $ref: "#/components/schemas/JurisdictionalData"
       description: "Definitive merchant-supplied receipt values encrypted independently\

@@ -21,6 +21,7 @@ import com.cheqi.sdk.models.generated.Charge;
 import com.cheqi.sdk.models.generated.Discount;
 import com.cheqi.sdk.models.generated.Identifier;
 import com.cheqi.sdk.models.generated.JurisdictionalData;
+import com.cheqi.sdk.models.generated.PaymentDetails;
 import com.cheqi.sdk.models.generated.Period;
 import com.cheqi.sdk.models.generated.Product;
 import com.cheqi.sdk.models.generated.Tax;
@@ -58,6 +59,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   ReceiptPayload.JSON_PROPERTY_PURCHASE_DATE,
   ReceiptPayload.JSON_PROPERTY_PERIOD,
   ReceiptPayload.JSON_PROPERTY_BARCODES,
+  ReceiptPayload.JSON_PROPERTY_PAYMENT_DETAILS,
   ReceiptPayload.JSON_PROPERTY_JURISDICTIONAL_DATA
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
@@ -130,6 +132,10 @@ public class ReceiptPayload {
   public static final String JSON_PROPERTY_BARCODES = "barcodes";
   @javax.annotation.Nullable
   private List<Barcode> barcodes = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_PAYMENT_DETAILS = "paymentDetails";
+  @javax.annotation.Nullable
+  private PaymentDetails paymentDetails;
 
   public static final String JSON_PROPERTY_JURISDICTIONAL_DATA = "jurisdictionalData";
   @javax.annotation.Nullable
@@ -594,6 +600,30 @@ public class ReceiptPayload {
   }
 
 
+  public ReceiptPayload paymentDetails(@javax.annotation.Nullable PaymentDetails paymentDetails) {
+    this.paymentDetails = paymentDetails;
+    return this;
+  }
+
+  /**
+   * Get paymentDetails
+   * @return paymentDetails
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_PAYMENT_DETAILS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public PaymentDetails getPaymentDetails() {
+    return paymentDetails;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PAYMENT_DETAILS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPaymentDetails(@javax.annotation.Nullable PaymentDetails paymentDetails) {
+    this.paymentDetails = paymentDetails;
+  }
+
+
   public ReceiptPayload jurisdictionalData(@javax.annotation.Nullable JurisdictionalData jurisdictionalData) {
     this.jurisdictionalData = jurisdictionalData;
     return this;
@@ -647,12 +677,13 @@ public class ReceiptPayload {
         Objects.equals(this.purchaseDate, receiptPayload.purchaseDate) &&
         Objects.equals(this.period, receiptPayload.period) &&
         Objects.equals(this.barcodes, receiptPayload.barcodes) &&
+        Objects.equals(this.paymentDetails, receiptPayload.paymentDetails) &&
         Objects.equals(this.jurisdictionalData, receiptPayload.jurisdictionalData);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, taxesApplied, products, discounts, charges, taxes, transactionDate, purchaseDate, period, barcodes, jurisdictionalData);
+    return Objects.hash(documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, taxesApplied, products, discounts, charges, taxes, transactionDate, purchaseDate, period, barcodes, paymentDetails, jurisdictionalData);
   }
 
   @Override
@@ -676,6 +707,7 @@ public class ReceiptPayload {
     sb.append("    purchaseDate: ").append(toIndentedString(purchaseDate)).append("\n");
     sb.append("    period: ").append(toIndentedString(period)).append("\n");
     sb.append("    barcodes: ").append(toIndentedString(barcodes)).append("\n");
+    sb.append("    paymentDetails: ").append(toIndentedString(paymentDetails)).append("\n");
     sb.append("    jurisdictionalData: ").append(toIndentedString(jurisdictionalData)).append("\n");
     sb.append("}");
     return sb.toString();

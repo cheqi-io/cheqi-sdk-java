@@ -38,8 +38,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   IdentificationDetails.JSON_PROPERTY_CARD_DETAILS,
   IdentificationDetails.JSON_PROPERTY_PAYMENT_ACCOUNT_DETAILS,
   IdentificationDetails.JSON_PROPERTY_PAYMENT_IDS,
-  IdentificationDetails.JSON_PROPERTY_MERCHANT_ID,
-  IdentificationDetails.JSON_PROPERTY_PAYMENT_TERMINAL_ID,
   IdentificationDetails.JSON_PROPERTY_RECIPIENT_EMAIL,
   IdentificationDetails.JSON_PROPERTY_CHEQI_RECEIPT_ID,
   IdentificationDetails.JSON_PROPERTY_PAIRING_CODE
@@ -62,14 +60,6 @@ public class IdentificationDetails {
   public static final String JSON_PROPERTY_PAYMENT_IDS = "paymentIds";
   @javax.annotation.Nullable
   private List<String> paymentIds = new ArrayList<>();
-
-  public static final String JSON_PROPERTY_MERCHANT_ID = "merchantId";
-  @javax.annotation.Nullable
-  private String merchantId;
-
-  public static final String JSON_PROPERTY_PAYMENT_TERMINAL_ID = "paymentTerminalId";
-  @javax.annotation.Nullable
-  private String paymentTerminalId;
 
   public static final String JSON_PROPERTY_RECIPIENT_EMAIL = "recipientEmail";
   @javax.annotation.Nullable
@@ -190,54 +180,6 @@ public class IdentificationDetails {
   }
 
 
-  public IdentificationDetails merchantId(@javax.annotation.Nullable String merchantId) {
-    this.merchantId = merchantId;
-    return this;
-  }
-
-  /**
-   * Optional merchant identifier assigned by the card acquirer or payment processor. It is preserved as receipt payment metadata and is not used for customer matching. This is not the Cheqi company ID.
-   * @return merchantId
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_MERCHANT_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getMerchantId() {
-    return merchantId;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_MERCHANT_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setMerchantId(@javax.annotation.Nullable String merchantId) {
-    this.merchantId = merchantId;
-  }
-
-
-  public IdentificationDetails paymentTerminalId(@javax.annotation.Nullable String paymentTerminalId) {
-    this.paymentTerminalId = paymentTerminalId;
-    return this;
-  }
-
-  /**
-   * Optional terminal identifier assigned by the card acquirer or payment processor. It is preserved as receipt payment metadata and is not used for customer matching. This is not a fiscal cash-register or device identifier.
-   * @return paymentTerminalId
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_PAYMENT_TERMINAL_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getPaymentTerminalId() {
-    return paymentTerminalId;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_PAYMENT_TERMINAL_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPaymentTerminalId(@javax.annotation.Nullable String paymentTerminalId) {
-    this.paymentTerminalId = paymentTerminalId;
-  }
-
-
   public IdentificationDetails recipientEmail(@javax.annotation.Nullable String recipientEmail) {
     this.recipientEmail = recipientEmail;
     return this;
@@ -326,8 +268,6 @@ public class IdentificationDetails {
         Objects.equals(this.cardDetails, identificationDetails.cardDetails) &&
         Objects.equals(this.paymentAccountDetails, identificationDetails.paymentAccountDetails) &&
         Objects.equals(this.paymentIds, identificationDetails.paymentIds) &&
-        Objects.equals(this.merchantId, identificationDetails.merchantId) &&
-        Objects.equals(this.paymentTerminalId, identificationDetails.paymentTerminalId) &&
         Objects.equals(this.recipientEmail, identificationDetails.recipientEmail) &&
         Objects.equals(this.cheqiReceiptId, identificationDetails.cheqiReceiptId) &&
         Objects.equals(this.pairingCode, identificationDetails.pairingCode);
@@ -335,7 +275,7 @@ public class IdentificationDetails {
 
   @Override
   public int hashCode() {
-    return Objects.hash(paymentType, cardDetails, paymentAccountDetails, paymentIds, merchantId, paymentTerminalId, recipientEmail, cheqiReceiptId, pairingCode);
+    return Objects.hash(paymentType, cardDetails, paymentAccountDetails, paymentIds, recipientEmail, cheqiReceiptId, pairingCode);
   }
 
   @Override
@@ -346,8 +286,6 @@ public class IdentificationDetails {
     sb.append("    cardDetails: ").append(toIndentedString(cardDetails)).append("\n");
     sb.append("    paymentAccountDetails: ").append(toIndentedString(paymentAccountDetails)).append("\n");
     sb.append("    paymentIds: ").append(toIndentedString(paymentIds)).append("\n");
-    sb.append("    merchantId: ").append(toIndentedString(merchantId)).append("\n");
-    sb.append("    paymentTerminalId: ").append(toIndentedString(paymentTerminalId)).append("\n");
     sb.append("    recipientEmail: ").append(toIndentedString(recipientEmail)).append("\n");
     sb.append("    cheqiReceiptId: ").append(toIndentedString(cheqiReceiptId)).append("\n");
     sb.append("    pairingCode: ").append(toIndentedString(pairingCode)).append("\n");

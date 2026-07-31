@@ -2,6 +2,7 @@ package com.cheqi.sdk.models;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.models.generated.FiscalizationStatus;
+import com.cheqi.sdk.models.generated.PaymentDetails;
 import com.cheqi.sdk.models.generated.UnitCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,11 @@ class ReceiptPayloadTest {
                 .totalTaxAmount("3.03")
                 .totalAmount("9.04")
                 .taxesApplied(true)
+                .paymentDetails(new PaymentDetails()
+                        .paymentMeansCode("48")
+                        .cardLastFour("4242")
+                        .merchantId("MID-EXACT")
+                        .paymentTerminalId("TID-EXACT"))
                 .addProduct(Product.builder()
                         .name("Supplied line")
                         .identifier("LINE-1")
@@ -52,6 +58,10 @@ class ReceiptPayloadTest {
         assertEquals("8.02", json.get("totalBeforeTax").asText());
         assertEquals("3.03", json.get("totalTaxAmount").asText());
         assertEquals("9.04", json.get("totalAmount").asText());
+        assertEquals("48", json.at("/paymentDetails/paymentMeansCode").asText());
+        assertEquals("4242", json.at("/paymentDetails/cardLastFour").asText());
+        assertEquals("MID-EXACT", json.at("/paymentDetails/merchantId").asText());
+        assertEquals("TID-EXACT", json.at("/paymentDetails/paymentTerminalId").asText());
         assertEquals("3.33", json.at("/products/0/total").asText());
         assertEquals("AT", json.at("/jurisdictionalData/countryCode").asText());
         assertEquals("issuer-supplied-signature",

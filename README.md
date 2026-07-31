@@ -272,49 +272,50 @@ ReceiptCreatedResponse created = sdk.getReceiptService()
     .sendEncryptedReceipts(Set.of(encrypted), templateHash, match, accessToken);
 ```
 
-## Deferred Receipt Download Links
+## Client-Encrypted Download Fallback
 
-The SDK can generate a customer URL without contacting Cheqi. The merchant integration
-owns persistence, scheduling, retries, and retention; the SDK does not start background
-workers or choose a storage implementation.
+Set the generated `PaymentDetails` on `ReceiptPayload` for every issuance route:
 
 ```java
-DownloadLink link = sdk.getDownloadService()
-    .generateDownloadLink(Environment.PRODUCTION);
-
-// Persist the complete receipt request, link.getDownloadId(), and protected
-// link.getContentKey() before exposing link.getUrl() to the customer.
-receiptJobs.create(receipt, link);
-printQr(link.getUrl());
-
-// Later, on compute and a schedule controlled by the merchant integration:
-ReceiptTemplateResponse template = sdk.getReceiptService()
-    .generateReceiptTemplate(receipt, List.of(ReceiptFormat.CHEQI));
-ReceiptEnvelope envelope = sdk.getDownloadService().buildDownloadEnvelope(template);
-String ciphertext = sdk.getDownloadService()
-    .encryptDownloadEnvelope(envelope, link.getContentKey());
-
-// Persist these exact bytes before the first upload attempt. Every retry must reuse
-// the same ciphertext because encrypting again creates a different GCM IV.
-receiptJobs.markReady(link.getDownloadId(), ciphertext);
-ClientReceiptDownloadResponse response = sdk.getReceiptService()
-    .uploadEncryptedDownloadReceipt(new ClientReceiptDownloadRequest()
-        .downloadId(link.getDownloadId())
-        .ciphertext(ciphertext));
+receiptPayload.paymentDetails(new PaymentDetails()
+    .paymentMeansCode("48")
+    .description("Card payment")
+    .cardProvider("VISA")
+    .cardLastFour("4242")
+    .merchantId("MID-123")
+    .paymentTerminalId("TID-456"));
 ```
 
-The customer may open the URL before upload; the download page shows that the receipt is
-not yet available. When resuming deferred processing, use `parseDownloadUrl` to recover
-the original id and key. Do not build CHEQI or UBL receipt content locally: call the normal
-template endpoint after connectivity returns.
+`ReceiptPayload.paymentDetails` is definitive and is preserved unchanged. If it is absent,
+payment means remain absent; matching data is not used as a fallback.
 
-`processCompleteReceipt` uses the same client-encrypted route automatically. A backend
-`DIGITAL` match is delivered normally, `EMAIL_FALLBACK` retains the explicit email behavior,
-and `DOWNLOAD_FALLBACK` bypasses the legacy Cheqi-held fallback key and uploads fragment-key
-ciphertext through `/receipt/download`. Connectivity failures during matching or template
-generation return `PENDING_DOWNLOAD_TEMPLATE`; an unconfirmed encrypted upload returns
-`PENDING_DOWNLOAD_UPLOAD` with `getDownloadCiphertext()` so the integration can persist and
-retry the exact bytes. The SDK never stores or schedules these pending results.
+When `IdentificationDetails.paymentType` is present and recipient resolution selects
+`DOWNLOAD_FALLBACK`, `issueReceipt` completes the fallback automatically. It serializes the
+generated `ReceiptPayload`, inserts the same generated `IdentificationDetails` as a top-level
+field, hashes that combined CHEQI JSON document, and places it in a generated
+`ReceiptEnvelope`. The SDK then generates the fragment-key URL, encrypts the envelope with
+AES-256-GCM, uploads only the download id, ciphertext, and hash, and returns the URL through
+`ReceiptResult.getDownloadUrl()`.
+
+This preserves any locally available payment identification without converting it into a
+separate payment-means model. For a card payment that includes a PAR, card provider, or last
+four digits, those values are therefore available to the encrypted download receipt. Cash can
+be represented by `PaymentType.CASH` even when no other customer identification exists.
+
+For an explicit **Customer without Cheqi** flow, call `issueDownloadReceipt` so the SDK skips
+recipient matching and submits the locally encrypted download directly:
+
+```java
+ReceiptResult result = sdk.getReceiptService().issueDownloadReceipt(
+    new IdentificationDetails().paymentType(PaymentType.CASH),
+    receiptPayload,
+    accessToken
+);
+```
+
+If no payment type is available (for example, pairing-code-only matching), the result remains
+`isDownloadEnvelopeRequired()` so the caller can provide another final generated
+`ReceiptEnvelope` through `completeDownloadFallback`.
 
 ## Store Management
 

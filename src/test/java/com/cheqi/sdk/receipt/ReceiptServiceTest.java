@@ -2,14 +2,21 @@ package com.cheqi.sdk.receipt;
 
 import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.config.ObjectMapperConfig;
+import com.cheqi.sdk.download.DownloadLink;
+import com.cheqi.sdk.download.DownloadService;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.matching.MatchingService;
 import com.cheqi.sdk.models.Product;
 import com.cheqi.sdk.models.ReceiptPayload;
+import com.cheqi.sdk.models.generated.CardDetails;
+import com.cheqi.sdk.models.generated.ClientReceiptDownloadRequest;
+import com.cheqi.sdk.models.generated.ClientReceiptDownloadResponse;
 import com.cheqi.sdk.models.generated.EncryptedReceiptEnvelope;
 import com.cheqi.sdk.models.generated.EncryptedReceiptPayload;
 import com.cheqi.sdk.models.generated.IdentificationDetails;
 import com.cheqi.sdk.models.generated.MatchedRecipient;
+import com.cheqi.sdk.models.generated.PaymentType;
+import com.cheqi.sdk.models.generated.ReceiptEnvelope;
 import com.cheqi.sdk.models.generated.ReceiptSubmissionResponse;
 import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
 import com.cheqi.sdk.models.generated.UnitCode;
@@ -26,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -109,6 +117,106 @@ class ReceiptServiceTest {
         );
 
         assertTrue(encryptionService.plaintexts.isEmpty());
+    }
+
+    @Test
+    void completesDownloadFallbackWithOriginalIdentificationDetailsIncludingPar() throws Exception {
+        RecipientResolutionResponse resolution = new RecipientResolutionResponse()
+                .routeFound(true)
+                .deliveryRouteType(RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK)
+                .matchId("match-download");
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+                .thenReturn(resolution);
+        when(apiClient.uploadEncryptedDownloadReceipt(
+                org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class)
+        )).thenReturn(new ClientReceiptDownloadResponse().cheqiReceiptId("CHQ-DL"));
+
+        DownloadService downloads = new DownloadService();
+        service = new ReceiptService(
+                apiClient,
+                encryptionService,
+                matchingService,
+                downloads,
+                "https://receipt.example"
+        );
+        IdentificationDetails identification = new IdentificationDetails()
+                .paymentType(PaymentType.CARD_PAYMENT)
+                .cardDetails(new CardDetails()
+                        .cardProvider(CardDetails.CardProviderEnum.VISA)
+                        .paymentAccountReference("PAR-123")
+                        .lastFourDigits("4242"));
+
+        ReceiptResult result = service.issueReceipt(identification, receipt());
+
+        assertTrue(result.isAccepted());
+        assertEquals("CHQ-DL", result.getCheqiReceiptId());
+        assertEquals(
+                RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK,
+                result.getDeliveryRouteType()
+        );
+        DownloadLink link = downloads.parseDownloadUrl(result.getDownloadUrl());
+        ArgumentCaptor<ClientReceiptDownloadRequest> upload =
+                ArgumentCaptor.forClass(ClientReceiptDownloadRequest.class);
+        verify(apiClient).uploadEncryptedDownloadReceipt(upload.capture());
+        ReceiptEnvelope envelope = downloads.decryptDownloadEnvelope(
+                upload.getValue().getCiphertext(),
+                link.getContentKey()
+        );
+        String document = envelope.getDocuments().get("CHEQI").getContent();
+        assertEquals("R-100", ObjectMapperConfig.getInstance().readTree(document)
+                .get("documentNumber").asText());
+        assertEquals("CARD_PAYMENT", ObjectMapperConfig.getInstance().readTree(document)
+                .at("/identificationDetails/paymentType").asText());
+        assertEquals("PAR-123", ObjectMapperConfig.getInstance().readTree(document)
+                .at("/identificationDetails/cardDetails/paymentAccountReference").asText());
+        assertEquals("4242", ObjectMapperConfig.getInstance().readTree(document)
+                .at("/identificationDetails/cardDetails/lastFourDigits").asText());
+        assertTrue(upload.getValue().getTemplateHash() != null);
+    }
+
+    @Test
+    void explicitCashDownloadDoesNotAttemptCustomerMatching() throws Exception {
+        when(apiClient.uploadEncryptedDownloadReceipt(
+                org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class),
+                org.mockito.ArgumentMatchers.eq("company-token")
+        )).thenReturn(new ClientReceiptDownloadResponse().cheqiReceiptId("CHQ-CASH"));
+        DownloadService downloads = new DownloadService();
+        service = new ReceiptService(
+                apiClient,
+                encryptionService,
+                matchingService,
+                downloads,
+                "https://receipt.example"
+        );
+
+        ReceiptResult result = service.issueDownloadReceipt(
+                new IdentificationDetails().paymentType(PaymentType.CASH),
+                receipt(),
+                "company-token"
+        );
+
+        assertTrue(result.isAccepted());
+        assertEquals("CHQ-CASH", result.getCheqiReceiptId());
+        assertEquals(
+                RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK,
+                result.getDeliveryRouteType()
+        );
+        verify(apiClient, never()).matchCustomer(
+                org.mockito.ArgumentMatchers.any(IdentificationDetails.class),
+                org.mockito.ArgumentMatchers.anyString()
+        );
+        ArgumentCaptor<ClientReceiptDownloadRequest> upload =
+                ArgumentCaptor.forClass(ClientReceiptDownloadRequest.class);
+        verify(apiClient).uploadEncryptedDownloadReceipt(upload.capture(),
+                org.mockito.ArgumentMatchers.eq("company-token"));
+        DownloadLink link = downloads.parseDownloadUrl(result.getDownloadUrl());
+        ReceiptEnvelope envelope = downloads.decryptDownloadEnvelope(
+                upload.getValue().getCiphertext(),
+                link.getContentKey()
+        );
+        String document = envelope.getDocuments().get("CHEQI").getContent();
+        assertEquals("CASH", ObjectMapperConfig.getInstance().readTree(document)
+                .at("/identificationDetails/paymentType").asText());
     }
 
     private static EncryptedReceiptPayload encrypted(String recipientId, String content) {
