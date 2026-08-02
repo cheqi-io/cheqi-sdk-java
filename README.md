@@ -1,16 +1,20 @@
 # Cheqi Java SDK
 
-Java SDK for issuing end-to-end encrypted Cheqi receipts, sending email fallback receipts, handling encrypted credit notes, and managing stores.
+Java SDK for resolving receipt recipients and issuing end-to-end encrypted Cheqi receipts and credit notes. It also provides client-encrypted receipt downloads, receipt-envelope decryption, integrity helpers, and store management.
+
+The SDK preserves Cheqi's zero-knowledge boundary: receipt contents are supplied by the issuer, encrypted locally for each owner device, and submitted to Cheqi as ciphertext. The SDK does not calculate, enrich, or plaintext-assemble receipt values.
 
 ## Requirements
 
-- Java 11+
-- Maven 3.6+ or Gradle
-- A Cheqi API key or an OAuth access token with the required scopes
+- Java 11 or newer
+- Maven 3.6 or newer, or Gradle
+- A Cheqi API key, or an OAuth access token with the required permissions
 
 ## Installation
 
-Maven:
+Version `2.0.0` describes the API on this branch but has not been published to Maven Central yet. Until it is released, build the SDK locally or use the latest published release where its API is sufficient.
+
+After `2.0.0` is published, add it with Maven:
 
 ```xml
 <dependency>
@@ -20,10 +24,16 @@ Maven:
 </dependency>
 ```
 
-Gradle:
+Or with Gradle:
 
 ```gradle
 implementation 'io.cheqi:cheqi-sdk:2.0.0'
+```
+
+To build and install this branch locally:
+
+```bash
+./gradlew publishToMavenLocal
 ```
 
 ## Environments
@@ -33,9 +43,9 @@ implementation 'io.cheqi:cheqi-sdk:2.0.0'
 | `Environment.SANDBOX` | `https://sandbox.api.cheqi.io` | Development and testing |
 | `Environment.PRODUCTION` | `https://api.cheqi.io` | Live production |
 
-Use `customApiEndpoint(String)` for local backend development.
+Use `customApiEndpoint(String)` for local or custom backend environments. If that environment also uses a custom customer-facing receipt download origin, configure it with `receiptDownloadBaseUrl(String)`.
 
-## Initialize
+## Initialize the SDK
 
 With an API key:
 
@@ -46,7 +56,7 @@ CheqiSDK sdk = CheqiSDK.builder()
     .build();
 ```
 
-With per-call OAuth tokens:
+With per-call OAuth access tokens:
 
 ```java
 CheqiSDK sdk = CheqiSDK.builder()
@@ -54,38 +64,36 @@ CheqiSDK sdk = CheqiSDK.builder()
     .build();
 ```
 
-When no API key is configured, pass an access token to receipt, matching, credit-note, or store methods that support it.
+When no API key is configured, pass the OAuth access token to the service method that supports it. Do not put credentials or plaintext receipt contents in logs.
 
-## Receipt Issuance Flow
+## Receipt Issuance
 
-`ReceiptService.processCompleteReceipt(...)` performs the current backend flow:
+`ReceiptService.issueReceipt(...)` performs the current receipt flow:
 
-1. Resolves the recipient with `/recipient/resolve`.
-2. Generates a receipt template with `/receipt/template`.
-3. Encrypts one receipt envelope per matched recipient.
-4. Submits the encrypted receipts with `/receipt/encrypted`.
-5. If no Cheqi recipient is found but `recipientEmail` is present, sends a PDF fallback through `/receipt/email`.
+1. Resolve a delivery route from the supplied `IdentificationDetails`.
+2. For a digital route, serialize the definitive `ReceiptPayload` without changing its values.
+3. Encrypt that payload independently for every matched owner device.
+4. Submit an `EncryptedReceiptEnvelope` containing only ciphertext.
+5. Return a `ReceiptResult` describing the accepted receipt or the required fallback action.
 
-## Issue a Receipt
+Cheqi knows the routing metadata needed for recipient matching. It does not receive the plaintext `ReceiptPayload` on the digital route.
+
+### Issue a card receipt
 
 ```java
 import com.cheqi.sdk.CheqiSDK;
 import com.cheqi.sdk.config.Environment;
 import com.cheqi.sdk.models.Product;
-import com.cheqi.sdk.models.ReceiptTemplateRequest;
+import com.cheqi.sdk.models.ReceiptPayload;
 import com.cheqi.sdk.models.Tax;
-import com.cheqi.sdk.models.generated.BarcodeType;
-import com.cheqi.sdk.models.generated.BuyerType;
 import com.cheqi.sdk.models.generated.CardDetails;
-import com.cheqi.sdk.models.generated.CardDetails.CardProviderEnum;
 import com.cheqi.sdk.models.generated.IdentificationDetails;
-import com.cheqi.sdk.models.generated.NotificationDisplayCode;
+import com.cheqi.sdk.models.generated.PaymentDetails;
 import com.cheqi.sdk.models.generated.PaymentType;
 import com.cheqi.sdk.models.generated.UnitCode;
 import com.cheqi.sdk.receipt.ReceiptResult;
 
-import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 CheqiSDK sdk = CheqiSDK.builder()
     .apiEndpoint(Environment.SANDBOX)
@@ -96,17 +104,25 @@ IdentificationDetails identificationDetails = new IdentificationDetails()
     .paymentType(PaymentType.CARD_PAYMENT)
     .cardDetails(new CardDetails()
         .paymentAccountReference("PAR123456789")
-        .cardProvider(CardProviderEnum.VISA))
-    .recipientEmail("customer@example.com");
+        .cardProvider(CardDetails.CardProviderEnum.VISA)
+        .lastFourDigits("4242"));
 
-ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
+ReceiptPayload receiptPayload = ReceiptPayload.builder()
     .documentNumber("POS-2026-0001")
-    .issueDate(Instant.now())
+    .issueDate(OffsetDateTime.now())
     .currency("EUR")
-    .receiptSubtotal(new BigDecimal("10.00"))
-    .totalBeforeTax(new BigDecimal("10.00"))
-    .totalTaxAmount(new BigDecimal("2.10"))
-    .totalAmount(new BigDecimal("12.10"))
+    .receiptSubtotal("10.00")
+    .totalBeforeTax("10.00")
+    .totalTaxAmount("2.10")
+    .totalAmount("12.10")
+    .taxesApplied(true)
+    .paymentDetails(new PaymentDetails()
+        .paymentMeansCode("48")
+        .description("Card payment")
+        .cardProvider("VISA")
+        .cardLastFour("4242")
+        .merchantId("MID-123")
+        .paymentTerminalId("TID-456"))
     .addProduct(Product.builder()
         .name("Coffee beans")
         .brandName("Cheqi Coffee")
@@ -129,181 +145,97 @@ ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
     .build();
 
 ReceiptResult result = sdk.getReceiptService()
-    .processCompleteReceipt(identificationDetails, receipt);
+    .issueReceipt(identificationDetails, receiptPayload);
 
-if (result.isSuccess()) {
-    System.out.println("Delivery status: " + result.getDeliveryStatus());
-    System.out.println("Cheqi receipt ID: " + result.getCheqiReceiptId());
-} else if (result.isCustomerNotFound()) {
-    System.out.println("No Cheqi recipient was found and no email fallback was available.");
-} else {
-    System.out.println("Receipt failed: " + result.getMessage());
+if (result.isAccepted()) {
+    System.out.println("Receipt accepted: " + result.getCheqiReceiptId());
+    System.out.println("Delivery route: " + result.getDeliveryRouteType());
+} else if (result.isEmailReceiptRequired()) {
+    // Generate the permitted email-fallback receipt and submit it explicitly.
+} else if (result.isDownloadEnvelopeRequired()) {
+    // Generate the final ReceiptEnvelope locally, then call completeDownloadFallback(...).
 }
 ```
 
-With an OAuth token instead of an API key:
+With an OAuth access token:
 
 ```java
 ReceiptResult result = sdk.getReceiptService()
-    .processCompleteReceipt(identificationDetails, receipt, accessToken);
+    .issueReceipt(identificationDetails, receiptPayload, accessToken);
 ```
 
-## VAT Metadata
-
-The backend requires VAT context on template generation:
-
-- `buyerCountryCode`
-- `buyerType`
-- `taxesApplied`
-
-The high-level receipt flow fills `buyerCountryCode` and `buyerType` from recipient resolution when available. You can override them on the SDK request:
+To associate the receipt with a store, use the overload accepting `storeId`:
 
 ```java
-ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
-    .documentNumber("POS-2026-0002")
-    .issueDate(Instant.now())
-    .currency("EUR")
-    .receiptSubtotal(new BigDecimal("10.00"))
-    .totalBeforeTax(new BigDecimal("10.00"))
-    .totalTaxAmount(new BigDecimal("2.10"))
-    .totalAmount(new BigDecimal("12.10"))
-    .buyerCountryCode("NL")
-    .buyerType(BuyerType.CONSUMER)
-    .taxesApplied(true)
-    .addProduct(Product.builder()
-        .name("Coffee beans")
-        .brandName("Cheqi Coffee")
-        .identifier("SKU-COFFEE-002")
-        .quantity(1.0)
-        .baseQuantity(1.0)
-        .unitCode(UnitCode.C62)
-        .unitPrice("10.00")
-        .subtotal("10.00")
-        .total("12.10")
-        .addTax(21.0, "VAT", "10.00", "2.10")
-        .build())
-    .addTax(21.0, "VAT", "10.00", "2.10")
-    .build();
-```
-
-If `taxesApplied` is omitted, the SDK infers it as `true` when `totalTaxAmount` is positive or receipt-level taxes are present, otherwise `false`.
-
-## Notification Display Code
-
-For merchants with notification-code rendering enabled, attach a QR code or barcode to the high-level receipt flow. The SDK sends the metadata with every encrypted receipt submitted for that transaction.
-
-```java
-NotificationDisplayCode displayCode = new NotificationDisplayCode()
-    .type(BarcodeType.QR_CODE)
-    .data("https://example.com/receipt/POS-2026-0001");
-
 ReceiptResult result = sdk.getReceiptService()
-    .processCompleteReceipt(identificationDetails, receipt, accessToken, displayCode);
+    .issueReceipt(identificationDetails, receiptPayload, storeId, accessToken);
 ```
 
-For `CODE_128`, the backend limits `data` to 32 characters. Use `QR_CODE` for longer values.
+### Supplying definitive receipt values
 
-## Embedded Barcodes
+`ReceiptPayload` is the issuer's definitive generation input. The SDK preserves it unchanged and does not calculate totals, taxes, payment details, or jurisdictional values.
 
-Receipts can include embedded barcodes or QR codes at the receipt level or on individual product lines. Use these for return codes, loyalty references, tickets, serial numbers, product identifiers, or other scannable metadata.
+- Supply `taxesApplied` explicitly.
+- Ensure totals and line values are internally consistent before calling the SDK.
+- Put issuer-supplied payment presentation data in `ReceiptPayload.paymentDetails`.
+- Use `IdentificationDetails` for recipient resolution and payment context. Matching data is not copied into `paymentDetails`.
 
-Product-level barcode:
+`paymentDetails` remains inside the encrypted receipt body on the digital route. If it is absent, the SDK does not infer it from matching metadata.
+
+### Embedded barcodes
+
+Barcodes and QR codes may be added to the receipt or individual product lines:
 
 ```java
 Product product = Product.builder()
-    .name("Coffee beans")
-    .brandName("Cheqi Coffee")
-    .identifier("SKU-COFFEE-001")
+    .name("Event ticket")
+    .identifier("TICKET-001")
     .quantity(1.0)
     .baseQuantity(1.0)
     .unitCode(UnitCode.C62)
-    .unitPrice("10.00")
-    .subtotal("10.00")
-    .total("12.10")
-    .addTax(21.0, "VAT", "10.00", "2.10")
-    .addBarcode(BarcodeType.EAN_13, "8712345678901", "EAN")
-    .addQrCode("https://example.com/product/SKU-COFFEE-001", "Product QR")
+    .unitPrice("25.00")
+    .subtotal("25.00")
+    .total("25.00")
+    .addQrCode("https://example.com/tickets/TICKET-001", "Ticket")
     .build();
-```
 
-Receipt-level barcode:
-
-```java
-ReceiptTemplateRequest receipt = ReceiptTemplateRequest.builder()
-    .documentNumber("POS-2026-0003")
-    // other required receipt fields...
+ReceiptPayload receiptPayload = ReceiptPayload.builder()
+    .documentNumber("POS-2026-0002")
+    .issueDate(OffsetDateTime.now())
+    .currency("EUR")
+    .receiptSubtotal("25.00")
+    .totalBeforeTax("25.00")
+    .totalTaxAmount("0.00")
+    .totalAmount("25.00")
+    .taxesApplied(false)
     .addProduct(product)
-    .addBarcode(BarcodeType.QR_CODE, "https://example.com/return/POS-2026-0003", "Return code")
+    .addQrCode("https://example.com/returns/POS-2026-0001", "Return code")
     .build();
 ```
 
-## Email Fallback
+## Delivery Routes and Fallbacks
 
-Add `recipientEmail` to `IdentificationDetails` when you want fallback delivery for customers who are not using Cheqi yet.
+The backend selects one of three routes:
 
-```java
-IdentificationDetails details = new IdentificationDetails()
-    .paymentType(PaymentType.CARD_PAYMENT)
-    .cardDetails(new CardDetails().paymentAccountReference("PAR123456789"))
-    .recipientEmail("customer@example.com");
-```
+- `DIGITAL`: the SDK encrypts the payload for every matched owner device and submits it immediately.
+- `DOWNLOAD_FALLBACK`: the SDK creates a client-encrypted download when enough local payment context is available, or asks the caller for a final `ReceiptEnvelope`.
+- `EMAIL_FALLBACK`: the SDK returns `isEmailReceiptRequired()`. Email delivery is not performed automatically by `issueReceipt`.
 
-Behavior:
+Treat `ReceiptResult.getDeliveryRouteType()` as the authoritative route. A failed recipient resolution or invalid request is reported through `CheqiSDKException` rather than a synthetic customer-not-found result.
 
-- Customer found: encrypted digital receipt is delivered to the Cheqi app or authorized recipient.
-- Customer not found and `recipientEmail` provided: Cheqi sends a PDF receipt by email.
-- Customer not found and no email: `ReceiptResult.isCustomerNotFound()` returns `true`.
+### Client-encrypted download fallback
 
-## Lower-Level Receipt Methods
+When `IdentificationDetails.paymentType` is present and the backend selects `DOWNLOAD_FALLBACK`, `issueReceipt` completes the route automatically. The SDK:
 
-Use these when you want to control individual steps:
+1. Creates a CHEQI JSON document from the definitive `ReceiptPayload` and the locally supplied `IdentificationDetails`.
+2. Places it in a `ReceiptEnvelope` and calculates its deterministic hash.
+3. Generates a random AES-256-GCM content key and download ID.
+4. Uploads only the ciphertext, download ID, and hash.
+5. Returns a URL whose fragment contains the content key through `ReceiptResult.getDownloadUrl()`.
 
-```java
-RecipientResolutionResponse match = sdk.getMatchingService()
-    .matchCustomer(identificationDetails, accessToken);
+The URL fragment is never sent to Cheqi. Anyone who receives the complete URL can decrypt the receipt, so deliver it through an appropriate customer-facing channel.
 
-ReceiptTemplateResponse template = sdk.getReceiptService()
-    .generateReceiptTemplate(receipt, List.of(ReceiptFormat.CHEQI), accessToken);
-
-EncryptedReceiptRequest encrypted = sdk.getReceiptService()
-    .createEncryptedReceipts(receiptEnvelopeJson, match.getRecipients().get(0));
-
-ReceiptCreatedResponse created = sdk.getReceiptService()
-    .sendEncryptedReceipts(Set.of(encrypted), templateHash, match, accessToken);
-```
-
-## Client-Encrypted Download Fallback
-
-Set the generated `PaymentDetails` on `ReceiptPayload` for every issuance route:
-
-```java
-receiptPayload.paymentDetails(new PaymentDetails()
-    .paymentMeansCode("48")
-    .description("Card payment")
-    .cardProvider("VISA")
-    .cardLastFour("4242")
-    .merchantId("MID-123")
-    .paymentTerminalId("TID-456"));
-```
-
-`ReceiptPayload.paymentDetails` is definitive and is preserved unchanged. If it is absent,
-payment means remain absent; matching data is not used as a fallback.
-
-When `IdentificationDetails.paymentType` is present and recipient resolution selects
-`DOWNLOAD_FALLBACK`, `issueReceipt` completes the fallback automatically. It serializes the
-generated `ReceiptPayload`, inserts the same generated `IdentificationDetails` as a top-level
-field, hashes that combined CHEQI JSON document, and places it in a generated
-`ReceiptEnvelope`. The SDK then generates the fragment-key URL, encrypts the envelope with
-AES-256-GCM, uploads only the download id, ciphertext, and hash, and returns the URL through
-`ReceiptResult.getDownloadUrl()`.
-
-This preserves any locally available payment identification without converting it into a
-separate payment-means model. For a card payment that includes a PAR, card provider, or last
-four digits, those values are therefore available to the encrypted download receipt. Cash can
-be represented by `PaymentType.CASH` even when no other customer identification exists.
-
-For an explicit **Customer without Cheqi** flow, call `issueDownloadReceipt` so the SDK skips
-recipient matching and submits the locally encrypted download directly:
+For an explicit customer-without-Cheqi flow, skip recipient matching:
 
 ```java
 ReceiptResult result = sdk.getReceiptService().issueDownloadReceipt(
@@ -311,15 +243,76 @@ ReceiptResult result = sdk.getReceiptService().issueDownloadReceipt(
     receiptPayload,
     accessToken
 );
+
+String downloadUrl = result.getDownloadUrl();
 ```
 
-If no payment type is available (for example, pairing-code-only matching), the result remains
-`isDownloadEnvelopeRequired()` so the caller can provide another final generated
-`ReceiptEnvelope` through `completeDownloadFallback`.
+If `issueReceipt` returns `isDownloadEnvelopeRequired()`, generate the final envelope locally and complete the route:
+
+```java
+ReceiptResult completed = sdk.getReceiptService().completeDownloadFallback(
+    result,
+    receiptEnvelope,
+    templateHash,
+    accessToken
+);
+```
+
+## Lower-Level Operations
+
+Use the service APIs when you need to control matching, encryption, or submission separately:
+
+```java
+RecipientResolutionResponse resolution = sdk.getMatchingService()
+    .matchCustomer(identificationDetails, accessToken);
+
+EncryptedReceiptPayload delivery = sdk.getEncryptionService()
+    .encryptReceiptForRecipient(receiptPayloadJson, resolution.getRecipients().get(0));
+
+ReceiptSubmissionResponse response = sdk.getReceiptService()
+    .submitEncryptedReceipt(encryptedReceiptEnvelope, accessToken);
+```
+
+The caller is responsible for validating the selected route, encrypting for every owner device, and preserving the same definitive plaintext across those device encryptions.
+
+## Credit Notes
+
+Credit notes use the same recipient-resolution and per-device encryption model. The caller supplies the definitive credit-note payload and the parent Cheqi receipt ID:
+
+```java
+CreditNoteResult result = sdk.getCreditNoteService().issueCreditNote(
+    identificationDetails,
+    parentCheqiReceiptId,
+    creditNotePayload,
+    accessToken
+);
+```
+
+The SDK serializes the supplied credit-note payload without calculations and submits it through the separate encrypted credit-note endpoint.
+
+## Receipt Decryption
+
+A recipient can decrypt a queued, complete receipt envelope with the corresponding device private key:
+
+```java
+ReceiptEnvelope receiptEnvelope = sdk.getDecryptionService()
+    .decryptReceipt(receiptDelivery, privateKeyBase64);
+```
+
+The decrypted payload is already a complete `ReceiptEnvelope`; there is no backend-context merge step in this SDK.
+
+## Verification
+
+The SDK includes deterministic hashing helpers for receipt integrity checks:
+
+```java
+String hash = sdk.getVerificationService()
+    .calculateCheqiReceiptHash(cheqiReceiptJson);
+```
 
 ## Store Management
 
-Store operations require an OAuth access token with the relevant store scopes.
+Store operations require an OAuth access token with the relevant store permissions:
 
 ```java
 StoreDTO store = sdk.getStoreService()
@@ -332,70 +325,47 @@ StoreDTO updated = sdk.getStoreService()
     .updateStore(companyId, storeId, updateStoreRequest, accessToken);
 ```
 
-## Credit Notes
-
-Credit notes use the same recipient-resolution and encryption model as receipts.
-
-```java
-CreditNoteResult result = sdk.getCreditNoteService()
-    .processCompleteCreditNote(identificationDetails, creditNoteRequest, accessToken);
-```
-
-## Receipt Decryption and Merge
-
-Recipients can decrypt queued receipt payloads and merge the backend-generated customer context into the receipt envelope:
-
-```java
-DecryptedReceipt decrypted = sdk.processEncryptedReceipt(encryptedReceipt, privateKey);
-
-ReceiptEnvelope completeEnvelope = decrypted.getReceiptEnvelope();
-```
-
-The merge step injects receiving-party and payment-means context into supported Cheqi JSON and UBL formats.
-
-## Verification
-
-The SDK includes deterministic hashing helpers for receipt integrity checks:
-
-```java
-String hash = sdk.getVerificationService().calculateCheqiReceiptHash(cheqiReceipt);
-```
-
 ## Error Handling
 
-Most high-level SDK methods throw `CheqiSDKException`; lower-level HTTP calls throw `CheqiApiException`.
+High-level receipt and credit-note methods throw `CheqiSDKException`. Direct HTTP client methods throw `CheqiApiException`.
 
 ```java
 try {
     ReceiptResult result = sdk.getReceiptService()
-        .processCompleteReceipt(identificationDetails, receipt, accessToken);
-} catch (CheqiSDKException e) {
-    System.err.println(e.getMessage());
+        .issueReceipt(identificationDetails, receiptPayload, accessToken);
+} catch (CheqiSDKException exception) {
+    System.err.println(exception.getMessage());
+    System.err.println("Error code: " + exception.getErrorCode());
+    if (exception.hasCorrelationId()) {
+        System.err.println("Correlation ID: " + exception.getCorrelationId());
+    }
 }
 ```
 
 ## Development
 
-Run tests with Gradle:
+Run the tests:
 
 ```bash
 ./gradlew test
 ```
 
-Build with Gradle:
+Or with Maven:
+
+```bash
+mvn test
+```
+
+Build the SDK:
 
 ```bash
 ./gradlew build
 ```
 
-Build with Maven:
-
-```bash
-mvn -q -DskipTests compile
-```
-
-Regenerate OpenAPI models:
+Regenerate the OpenAPI models after updating `openapi.yaml`:
 
 ```bash
 make generate
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [SECURITY.md](SECURITY.md) for vulnerability reporting.
