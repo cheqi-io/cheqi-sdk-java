@@ -1,6 +1,7 @@
 package com.cheqi.sdk.decryption;
 
 import com.cheqi.sdk.config.ObjectMapperConfig;
+import com.cheqi.sdk.creditNote.CreditNoteInitiationRequest;
 import com.cheqi.sdk.models.generated.EncryptedCreditNoteInitiationRequest;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
 import com.cheqi.sdk.models.generated.ReceiptDelivery;
@@ -60,6 +61,30 @@ public class DecryptionService {
         } catch (Exception exception) {
             throw new DecryptionException(
                     "Failed to decrypt credit-note initiation request",
+                    exception
+            );
+        }
+    }
+
+    /**
+     * Decrypts, deserializes, and validates a customer return request.
+     */
+    public CreditNoteInitiationRequest decryptCreditNoteInitiationRequest(
+            EncryptedCreditNoteInitiationRequest request,
+            String privateKeyBase64
+    ) {
+        try {
+            CreditNoteInitiationRequest initiationRequest = objectMapper.readValue(
+                    decryptCreditNoteInitiation(request, privateKeyBase64),
+                    CreditNoteInitiationRequest.class
+            );
+            initiationRequest.validate();
+            return initiationRequest;
+        } catch (DecryptionException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new DecryptionException(
+                    "Failed to deserialize credit-note initiation request",
                     exception
             );
         }

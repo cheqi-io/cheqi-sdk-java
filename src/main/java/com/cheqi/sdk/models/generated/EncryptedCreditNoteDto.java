@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -41,7 +42,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   EncryptedCreditNoteDto.JSON_PROPERTY_ENCRYPTED_CUSTOMER_AES_KEY,
   EncryptedCreditNoteDto.JSON_PROPERTY_FINAL_HASH,
   EncryptedCreditNoteDto.JSON_PROPERTY_PUBLIC_KEY,
-  EncryptedCreditNoteDto.JSON_PROPERTY_SUPPLIER_PARTY_ID
+  EncryptedCreditNoteDto.JSON_PROPERTY_SUPPLIER_PARTY_ID,
+  EncryptedCreditNoteDto.JSON_PROPERTY_STATUS,
+  EncryptedCreditNoteDto.JSON_PROPERTY_CREATED_AT
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -89,6 +92,57 @@ public class EncryptedCreditNoteDto {
   public static final String JSON_PROPERTY_SUPPLIER_PARTY_ID = "supplierPartyId";
   @javax.annotation.Nonnull
   private UUID supplierPartyId;
+
+  /**
+   * Current processing status of the customer return request
+   */
+  public enum StatusEnum {
+    PENDING(String.valueOf("PENDING")),
+    
+    ACCEPTED(String.valueOf("ACCEPTED")),
+    
+    PARTIALLY_ACCEPTED(String.valueOf("PARTIALLY_ACCEPTED")),
+    
+    REJECTED(String.valueOf("REJECTED")),
+    
+    COMPLETED(String.valueOf("COMPLETED")),
+    
+    CANCELLED(String.valueOf("CANCELLED"));
+
+    private String value;
+
+    StatusEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static StatusEnum fromValue(String value) {
+      for (StatusEnum b : StatusEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_STATUS = "status";
+  @javax.annotation.Nullable
+  private StatusEnum status;
+
+  public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
+  @javax.annotation.Nullable
+  private OffsetDateTime createdAt;
 
   public EncryptedCreditNoteDto() { 
   }
@@ -357,6 +411,54 @@ public class EncryptedCreditNoteDto {
   }
 
 
+  public EncryptedCreditNoteDto status(@javax.annotation.Nullable StatusEnum status) {
+    this.status = status;
+    return this;
+  }
+
+  /**
+   * Current processing status of the customer return request
+   * @return status
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_STATUS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public StatusEnum getStatus() {
+    return status;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_STATUS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setStatus(@javax.annotation.Nullable StatusEnum status) {
+    this.status = status;
+  }
+
+
+  public EncryptedCreditNoteDto createdAt(@javax.annotation.Nullable OffsetDateTime createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  /**
+   * Time at which the customer submitted the return request
+   * @return createdAt
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CREATED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public OffsetDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CREATED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCreatedAt(@javax.annotation.Nullable OffsetDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+
   /**
    * Return true if this EncryptedCreditNoteDto object is equal to o.
    */
@@ -379,12 +481,14 @@ public class EncryptedCreditNoteDto {
         Objects.equals(this.encryptedCustomerAesKey, encryptedCreditNoteDto.encryptedCustomerAesKey) &&
         Objects.equals(this.finalHash, encryptedCreditNoteDto.finalHash) &&
         Objects.equals(this.publicKey, encryptedCreditNoteDto.publicKey) &&
-        Objects.equals(this.supplierPartyId, encryptedCreditNoteDto.supplierPartyId);
+        Objects.equals(this.supplierPartyId, encryptedCreditNoteDto.supplierPartyId) &&
+        Objects.equals(this.status, encryptedCreditNoteDto.status) &&
+        Objects.equals(this.createdAt, encryptedCreditNoteDto.createdAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(recipientId, creditNoteId, originalReceiptId, receiverType, encryptedCreditNote, encryptedSymmetricKey, encryptedCustomerDetails, encryptedCustomerAesKey, finalHash, publicKey, supplierPartyId);
+    return Objects.hash(recipientId, creditNoteId, originalReceiptId, receiverType, encryptedCreditNote, encryptedSymmetricKey, encryptedCustomerDetails, encryptedCustomerAesKey, finalHash, publicKey, supplierPartyId, status, createdAt);
   }
 
   @Override
@@ -402,6 +506,8 @@ public class EncryptedCreditNoteDto {
     sb.append("    finalHash: ").append(toIndentedString(finalHash)).append("\n");
     sb.append("    publicKey: ").append(toIndentedString(publicKey)).append("\n");
     sb.append("    supplierPartyId: ").append(toIndentedString(supplierPartyId)).append("\n");
+    sb.append("    status: ").append(toIndentedString(status)).append("\n");
+    sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }

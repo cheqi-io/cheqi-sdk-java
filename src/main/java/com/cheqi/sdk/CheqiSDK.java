@@ -1,6 +1,5 @@
 package com.cheqi.sdk;
 
-import com.cheqi.sdk.company.CompanyService;
 import com.cheqi.sdk.company.StoreService;
 import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.config.Environment;
@@ -40,7 +39,6 @@ public class CheqiSDK {
     private final CheqiApiClient apiClient;
     private final MatchingService matchingService;
     private final ReceiptService receiptService;
-    private final CompanyService companyService;
     private final StoreService storeService;
     private final VerificationService verificationService;
     private final CreditNoteService creditNoteService;
@@ -61,7 +59,6 @@ public class CheqiSDK {
                 downloadService,
                 config.getReceiptDownloadBaseUrl()
         );
-        this.companyService = new CompanyService(apiClient);
         this.storeService = new StoreService(apiClient);
         this.creditNoteService = new CreditNoteService(apiClient, encryptionService, matchingService);
     }
@@ -140,15 +137,6 @@ public class CheqiSDK {
      */
     public CheqiSDKConfig getConfig() {
         return config;
-    }
-
-    /**
-     * Gets the company service.
-     *
-     * @return CompanyService instance
-     */
-    public CompanyService getCompanyService() {
-        return companyService;
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.cheqi.sdk.creditNote;
 
-public enum ReturnCondition {
+public enum ReturnReasonCode {
     DEFECTIVE,
     DAMAGED,
     WRONG_ITEM,

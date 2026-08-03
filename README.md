@@ -290,6 +290,22 @@ CreditNoteResult result = sdk.getCreditNoteService().issueCreditNote(
 
 The SDK serializes the supplied credit-note payload without calculations and submits it through the separate encrypted credit-note endpoint.
 
+### Customer return requests
+
+Customer return requests are separate from definitive merchant-issued credit notes. The encrypted
+`CreditNoteInitiationRequest` identifies both the Cheqi receipt and the merchant's own receipt, and
+contains one or more per-product return entries. Each entry uses the product identifier supplied on
+the original receipt, a decimal quantity, a reason code, and an optional explanation. Multiple
+entries may reference the same product when different quantities have different reasons.
+
+The request is only the customer's requested outcome. The merchant remains responsible for
+validating eligibility and remaining quantity, accepting or rejecting each entry, calculating the
+actual refund and taxes, and issuing the definitive credit note. Call `validate()` after
+deserializing a request; the builder validates automatically. Cheqi cannot perform this plaintext
+validation because the request is encrypted for the issuer. Receiving merchants can use
+`DecryptionService.decryptCreditNoteInitiationRequest(...)` to decrypt, deserialize, and validate
+the typed request in one step.
+
 ## Receipt Decryption
 
 A recipient can decrypt a queued, complete receipt envelope with the corresponding device private key:
