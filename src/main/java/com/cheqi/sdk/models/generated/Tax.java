@@ -16,6 +16,7 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.cheqi.sdk.models.generated.TaxCategoryCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,14 +28,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The list of taxes applied to the receipt
+ * Issuer-supplied receipt-level tax breakdown.
  */
 @JsonPropertyOrder({
   Tax.JSON_PROPERTY_RATE,
   Tax.JSON_PROPERTY_TYPE,
   Tax.JSON_PROPERTY_AMOUNT,
   Tax.JSON_PROPERTY_TAXABLE_AMOUNT,
-  Tax.JSON_PROPERTY_LABEL
+  Tax.JSON_PROPERTY_LABEL,
+  Tax.JSON_PROPERTY_CATEGORY,
+  Tax.JSON_PROPERTY_EXEMPTION_REASON_CODE,
+  Tax.JSON_PROPERTY_EXEMPTION_REASON
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -58,6 +62,18 @@ public class Tax {
   public static final String JSON_PROPERTY_LABEL = "label";
   @javax.annotation.Nullable
   private String label;
+
+  public static final String JSON_PROPERTY_CATEGORY = "category";
+  @javax.annotation.Nullable
+  private TaxCategoryCode category;
+
+  public static final String JSON_PROPERTY_EXEMPTION_REASON_CODE = "exemptionReasonCode";
+  @javax.annotation.Nullable
+  private String exemptionReasonCode;
+
+  public static final String JSON_PROPERTY_EXEMPTION_REASON = "exemptionReason";
+  @javax.annotation.Nullable
+  private String exemptionReason;
 
   public Tax() { 
   }
@@ -182,6 +198,78 @@ public class Tax {
   }
 
 
+  public Tax category(@javax.annotation.Nullable TaxCategoryCode category) {
+    this.category = category;
+    return this;
+  }
+
+  /**
+   * Get category
+   * @return category
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CATEGORY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public TaxCategoryCode getCategory() {
+    return category;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CATEGORY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCategory(@javax.annotation.Nullable TaxCategoryCode category) {
+    this.category = category;
+  }
+
+
+  public Tax exemptionReasonCode(@javax.annotation.Nullable String exemptionReasonCode) {
+    this.exemptionReasonCode = exemptionReasonCode;
+    return this;
+  }
+
+  /**
+   * Tax exemption reason code. Written to UBL only when category is EXEMPT.
+   * @return exemptionReasonCode
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXEMPTION_REASON_CODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getExemptionReasonCode() {
+    return exemptionReasonCode;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXEMPTION_REASON_CODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExemptionReasonCode(@javax.annotation.Nullable String exemptionReasonCode) {
+    this.exemptionReasonCode = exemptionReasonCode;
+  }
+
+
+  public Tax exemptionReason(@javax.annotation.Nullable String exemptionReason) {
+    this.exemptionReason = exemptionReason;
+    return this;
+  }
+
+  /**
+   * Tax exemption reason. Written to UBL only when category is EXEMPT.
+   * @return exemptionReason
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXEMPTION_REASON)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getExemptionReason() {
+    return exemptionReason;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXEMPTION_REASON)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExemptionReason(@javax.annotation.Nullable String exemptionReason) {
+    this.exemptionReason = exemptionReason;
+  }
+
+
   /**
    * Return true if this Tax object is equal to o.
    */
@@ -198,12 +286,15 @@ public class Tax {
         Objects.equals(this.type, tax.type) &&
         Objects.equals(this.amount, tax.amount) &&
         Objects.equals(this.taxableAmount, tax.taxableAmount) &&
-        Objects.equals(this.label, tax.label);
+        Objects.equals(this.label, tax.label) &&
+        Objects.equals(this.category, tax.category) &&
+        Objects.equals(this.exemptionReasonCode, tax.exemptionReasonCode) &&
+        Objects.equals(this.exemptionReason, tax.exemptionReason);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(rate, type, amount, taxableAmount, label);
+    return Objects.hash(rate, type, amount, taxableAmount, label, category, exemptionReasonCode, exemptionReason);
   }
 
   @Override
@@ -215,6 +306,9 @@ public class Tax {
     sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
     sb.append("    taxableAmount: ").append(toIndentedString(taxableAmount)).append("\n");
     sb.append("    label: ").append(toIndentedString(label)).append("\n");
+    sb.append("    category: ").append(toIndentedString(category)).append("\n");
+    sb.append("    exemptionReasonCode: ").append(toIndentedString(exemptionReasonCode)).append("\n");
+    sb.append("    exemptionReason: ").append(toIndentedString(exemptionReason)).append("\n");
     sb.append("}");
     return sb.toString();
   }

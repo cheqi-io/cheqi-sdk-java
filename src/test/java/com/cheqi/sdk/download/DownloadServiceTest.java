@@ -4,11 +4,10 @@ import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.config.Environment;
 import com.cheqi.sdk.models.generated.CheqiReceipt;
 import com.cheqi.sdk.models.generated.ReceiptEnvelope;
-import com.cheqi.sdk.models.generated.ReceiptTemplateResponse;
-import com.cheqi.sdk.models.generated.VatMetadata;
 import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,27 +41,6 @@ class DownloadServiceTest {
     }
 
     @Test
-    void buildsCanonicalEnvelopeAndRoundTripsEncryption() {
-        DownloadService service = new DownloadService();
-        DownloadLink link = service.generateDownloadLink("https://receipt.cheqi.io");
-        VatMetadata vat = new VatMetadata().taxesApplied(true);
-        ReceiptTemplateResponse template = new ReceiptTemplateResponse()
-                .cheqi(new CheqiReceipt().documentNumber("JAVA-1"))
-                .ublPurchaseReceipt("<PurchaseReceipt/>")
-                .ublInvoice("<Invoice/>")
-                .vatMetadata(vat);
-
-        ReceiptEnvelope envelope = service.buildDownloadEnvelope(template);
-        String ciphertext = service.encryptDownloadEnvelope(envelope, link.getContentKey());
-        ReceiptEnvelope decrypted = service.decryptDownloadEnvelope(ciphertext, link.getContentKey());
-
-        assertEquals("JAVA-1", decrypted.getCheqi().getDocumentNumber());
-        assertEquals("<PurchaseReceipt/>", decrypted.getUblPurchaseReceipt());
-        assertEquals("<Invoice/>", decrypted.getUblInvoice());
-        assertTrue(decrypted.getVatMetaData().getTaxesApplied());
-    }
-
-    @Test
     void encryptionUsesContractFraming() {
         SecureRandom fixedRandom = new SecureRandom() {
             @Override
@@ -75,9 +53,13 @@ class DownloadServiceTest {
         DownloadService service = new DownloadService(fixedRandom, ObjectMapperConfig.getInstance());
         String key = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8";
 
-        String ciphertext = service.encryptDownloadEnvelope(
-                new ReceiptEnvelope().cheqi(new CheqiReceipt().documentNumber("INTEROP")), key);
+        ReceiptEnvelope envelope = new ReceiptEnvelope()
+                .cheqiReceiptId("INTEROP")
+                .envelopeVersion(1)
+                .receiptGeneratorVersion("test")
+                .receiptUuid(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        String ciphertext = service.encryptDownloadEnvelope(envelope, key);
 
-        assertEquals("AAECAwQFBgcICQoLPCC1c6CUqzm3OrXv3ooNAOa483qFFj0ZSkXfp1QnVPdTX/7e0rxBB1BCAdhTN4LdhEsU+1LX", ciphertext);
+        assertEquals("AAECAwQFBgcICQoLPCC1c6CUq0noIvLiwZ0xCaHspX2+LxoudzfHqT8Nb9F0fcuS27Iwog/ZU8/t6V5dgjYQ6Ayz0alW+EQ7ItLZzIJZpR+6oVImeTrPHI77YZpu77sRHww9Ssff6qkLhJuh6Yo8hcEouG7LaVfWak8DT4pXUpvT9RW3fc9n/a/WXj6LfzD2hOfmYzjReJEN6nzyBsTSF0hGbdwYV5ZWFVhKIWkRZmjW", ciphertext);
     }
 }

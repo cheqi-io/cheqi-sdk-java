@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Cheqi JSON receipt payload. Include this when the recipient accepts the CHEQI format.
+ * CheqiReceipt
  */
 @JsonPropertyOrder({
   CheqiReceipt.JSON_PROPERTY_TOTAL_AMOUNT,

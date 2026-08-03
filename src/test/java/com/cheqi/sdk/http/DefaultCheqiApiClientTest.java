@@ -2,8 +2,6 @@ package com.cheqi.sdk.http;
 
 import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.config.ObjectMapperConfig;
-import com.cheqi.sdk.models.Product;
-import com.cheqi.sdk.models.ReceiptTemplateRequest;
 import com.cheqi.sdk.models.generated.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
@@ -11,9 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.net.InetSocketAddress;
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -26,24 +22,34 @@ class DefaultCheqiApiClientTest {
     private static final ObjectMapper OBJECT_MAPPER = ObjectMapperConfig.getInstance();
 
     @Test
-    void generateReceiptTemplate_usesSharedObjectMapperForRequestSerialization() throws Exception {
+    void submitEncryptedReceipt_postsGeneratedEnvelopeToSingularReceiptRoute() throws Exception {
         AtomicReference<String> requestBody = new AtomicReference<>();
         AtomicReference<String> authorization = new AtomicReference<>();
-        HttpServer server = httpServer("/receipt/template", exchange -> {
+        AtomicReference<String> path = new AtomicReference<>();
+        HttpServer server = httpServer("/receipt/encrypted", exchange -> {
             authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
+            path.set(exchange.getRequestURI().getPath());
             requestBody.set(new String(exchange.getRequestBody().readAllBytes()));
-            send(exchange, 200, "{\"ubl\":\"<Receipt/>\"}");
+            send(exchange, 202, "{\"cheqiReceiptId\":\"CHQ-123\",\"matchId\":\"match-123\",\"status\":\"PENDING\"}");
         });
         try {
             DefaultCheqiApiClient client = new DefaultCheqiApiClient(configFor(server));
-            client.generateReceiptTemplate(generationRequest(), List.of(ReceiptFormat.UBL_PURCHASE_RECEIPT));
+            ReceiptSubmissionResponse response = client.submitEncryptedReceipt(
+                    new EncryptedReceiptEnvelope()
+                            .matchId("match-123")
+                            .deviceDeliveries(List.of(new EncryptedReceiptPayload()
+                                    .deviceRecipientId("device-1")
+                                    .encryptedContent("ciphertext")
+                                    .encryptedAesKey("encrypted-key")))
+            );
 
-            String body = requestBody.get();
             assertEquals("Bearer sk_test_123", authorization.get());
-            assertFalse(body.contains("100.00"));
-            assertFalse(body.contains("21.00"));
-            assertFalse(body.contains("121.00"));
-            assertEquals("100", OBJECT_MAPPER.readTree(body).at("/receiptTemplateRequest/receiptSubtotal").asText());
+            assertEquals("/receipt/encrypted", path.get());
+            assertEquals("match-123", OBJECT_MAPPER.readTree(requestBody.get()).get("matchId").asText());
+            assertEquals("device-1", OBJECT_MAPPER.readTree(requestBody.get())
+                    .at("/deviceDeliveries/0/deviceRecipientId").asText());
+            assertEquals("CHQ-123", response.getCheqiReceiptId());
+            assertEquals(ReceiptSubmissionResponse.StatusEnum.PENDING, response.getStatus());
         } finally {
             server.stop(0);
         }
@@ -77,7 +83,7 @@ class DefaultCheqiApiClientTest {
     }
 
     @Test
-    void uploadClientEncryptedReceipt_postsContractBody() throws Exception {
+    void uploadEncryptedDownloadReceipt_postsContractBody() throws Exception {
         AtomicReference<String> requestBody = new AtomicReference<>();
         AtomicReference<String> authorization = new AtomicReference<>();
         HttpServer server = httpServer("/receipt/download", exchange -> {
@@ -87,7 +93,7 @@ class DefaultCheqiApiClientTest {
         });
         try {
             DefaultCheqiApiClient client = new DefaultCheqiApiClient(configFor(server));
-            ClientReceiptDownloadResponse response = client.uploadClientEncryptedReceipt(
+            ClientReceiptDownloadResponse response = client.uploadEncryptedDownloadReceipt(
                     new ClientReceiptDownloadRequest()
                             .downloadId("Zk9qYx3vT1KpN8wL2sRd_g")
                             .ciphertext("AAAA")
@@ -108,33 +114,6 @@ class DefaultCheqiApiClientTest {
                 .timeoutSeconds(5)
                 .maxRetries(0)
                 .build();
-    }
-
-    private static ReceiptTemplateGenerationRequest generationRequest() {
-        ReceiptTemplateGenerationRequest request = new ReceiptTemplateGenerationRequest();
-        request.setReceiptTemplateRequest(
-                ReceiptTemplateRequest.builder()
-                        .documentNumber("INV-001")
-                        .issueDate(Instant.parse("2024-01-15T10:30:00Z"))
-                        .currency("EUR")
-                        .receiptSubtotal(new BigDecimal("100.00"))
-                        .totalBeforeTax(new BigDecimal("100.00"))
-                        .totalTaxAmount(new BigDecimal("21.00"))
-                        .totalAmount(new BigDecimal("121.00"))
-                        .addProduct(Product.builder()
-                                .name("Widget")
-                                .quantity(1.0)
-                                .unitCode(UnitCode.C62)
-                                .unitPrice("100.00")
-                                .subtotal("100.00")
-                                .total("121.00")
-                                .addTax(21.0, "VAT", "100.00", "21.00")
-                                .build())
-                        .addTax(21.0, "VAT", "100.00", "21.00")
-                        .build()
-        );
-        request.setFormats(List.of(ReceiptFormat.UBL_PURCHASE_RECEIPT));
-        return request;
     }
 
     private static HttpServer httpServer(String path, com.sun.net.httpserver.HttpHandler handler) throws IOException {

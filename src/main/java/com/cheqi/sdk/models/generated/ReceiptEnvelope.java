@@ -16,141 +16,182 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.CheqiReceipt;
-import com.cheqi.sdk.models.generated.VatMetadata;
+import com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Receipt envelope, that is the encrypted receipt content
+ * Versioned plaintext receipt package encrypted independently for one recipient.
  */
 @JsonPropertyOrder({
-  ReceiptEnvelope.JSON_PROPERTY_CHEQI,
-  ReceiptEnvelope.JSON_PROPERTY_UBL_PURCHASE_RECEIPT,
-  ReceiptEnvelope.JSON_PROPERTY_UBL_INVOICE,
-  ReceiptEnvelope.JSON_PROPERTY_VAT_META_DATA
+  ReceiptEnvelope.JSON_PROPERTY_CHEQI_RECEIPT_ID,
+  ReceiptEnvelope.JSON_PROPERTY_DOCUMENTS,
+  ReceiptEnvelope.JSON_PROPERTY_ENVELOPE_VERSION,
+  ReceiptEnvelope.JSON_PROPERTY_RECEIPT_GENERATOR_VERSION,
+  ReceiptEnvelope.JSON_PROPERTY_RECEIPT_UUID
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class ReceiptEnvelope {
-  public static final String JSON_PROPERTY_CHEQI = "cheqi";
-  @javax.annotation.Nullable
-  private CheqiReceipt cheqi;
+  public static final String JSON_PROPERTY_CHEQI_RECEIPT_ID = "cheqiReceiptId";
+  @javax.annotation.Nonnull
+  private String cheqiReceiptId;
 
-  public static final String JSON_PROPERTY_UBL_PURCHASE_RECEIPT = "ublPurchaseReceipt";
-  @javax.annotation.Nullable
-  private String ublPurchaseReceipt;
+  public static final String JSON_PROPERTY_DOCUMENTS = "documents";
+  @javax.annotation.Nonnull
+  private Map<String, ReceiptEnvelopeDocument> documents = new HashMap<>();
 
-  public static final String JSON_PROPERTY_UBL_INVOICE = "ublInvoice";
-  @javax.annotation.Nullable
-  private String ublInvoice;
+  public static final String JSON_PROPERTY_ENVELOPE_VERSION = "envelopeVersion";
+  @javax.annotation.Nonnull
+  private Integer envelopeVersion;
 
-  public static final String JSON_PROPERTY_VAT_META_DATA = "vatMetaData";
-  @javax.annotation.Nullable
-  private VatMetadata vatMetaData;
+  public static final String JSON_PROPERTY_RECEIPT_GENERATOR_VERSION = "receiptGeneratorVersion";
+  @javax.annotation.Nonnull
+  private String receiptGeneratorVersion;
+
+  public static final String JSON_PROPERTY_RECEIPT_UUID = "receiptUuid";
+  @javax.annotation.Nonnull
+  private UUID receiptUuid;
 
   public ReceiptEnvelope() { 
   }
 
-  public ReceiptEnvelope cheqi(@javax.annotation.Nullable CheqiReceipt cheqi) {
-    this.cheqi = cheqi;
+  public ReceiptEnvelope cheqiReceiptId(@javax.annotation.Nonnull String cheqiReceiptId) {
+    this.cheqiReceiptId = cheqiReceiptId;
     return this;
   }
 
   /**
-   * Get cheqi
-   * @return cheqi
+   * Stable Cheqi receipt or credit-note identifier.
+   * @return cheqiReceiptId
    */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_CHEQI)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public CheqiReceipt getCheqi() {
-    return cheqi;
+  @javax.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public String getCheqiReceiptId() {
+    return cheqiReceiptId;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_CHEQI)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCheqi(@javax.annotation.Nullable CheqiReceipt cheqi) {
-    this.cheqi = cheqi;
+  @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setCheqiReceiptId(@javax.annotation.Nonnull String cheqiReceiptId) {
+    this.cheqiReceiptId = cheqiReceiptId;
   }
 
 
-  public ReceiptEnvelope ublPurchaseReceipt(@javax.annotation.Nullable String ublPurchaseReceipt) {
-    this.ublPurchaseReceipt = ublPurchaseReceipt;
+  public ReceiptEnvelope documents(@javax.annotation.Nonnull Map<String, ReceiptEnvelopeDocument> documents) {
+    this.documents = documents;
+    return this;
+  }
+
+  public ReceiptEnvelope putDocumentsItem(String key, ReceiptEnvelopeDocument documentsItem) {
+    if (this.documents == null) {
+      this.documents = new HashMap<>();
+    }
+    this.documents.put(key, documentsItem);
     return this;
   }
 
   /**
-   * Serialized UBL PurchaseReceipt XML payload. Include this when the recipient accepts UBL_PURCHASE_RECEIPT.
-   * @return ublPurchaseReceipt
+   * Generated documents keyed by ReceiptFormat name: CHEQI, UBL_PURCHASE_RECEIPT, UBL_INVOICE, or UBL_CREDIT_NOTE. Only formats included for this recipient are present. Each document&#39;s content is serialized JSON or XML, not a nested parsed document.
+   * @return documents
    */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_UBL_PURCHASE_RECEIPT)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getUblPurchaseReceipt() {
-    return ublPurchaseReceipt;
+  @javax.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_DOCUMENTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public Map<String, ReceiptEnvelopeDocument> getDocuments() {
+    return documents;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_UBL_PURCHASE_RECEIPT)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setUblPurchaseReceipt(@javax.annotation.Nullable String ublPurchaseReceipt) {
-    this.ublPurchaseReceipt = ublPurchaseReceipt;
+  @JsonProperty(JSON_PROPERTY_DOCUMENTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setDocuments(@javax.annotation.Nonnull Map<String, ReceiptEnvelopeDocument> documents) {
+    this.documents = documents;
   }
 
 
-  public ReceiptEnvelope ublInvoice(@javax.annotation.Nullable String ublInvoice) {
-    this.ublInvoice = ublInvoice;
+  public ReceiptEnvelope envelopeVersion(@javax.annotation.Nonnull Integer envelopeVersion) {
+    this.envelopeVersion = envelopeVersion;
     return this;
   }
 
   /**
-   * Serialized UBL Invoice XML payload. Include this when the recipient accepts UBL_INVOICE.
-   * @return ublInvoice
+   * Schema version of this encrypted plaintext envelope.
+   * minimum: 1
+   * maximum: 1
+   * @return envelopeVersion
    */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_UBL_INVOICE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getUblInvoice() {
-    return ublInvoice;
+  @javax.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_ENVELOPE_VERSION)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public Integer getEnvelopeVersion() {
+    return envelopeVersion;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_UBL_INVOICE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setUblInvoice(@javax.annotation.Nullable String ublInvoice) {
-    this.ublInvoice = ublInvoice;
+  @JsonProperty(JSON_PROPERTY_ENVELOPE_VERSION)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setEnvelopeVersion(@javax.annotation.Nonnull Integer envelopeVersion) {
+    this.envelopeVersion = envelopeVersion;
   }
 
 
-  public ReceiptEnvelope vatMetaData(@javax.annotation.Nullable VatMetadata vatMetaData) {
-    this.vatMetaData = vatMetaData;
+  public ReceiptEnvelope receiptGeneratorVersion(@javax.annotation.Nonnull String receiptGeneratorVersion) {
+    this.receiptGeneratorVersion = receiptGeneratorVersion;
     return this;
   }
 
   /**
-   * Get vatMetaData
-   * @return vatMetaData
+   * Version of the Rust receipt-template engine that generated the documents.
+   * @return receiptGeneratorVersion
    */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_VAT_META_DATA)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public VatMetadata getVatMetaData() {
-    return vatMetaData;
+  @javax.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_RECEIPT_GENERATOR_VERSION)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public String getReceiptGeneratorVersion() {
+    return receiptGeneratorVersion;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_VAT_META_DATA)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setVatMetaData(@javax.annotation.Nullable VatMetadata vatMetaData) {
-    this.vatMetaData = vatMetaData;
+  @JsonProperty(JSON_PROPERTY_RECEIPT_GENERATOR_VERSION)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setReceiptGeneratorVersion(@javax.annotation.Nonnull String receiptGeneratorVersion) {
+    this.receiptGeneratorVersion = receiptGeneratorVersion;
+  }
+
+
+  public ReceiptEnvelope receiptUuid(@javax.annotation.Nonnull UUID receiptUuid) {
+    this.receiptUuid = receiptUuid;
+    return this;
+  }
+
+  /**
+   * Shared UUID embedded in every generated representation of this receipt.
+   * @return receiptUuid
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public UUID getReceiptUuid() {
+    return receiptUuid;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setReceiptUuid(@javax.annotation.Nonnull UUID receiptUuid) {
+    this.receiptUuid = receiptUuid;
   }
 
 
@@ -166,25 +207,27 @@ public class ReceiptEnvelope {
       return false;
     }
     ReceiptEnvelope receiptEnvelope = (ReceiptEnvelope) o;
-    return Objects.equals(this.cheqi, receiptEnvelope.cheqi) &&
-        Objects.equals(this.ublPurchaseReceipt, receiptEnvelope.ublPurchaseReceipt) &&
-        Objects.equals(this.ublInvoice, receiptEnvelope.ublInvoice) &&
-        Objects.equals(this.vatMetaData, receiptEnvelope.vatMetaData);
+    return Objects.equals(this.cheqiReceiptId, receiptEnvelope.cheqiReceiptId) &&
+        Objects.equals(this.documents, receiptEnvelope.documents) &&
+        Objects.equals(this.envelopeVersion, receiptEnvelope.envelopeVersion) &&
+        Objects.equals(this.receiptGeneratorVersion, receiptEnvelope.receiptGeneratorVersion) &&
+        Objects.equals(this.receiptUuid, receiptEnvelope.receiptUuid);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cheqi, ublPurchaseReceipt, ublInvoice, vatMetaData);
+    return Objects.hash(cheqiReceiptId, documents, envelopeVersion, receiptGeneratorVersion, receiptUuid);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ReceiptEnvelope {\n");
-    sb.append("    cheqi: ").append(toIndentedString(cheqi)).append("\n");
-    sb.append("    ublPurchaseReceipt: ").append(toIndentedString(ublPurchaseReceipt)).append("\n");
-    sb.append("    ublInvoice: ").append(toIndentedString(ublInvoice)).append("\n");
-    sb.append("    vatMetaData: ").append(toIndentedString(vatMetaData)).append("\n");
+    sb.append("    cheqiReceiptId: ").append(toIndentedString(cheqiReceiptId)).append("\n");
+    sb.append("    documents: ").append(toIndentedString(documents)).append("\n");
+    sb.append("    envelopeVersion: ").append(toIndentedString(envelopeVersion)).append("\n");
+    sb.append("    receiptGeneratorVersion: ").append(toIndentedString(receiptGeneratorVersion)).append("\n");
+    sb.append("    receiptUuid: ").append(toIndentedString(receiptUuid)).append("\n");
     sb.append("}");
     return sb.toString();
   }

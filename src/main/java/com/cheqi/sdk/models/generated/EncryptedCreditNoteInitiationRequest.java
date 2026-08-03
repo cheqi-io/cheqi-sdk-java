@@ -38,25 +38,25 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class EncryptedCreditNoteInitiationRequest {
   public static final String JSON_PROPERTY_CHEQI_RECEIPT_ID = "cheqiReceiptId";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String cheqiReceiptId;
 
   public static final String JSON_PROPERTY_PUBLIC_KEY = "publicKey";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String publicKey;
 
   public static final String JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE_INITIATION_REQUEST = "encryptedCreditNoteInitiationRequest";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String encryptedCreditNoteInitiationRequest;
 
   public static final String JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY = "encryptedSymmetricKey";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String encryptedSymmetricKey;
 
   public EncryptedCreditNoteInitiationRequest() { 
   }
 
-  public EncryptedCreditNoteInitiationRequest cheqiReceiptId(@javax.annotation.Nullable String cheqiReceiptId) {
+  public EncryptedCreditNoteInitiationRequest cheqiReceiptId(@javax.annotation.Nonnull String cheqiReceiptId) {
     this.cheqiReceiptId = cheqiReceiptId;
     return this;
   }
@@ -65,22 +65,22 @@ public class EncryptedCreditNoteInitiationRequest {
    * The Cheqi receipt ID for the original receipt
    * @return cheqiReceiptId
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCheqiReceiptId() {
     return cheqiReceiptId;
   }
 
 
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCheqiReceiptId(@javax.annotation.Nullable String cheqiReceiptId) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setCheqiReceiptId(@javax.annotation.Nonnull String cheqiReceiptId) {
     this.cheqiReceiptId = cheqiReceiptId;
   }
 
 
-  public EncryptedCreditNoteInitiationRequest publicKey(@javax.annotation.Nullable String publicKey) {
+  public EncryptedCreditNoteInitiationRequest publicKey(@javax.annotation.Nonnull String publicKey) {
     this.publicKey = publicKey;
     return this;
   }
@@ -89,46 +89,46 @@ public class EncryptedCreditNoteInitiationRequest {
    * The public key of the requesting device
    * @return publicKey
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPublicKey() {
     return publicKey;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPublicKey(@javax.annotation.Nullable String publicKey) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setPublicKey(@javax.annotation.Nonnull String publicKey) {
     this.publicKey = publicKey;
   }
 
 
-  public EncryptedCreditNoteInitiationRequest encryptedCreditNoteInitiationRequest(@javax.annotation.Nullable String encryptedCreditNoteInitiationRequest) {
+  public EncryptedCreditNoteInitiationRequest encryptedCreditNoteInitiationRequest(@javax.annotation.Nonnull String encryptedCreditNoteInitiationRequest) {
     this.encryptedCreditNoteInitiationRequest = encryptedCreditNoteInitiationRequest;
     return this;
   }
 
   /**
-   * The encrypted credit note initiation request payload
+   * Base64-encoded ciphertext containing the plaintext contract documented as &#x60;CreditNoteInitiationRequest&#x60; in &#x60;components/schemas&#x60;
    * @return encryptedCreditNoteInitiationRequest
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE_INITIATION_REQUEST)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getEncryptedCreditNoteInitiationRequest() {
     return encryptedCreditNoteInitiationRequest;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE_INITIATION_REQUEST)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedCreditNoteInitiationRequest(@javax.annotation.Nullable String encryptedCreditNoteInitiationRequest) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setEncryptedCreditNoteInitiationRequest(@javax.annotation.Nonnull String encryptedCreditNoteInitiationRequest) {
     this.encryptedCreditNoteInitiationRequest = encryptedCreditNoteInitiationRequest;
   }
 
 
-  public EncryptedCreditNoteInitiationRequest encryptedSymmetricKey(@javax.annotation.Nullable String encryptedSymmetricKey) {
+  public EncryptedCreditNoteInitiationRequest encryptedSymmetricKey(@javax.annotation.Nonnull String encryptedSymmetricKey) {
     this.encryptedSymmetricKey = encryptedSymmetricKey;
     return this;
   }
@@ -137,17 +137,17 @@ public class EncryptedCreditNoteInitiationRequest {
    * The AES symmetric key encrypted with the recipient&#39;s RSA public key
    * @return encryptedSymmetricKey
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getEncryptedSymmetricKey() {
     return encryptedSymmetricKey;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedSymmetricKey(@javax.annotation.Nullable String encryptedSymmetricKey) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setEncryptedSymmetricKey(@javax.annotation.Nonnull String encryptedSymmetricKey) {
     this.encryptedSymmetricKey = encryptedSymmetricKey;
   }
 

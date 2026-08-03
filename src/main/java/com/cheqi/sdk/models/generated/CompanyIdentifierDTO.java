@@ -56,6 +56,10 @@ public class CompanyIdentifierDTO {
    * The local registration scheme or registry name. Use a known value or a custom string for unsupported registries.
    */
   public enum RegistrationSchemeEnum {
+    BN(String.valueOf("BN")),
+    
+    KENNITALA(String.valueOf("KENNITALA")),
+    
     KVK(String.valueOf("KVK")),
     
     HRB(String.valueOf("HRB")),

@@ -1,6 +1,5 @@
 package com.cheqi.sdk;
 
-import com.cheqi.sdk.company.CompanyService;
 import com.cheqi.sdk.company.StoreService;
 import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.config.Environment;
@@ -11,9 +10,6 @@ import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.DefaultCheqiApiClient;
 import com.cheqi.sdk.matching.MatchingService;
-import com.cheqi.sdk.decryption.DecryptedReceipt;
-import com.cheqi.sdk.models.EncryptedReceipt;
-import com.cheqi.sdk.receipt.ReceiptProcessor;
 import com.cheqi.sdk.receipt.ReceiptService;
 import com.cheqi.sdk.verification.VerificationService;
 import okhttp3.OkHttpClient;
@@ -21,12 +17,11 @@ import okhttp3.OkHttpClient;
 /**
  * Main entry point for the Cheqi SDK providing end-to-end encrypted receipt processing.
  *
- * This SDK enables suppliers to:
- * 1. Match customers using payment identifiers
- * 2. Generate receipt templates from transaction data
- * 3. Create encrypted receipts for matched customers
- * 4. Communicate with Cheqi backend through encrypted channels
- * Example usage with predefined environment:
+ * This SDK enables issuers to resolve a recipient, encrypt the issuer-supplied definitive receipt
+ * payload independently for every owner device, and submit the encrypted envelope to Cheqi.
+ * Cheqi does not receive the plaintext receipt body, and this SDK does not calculate receipt values.
+ *
+ * <p>Example configuration:</p>
  * <pre>
  * CheqiSDK sdk = CheqiSDK.builder()
  *     .apiEndpoint(Environment.PRODUCTION)
@@ -34,59 +29,6 @@ import okhttp3.OkHttpClient;
  *     .build();
  * </pre>
  *
- * Example usage with custom URL:
- * <pre>
- * CheqiSDK sdk = CheqiSDK.builder()
- *     .customApiEndpoint("https://custom.api.example.com")
- *     .apiKey("sk_test_...")
- *     .build();
- *
- * // Match customer using card details
- * RecipientResolutionRequest matchRequest = RecipientResolutionRequest.builder()
- *     .paymentType(PaymentType.CARD_PAYMENT)
- *     .card(CardDetails.builder()
- *         .paymentAccountReference("PAR123456")
- *         .cardProvider(CardProvider.VISA)
- *         .build())
- *     .customerEmail("customer@example.com")
- *     .build();
- *
- * RecipientResolutionResponse matchResponse = sdk.getMatchingService()
- *     .matchCustomer(matchRequest, accessToken);
- *
- * // Create receipt with simplified API
- * ReceiptTemplateRequest receiptRequest = ReceiptTemplateRequest.builder()
- *     .documentNumber("INV-001")
- *     .issueDate(Instant.now())
- *     .currency("EUR")
- *     .invoiceSubtotal(new BigDecimal("100.00"))
- *     .totalBeforeTax(new BigDecimal("100.00"))
- *     .totalAmount(new BigDecimal("121.00"))
- *     .totalTaxAmount(new BigDecimal("21.00"))creditNoteTemplateRequest
- *     .addProduct(Product.builder()
- *         .name("Laptop")
- *         .quantity(1.0)
- *         .unitCode(UnitCode.ONE)
- *         .unitPrice("100.00")
- *         .subtotal("100.00")
- *         .total("121.00")
- *         .addTax(21.0, "VAT", "100.00", "21.00")
- *         .build())
- *     .addTax(Tax.builder()
- *         .rate(21.0)
- *         .type("VAT")
- *         .amount("21.00")
- *         .build())
- *     .build();
- *
- * // Process complete receipt (one method handles everything)
- * ProcessReceiptResult result = sdk.getReceiptService()
- *     .processCompleteReceipt(matchRequest, receiptRequest, merchantId, accessToken);
- *
- * if (result.isSuccess()) {
- *     System.out.println("Receipt delivered to " + result.getReceiptCount() + " devices");
- * }
- * </pre>
  */
 public class CheqiSDK {
 
@@ -97,8 +39,6 @@ public class CheqiSDK {
     private final CheqiApiClient apiClient;
     private final MatchingService matchingService;
     private final ReceiptService receiptService;
-    private final ReceiptProcessor receiptProcessor;
-    private final CompanyService companyService;
     private final StoreService storeService;
     private final VerificationService verificationService;
     private final CreditNoteService creditNoteService;
@@ -109,13 +49,16 @@ public class CheqiSDK {
         this.verificationService = new VerificationService();
         this.decryptionService = new DecryptionService();
         this.downloadService = new DownloadService();
-        this.receiptProcessor = new ReceiptProcessor(decryptionService);
         this.encryptionService = new EncryptionService();
         this.apiClient = new DefaultCheqiApiClient(config);
         this.matchingService = new MatchingService(apiClient);
         this.receiptService = new ReceiptService(
-                apiClient, encryptionService, matchingService, downloadService, config.getReceiptDownloadBaseUrl());
-        this.companyService = new CompanyService(apiClient);
+                apiClient,
+                encryptionService,
+                matchingService,
+                downloadService,
+                config.getReceiptDownloadBaseUrl()
+        );
         this.storeService = new StoreService(apiClient);
         this.creditNoteService = new CreditNoteService(apiClient, encryptionService, matchingService);
     }
@@ -159,13 +102,8 @@ public class CheqiSDK {
         return matchingService;
     }
 
-    // Expose receipt processing functionality
-    public DecryptedReceipt processEncryptedReceipt(EncryptedReceipt encryptedReceipt, String privateKey) {
-        return receiptProcessor.processEncryptedReceipt(encryptedReceipt, privateKey);
-    }
-
     /**
-     * Gets the receipt service for receipt template generation and encryption.
+     * Gets the receipt service for definitive payload encryption and submission.
      *
      * @return ReceiptService instance
      */
@@ -199,15 +137,6 @@ public class CheqiSDK {
      */
     public CheqiSDKConfig getConfig() {
         return config;
-    }
-
-    /**
-     * Gets the company service.
-     *
-     * @return CompanyService instance
-     */
-    public CompanyService getCompanyService() {
-        return companyService;
     }
 
     /**

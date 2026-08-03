@@ -19,7 +19,7 @@ public class Barcode extends com.cheqi.sdk.models.generated.Barcode {
 
     public static Barcode of(BarcodeType type, String data, String label) {
         Barcode b = new Barcode();
-        b.setType(type.name());
+        b.setType(type);
         b.setData(data);
         b.setLabel(label);
         return b;
@@ -69,7 +69,7 @@ public class Barcode extends com.cheqi.sdk.models.generated.Barcode {
                 throw new IllegalStateException("Barcode data is required");
             }
             Barcode b = new Barcode();
-            b.setType(type.name());
+            b.setType(type);
             b.setData(data);
             b.setLabel(label);
             return b;

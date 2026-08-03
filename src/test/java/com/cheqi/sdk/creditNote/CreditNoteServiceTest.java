@@ -3,91 +3,86 @@ package com.cheqi.sdk.creditNote;
 import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.matching.MatchingService;
-import com.cheqi.sdk.models.generated.*;
-import com.cheqi.sdk.utils.HashUtils;
+import com.cheqi.sdk.models.generated.EncryptedCreditNoteEnvelope;
+import com.cheqi.sdk.models.generated.EncryptedReceiptPayload;
+import com.cheqi.sdk.models.generated.IdentificationDetails;
+import com.cheqi.sdk.models.generated.MatchedRecipient;
+import com.cheqi.sdk.models.generated.ReceiptSubmissionResponse;
+import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class CreditNoteServiceTest {
-
-    @Mock
-    private CheqiApiClient apiClient;
-
-    @Mock
-    private EncryptionService encryptionService;
-
-    @Mock
-    private MatchingService matchingService;
-
     @Test
-    void processCompleteCreditNote_deliversEncryptedCreditNoteForMatchedCustomer() throws Exception {
+    void submitsCreditNoteThroughItsOwnGeneratedEnvelope() throws Exception {
+        CheqiApiClient apiClient = mock(CheqiApiClient.class);
+        StubEncryptionService encryptionService = new StubEncryptionService();
+        MatchingService matchingService = new MatchingService(apiClient);
         CreditNoteService service = new CreditNoteService(apiClient, encryptionService, matchingService);
-        RecipientResolutionResponse matchResponse = matchedRecipientResponse();
-        CreditNoteTemplateResponse templateResponse = new CreditNoteTemplateResponse().ublCreditNote("<CreditNote>ok</CreditNote>");
-        CreditNoteCreatedResponse createdResponse = new CreditNoteCreatedResponse()
-                .cheqiReceiptId("credit-note-123")
-                .parentCheqiReceiptId("receipt-123")
-                .templateHash("hash-456")
-                .createdAt(OffsetDateTime.parse("2024-01-15T10:30:00Z"));
-        EncryptedCreditNote encryptedCreditNote = new EncryptedCreditNote()
-                .recipientId("recipient-1")
-                .encryptedCreditNote("ciphertext")
-                .encryptedSymmetricKey("wrapped-key");
 
-        when(matchingService.matchCustomer(any(IdentificationDetails.class))).thenReturn(matchResponse);
-        when(apiClient.generateCreditNoteTemplate(any(CreditNoteTemplateGenerationRequest.class))).thenReturn(templateResponse);
-        when(encryptionService.encryptCreditNoteForRecipient(eq("{\"ublCreditNote\":\"<CreditNote>ok</CreditNote>\"}"), any(MatchedRecipient.class)))
-                .thenReturn(encryptedCreditNote);
-        when(apiClient.sendEncryptedCreditNotes(eq("match-123"), eq("receipt-123"), anySet(), any(String.class))).thenReturn(createdResponse);
+        MatchedRecipient recipient = new MatchedRecipient().id("device-1").publicKey("public-key");
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+                .thenReturn(new RecipientResolutionResponse()
+                        .routeFound(true)
+                        .matchId("match-credit")
+                        .recipients(List.of(recipient)));
+        EncryptedReceiptPayload encrypted = new EncryptedReceiptPayload()
+                .deviceRecipientId("device-1")
+                .encryptedContent("ciphertext")
+                .encryptedAesKey("encrypted-key");
+        encryptionService.delivery = encrypted;
+        when(apiClient.submitEncryptedCreditNote(
+                org.mockito.ArgumentMatchers.any(EncryptedCreditNoteEnvelope.class)))
+                .thenReturn(new ReceiptSubmissionResponse()
+                        .cheqiReceiptId("CHQ-CN-1")
+                        .matchId("match-credit")
+                        .status(ReceiptSubmissionResponse.StatusEnum.PENDING));
 
-        CreditNoteResult result = service.processCompleteCreditNote(identificationDetails(), creditNoteTemplateRequest());
+        CreditNoteResult result = service.issueCreditNote(
+                new IdentificationDetails().cheqiReceiptId("CHQ-PARENT"),
+                "CHQ-PARENT",
+                Map.of("documentNumber", "CN-1", "totalAmount", "5.00")
+        );
 
-        assertTrue(result.isSuccess());
-        assertEquals("credit-note-123", result.getCheqiReceiptId());
-        assertEquals("receipt-123", result.getParentCheqiReceiptId());
+        assertTrue(result.isAccepted());
+        assertEquals("CHQ-CN-1", result.getCheqiReceiptId());
+        assertEquals("CHQ-PARENT", result.getParentCheqiReceiptId());
 
-        ArgumentCaptor<String> templateHashCaptor = ArgumentCaptor.forClass(String.class);
-        verify(apiClient).sendEncryptedCreditNotes(eq("match-123"), eq("receipt-123"), anySet(), templateHashCaptor.capture());
-        assertEquals(HashUtils.sha256Hex("<CreditNote>ok</CreditNote>"), templateHashCaptor.getValue());
+        assertEquals(List.of(recipient), encryptionService.recipients);
+        assertTrue(encryptionService.plaintexts.get(0)
+                .contains("\"documentNumber\":\"CN-1\""));
+
+        ArgumentCaptor<EncryptedCreditNoteEnvelope> envelope =
+                ArgumentCaptor.forClass(EncryptedCreditNoteEnvelope.class);
+        verify(apiClient).submitEncryptedCreditNote(envelope.capture());
+        assertEquals("match-credit", envelope.getValue().getMatchId());
+        assertEquals("CHQ-PARENT", envelope.getValue().getParentCheqiReceiptId());
+        assertEquals(List.of(encrypted), envelope.getValue().getDeviceDeliveries());
     }
 
-    private static RecipientResolutionResponse matchedRecipientResponse() {
-        MatchedRecipient recipient = new MatchedRecipient()
-                .id("recipient-1")
-                .publicKey("public-key")
-                .acceptedFormats(List.of(ReceiptFormat.UBL_CREDIT_NOTE));
+    private static final class StubEncryptionService extends EncryptionService {
+        private final List<String> plaintexts = new ArrayList<>();
+        private final List<MatchedRecipient> recipients = new ArrayList<>();
+        private EncryptedReceiptPayload delivery;
 
-        return new RecipientResolutionResponse()
-                .routeFound(true)
-                .matchId("match-123")
-                .buyerCountryCode("NL")
-                .recipients(List.of(recipient));
-    }
-
-    private static IdentificationDetails identificationDetails() {
-        return new IdentificationDetails()
-                .paymentType(PaymentType.CARD_PAYMENT)
-                .cheqiReceiptId("receipt-123");
-    }
-
-    private static com.cheqi.sdk.models.CreditNoteTemplateRequest creditNoteTemplateRequest() {
-        return com.cheqi.sdk.models.CreditNoteTemplateRequest.builder()
-                .documentNumber("CN-001")
-                .build();
+        @Override
+        public EncryptedReceiptPayload encryptCreditNoteForRecipient(
+                String creditNotePayloadJson,
+                MatchedRecipient recipient
+        ) {
+            plaintexts.add(creditNotePayloadJson);
+            recipients.add(recipient);
+            return delivery;
+        }
     }
 }

@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The list of discounts applied to the receipt on total receipt level. Example: discount on total receipt level, 20% discount on complete order, etc.
+ * Issuer-supplied receipt-level discounts.
  */
 @JsonPropertyOrder({
   Discount.JSON_PROPERTY_AMOUNT,
