@@ -12,22 +12,22 @@ The SDK preserves Cheqi's zero-knowledge boundary: receipt contents are supplied
 
 ## Installation
 
-Version `2.0.0` describes the API on this branch but has not been published to Maven Central yet. Until it is released, build the SDK locally or use the latest published release where its API is sufficient.
+Version `2.1.0` describes the API on this branch but has not been published to Maven Central yet. Until it is released, build the SDK locally or use the latest published release where its API is sufficient.
 
-After `2.0.0` is published, add it with Maven:
+After `2.1.0` is published, add it with Maven:
 
 ```xml
 <dependency>
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
 Or with Gradle:
 
 ```gradle
-implementation 'io.cheqi:cheqi-sdk:2.0.0'
+implementation 'io.cheqi:cheqi-sdk:2.1.0'
 ```
 
 To build and install this branch locally:
@@ -304,15 +304,19 @@ actual refund and taxes, and issuing the definitive credit note. Call `validate(
 deserializing a request; the builder validates automatically. Cheqi cannot perform this plaintext
 validation because the request is encrypted for the issuer. Receiving merchants can use
 `DecryptionService.decryptCreditNoteInitiationRequest(...)` to decrypt, deserialize, and validate
-the typed request in one step.
+the typed request in one step. The method accepts both
+`WebhookCreditNoteInitiationRequest` from `data.creditNoteInitiationRequest` and
+`EncryptedCreditNoteInitiationRequestResponse` returned by the polling endpoint.
 
 ## Receipt Decryption
 
-A recipient can decrypt a queued, complete receipt envelope with the corresponding device private key:
+A recipient can decrypt a complete receipt envelope with the corresponding private key. Pass an
+`EncryptedReceiptDeliveryResponse` returned by the polling endpoint, or the
+`WebhookReceiptEnvelope` found under `data.encryptedReceipt` or `data.encryptedCreditNote`:
 
 ```java
 ReceiptEnvelope receiptEnvelope = sdk.getDecryptionService()
-    .decryptReceipt(receiptDelivery, privateKeyBase64);
+    .decryptReceipt(encryptedReceiptDelivery, privateKeyBase64);
 ```
 
 The decrypted payload is already a complete `ReceiptEnvelope`; there is no backend-context merge step in this SDK.

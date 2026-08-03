@@ -17,16 +17,13 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
 import com.cheqi.sdk.models.generated.DocumentType;
-import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -38,15 +35,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_CHEQI_RECEIPT_ID,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_PARENT_CHEQI_RECEIPT_ID,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_DOCUMENT_TYPE,
-  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_ENCRYPTED_RECEIPT,
-  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY,
+  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_ENCRYPTED_ENVELOPE,
+  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_ENCRYPTED_ENVELOPE_KEY,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_PUBLIC_KEY,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_RECIPIENT_KEY_ALGORITHM,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_RECEIPT_GENERATOR_VERSION,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_ENVELOPE_VERSION,
-  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_ENCRYPTED_CUSTOMER_DETAILS,
-  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_ENCRYPTED_CUSTOMER_AES_KEY,
-  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_RECEIPT_FORMATS,
+  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_FINAL_HASH,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_SUPPLIER_PARTY_ID,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_CREATION_DATE
 })
@@ -65,13 +60,13 @@ public class EncryptedReceiptDeliveryResponse {
   @javax.annotation.Nullable
   private DocumentType documentType;
 
-  public static final String JSON_PROPERTY_ENCRYPTED_RECEIPT = "encryptedReceipt";
+  public static final String JSON_PROPERTY_ENCRYPTED_ENVELOPE = "encryptedEnvelope";
   @javax.annotation.Nullable
-  private String encryptedReceipt;
+  private String encryptedEnvelope;
 
-  public static final String JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY = "encryptedSymmetricKey";
+  public static final String JSON_PROPERTY_ENCRYPTED_ENVELOPE_KEY = "encryptedEnvelopeKey";
   @javax.annotation.Nullable
-  private String encryptedSymmetricKey;
+  private String encryptedEnvelopeKey;
 
   public static final String JSON_PROPERTY_PUBLIC_KEY = "publicKey";
   @javax.annotation.Nullable
@@ -89,17 +84,9 @@ public class EncryptedReceiptDeliveryResponse {
   @javax.annotation.Nullable
   private Integer envelopeVersion;
 
-  public static final String JSON_PROPERTY_ENCRYPTED_CUSTOMER_DETAILS = "encryptedCustomerDetails";
+  public static final String JSON_PROPERTY_FINAL_HASH = "finalHash";
   @javax.annotation.Nullable
-  private String encryptedCustomerDetails;
-
-  public static final String JSON_PROPERTY_ENCRYPTED_CUSTOMER_AES_KEY = "encryptedCustomerAesKey";
-  @javax.annotation.Nullable
-  private String encryptedCustomerAesKey;
-
-  public static final String JSON_PROPERTY_RECEIPT_FORMATS = "receiptFormats";
-  @javax.annotation.Nullable
-  private List<ReceiptFormat> receiptFormats = new ArrayList<>();
+  private String finalHash;
 
   public static final String JSON_PROPERTY_SUPPLIER_PARTY_ID = "supplierPartyId";
   @javax.annotation.Nullable
@@ -184,51 +171,51 @@ public class EncryptedReceiptDeliveryResponse {
   }
 
 
-  public EncryptedReceiptDeliveryResponse encryptedReceipt(@javax.annotation.Nullable String encryptedReceipt) {
-    this.encryptedReceipt = encryptedReceipt;
+  public EncryptedReceiptDeliveryResponse encryptedEnvelope(@javax.annotation.Nullable String encryptedEnvelope) {
+    this.encryptedEnvelope = encryptedEnvelope;
     return this;
   }
 
   /**
-   * Get encryptedReceipt
-   * @return encryptedReceipt
+   * Get encryptedEnvelope
+   * @return encryptedEnvelope
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_RECEIPT)
+  @JsonProperty(JSON_PROPERTY_ENCRYPTED_ENVELOPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getEncryptedReceipt() {
-    return encryptedReceipt;
+  public String getEncryptedEnvelope() {
+    return encryptedEnvelope;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_RECEIPT)
+  @JsonProperty(JSON_PROPERTY_ENCRYPTED_ENVELOPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedReceipt(@javax.annotation.Nullable String encryptedReceipt) {
-    this.encryptedReceipt = encryptedReceipt;
+  public void setEncryptedEnvelope(@javax.annotation.Nullable String encryptedEnvelope) {
+    this.encryptedEnvelope = encryptedEnvelope;
   }
 
 
-  public EncryptedReceiptDeliveryResponse encryptedSymmetricKey(@javax.annotation.Nullable String encryptedSymmetricKey) {
-    this.encryptedSymmetricKey = encryptedSymmetricKey;
+  public EncryptedReceiptDeliveryResponse encryptedEnvelopeKey(@javax.annotation.Nullable String encryptedEnvelopeKey) {
+    this.encryptedEnvelopeKey = encryptedEnvelopeKey;
     return this;
   }
 
   /**
-   * Get encryptedSymmetricKey
-   * @return encryptedSymmetricKey
+   * Get encryptedEnvelopeKey
+   * @return encryptedEnvelopeKey
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY)
+  @JsonProperty(JSON_PROPERTY_ENCRYPTED_ENVELOPE_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getEncryptedSymmetricKey() {
-    return encryptedSymmetricKey;
+  public String getEncryptedEnvelopeKey() {
+    return encryptedEnvelopeKey;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY)
+  @JsonProperty(JSON_PROPERTY_ENCRYPTED_ENVELOPE_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedSymmetricKey(@javax.annotation.Nullable String encryptedSymmetricKey) {
-    this.encryptedSymmetricKey = encryptedSymmetricKey;
+  public void setEncryptedEnvelopeKey(@javax.annotation.Nullable String encryptedEnvelopeKey) {
+    this.encryptedEnvelopeKey = encryptedEnvelopeKey;
   }
 
 
@@ -328,83 +315,27 @@ public class EncryptedReceiptDeliveryResponse {
   }
 
 
-  public EncryptedReceiptDeliveryResponse encryptedCustomerDetails(@javax.annotation.Nullable String encryptedCustomerDetails) {
-    this.encryptedCustomerDetails = encryptedCustomerDetails;
+  public EncryptedReceiptDeliveryResponse finalHash(@javax.annotation.Nullable String finalHash) {
+    this.finalHash = finalHash;
     return this;
   }
 
   /**
-   * Get encryptedCustomerDetails
-   * @return encryptedCustomerDetails
+   * Get finalHash
+   * @return finalHash
    */
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_CUSTOMER_DETAILS)
+  @JsonProperty(JSON_PROPERTY_FINAL_HASH)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getEncryptedCustomerDetails() {
-    return encryptedCustomerDetails;
+  public String getFinalHash() {
+    return finalHash;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_CUSTOMER_DETAILS)
+  @JsonProperty(JSON_PROPERTY_FINAL_HASH)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedCustomerDetails(@javax.annotation.Nullable String encryptedCustomerDetails) {
-    this.encryptedCustomerDetails = encryptedCustomerDetails;
-  }
-
-
-  public EncryptedReceiptDeliveryResponse encryptedCustomerAesKey(@javax.annotation.Nullable String encryptedCustomerAesKey) {
-    this.encryptedCustomerAesKey = encryptedCustomerAesKey;
-    return this;
-  }
-
-  /**
-   * Get encryptedCustomerAesKey
-   * @return encryptedCustomerAesKey
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_CUSTOMER_AES_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getEncryptedCustomerAesKey() {
-    return encryptedCustomerAesKey;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_CUSTOMER_AES_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedCustomerAesKey(@javax.annotation.Nullable String encryptedCustomerAesKey) {
-    this.encryptedCustomerAesKey = encryptedCustomerAesKey;
-  }
-
-
-  public EncryptedReceiptDeliveryResponse receiptFormats(@javax.annotation.Nullable List<ReceiptFormat> receiptFormats) {
-    this.receiptFormats = receiptFormats;
-    return this;
-  }
-
-  public EncryptedReceiptDeliveryResponse addReceiptFormatsItem(ReceiptFormat receiptFormatsItem) {
-    if (this.receiptFormats == null) {
-      this.receiptFormats = new ArrayList<>();
-    }
-    this.receiptFormats.add(receiptFormatsItem);
-    return this;
-  }
-
-  /**
-   * Get receiptFormats
-   * @return receiptFormats
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_RECEIPT_FORMATS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<ReceiptFormat> getReceiptFormats() {
-    return receiptFormats;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_RECEIPT_FORMATS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReceiptFormats(@javax.annotation.Nullable List<ReceiptFormat> receiptFormats) {
-    this.receiptFormats = receiptFormats;
+  public void setFinalHash(@javax.annotation.Nullable String finalHash) {
+    this.finalHash = finalHash;
   }
 
 
@@ -471,22 +402,20 @@ public class EncryptedReceiptDeliveryResponse {
     return Objects.equals(this.cheqiReceiptId, encryptedReceiptDeliveryResponse.cheqiReceiptId) &&
         Objects.equals(this.parentCheqiReceiptId, encryptedReceiptDeliveryResponse.parentCheqiReceiptId) &&
         Objects.equals(this.documentType, encryptedReceiptDeliveryResponse.documentType) &&
-        Objects.equals(this.encryptedReceipt, encryptedReceiptDeliveryResponse.encryptedReceipt) &&
-        Objects.equals(this.encryptedSymmetricKey, encryptedReceiptDeliveryResponse.encryptedSymmetricKey) &&
+        Objects.equals(this.encryptedEnvelope, encryptedReceiptDeliveryResponse.encryptedEnvelope) &&
+        Objects.equals(this.encryptedEnvelopeKey, encryptedReceiptDeliveryResponse.encryptedEnvelopeKey) &&
         Objects.equals(this.publicKey, encryptedReceiptDeliveryResponse.publicKey) &&
         Objects.equals(this.recipientKeyAlgorithm, encryptedReceiptDeliveryResponse.recipientKeyAlgorithm) &&
         Objects.equals(this.receiptGeneratorVersion, encryptedReceiptDeliveryResponse.receiptGeneratorVersion) &&
         Objects.equals(this.envelopeVersion, encryptedReceiptDeliveryResponse.envelopeVersion) &&
-        Objects.equals(this.encryptedCustomerDetails, encryptedReceiptDeliveryResponse.encryptedCustomerDetails) &&
-        Objects.equals(this.encryptedCustomerAesKey, encryptedReceiptDeliveryResponse.encryptedCustomerAesKey) &&
-        Objects.equals(this.receiptFormats, encryptedReceiptDeliveryResponse.receiptFormats) &&
+        Objects.equals(this.finalHash, encryptedReceiptDeliveryResponse.finalHash) &&
         Objects.equals(this.supplierPartyId, encryptedReceiptDeliveryResponse.supplierPartyId) &&
         Objects.equals(this.creationDate, encryptedReceiptDeliveryResponse.creationDate);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cheqiReceiptId, parentCheqiReceiptId, documentType, encryptedReceipt, encryptedSymmetricKey, publicKey, recipientKeyAlgorithm, receiptGeneratorVersion, envelopeVersion, encryptedCustomerDetails, encryptedCustomerAesKey, receiptFormats, supplierPartyId, creationDate);
+    return Objects.hash(cheqiReceiptId, parentCheqiReceiptId, documentType, encryptedEnvelope, encryptedEnvelopeKey, publicKey, recipientKeyAlgorithm, receiptGeneratorVersion, envelopeVersion, finalHash, supplierPartyId, creationDate);
   }
 
   @Override
@@ -496,15 +425,13 @@ public class EncryptedReceiptDeliveryResponse {
     sb.append("    cheqiReceiptId: ").append(toIndentedString(cheqiReceiptId)).append("\n");
     sb.append("    parentCheqiReceiptId: ").append(toIndentedString(parentCheqiReceiptId)).append("\n");
     sb.append("    documentType: ").append(toIndentedString(documentType)).append("\n");
-    sb.append("    encryptedReceipt: ").append(toIndentedString(encryptedReceipt)).append("\n");
-    sb.append("    encryptedSymmetricKey: ").append(toIndentedString(encryptedSymmetricKey)).append("\n");
+    sb.append("    encryptedEnvelope: ").append(toIndentedString(encryptedEnvelope)).append("\n");
+    sb.append("    encryptedEnvelopeKey: ").append(toIndentedString(encryptedEnvelopeKey)).append("\n");
     sb.append("    publicKey: ").append(toIndentedString(publicKey)).append("\n");
     sb.append("    recipientKeyAlgorithm: ").append(toIndentedString(recipientKeyAlgorithm)).append("\n");
     sb.append("    receiptGeneratorVersion: ").append(toIndentedString(receiptGeneratorVersion)).append("\n");
     sb.append("    envelopeVersion: ").append(toIndentedString(envelopeVersion)).append("\n");
-    sb.append("    encryptedCustomerDetails: ").append(toIndentedString(encryptedCustomerDetails)).append("\n");
-    sb.append("    encryptedCustomerAesKey: ").append(toIndentedString(encryptedCustomerAesKey)).append("\n");
-    sb.append("    receiptFormats: ").append(toIndentedString(receiptFormats)).append("\n");
+    sb.append("    finalHash: ").append(toIndentedString(finalHash)).append("\n");
     sb.append("    supplierPartyId: ").append(toIndentedString(supplierPartyId)).append("\n");
     sb.append("    creationDate: ").append(toIndentedString(creationDate)).append("\n");
     sb.append("}");

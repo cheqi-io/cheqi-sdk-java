@@ -184,12 +184,6 @@ paths:
               $ref: "#/components/schemas/ClientCredentialsTokenRequest"
         required: true
       responses:
-        "401":
-          description: Invalid client credentials
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
         "200":
           description: OAuth exchange completed successfully
           content:
@@ -205,6 +199,12 @@ paths:
                     token_type: bearer
                     expires_in: 900
                     scope: receipts.issue
+        "401":
+          description: Invalid client credentials
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
         "400":
           description: Invalid authorization code or request parameters
           content:
@@ -418,12 +418,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/RecipientResolutionResponse"
         "401":
           description: Authentication required
           content:
@@ -432,6 +426,12 @@ paths:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
         "400":
           description: Invalid identification details provided
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RecipientResolutionResponse"
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -519,14 +519,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "400":
-          description: Invalid encrypted generation request
+        "202":
+          description: Encrypted receipt payload accepted for on-device formatting
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "202":
-          description: Encrypted receipt payload accepted for on-device formatting
+        "400":
+          description: Invalid encrypted generation request
           content:
             '*/*':
               schema:
@@ -755,6 +755,12 @@ paths:
               $ref: "#/components/schemas/EncryptedCreditNoteEnvelope"
         required: true
       responses:
+        "202":
+          description: Encrypted credit-note generation job accepted
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReceiptSubmissionResponse"
         "400":
           description: Invalid encrypted credit note data
           content:
@@ -763,12 +769,6 @@ paths:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
         "403":
           description: Insufficient permissions - requires write_receipts scope
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "202":
-          description: Encrypted credit-note generation job accepted
           content:
             '*/*':
               schema:
@@ -893,18 +893,18 @@ paths:
               $ref: "#/components/schemas/CreateStoreRequest"
         required: true
       responses:
-        "403":
-          description: Not authorized to create stores for this company
-          content:
-            '*/*':
-              schema:
-                type: object
         "201":
           description: Store created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
+        "403":
+          description: Not authorized to create stores for this company
+          content:
+            '*/*':
+              schema:
+                type: object
         "404":
           description: Company not found
           content:
@@ -1048,7 +1048,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/EncryptedCreditNoteDto"
+                $ref: "#/components/schemas/EncryptedCreditNoteInitiationRequestResponse"
       x-accessible-for: "Company, Client Application"
   /company/{companyId}/stores/{storeId}/deactivate:
     patch:
@@ -1116,14 +1116,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store activated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
@@ -1203,11 +1203,11 @@ paths:
       operationId: getAllCreditNotes
       responses:
         "200":
-          description: Credit notes retrieved successfully
+          description: Return requests retrieved successfully
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/EncryptedCreditNoteDto"
+                $ref: "#/components/schemas/EncryptedCreditNoteInitiationRequestResponse"
         "403":
           description: Not authorized to access credit notes
           content:
@@ -1215,7 +1215,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/EncryptedCreditNoteDto"
+                  $ref: "#/components/schemas/EncryptedCreditNoteInitiationRequestResponse"
       x-accessible-for: "Company, Client Application"
   /company/{id}/receipt-delivery/devices:
     get:
@@ -1428,10 +1428,8 @@ components:
             type: string
             enum:
             - RECEIPT_CREATED
-            - RECEIPT_FINALIZED
             - RETURN_REQUESTED
             - CREDIT_NOTE_CREATED
-            - CREDIT_NOTE_FINALIZED
         notificationUrl:
           type: string
       description: Webhook subscription request with URL and event types
@@ -2463,7 +2461,7 @@ components:
           type: string
           description: The AES symmetric key encrypted with the recipient's RSA public
             key
-      description: Encrypted credit note initiation request from a customer's device
+      description: Encrypted credit note initiation request
     EncryptedCreditNoteEnvelope:
       required:
       - deviceDeliveries
@@ -2704,56 +2702,20 @@ components:
           - REJECTED
           - COMPLETED
           - CANCELLED
-    EncryptedCreditNoteDto:
-      required:
-      - encryptedCreditNote
-      - encryptedCustomerAesKey
-      - encryptedCustomerDetails
-      - encryptedSymmetricKey
-      - publicKey
-      - recipientId
-      - supplierPartyId
+    EncryptedCreditNoteInitiationRequestResponse:
       type: object
       properties:
-        recipientId:
+        requestId:
           type: string
-          description: The recipient ID of the credit note
           format: uuid
-        creditNoteId:
+        cheqiReceiptId:
           type: string
-          description: The credit note ID
-          example: UUID
-        originalReceiptId:
-          type: string
-          description: The original receipt ID
-          example: UUID
-        receiverType:
-          $ref: "#/components/schemas/ReceiverType"
-        encryptedCreditNote:
-          type: string
-          description: The encrypted credit note
-          example: encryptedCreditNote
         encryptedSymmetricKey:
-          type: string
-          description: Base64-encoded device-specific encrypted symmetric key
-        encryptedCustomerDetails:
-          type: string
-          description: Base64-encoded encrypted customer details.
-        encryptedCustomerAesKey:
-          type: string
-          description: Base64-encoded encrypted customer details AES key
-        finalHash:
           type: string
         publicKey:
           type: string
-          description: Base64-encoded public key used to encrypt the request
-        supplierPartyId:
-          type: string
-          description: Supplier party ID for storage
-          format: uuid
         status:
           type: string
-          description: Current processing status of the customer return request
           enum:
           - PENDING
           - ACCEPTED
@@ -2763,18 +2725,11 @@ components:
           - CANCELLED
         createdAt:
           type: string
-          description: Time at which the customer submitted the return request
           format: date-time
-    ReceiverType:
-      type: string
-      description: Type of receiver for this receipt
-      example: WEBHOOK/DEVICE
-      enum:
-      - DEVICE
-      - CLIENT_APPLICATION
-      - COMPANY
-      - EMAIL_FALLBACK
-      - DOWNLOAD_FALLBACK
+        encryptedCreditNoteInitiationRequest:
+          type: string
+      description: Encrypted customer return request awaiting action by the original
+        receipt issuer.
     DocumentType:
       type: string
       description: Type of document for this receipt
@@ -2790,9 +2745,9 @@ components:
           type: string
         documentType:
           $ref: "#/components/schemas/DocumentType"
-        encryptedReceipt:
+        encryptedEnvelope:
           type: string
-        encryptedSymmetricKey:
+        encryptedEnvelopeKey:
           type: string
         publicKey:
           type: string
@@ -2803,14 +2758,8 @@ components:
         envelopeVersion:
           type: integer
           format: int32
-        encryptedCustomerDetails:
+        finalHash:
           type: string
-        encryptedCustomerAesKey:
-          type: string
-        receiptFormats:
-          type: array
-          items:
-            $ref: "#/components/schemas/ReceiptFormat"
         supplierPartyId:
           type: string
           format: uuid
@@ -2987,75 +2936,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AuthorizedEmailDTO"
-    BarcodeType:
-      type: string
-      description: The type of barcode or scannable code
-      example: QR_CODE
-      enum:
-      - QR_CODE
-      - EAN_13
-      - EAN_8
-      - CODE_128
-      - UPC_A
-      - DATA_MATRIX
-    NotificationDisplayCode:
-      required:
-      - data
-      - type
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/BarcodeType"
-        data:
-          type: string
-    ReceiptDelivery:
-      type: object
-      properties:
-        recipientId:
-          type: string
-          format: uuid
-        receiptId:
-          type: string
-        receiverType:
-          $ref: "#/components/schemas/ReceiverType"
-        encryptedCustomerDetails:
-          type: string
-        encryptedCustomerAesKey:
-          type: string
-        finalHash:
-          type: string
-        publicKey:
-          type: string
-        recipientKeyAlgorithm:
-          type: string
-        receiptGeneratorVersion:
-          type: string
-        envelopeVersion:
-          type: integer
-          format: int32
-        supplierPartyId:
-          type: string
-          format: uuid
-        receiptFormats:
-          type: array
-          items:
-            $ref: "#/components/schemas/ReceiptFormat"
-        notificationDisplayCode:
-          $ref: "#/components/schemas/NotificationDisplayCode"
-        additionalProperties:
-          type: object
-          additionalProperties:
-            type: object
-        encryptedSymmetricKey:
-          type: string
-          writeOnly: true
-        encryptedReceipt:
-          type: string
-          writeOnly: true
-        encryptedEnvelope:
-          type: string
-        encryptedEnvelopeKey:
-          type: string
     RoutingIdentifier:
       type: object
       properties:
@@ -3075,51 +2955,94 @@ components:
       - CARD
       - EMAIL
       - CASH
-    WebhookEventDTO:
+    WebhookCreditNoteInitiationRequest:
       type: object
       properties:
-        clientId:
-          type: string
-          description: Public OAuth client ID of the client application that owns
-            the webhook subscription.
-          nullable: true
         companyId:
           type: string
           format: uuid
         userId:
           type: string
           format: uuid
+        cheqiReceiptId:
+          type: string
+        publicKey:
+          type: string
+        encryptedCreditNoteInitiationRequest:
+          type: string
+        encryptedSymmetricKey:
+          type: string
+        clientId:
+          type: string
+          description: Public OAuth client ID of the client application that owns
+            the webhook subscription.
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      description: Encrypted customer return request routed to the original receipt
+        issuer.
+    WebhookData:
+      type: object
+      properties:
+        encryptedReceipt:
+          $ref: "#/components/schemas/WebhookReceiptEnvelope"
+        encryptedCreditNote:
+          $ref: "#/components/schemas/WebhookReceiptEnvelope"
+        creditNoteInitiationRequest:
+          $ref: "#/components/schemas/WebhookCreditNoteInitiationRequest"
+      description: Container for the event-specific webhook object.
+    WebhookEvent:
+      type: object
+      properties:
         event:
           type: string
           enum:
           - RECEIPT_CREATED
-          - RECEIPT_FINALIZED
           - RETURN_REQUESTED
           - CREDIT_NOTE_CREATED
-          - CREDIT_NOTE_FINALIZED
-        created_at:
+        data:
+          $ref: "#/components/schemas/WebhookData"
+      description: Payload delivered to registered webhook notification URLs when
+        subscribed events occur.
+    WebhookReceiptEnvelope:
+      type: object
+      properties:
+        companyId:
           type: string
-          format: date-time
+          format: uuid
+        userId:
+          type: string
+          format: uuid
         cheqiReceiptId:
           type: string
         routingIdentifier:
           $ref: "#/components/schemas/RoutingIdentifier"
-        encryptedReceipt:
-          $ref: "#/components/schemas/ReceiptDelivery"
-        encryptedCreditNoteInitiationRequest:
-          $ref: "#/components/schemas/EncryptedCreditNoteInitiationRequest"
-        encryptedCreditNoteDto:
-          $ref: "#/components/schemas/EncryptedCreditNoteDto"
+        encryptedEnvelope:
+          type: string
+        encryptedEnvelopeKey:
+          type: string
+        publicKey:
+          type: string
+        recipientKeyAlgorithm:
+          type: string
+        envelopeVersion:
+          type: integer
+          format: int32
+        receiptGeneratorVersion:
+          type: string
         finalHash:
           type: string
-        finalizedAt:
+        clientId:
+          type: string
+          description: Public OAuth client ID of the client application that owns
+            the webhook subscription.
+          nullable: true
+        created_at:
           type: string
           format: date-time
-        deviceId:
-          type: string
-          format: uuid
-      description: Payload delivered to registered webhook notification URLs when
-        subscribed events occur.
+      description: Recipient-specific encrypted receipt or credit-note envelope delivered
+        by webhook.
     ReceiptEnvelope:
       required:
       - cheqiReceiptId
@@ -3186,6 +3109,17 @@ components:
       description: One generated document inside a recipient receipt envelope.
       x-tags:
       - Receipt Management
+    BarcodeType:
+      type: string
+      description: The type of barcode or scannable code
+      example: QR_CODE
+      enum:
+      - QR_CODE
+      - EAN_13
+      - EAN_8
+      - CODE_128
+      - UPC_A
+      - DATA_MATRIX
     FiscalizationData:
       required:
       - status
