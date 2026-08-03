@@ -18,7 +18,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     private static final Logger logger = LoggerFactory.getLogger(DefaultCheqiApiClient.class);
 
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
-    private static final String USER_AGENT = "CheqiSDK/2.0.0";
+    private static final String USER_AGENT = "CheqiSDK/2.1.0";
 
     private final CheqiSDKConfig config;
     private final OkHttpClient httpClient;
