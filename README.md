@@ -12,22 +12,22 @@ The SDK preserves Cheqi's zero-knowledge boundary: receipt contents are supplied
 
 ## Installation
 
-Version `2.1.0` describes the API on this branch but has not been published to Maven Central yet. Until it is released, build the SDK locally or use the latest published release where its API is sufficient.
+Version `2.2.0` describes the API on this branch but has not been published to Maven Central yet. Until it is released, build the SDK locally or use the latest published release where its API is sufficient.
 
-After `2.1.0` is published, add it with Maven:
+After `2.2.0` is published, add it with Maven:
 
 ```xml
 <dependency>
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
 Or with Gradle:
 
 ```gradle
-implementation 'io.cheqi:cheqi-sdk:2.1.0'
+implementation 'io.cheqi:cheqi-sdk:2.2.0'
 ```
 
 To build and install this branch locally:
