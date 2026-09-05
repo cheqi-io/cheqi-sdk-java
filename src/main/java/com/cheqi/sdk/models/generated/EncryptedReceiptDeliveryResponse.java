@@ -42,6 +42,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_RECEIPT_GENERATOR_VERSION,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_ENVELOPE_VERSION,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_FINAL_HASH,
+  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_DELIVERY_PURPOSE,
+  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_EXPENSE_SUBMISSION_ID,
+  EncryptedReceiptDeliveryResponse.JSON_PROPERTY_SUBMITTED_BY_USER_ID,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_SUPPLIER_PARTY_ID,
   EncryptedReceiptDeliveryResponse.JSON_PROPERTY_CREATION_DATE
 })
@@ -87,6 +90,51 @@ public class EncryptedReceiptDeliveryResponse {
   public static final String JSON_PROPERTY_FINAL_HASH = "finalHash";
   @javax.annotation.Nullable
   private String finalHash;
+
+  /**
+   * Gets or Sets deliveryPurpose
+   */
+  public enum DeliveryPurposeEnum {
+    COMPANY_EXPENSE(String.valueOf("COMPANY_EXPENSE"));
+
+    private String value;
+
+    DeliveryPurposeEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static DeliveryPurposeEnum fromValue(String value) {
+      for (DeliveryPurposeEnum b : DeliveryPurposeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_DELIVERY_PURPOSE = "deliveryPurpose";
+  @javax.annotation.Nullable
+  private DeliveryPurposeEnum deliveryPurpose;
+
+  public static final String JSON_PROPERTY_EXPENSE_SUBMISSION_ID = "expenseSubmissionId";
+  @javax.annotation.Nullable
+  private UUID expenseSubmissionId;
+
+  public static final String JSON_PROPERTY_SUBMITTED_BY_USER_ID = "submittedByUserId";
+  @javax.annotation.Nullable
+  private UUID submittedByUserId;
 
   public static final String JSON_PROPERTY_SUPPLIER_PARTY_ID = "supplierPartyId";
   @javax.annotation.Nullable
@@ -339,6 +387,78 @@ public class EncryptedReceiptDeliveryResponse {
   }
 
 
+  public EncryptedReceiptDeliveryResponse deliveryPurpose(@javax.annotation.Nullable DeliveryPurposeEnum deliveryPurpose) {
+    this.deliveryPurpose = deliveryPurpose;
+    return this;
+  }
+
+  /**
+   * Get deliveryPurpose
+   * @return deliveryPurpose
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DELIVERY_PURPOSE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public DeliveryPurposeEnum getDeliveryPurpose() {
+    return deliveryPurpose;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DELIVERY_PURPOSE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDeliveryPurpose(@javax.annotation.Nullable DeliveryPurposeEnum deliveryPurpose) {
+    this.deliveryPurpose = deliveryPurpose;
+  }
+
+
+  public EncryptedReceiptDeliveryResponse expenseSubmissionId(@javax.annotation.Nullable UUID expenseSubmissionId) {
+    this.expenseSubmissionId = expenseSubmissionId;
+    return this;
+  }
+
+  /**
+   * Get expenseSubmissionId
+   * @return expenseSubmissionId
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXPENSE_SUBMISSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public UUID getExpenseSubmissionId() {
+    return expenseSubmissionId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXPENSE_SUBMISSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExpenseSubmissionId(@javax.annotation.Nullable UUID expenseSubmissionId) {
+    this.expenseSubmissionId = expenseSubmissionId;
+  }
+
+
+  public EncryptedReceiptDeliveryResponse submittedByUserId(@javax.annotation.Nullable UUID submittedByUserId) {
+    this.submittedByUserId = submittedByUserId;
+    return this;
+  }
+
+  /**
+   * Get submittedByUserId
+   * @return submittedByUserId
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_SUBMITTED_BY_USER_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public UUID getSubmittedByUserId() {
+    return submittedByUserId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_SUBMITTED_BY_USER_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setSubmittedByUserId(@javax.annotation.Nullable UUID submittedByUserId) {
+    this.submittedByUserId = submittedByUserId;
+  }
+
+
   public EncryptedReceiptDeliveryResponse supplierPartyId(@javax.annotation.Nullable UUID supplierPartyId) {
     this.supplierPartyId = supplierPartyId;
     return this;
@@ -409,13 +529,16 @@ public class EncryptedReceiptDeliveryResponse {
         Objects.equals(this.receiptGeneratorVersion, encryptedReceiptDeliveryResponse.receiptGeneratorVersion) &&
         Objects.equals(this.envelopeVersion, encryptedReceiptDeliveryResponse.envelopeVersion) &&
         Objects.equals(this.finalHash, encryptedReceiptDeliveryResponse.finalHash) &&
+        Objects.equals(this.deliveryPurpose, encryptedReceiptDeliveryResponse.deliveryPurpose) &&
+        Objects.equals(this.expenseSubmissionId, encryptedReceiptDeliveryResponse.expenseSubmissionId) &&
+        Objects.equals(this.submittedByUserId, encryptedReceiptDeliveryResponse.submittedByUserId) &&
         Objects.equals(this.supplierPartyId, encryptedReceiptDeliveryResponse.supplierPartyId) &&
         Objects.equals(this.creationDate, encryptedReceiptDeliveryResponse.creationDate);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cheqiReceiptId, parentCheqiReceiptId, documentType, encryptedEnvelope, encryptedEnvelopeKey, publicKey, recipientKeyAlgorithm, receiptGeneratorVersion, envelopeVersion, finalHash, supplierPartyId, creationDate);
+    return Objects.hash(cheqiReceiptId, parentCheqiReceiptId, documentType, encryptedEnvelope, encryptedEnvelopeKey, publicKey, recipientKeyAlgorithm, receiptGeneratorVersion, envelopeVersion, finalHash, deliveryPurpose, expenseSubmissionId, submittedByUserId, supplierPartyId, creationDate);
   }
 
   @Override
@@ -432,6 +555,9 @@ public class EncryptedReceiptDeliveryResponse {
     sb.append("    receiptGeneratorVersion: ").append(toIndentedString(receiptGeneratorVersion)).append("\n");
     sb.append("    envelopeVersion: ").append(toIndentedString(envelopeVersion)).append("\n");
     sb.append("    finalHash: ").append(toIndentedString(finalHash)).append("\n");
+    sb.append("    deliveryPurpose: ").append(toIndentedString(deliveryPurpose)).append("\n");
+    sb.append("    expenseSubmissionId: ").append(toIndentedString(expenseSubmissionId)).append("\n");
+    sb.append("    submittedByUserId: ").append(toIndentedString(submittedByUserId)).append("\n");
     sb.append("    supplierPartyId: ").append(toIndentedString(supplierPartyId)).append("\n");
     sb.append("    creationDate: ").append(toIndentedString(creationDate)).append("\n");
     sb.append("}");

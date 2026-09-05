@@ -34,6 +34,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
   WebhookReceiptEnvelope.JSON_PROPERTY_COMPANY_ID,
   WebhookReceiptEnvelope.JSON_PROPERTY_USER_ID,
+  WebhookReceiptEnvelope.JSON_PROPERTY_DELIVERY_PURPOSE,
+  WebhookReceiptEnvelope.JSON_PROPERTY_EXPENSE_SUBMISSION_ID,
+  WebhookReceiptEnvelope.JSON_PROPERTY_SUBMITTED_BY_USER_ID,
   WebhookReceiptEnvelope.JSON_PROPERTY_CHEQI_RECEIPT_ID,
   WebhookReceiptEnvelope.JSON_PROPERTY_ROUTING_IDENTIFIER,
   WebhookReceiptEnvelope.JSON_PROPERTY_ENCRYPTED_ENVELOPE,
@@ -56,6 +59,51 @@ public class WebhookReceiptEnvelope {
   public static final String JSON_PROPERTY_USER_ID = "userId";
   @javax.annotation.Nullable
   private UUID userId;
+
+  /**
+   * Gets or Sets deliveryPurpose
+   */
+  public enum DeliveryPurposeEnum {
+    COMPANY_EXPENSE(String.valueOf("COMPANY_EXPENSE"));
+
+    private String value;
+
+    DeliveryPurposeEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static DeliveryPurposeEnum fromValue(String value) {
+      for (DeliveryPurposeEnum b : DeliveryPurposeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_DELIVERY_PURPOSE = "deliveryPurpose";
+  @javax.annotation.Nullable
+  private DeliveryPurposeEnum deliveryPurpose;
+
+  public static final String JSON_PROPERTY_EXPENSE_SUBMISSION_ID = "expenseSubmissionId";
+  @javax.annotation.Nullable
+  private UUID expenseSubmissionId;
+
+  public static final String JSON_PROPERTY_SUBMITTED_BY_USER_ID = "submittedByUserId";
+  @javax.annotation.Nullable
+  private UUID submittedByUserId;
 
   public static final String JSON_PROPERTY_CHEQI_RECEIPT_ID = "cheqiReceiptId";
   @javax.annotation.Nullable
@@ -149,6 +197,78 @@ public class WebhookReceiptEnvelope {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setUserId(@javax.annotation.Nullable UUID userId) {
     this.userId = userId;
+  }
+
+
+  public WebhookReceiptEnvelope deliveryPurpose(@javax.annotation.Nullable DeliveryPurposeEnum deliveryPurpose) {
+    this.deliveryPurpose = deliveryPurpose;
+    return this;
+  }
+
+  /**
+   * Get deliveryPurpose
+   * @return deliveryPurpose
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DELIVERY_PURPOSE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public DeliveryPurposeEnum getDeliveryPurpose() {
+    return deliveryPurpose;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DELIVERY_PURPOSE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDeliveryPurpose(@javax.annotation.Nullable DeliveryPurposeEnum deliveryPurpose) {
+    this.deliveryPurpose = deliveryPurpose;
+  }
+
+
+  public WebhookReceiptEnvelope expenseSubmissionId(@javax.annotation.Nullable UUID expenseSubmissionId) {
+    this.expenseSubmissionId = expenseSubmissionId;
+    return this;
+  }
+
+  /**
+   * Get expenseSubmissionId
+   * @return expenseSubmissionId
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXPENSE_SUBMISSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public UUID getExpenseSubmissionId() {
+    return expenseSubmissionId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXPENSE_SUBMISSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExpenseSubmissionId(@javax.annotation.Nullable UUID expenseSubmissionId) {
+    this.expenseSubmissionId = expenseSubmissionId;
+  }
+
+
+  public WebhookReceiptEnvelope submittedByUserId(@javax.annotation.Nullable UUID submittedByUserId) {
+    this.submittedByUserId = submittedByUserId;
+    return this;
+  }
+
+  /**
+   * Get submittedByUserId
+   * @return submittedByUserId
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_SUBMITTED_BY_USER_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public UUID getSubmittedByUserId() {
+    return submittedByUserId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_SUBMITTED_BY_USER_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setSubmittedByUserId(@javax.annotation.Nullable UUID submittedByUserId) {
+    this.submittedByUserId = submittedByUserId;
   }
 
 
@@ -430,6 +550,9 @@ public class WebhookReceiptEnvelope {
     WebhookReceiptEnvelope webhookReceiptEnvelope = (WebhookReceiptEnvelope) o;
     return Objects.equals(this.companyId, webhookReceiptEnvelope.companyId) &&
         Objects.equals(this.userId, webhookReceiptEnvelope.userId) &&
+        Objects.equals(this.deliveryPurpose, webhookReceiptEnvelope.deliveryPurpose) &&
+        Objects.equals(this.expenseSubmissionId, webhookReceiptEnvelope.expenseSubmissionId) &&
+        Objects.equals(this.submittedByUserId, webhookReceiptEnvelope.submittedByUserId) &&
         Objects.equals(this.cheqiReceiptId, webhookReceiptEnvelope.cheqiReceiptId) &&
         Objects.equals(this.routingIdentifier, webhookReceiptEnvelope.routingIdentifier) &&
         Objects.equals(this.encryptedEnvelope, webhookReceiptEnvelope.encryptedEnvelope) &&
@@ -445,7 +568,7 @@ public class WebhookReceiptEnvelope {
 
   @Override
   public int hashCode() {
-    return Objects.hash(companyId, userId, cheqiReceiptId, routingIdentifier, encryptedEnvelope, encryptedEnvelopeKey, publicKey, recipientKeyAlgorithm, envelopeVersion, receiptGeneratorVersion, finalHash, clientId, createdAt);
+    return Objects.hash(companyId, userId, deliveryPurpose, expenseSubmissionId, submittedByUserId, cheqiReceiptId, routingIdentifier, encryptedEnvelope, encryptedEnvelopeKey, publicKey, recipientKeyAlgorithm, envelopeVersion, receiptGeneratorVersion, finalHash, clientId, createdAt);
   }
 
   @Override
@@ -454,6 +577,9 @@ public class WebhookReceiptEnvelope {
     sb.append("class WebhookReceiptEnvelope {\n");
     sb.append("    companyId: ").append(toIndentedString(companyId)).append("\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
+    sb.append("    deliveryPurpose: ").append(toIndentedString(deliveryPurpose)).append("\n");
+    sb.append("    expenseSubmissionId: ").append(toIndentedString(expenseSubmissionId)).append("\n");
+    sb.append("    submittedByUserId: ").append(toIndentedString(submittedByUserId)).append("\n");
     sb.append("    cheqiReceiptId: ").append(toIndentedString(cheqiReceiptId)).append("\n");
     sb.append("    routingIdentifier: ").append(toIndentedString(routingIdentifier)).append("\n");
     sb.append("    encryptedEnvelope: ").append(toIndentedString(encryptedEnvelope)).append("\n");

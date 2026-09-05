@@ -36,6 +36,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   ReceivingParty.JSON_PROPERTY_COMPANY_LEGAL_NAME,
   ReceivingParty.JSON_PROPERTY_TAX_NUMBER,
   ReceivingParty.JSON_PROPERTY_COMPANY_IDENTIFIERS,
+  ReceivingParty.JSON_PROPERTY_CONTACT_FIRST_NAME,
+  ReceivingParty.JSON_PROPERTY_CONTACT_LAST_NAME,
   ReceivingParty.JSON_PROPERTY_CONSUMER_NAME,
   ReceivingParty.JSON_PROPERTY_EMAIL,
   ReceivingParty.JSON_PROPERTY_PHONE,
@@ -56,6 +58,14 @@ public class ReceivingParty {
   public static final String JSON_PROPERTY_COMPANY_IDENTIFIERS = "companyIdentifiers";
   @javax.annotation.Nullable
   private List<CompanyIdentifierDTO> companyIdentifiers = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_CONTACT_FIRST_NAME = "contactFirstName";
+  @javax.annotation.Nullable
+  private String contactFirstName;
+
+  public static final String JSON_PROPERTY_CONTACT_LAST_NAME = "contactLastName";
+  @javax.annotation.Nullable
+  private String contactLastName;
 
   public static final String JSON_PROPERTY_CONSUMER_NAME = "consumerName";
   @javax.annotation.Nullable
@@ -157,6 +167,54 @@ public class ReceivingParty {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setCompanyIdentifiers(@javax.annotation.Nullable List<CompanyIdentifierDTO> companyIdentifiers) {
     this.companyIdentifiers = companyIdentifiers;
+  }
+
+
+  public ReceivingParty contactFirstName(@javax.annotation.Nullable String contactFirstName) {
+    this.contactFirstName = contactFirstName;
+    return this;
+  }
+
+  /**
+   * The first name of the person who made a B2B purchase on behalf of the receiving company
+   * @return contactFirstName
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CONTACT_FIRST_NAME)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getContactFirstName() {
+    return contactFirstName;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CONTACT_FIRST_NAME)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setContactFirstName(@javax.annotation.Nullable String contactFirstName) {
+    this.contactFirstName = contactFirstName;
+  }
+
+
+  public ReceivingParty contactLastName(@javax.annotation.Nullable String contactLastName) {
+    this.contactLastName = contactLastName;
+    return this;
+  }
+
+  /**
+   * The last name of the person who made a B2B purchase on behalf of the receiving company
+   * @return contactLastName
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CONTACT_LAST_NAME)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getContactLastName() {
+    return contactLastName;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CONTACT_LAST_NAME)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setContactLastName(@javax.annotation.Nullable String contactLastName) {
+    this.contactLastName = contactLastName;
   }
 
 
@@ -303,6 +361,8 @@ public class ReceivingParty {
     return Objects.equals(this.companyLegalName, receivingParty.companyLegalName) &&
         Objects.equals(this.taxNumber, receivingParty.taxNumber) &&
         Objects.equals(this.companyIdentifiers, receivingParty.companyIdentifiers) &&
+        Objects.equals(this.contactFirstName, receivingParty.contactFirstName) &&
+        Objects.equals(this.contactLastName, receivingParty.contactLastName) &&
         Objects.equals(this.consumerName, receivingParty.consumerName) &&
         Objects.equals(this.email, receivingParty.email) &&
         Objects.equals(this.phone, receivingParty.phone) &&
@@ -312,7 +372,7 @@ public class ReceivingParty {
 
   @Override
   public int hashCode() {
-    return Objects.hash(companyLegalName, taxNumber, companyIdentifiers, consumerName, email, phone, address, companyRegistration);
+    return Objects.hash(companyLegalName, taxNumber, companyIdentifiers, contactFirstName, contactLastName, consumerName, email, phone, address, companyRegistration);
   }
 
   @Override
@@ -322,6 +382,8 @@ public class ReceivingParty {
     sb.append("    companyLegalName: ").append(toIndentedString(companyLegalName)).append("\n");
     sb.append("    taxNumber: ").append(toIndentedString(taxNumber)).append("\n");
     sb.append("    companyIdentifiers: ").append(toIndentedString(companyIdentifiers)).append("\n");
+    sb.append("    contactFirstName: ").append(toIndentedString(contactFirstName)).append("\n");
+    sb.append("    contactLastName: ").append(toIndentedString(contactLastName)).append("\n");
     sb.append("    consumerName: ").append(toIndentedString(consumerName)).append("\n");
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("    phone: ").append(toIndentedString(phone)).append("\n");
