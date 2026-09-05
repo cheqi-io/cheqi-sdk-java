@@ -1,6 +1,7 @@
 name: Publish cheqi-sdk to Maven Central
 
 on:
+  workflow_call:
   workflow_dispatch:  # Manual trigger
   push:
     tags:

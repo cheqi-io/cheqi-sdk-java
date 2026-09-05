@@ -1,0 +1,59 @@
+name: Tag and publish release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - build.gradle
+      - pom.xml
+
+permissions:
+  contents: read
+
+jobs:
+  tag:
+    name: Tag release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag_created: ${{ steps.release.outputs.tag_created }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create version tag
+        id: release
+        shell: bash
+        run: |
+          gradle_version="$(sed -n "s/^version = '\([^']*\)'$/\1/p" build.gradle)"
+          maven_version="$(awk -F '[<>]' '/<version>/{print $3; exit}' pom.xml)"
+
+          if [[ -z "$gradle_version" || "$gradle_version" != "$maven_version" ]]; then
+            echo "Gradle version '$gradle_version' does not match Maven version '$maven_version'." >&2
+            exit 1
+          fi
+
+          tag="v${gradle_version}"
+          if git rev-parse --quiet --verify "refs/tags/$tag" >/dev/null; then
+            echo "Tag $tag already exists; nothing to publish."
+            echo "tag_created=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag --annotate "$tag" --message "Release $tag"
+          git push origin "$tag"
+          echo "tag_created=true" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish release
+    needs: tag
+    if: needs.tag.outputs.tag_created == 'true'
+    uses: ./.github/workflows/publish.yml
+    secrets: inherit

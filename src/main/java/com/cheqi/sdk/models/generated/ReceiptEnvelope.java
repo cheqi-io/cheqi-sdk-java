@@ -16,6 +16,7 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.cheqi.sdk.models.generated.ExpenseSubmissionEnvelope;
 import com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,6 +37,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   ReceiptEnvelope.JSON_PROPERTY_CHEQI_RECEIPT_ID,
   ReceiptEnvelope.JSON_PROPERTY_DOCUMENTS,
   ReceiptEnvelope.JSON_PROPERTY_ENVELOPE_VERSION,
+  ReceiptEnvelope.JSON_PROPERTY_EXPENSE_SUBMISSION,
   ReceiptEnvelope.JSON_PROPERTY_RECEIPT_GENERATOR_VERSION,
   ReceiptEnvelope.JSON_PROPERTY_RECEIPT_UUID
 })
@@ -53,6 +55,10 @@ public class ReceiptEnvelope {
   public static final String JSON_PROPERTY_ENVELOPE_VERSION = "envelopeVersion";
   @javax.annotation.Nonnull
   private Integer envelopeVersion;
+
+  public static final String JSON_PROPERTY_EXPENSE_SUBMISSION = "expenseSubmission";
+  @javax.annotation.Nullable
+  private ExpenseSubmissionEnvelope expenseSubmission;
 
   public static final String JSON_PROPERTY_RECEIPT_GENERATOR_VERSION = "receiptGeneratorVersion";
   @javax.annotation.Nonnull
@@ -147,6 +153,30 @@ public class ReceiptEnvelope {
   }
 
 
+  public ReceiptEnvelope expenseSubmission(@javax.annotation.Nullable ExpenseSubmissionEnvelope expenseSubmission) {
+    this.expenseSubmission = expenseSubmission;
+    return this;
+  }
+
+  /**
+   * Get expenseSubmission
+   * @return expenseSubmission
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXPENSE_SUBMISSION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public ExpenseSubmissionEnvelope getExpenseSubmission() {
+    return expenseSubmission;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXPENSE_SUBMISSION)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExpenseSubmission(@javax.annotation.Nullable ExpenseSubmissionEnvelope expenseSubmission) {
+    this.expenseSubmission = expenseSubmission;
+  }
+
+
   public ReceiptEnvelope receiptGeneratorVersion(@javax.annotation.Nonnull String receiptGeneratorVersion) {
     this.receiptGeneratorVersion = receiptGeneratorVersion;
     return this;
@@ -210,13 +240,14 @@ public class ReceiptEnvelope {
     return Objects.equals(this.cheqiReceiptId, receiptEnvelope.cheqiReceiptId) &&
         Objects.equals(this.documents, receiptEnvelope.documents) &&
         Objects.equals(this.envelopeVersion, receiptEnvelope.envelopeVersion) &&
+        Objects.equals(this.expenseSubmission, receiptEnvelope.expenseSubmission) &&
         Objects.equals(this.receiptGeneratorVersion, receiptEnvelope.receiptGeneratorVersion) &&
         Objects.equals(this.receiptUuid, receiptEnvelope.receiptUuid);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cheqiReceiptId, documents, envelopeVersion, receiptGeneratorVersion, receiptUuid);
+    return Objects.hash(cheqiReceiptId, documents, envelopeVersion, expenseSubmission, receiptGeneratorVersion, receiptUuid);
   }
 
   @Override
@@ -226,6 +257,7 @@ public class ReceiptEnvelope {
     sb.append("    cheqiReceiptId: ").append(toIndentedString(cheqiReceiptId)).append("\n");
     sb.append("    documents: ").append(toIndentedString(documents)).append("\n");
     sb.append("    envelopeVersion: ").append(toIndentedString(envelopeVersion)).append("\n");
+    sb.append("    expenseSubmission: ").append(toIndentedString(expenseSubmission)).append("\n");
     sb.append("    receiptGeneratorVersion: ").append(toIndentedString(receiptGeneratorVersion)).append("\n");
     sb.append("    receiptUuid: ").append(toIndentedString(receiptUuid)).append("\n");
     sb.append("}");
