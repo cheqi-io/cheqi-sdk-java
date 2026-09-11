@@ -40,7 +40,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   CompanyGrantResponse.JSON_PROPERTY_STATUS,
   CompanyGrantResponse.JSON_PROPERTY_VERSION,
   CompanyGrantResponse.JSON_PROPERTY_SCOPES,
-  CompanyGrantResponse.JSON_PROPERTY_BILLING_RESPONSIBILITY,
   CompanyGrantResponse.JSON_PROPERTY_STORE_ACCESS_MODE,
   CompanyGrantResponse.JSON_PROPERTY_STORE_IDS,
   CompanyGrantResponse.JSON_PROPERTY_ORIGIN,
@@ -111,45 +110,6 @@ public class CompanyGrantResponse {
   public static final String JSON_PROPERTY_SCOPES = "scopes";
   @javax.annotation.Nullable
   private Set<String> scopes = new LinkedHashSet<>();
-
-  /**
-   * Gets or Sets billingResponsibility
-   */
-  public enum BillingResponsibilityEnum {
-    INTEGRATION(String.valueOf("INTEGRATION")),
-    
-    ISSUER_COMPANY(String.valueOf("ISSUER_COMPANY"));
-
-    private String value;
-
-    BillingResponsibilityEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static BillingResponsibilityEnum fromValue(String value) {
-      for (BillingResponsibilityEnum b : BillingResponsibilityEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
-  public static final String JSON_PROPERTY_BILLING_RESPONSIBILITY = "billing_responsibility";
-  @javax.annotation.Nullable
-  private BillingResponsibilityEnum billingResponsibility;
 
   /**
    * Gets or Sets storeAccessMode
@@ -403,30 +363,6 @@ public class CompanyGrantResponse {
   }
 
 
-  public CompanyGrantResponse billingResponsibility(@javax.annotation.Nullable BillingResponsibilityEnum billingResponsibility) {
-    this.billingResponsibility = billingResponsibility;
-    return this;
-  }
-
-  /**
-   * Get billingResponsibility
-   * @return billingResponsibility
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_BILLING_RESPONSIBILITY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public BillingResponsibilityEnum getBillingResponsibility() {
-    return billingResponsibility;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_BILLING_RESPONSIBILITY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setBillingResponsibility(@javax.annotation.Nullable BillingResponsibilityEnum billingResponsibility) {
-    this.billingResponsibility = billingResponsibility;
-  }
-
-
   public CompanyGrantResponse storeAccessMode(@javax.annotation.Nullable StoreAccessModeEnum storeAccessMode) {
     this.storeAccessMode = storeAccessMode;
     return this;
@@ -598,7 +534,6 @@ public class CompanyGrantResponse {
         Objects.equals(this.status, companyGrantResponse.status) &&
         Objects.equals(this.version, companyGrantResponse.version) &&
         Objects.equals(this.scopes, companyGrantResponse.scopes) &&
-        Objects.equals(this.billingResponsibility, companyGrantResponse.billingResponsibility) &&
         Objects.equals(this.storeAccessMode, companyGrantResponse.storeAccessMode) &&
         Objects.equals(this.storeIds, companyGrantResponse.storeIds) &&
         Objects.equals(this.origin, companyGrantResponse.origin) &&
@@ -609,7 +544,7 @@ public class CompanyGrantResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, integrationId, issuerCompanyId, status, version, scopes, billingResponsibility, storeAccessMode, storeIds, origin, expiresAt, createdAt, updatedAt);
+    return Objects.hash(id, integrationId, issuerCompanyId, status, version, scopes, storeAccessMode, storeIds, origin, expiresAt, createdAt, updatedAt);
   }
 
   @Override
@@ -622,7 +557,6 @@ public class CompanyGrantResponse {
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    version: ").append(toIndentedString(version)).append("\n");
     sb.append("    scopes: ").append(toIndentedString(scopes)).append("\n");
-    sb.append("    billingResponsibility: ").append(toIndentedString(billingResponsibility)).append("\n");
     sb.append("    storeAccessMode: ").append(toIndentedString(storeAccessMode)).append("\n");
     sb.append("    storeIds: ").append(toIndentedString(storeIds)).append("\n");
     sb.append("    origin: ").append(toIndentedString(origin)).append("\n");
