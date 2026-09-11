@@ -34,7 +34,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({
   UpdateCompanyGrantRequest.JSON_PROPERTY_SCOPES,
-  UpdateCompanyGrantRequest.JSON_PROPERTY_BILLING_RESPONSIBILITY,
   UpdateCompanyGrantRequest.JSON_PROPERTY_STORE_ACCESS_MODE,
   UpdateCompanyGrantRequest.JSON_PROPERTY_STORE_IDS,
   UpdateCompanyGrantRequest.JSON_PROPERTY_REASON
@@ -45,45 +44,6 @@ public class UpdateCompanyGrantRequest {
   public static final String JSON_PROPERTY_SCOPES = "scopes";
   @javax.annotation.Nonnull
   private Set<String> scopes = new LinkedHashSet<>();
-
-  /**
-   * Gets or Sets billingResponsibility
-   */
-  public enum BillingResponsibilityEnum {
-    INTEGRATION(String.valueOf("INTEGRATION")),
-    
-    ISSUER_COMPANY(String.valueOf("ISSUER_COMPANY"));
-
-    private String value;
-
-    BillingResponsibilityEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static BillingResponsibilityEnum fromValue(String value) {
-      for (BillingResponsibilityEnum b : BillingResponsibilityEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
-  public static final String JSON_PROPERTY_BILLING_RESPONSIBILITY = "billing_responsibility";
-  @javax.annotation.Nullable
-  private BillingResponsibilityEnum billingResponsibility;
 
   /**
    * Gets or Sets storeAccessMode
@@ -165,30 +125,6 @@ public class UpdateCompanyGrantRequest {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setScopes(@javax.annotation.Nonnull Set<String> scopes) {
     this.scopes = scopes;
-  }
-
-
-  public UpdateCompanyGrantRequest billingResponsibility(@javax.annotation.Nullable BillingResponsibilityEnum billingResponsibility) {
-    this.billingResponsibility = billingResponsibility;
-    return this;
-  }
-
-  /**
-   * Get billingResponsibility
-   * @return billingResponsibility
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_BILLING_RESPONSIBILITY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public BillingResponsibilityEnum getBillingResponsibility() {
-    return billingResponsibility;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_BILLING_RESPONSIBILITY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setBillingResponsibility(@javax.annotation.Nullable BillingResponsibilityEnum billingResponsibility) {
-    this.billingResponsibility = billingResponsibility;
   }
 
 
@@ -286,7 +222,6 @@ public class UpdateCompanyGrantRequest {
     }
     UpdateCompanyGrantRequest updateCompanyGrantRequest = (UpdateCompanyGrantRequest) o;
     return Objects.equals(this.scopes, updateCompanyGrantRequest.scopes) &&
-        Objects.equals(this.billingResponsibility, updateCompanyGrantRequest.billingResponsibility) &&
         Objects.equals(this.storeAccessMode, updateCompanyGrantRequest.storeAccessMode) &&
         Objects.equals(this.storeIds, updateCompanyGrantRequest.storeIds) &&
         Objects.equals(this.reason, updateCompanyGrantRequest.reason);
@@ -294,7 +229,7 @@ public class UpdateCompanyGrantRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(scopes, billingResponsibility, storeAccessMode, storeIds, reason);
+    return Objects.hash(scopes, storeAccessMode, storeIds, reason);
   }
 
   @Override
@@ -302,7 +237,6 @@ public class UpdateCompanyGrantRequest {
     StringBuilder sb = new StringBuilder();
     sb.append("class UpdateCompanyGrantRequest {\n");
     sb.append("    scopes: ").append(toIndentedString(scopes)).append("\n");
-    sb.append("    billingResponsibility: ").append(toIndentedString(billingResponsibility)).append("\n");
     sb.append("    storeAccessMode: ").append(toIndentedString(storeAccessMode)).append("\n");
     sb.append("    storeIds: ").append(toIndentedString(storeIds)).append("\n");
     sb.append("    reason: ").append(toIndentedString(reason)).append("\n");
