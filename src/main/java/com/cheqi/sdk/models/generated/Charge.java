@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Issuer-supplied receipt-level charges.
+ * The list of charges applied to the receipt on total receipt level. Example: service fee, shipping fee, etc.
  */
 @JsonPropertyOrder({
   Charge.JSON_PROPERTY_AMOUNT,

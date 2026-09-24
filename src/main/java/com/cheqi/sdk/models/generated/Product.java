@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Issuer-supplied receipt line items.
+ * The list of products included in the receipt. Must contain at least one product.
  */
 @JsonPropertyOrder({
   Product.JSON_PROPERTY_NAME,
@@ -62,7 +62,7 @@ public class Product {
   private String name;
 
   public static final String JSON_PROPERTY_BRAND_NAME = "brandName";
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   private String brandName;
 
   public static final String JSON_PROPERTY_IDENTIFIER = "identifier";
@@ -102,7 +102,7 @@ public class Product {
   private List<Charge> charges = new ArrayList<>();
 
   public static final String JSON_PROPERTY_TAXES = "taxes";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private List<Tax> taxes = new ArrayList<>();
 
   public static final String JSON_PROPERTY_SUBTOTAL = "subtotal";
@@ -144,7 +144,7 @@ public class Product {
   }
 
 
-  public Product brandName(@javax.annotation.Nullable String brandName) {
+  public Product brandName(@javax.annotation.Nonnull String brandName) {
     this.brandName = brandName;
     return this;
   }
@@ -153,17 +153,17 @@ public class Product {
    * The brand name
    * @return brandName
    */
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_BRAND_NAME)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getBrandName() {
     return brandName;
   }
 
 
   @JsonProperty(JSON_PROPERTY_BRAND_NAME)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setBrandName(@javax.annotation.Nullable String brandName) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setBrandName(@javax.annotation.Nonnull String brandName) {
     this.brandName = brandName;
   }
 
@@ -400,7 +400,7 @@ public class Product {
   }
 
 
-  public Product taxes(@javax.annotation.Nonnull List<Tax> taxes) {
+  public Product taxes(@javax.annotation.Nullable List<Tax> taxes) {
     this.taxes = taxes;
     return this;
   }
@@ -417,17 +417,17 @@ public class Product {
    * The taxes applied to this line item
    * @return taxes
    */
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_TAXES)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<Tax> getTaxes() {
     return taxes;
   }
 
 
   @JsonProperty(JSON_PROPERTY_TAXES)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setTaxes(@javax.annotation.Nonnull List<Tax> taxes) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTaxes(@javax.annotation.Nullable List<Tax> taxes) {
     this.taxes = taxes;
   }
 
@@ -494,7 +494,7 @@ public class Product {
   }
 
   /**
-   * Barcodes attached to this line item (e.g. ticket codes, return codes)
+   * Get barcodes
    * @return barcodes
    */
   @javax.annotation.Nullable

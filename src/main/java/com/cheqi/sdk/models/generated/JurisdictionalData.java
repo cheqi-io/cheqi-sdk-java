@@ -31,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Optional country-specific fiscalization and legal receipt data.
+ * Optional country-specific fiscalization, legal text, and additional issuer fields emitted unchanged by the receipt-template engine.
  */
 @JsonPropertyOrder({
   JurisdictionalData.JSON_PROPERTY_COUNTRY_CODE,
