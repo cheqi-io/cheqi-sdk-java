@@ -32,7 +32,7 @@ generate:
 
 spec-check:
 	@curl -fsSL $(SPEC_URL) -o openapi.yaml.tmp
-	@if diff -q openapi.yaml openapi.yaml.tmp > /dev/null 2>&1; then \
+	@if ruby -rdate -ryaml -e 'load_yaml = ->(path) { YAML.safe_load(File.read(path), permitted_classes: [Date, Time], aliases: true) }; exit(load_yaml.call(ARGV[0]) == load_yaml.call(ARGV[1]) ? 0 : 1)' openapi.yaml openapi.yaml.tmp; then \
 		echo "Spec is up to date."; \
 	else \
 		echo "ERROR: Local openapi.yaml differs from $(SPEC_URL)"; \

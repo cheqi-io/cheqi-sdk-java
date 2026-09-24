@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Issuer-supplied receipt-level tax breakdown.
+ * The list of taxes applied to the receipt
  */
 @JsonPropertyOrder({
   Tax.JSON_PROPERTY_RATE,
@@ -228,7 +228,7 @@ public class Tax {
   }
 
   /**
-   * Tax exemption reason code. Written to UBL only when category is EXEMPT.
+   * Tax exemption reason code, applicable only when category is EXEMPT
    * @return exemptionReasonCode
    */
   @javax.annotation.Nullable
@@ -252,7 +252,7 @@ public class Tax {
   }
 
   /**
-   * Tax exemption reason. Written to UBL only when category is EXEMPT.
+   * Tax exemption reason, applicable only when category is EXEMPT
    * @return exemptionReason
    */
   @javax.annotation.Nullable

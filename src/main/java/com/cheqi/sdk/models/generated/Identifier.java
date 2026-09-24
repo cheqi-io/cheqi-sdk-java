@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Additional issuer-supplied receipt references.
+ * The identifiers for the purchase, given by the seller, for example order reference, transaction number
  */
 @JsonPropertyOrder({
   Identifier.JSON_PROPERTY_TYPE,
@@ -52,7 +52,7 @@ public class Identifier {
   }
 
   /**
-   * The type of identifier
+   * The canonical receipt identifier type.
    * @return type
    */
   @javax.annotation.Nonnull
@@ -76,7 +76,7 @@ public class Identifier {
   }
 
   /**
-   * The value of the identifier
+   * The issuer-supplied identifier value.
    * @return value
    */
   @javax.annotation.Nonnull

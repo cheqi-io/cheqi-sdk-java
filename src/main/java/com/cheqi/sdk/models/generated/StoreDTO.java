@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * StoreDTO
+ * Optional issuing location included by the receipt-template engine.
  */
 @JsonPropertyOrder({
   StoreDTO.JSON_PROPERTY_ACTIVE,

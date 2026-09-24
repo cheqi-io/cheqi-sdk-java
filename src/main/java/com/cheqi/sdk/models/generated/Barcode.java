@@ -16,7 +16,6 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.BarcodeType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Issuer-supplied receipt-level barcodes or QR-code payloads.
+ * Optional list of barcodes or QR codes embedded in the receipt
  */
 @JsonPropertyOrder({
   Barcode.JSON_PROPERTY_TYPE,
@@ -38,11 +37,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class Barcode {
   public static final String JSON_PROPERTY_TYPE = "type";
-  @javax.annotation.Nonnull
-  private BarcodeType type;
+  @javax.annotation.Nullable
+  private String type;
 
   public static final String JSON_PROPERTY_DATA = "data";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private String data;
 
   public static final String JSON_PROPERTY_LABEL = "label";
@@ -52,31 +51,31 @@ public class Barcode {
   public Barcode() { 
   }
 
-  public Barcode type(@javax.annotation.Nonnull BarcodeType type) {
+  public Barcode type(@javax.annotation.Nullable String type) {
     this.type = type;
     return this;
   }
 
   /**
-   * Get type
+   * The type of barcode or scannable code
    * @return type
    */
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_TYPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public BarcodeType getType() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getType() {
     return type;
   }
 
 
   @JsonProperty(JSON_PROPERTY_TYPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setType(@javax.annotation.Nonnull BarcodeType type) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setType(@javax.annotation.Nullable String type) {
     this.type = type;
   }
 
 
-  public Barcode data(@javax.annotation.Nonnull String data) {
+  public Barcode data(@javax.annotation.Nullable String data) {
     this.data = data;
     return this;
   }
@@ -85,17 +84,17 @@ public class Barcode {
    * The data encoded in the barcode
    * @return data
    */
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_DATA)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getData() {
     return data;
   }
 
 
   @JsonProperty(JSON_PROPERTY_DATA)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setData(@javax.annotation.Nonnull String data) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setData(@javax.annotation.Nullable String data) {
     this.data = data;
   }
 
