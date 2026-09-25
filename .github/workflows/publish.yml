@@ -1,11 +1,9 @@
 name: Publish cheqi-sdk to Maven Central
 
 on:
-  workflow_call:
-  workflow_dispatch:  # Manual trigger
   push:
     tags:
-      - 'v*'  # Trigger on tags like v1.0.0
+      - 'v*'
 
 concurrency:
   group: cheqi-sdk-java-publish
@@ -35,8 +33,20 @@ jobs:
 
       - name: Ensure release commit is on main
         run: |
-          git fetch origin main --depth=1
-          git branch -r --contains "$GITHUB_SHA" | grep -q 'origin/main'
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+
+      - name: Verify tag matches project version
+        shell: bash
+        run: |
+          gradle_version="$(sed -n "s/^version = '\([^']*\)'$/\1/p" build.gradle)"
+          maven_version="$(awk -F '[<>]' '/<version>/{print $3; exit}' pom.xml)"
+          expected_tag="v${gradle_version}"
+
+          if [[ -z "$gradle_version" || "$gradle_version" != "$maven_version" || "$GITHUB_REF_NAME" != "$expected_tag" ]]; then
+            echo "Tag '$GITHUB_REF_NAME', Gradle version '$gradle_version', and Maven version '$maven_version' must match." >&2
+            exit 1
+          fi
 
       - name: Verify generated models are committed
         run: |
