@@ -62,7 +62,7 @@ public class Product {
   private String name;
 
   public static final String JSON_PROPERTY_BRAND_NAME = "brandName";
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   private String brandName;
 
   public static final String JSON_PROPERTY_IDENTIFIER = "identifier";
@@ -144,7 +144,7 @@ public class Product {
   }
 
 
-  public Product brandName(@javax.annotation.Nonnull String brandName) {
+  public Product brandName(@javax.annotation.Nullable String brandName) {
     this.brandName = brandName;
     return this;
   }
@@ -153,17 +153,17 @@ public class Product {
    * The brand name
    * @return brandName
    */
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_BRAND_NAME)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getBrandName() {
     return brandName;
   }
 
 
   @JsonProperty(JSON_PROPERTY_BRAND_NAME)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setBrandName(@javax.annotation.Nonnull String brandName) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setBrandName(@javax.annotation.Nullable String brandName) {
     this.brandName = brandName;
   }
 

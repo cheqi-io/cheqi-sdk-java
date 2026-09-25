@@ -89,6 +89,8 @@ paths:
           type: string
           format: uuid
       responses:
+        "400":
+          description: Invalid OAuth2 parameters
         "302":
           description: Redirect to the authorization page
           headers:
@@ -98,8 +100,6 @@ paths:
               schema:
                 type: string
                 format: uri
-        "400":
-          description: Invalid OAuth2 parameters
       security: []
   /oauth2/authorization-code/exchange:
     post:
@@ -116,14 +116,14 @@ paths:
               $ref: "#/components/schemas/AuthorizationCodeExchangeRequest"
         required: true
       responses:
-        "200":
-          description: Authorization code exchanged successfully
+        "401":
+          description: Invalid client credentials
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CompanyAuthorizationResponse"
-        "401":
-          description: Invalid client credentials
+        "200":
+          description: Authorization code exchanged successfully
           content:
             '*/*':
               schema:
@@ -152,14 +152,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Grant not found
+        "200":
+          description: Grant details retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/OAuthGrantDetailsResponse"
-        "200":
-          description: Grant details retrieved successfully
+        "404":
+          description: Grant not found
           content:
             '*/*':
               schema:
@@ -184,6 +184,18 @@ paths:
               $ref: "#/components/schemas/ClientCredentialsTokenRequest"
         required: true
       responses:
+        "401":
+          description: Invalid client credentials
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
+        "400":
+          description: Invalid authorization code or request parameters
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
         "200":
           description: OAuth exchange completed successfully
           content:
@@ -199,18 +211,6 @@ paths:
                     token_type: bearer
                     expires_in: 900
                     scope: receipt:issue
-        "401":
-          description: Invalid client credentials
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
-        "400":
-          description: Invalid authorization code or request parameters
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
       security: []
   /company/{id}/receipt-delivery/devices/{deviceId}:
     put:
@@ -320,18 +320,18 @@ paths:
               $ref: "#/components/schemas/UpdateStoreRequest"
         required: true
       responses:
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to update this store
           content:
@@ -361,16 +361,16 @@ paths:
               $ref: "#/components/schemas/WebhookRequestBody"
         required: true
       responses:
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
         "400":
           description: Invalid webhook request data
           content:
             '*/*':
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
         "409":
@@ -691,14 +691,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "200":
-          description: Idempotent replay of an identical earlier upload
+        "201":
+          description: Encrypted receipt stored
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "201":
-          description: Encrypted receipt stored
+        "200":
+          description: Idempotent replay of an identical earlier upload
           content:
             '*/*':
               schema:
@@ -974,14 +974,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
@@ -1118,14 +1118,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "403":
-          description: Not authorized to deactivate this store
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store deactivated successfully
+        "403":
+          description: Not authorized to deactivate this store
           content:
             '*/*':
               schema:
@@ -1183,12 +1183,6 @@ paths:
         **Accessible for:** Client Application, Company
       operationId: getQueuedReceipts
       responses:
-        "200":
-          description: Queued receipts returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EncryptedReceiptDeliveryResponse"
         "403":
           description: Insufficient receipt read permission
           content:
@@ -1198,6 +1192,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/EncryptedReceiptDeliveryResponse"
+        "200":
+          description: Queued receipts returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EncryptedReceiptDeliveryResponse"
       security:
       - cheqi_oauth:
         - receipt:read
@@ -1241,12 +1241,6 @@ paths:
         **Accessible for:** Company, Client Application
       operationId: getAllCreditNotes
       responses:
-        "200":
-          description: Return requests retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/EncryptedCreditNoteInitiationRequestResponse"
         "403":
           description: Not authorized to access credit notes
           content:
@@ -1255,6 +1249,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/EncryptedCreditNoteInitiationRequestResponse"
+        "200":
+          description: Return requests retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/EncryptedCreditNoteInitiationRequestResponse"
       x-accessible-for: "Company, Client Application"
   /company/{id}/receipt-delivery/devices:
     get:
@@ -2273,7 +2273,6 @@ components:
         in time.
     Product:
       required:
-      - brandName
       - identifier
       - name
       - quantity
