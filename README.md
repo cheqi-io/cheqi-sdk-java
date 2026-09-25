@@ -12,9 +12,7 @@ The SDK preserves Cheqi's zero-knowledge boundary: receipt contents are supplied
 
 ## Installation
 
-Version `2.4.1` describes the API on this branch but has not been published to Maven Central yet. Until it is released, build the SDK locally or use the latest published release where its API is sufficient.
-
-After `2.4.1` is published, add it with Maven:
+Add version `2.4.1` with Maven:
 
 ```xml
 <dependency>
