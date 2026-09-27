@@ -107,6 +107,17 @@ public class CheqiSDKException extends Exception {
     }
 
     /**
+     * Returns the server-provided delay for an in-progress submission.
+     *
+     * @return retry delay in seconds, or null when no delay is provided
+     */
+    public Integer getRetryAfterSeconds() {
+        return getCause() instanceof com.cheqi.sdk.http.exceptions.SubmissionInProgressException
+                ? ((com.cheqi.sdk.http.exceptions.SubmissionInProgressException) getCause()).getRetryAfterSeconds()
+                : null;
+    }
+
+    /**
      * Checks if this exception has an HTTP status code.
      *
      * @return true if {@code httpStatusCode > 0}

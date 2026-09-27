@@ -12,20 +12,20 @@ The SDK preserves Cheqi's zero-knowledge boundary: receipt contents are supplied
 
 ## Installation
 
-Add version `2.4.1` with Maven:
+Add version `2.5.0` with Maven:
 
 ```xml
 <dependency>
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.0</version>
 </dependency>
 ```
 
 Or with Gradle:
 
 ```gradle
-implementation 'io.cheqi:cheqi-sdk:2.4.1'
+implementation 'io.cheqi:cheqi-sdk:2.5.0'
 ```
 
 To build and install this branch locally:
@@ -219,7 +219,7 @@ The backend selects one of three routes:
 - `DOWNLOAD_FALLBACK`: the SDK creates a client-encrypted download when enough local payment context is available, or asks the caller for a final `ReceiptEnvelope`.
 - `EMAIL_FALLBACK`: the SDK returns `isEmailReceiptRequired()`. Email delivery is not performed automatically by `issueReceipt`.
 
-Treat `ReceiptResult.getDeliveryRouteType()` as the authoritative route. A failed recipient resolution or invalid request is reported through `CheqiSDKException` rather than a synthetic customer-not-found result.
+Use `ReceiptResult.getState()` to decide whether checkout has submitted digitally or needs background recovery. `getDeliveryRouteType()` still describes the selected route. A successful resolution with `routeFound: false` continues to throw `CUSTOMER_NOT_FOUND`; it does not bypass the configured routing policy.
 
 ### Client-encrypted download fallback
 
@@ -255,6 +255,58 @@ ReceiptResult completed = sdk.getReceiptService().completeDownloadFallback(
     accessToken
 );
 ```
+
+## Checkout outcomes and background recovery
+
+`issueReceipt(...)` returns the existing `ReceiptResult` with additional fields:
+`state`, `submission`, `retryable`, `retryAfterSeconds`, and `preparedDownload`.
+
+- `DIGITAL_SUBMITTED`: the backend accepted the digital submission; `getSubmission()` contains its acknowledgement. This does not mean every device has completed generation.
+- `DIGITAL_PENDING`: matching succeeded, but submission timed out, became unavailable, or returned `IN_PROGRESS`. Retain `getMatchId()`, the definitive receipt payload and store id, and `getPreparedDownload()`. Display `getDownloadUrl()` immediately after persisting the prepared download.
+- `DOWNLOAD_FALLBACK`: the backend selected its download route, or Cheqi could not be reached before matching completed. An offline result has no match id. A prepared download with `isRetryable() == true` still needs uploading.
+- `EMAIL_FALLBACK`: the existing explicit email route; `isEmailReceiptRequired()` remains available.
+
+The existing HTTP retry policy (`maxRetries`) is unchanged. These tools do not introduce polling, scheduling, background workers, or persistence. Partners choose when to call `getMatch`, `resumeReceipt`, and download upload, and own their recovery architecture. `retryable` and `retryAfterSeconds` are informational only.
+
+```java
+ReceiptResult result = sdk.getReceiptService().issueReceipt(
+        identificationDetails, receiptPayload, storeId);
+
+if (result.getState() == ReceiptIssueState.DIGITAL_PENDING) {
+    // Persist matchId, receiptPayload, storeId, and preparedDownload in your application.
+    String qrUrl = result.getDownloadUrl();
+
+    // In a background worker, upload the same encrypted fallback (no matching identifiers).
+    sdk.getReceiptService().uploadPreparedDownload(result.getPreparedDownload());
+
+    // Make one digital recovery attempt; honor retryAfterSeconds when present.
+    ReceiptResult resumed = sdk.getReceiptService().resumeReceipt(
+            result.getMatchId(), receiptPayload, storeId);
+}
+```
+
+`getMatch(String matchId)` exposes the generated `MatchStatusResponse` directly.
+`resumeReceipt` recovers `SUBMITTED` without encrypting or resubmitting, obtains original
+recipient keys for `MATCHED`, and returns pending for `IN_PROGRESS` or transient failures.
+All operations have optional delegated access-token overloads. Match ids are opaque strings, not UUIDs.
+
+An expired unsubmitted match throws `MATCH_EXPIRED` (HTTP 410); an absent or unauthorized
+match throws the API's 404 error. Authentication, invalid payloads, invalid responses,
+and other permanent failures remain SDK exceptions with API status/code/correlation details.
+
+Persist `PreparedReceiptDownload` using its Jackson-compatible fields and reuse it for
+every upload retry. It contains the original URL, download id, ciphertext and hash;
+the AES key stays in the URL fragment. Locally prepared recovery downloads contain the
+definitive receipt payload only and do not copy the original identification details.
+Recovery results from `resumeReceipt` do not create a new QR: keep the original URL and
+prepared download even after digital submission succeeds or the match expires.
+`isRetryable()` on that result describes whether another digital recovery attempt is possible;
+download-upload recovery is tracked separately by the integration.
+
+The protocol is documented in [the retry flow diagram](docs/receipt-retry.mmd).
+The generated submission union uses a small native template override to emit an interface;
+the handwritten HTTP client distinguishes submission acknowledgements from `IN_PROGRESS`
+using the response's `state` field. Run `make generate` normally after spec updates.
 
 ## Lower-Level Operations
 
@@ -387,3 +439,12 @@ make generate
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [SECURITY.md](SECURITY.md) for vulnerability reporting.
+
+For low-level control, use `generateEncryptedReceiptEnvelope(match, receiptPayload, storeId)`
+with either generated `RecipientResolutionResponse` or `MatchStatusResponse`, then call
+`submitEncryptedReceipt(envelope)`. Envelope generation is local and performs no HTTP requests.
+An empty or malformed successful digital submission acknowledgement is ambiguous:
+`issueReceipt` returns `DIGITAL_PENDING`, preserving the match id and prepared QR fallback.
+`resumeReceipt` returns `DIGITAL_EXPIRED` (not accepted, `retryable=false`) when an unsubmitted
+match has expired, including expiry between retrieval and submission. Keep any previously
+prepared download separately; expiry cannot revive the digital match.

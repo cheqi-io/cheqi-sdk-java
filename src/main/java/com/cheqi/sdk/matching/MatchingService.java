@@ -64,7 +64,7 @@ public class MatchingService {
             RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, accessToken);
             
             if (Boolean.TRUE.equals(response.getRouteFound())) {
-                logger.info("Customer matched successfully: {} recipients found", response.getRecipients().size());
+                logger.info("Customer matched successfully: {} recipients found", response.getRecipients() == null ? 0 : response.getRecipients().size());
             } else {
                 logger.info("No customer match found");
             }
@@ -115,7 +115,7 @@ public class MatchingService {
             RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails);
 
             if (Boolean.TRUE.equals(response.getRouteFound())) {
-                logger.info("Customer matched successfully: {} recipients found", response.getRecipients().size());
+                logger.info("Customer matched successfully: {} recipients found", response.getRecipients() == null ? 0 : response.getRecipients().size());
             } else {
                 logger.info("No customer match found");
             }
