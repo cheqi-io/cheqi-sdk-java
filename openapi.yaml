@@ -116,14 +116,14 @@ paths:
               $ref: "#/components/schemas/AuthorizationCodeExchangeRequest"
         required: true
       responses:
-        "401":
-          description: Invalid client credentials
+        "200":
+          description: Authorization code exchanged successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CompanyAuthorizationResponse"
-        "200":
-          description: Authorization code exchanged successfully
+        "401":
+          description: Invalid client credentials
           content:
             '*/*':
               schema:
@@ -184,6 +184,18 @@ paths:
               $ref: "#/components/schemas/ClientCredentialsTokenRequest"
         required: true
       responses:
+        "401":
+          description: Invalid client credentials
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
+        "400":
+          description: Invalid authorization code or request parameters
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
         "200":
           description: OAuth exchange completed successfully
           content:
@@ -199,18 +211,6 @@ paths:
                     token_type: bearer
                     expires_in: 900
                     scope: receipt:issue
-        "401":
-          description: Invalid client credentials
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
-        "400":
-          description: Invalid authorization code or request parameters
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
       security: []
   /company/{id}/receipt-delivery/devices/{deviceId}:
     put:
@@ -332,18 +332,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "400":
           description: Invalid request data
           content:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
   /webhook/subscription:
     post:
       tags:
@@ -361,6 +361,12 @@ paths:
               $ref: "#/components/schemas/WebhookRequestBody"
         required: true
       responses:
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
         "400":
           description: Invalid webhook request data
           content:
@@ -371,12 +377,6 @@ paths:
           description: Duplicate webhook subscription already exists
           content:
             '*/*':
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
         "403":
@@ -463,12 +463,6 @@ paths:
               $ref: "#/components/schemas/CreateStoreRequest"
         required: true
       responses:
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to create stores for this company
           content:
@@ -487,6 +481,12 @@ paths:
             '*/*':
               schema:
                 type: object
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
   /recipient/resolve:
     post:
       tags:
@@ -504,14 +504,14 @@ paths:
               $ref: "#/components/schemas/IdentificationDetails"
         required: true
       responses:
-        "200":
-          description: Recipient successfully resolved and matched
+        "404":
+          description: No recipient found matching the provided identification details
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "404":
-          description: No recipient found matching the provided identification details
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -621,18 +621,18 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "400":
-          description: Invalid encrypted generation request
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ReceiptSubmissionResponse"
         "410":
           description: Unsubmitted match expired
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/MatchStatusResponse"
+        "400":
+          description: Invalid encrypted generation request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReceiptSubmissionResponse"
         "404":
           description: Match absent or belongs to another requester
           content:
@@ -705,8 +705,8 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "403":
-          description: Insufficient permissions - requires receipt:issue scope
+        "201":
+          description: Encrypted receipt stored
           content:
             '*/*':
               schema:
@@ -717,8 +717,8 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "201":
-          description: Encrypted receipt stored
+        "403":
+          description: Insufficient permissions - requires receipt:issue scope
           content:
             '*/*':
               schema:
@@ -988,14 +988,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
@@ -1168,14 +1168,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
@@ -1395,12 +1395,6 @@ paths:
         **Accessible for:** Client Application
       operationId: getAuthorizedResources
       responses:
-        "200":
-          description: Authorized resources retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AuthorizedResourcesResponse"
         "401":
           description: Invalid or missing access token
           content:
@@ -1409,6 +1403,12 @@ paths:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
         "403":
           description: Not a client application token
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthorizedResourcesResponse"
+        "200":
+          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
@@ -1656,7 +1656,8 @@ components:
               your side
         recipientEmail:
           type: string
-          description: Recipient email used as a fallback customer identifier.
+          description: "Recipient email used as a fallback customer identifier, only\
+            \ resolved when no earlier strategy matches."
           example: recipient@example.com
         cheqiReceiptId:
           type: string
@@ -1668,13 +1669,17 @@ components:
           description: A temporary 8-digit pairing code generated by the receipt recipient.
           example: "84739201"
       description: "Identification and payment details used to resolve the receipt\
-        \ recipient. paymentType is optional when pairingCode is supplied because\
-        \ the pairing code carries the customer-selected payment method. A customer\
-        \ locator (cardDetails, paymentAccountDetails, recipientEmail or pairingCode)\
-        \ is optional: when none is supplied the request is treated as an anonymous\
-        \ \"no customer\" receipt, which resolves to the QR-code download fallback\
-        \ route (when downloadFallbackEnabled). The mutual-exclusion rules below still\
-        \ apply so a locator is never paired with an incompatible payment type."
+        \ recipient. Multiple compatible identifiers may be supplied to improve matching:\
+        \ strategies are tried in order (cheqiReceiptId, pairingCode, paymentAccountDetails,\
+        \ cardDetails, recipientEmail), stopping at the first customer match. Remaining\
+        \ identifiers are not resolved or compared. paymentType is optional when pairingCode\
+        \ is supplied because the pairing code carries the customer-selected payment\
+        \ method. A customer locator (cardDetails, paymentAccountDetails, recipientEmail\
+        \ or pairingCode) is optional: when none is supplied the request is treated\
+        \ as an anonymous \"no customer\" receipt, which resolves to the QR-code download\
+        \ fallback route (when downloadFallbackEnabled). The mutual-exclusion rules\
+        \ below still apply so a locator is never paired with an incompatible payment\
+        \ type."
     PaymentAccountDetails:
       required:
       - accountIdentifierType
