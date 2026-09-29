@@ -12,20 +12,20 @@ The SDK preserves Cheqi's zero-knowledge boundary: receipt contents are supplied
 
 ## Installation
 
-Add version `2.4.1` with Maven:
+Add version `2.5.0` with Maven:
 
 ```xml
 <dependency>
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.0</version>
 </dependency>
 ```
 
 Or with Gradle:
 
 ```gradle
-implementation 'io.cheqi:cheqi-sdk:2.4.1'
+implementation 'io.cheqi:cheqi-sdk:2.5.0'
 ```
 
 To build and install this branch locally:

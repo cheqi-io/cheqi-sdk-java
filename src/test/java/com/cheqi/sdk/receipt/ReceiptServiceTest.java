@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -162,15 +163,18 @@ class ReceiptServiceTest {
                 upload.getValue().getCiphertext(),
                 link.getContentKey()
         );
-        String document = envelope.getDocuments().get("CHEQI").getContent();
+        assertEquals(2, envelope.getEnvelopeVersion());
+        String document = envelope.getDocuments().get("RECEIPT_PAYLOAD").getContent();
+        String identificationDocument = envelope.getDocuments().get("IDENTIFICATION_DETAILS").getContent();
         assertEquals("R-100", ObjectMapperConfig.getInstance().readTree(document)
                 .get("documentNumber").asText());
-        assertEquals("CARD_PAYMENT", ObjectMapperConfig.getInstance().readTree(document)
-                .at("/identificationDetails/paymentType").asText());
-        assertEquals("PAR-123", ObjectMapperConfig.getInstance().readTree(document)
-                .at("/identificationDetails/cardDetails/paymentAccountReference").asText());
-        assertEquals("4242", ObjectMapperConfig.getInstance().readTree(document)
-                .at("/identificationDetails/cardDetails/lastFourDigits").asText());
+        assertFalse(ObjectMapperConfig.getInstance().readTree(document).has("identificationDetails"));
+        assertEquals("CARD_PAYMENT", ObjectMapperConfig.getInstance().readTree(identificationDocument)
+                .at("/paymentType").asText());
+        assertEquals("PAR-123", ObjectMapperConfig.getInstance().readTree(identificationDocument)
+                .at("/cardDetails/paymentAccountReference").asText());
+        assertEquals("4242", ObjectMapperConfig.getInstance().readTree(identificationDocument)
+                .at("/cardDetails/lastFourDigits").asText());
         assertTrue(upload.getValue().getTemplateHash() != null);
     }
 
@@ -214,9 +218,9 @@ class ReceiptServiceTest {
                 upload.getValue().getCiphertext(),
                 link.getContentKey()
         );
-        String document = envelope.getDocuments().get("CHEQI").getContent();
+        String document = envelope.getDocuments().get("IDENTIFICATION_DETAILS").getContent();
         assertEquals("CASH", ObjectMapperConfig.getInstance().readTree(document)
-                .at("/identificationDetails/paymentType").asText());
+                .at("/paymentType").asText());
     }
 
     private static EncryptedReceiptPayload encrypted(String recipientId, String content) {

@@ -333,20 +333,25 @@ public class ReceiptService {
         }
 
         DownloadLink link = downloadService.generateDownloadLink(downloadBaseUrl);
-        String cheqiDocument = buildDownloadCheqiDocument(receiptPayload, identificationDetails);
+        String payloadDocument = objectMapper.writeValueAsString(receiptPayload);
         ReceiptEnvelope envelope = new ReceiptEnvelope()
                 .cheqiReceiptId(link.getDownloadId())
-                .envelopeVersion(1)
+                .envelopeVersion(2)
                 .receiptGeneratorVersion(PAYLOAD_DOCUMENT_VERSION)
                 .receiptUuid(UUID.randomUUID())
                 .putDocumentsItem(
-                        "CHEQI",
+                        "RECEIPT_PAYLOAD",
                         new ReceiptEnvelopeDocument()
                                 .mediaType(ReceiptEnvelopeDocument.MediaTypeEnum.APPLICATION_JSON)
-                                .content(cheqiDocument)
+                                .content(payloadDocument)
                 );
+        if (identificationDetails != null) {
+            envelope.putDocumentsItem("IDENTIFICATION_DETAILS", new ReceiptEnvelopeDocument()
+                    .mediaType(ReceiptEnvelopeDocument.MediaTypeEnum.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(identificationDetails)));
+        }
         String ciphertext = downloadService.encryptDownloadEnvelope(envelope, link.getContentKey());
-        String templateHash = verificationService.calculateCheqiReceiptHash(cheqiDocument);
+        String templateHash = verificationService.calculateCheqiReceiptHash(payloadDocument);
         ClientReceiptDownloadRequest request = new ClientReceiptDownloadRequest()
                 .downloadId(link.getDownloadId())
                 .ciphertext(ciphertext)
@@ -358,7 +363,7 @@ public class ReceiptService {
     }
 
     /**
-     * Builds the CHEQI JSON used only by the browser download route. The generated receipt payload
+     * Builds the legacy version 1 browser JSON. Version 2 downloads carry the receipt payload
      * remains the base contract; the same generated identification details supplied for matching
      * are included unchanged so cash, card, direct-debit, and PAR context survive fallback.
      */
