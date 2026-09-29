@@ -1,0 +1,33 @@
+sequenceDiagram
+    participant POS as Integration checkout
+    participant SDK as Java SDK
+    participant API as Cheqi API
+    participant Worker as Integration recovery worker
+    POS->>SDK: issueReceipt(identification, payload, storeId)
+    SDK->>API: Resolve owner devices (one attempt)
+    API-->>SDK: matchId and temporary device keys
+    SDK->>API: Submit independently encrypted device payloads (one attempt)
+    alt Accepted
+        API-->>SDK: Original submission acknowledgement
+        SDK-->>POS: DIGITAL_SUBMITTED
+    else Timeout, outage, malformed acknowledgement, or IN_PROGRESS
+        SDK-->>POS: DIGITAL_PENDING, matchId, prepared encrypted download and URL
+        POS->>POS: Persist recovery data and show QR
+        POS->>Worker: Schedule background recovery
+        Worker->>SDK: uploadPreparedDownload(original prepared download)
+        SDK->>API: Upload original ciphertext and download id
+        Note over SDK,API: URL fragment AES key never reaches API
+        Worker->>SDK: resumeReceipt(matchId, payload, storeId)
+        SDK->>API: GET match status (no matching identifiers)
+        alt SUBMITTED
+            API-->>SDK: Original submission
+        else MATCHED
+            API-->>SDK: Original device key snapshot
+            SDK->>API: Regenerated ciphertext for same matchId
+        else IN_PROGRESS
+            API-->>SDK: Retry delay
+        else EXPIRED
+            API-->>SDK: Expired; digital submission cannot be revived
+        end
+        SDK-->>Worker: DIGITAL_SUBMITTED, DIGITAL_PENDING, or DIGITAL_EXPIRED
+    end

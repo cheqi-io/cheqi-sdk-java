@@ -34,117 +34,83 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         this.retryHandler = new RetryHandler(httpClient, config.getMaxRetries());
         this.responseHandler = new ResponseHandler(objectMapper);
         
-        logger.info("CheqiApiClient initialized with endpoint: {}, maxRetries: {}, timeout: {}s", 
-                config.getApiEndpoint(), config.getMaxRetries(), config.getTimeoutSeconds());
+        logger.info("CheqiApiClient initialized with endpoint: {}, timeout: {}s",
+                config.getApiEndpoint(), config.getTimeoutSeconds());
     }
 
 
     @Override
     public RecipientResolutionResponse matchCustomer(IdentificationDetails request) throws CheqiApiException {
-        logger.info("Matching customer with API key");
+        return matchCustomerInternal(request, null);
+    }
 
+    @Override
+    public RecipientResolutionResponse matchCustomer(IdentificationDetails request, String accessToken)
+            throws CheqiApiException {
+        validateAccessToken(accessToken);
+        return matchCustomerInternal(request, accessToken);
+    }
+
+    private RecipientResolutionResponse matchCustomerInternal(IdentificationDetails request,
+                                                               String accessToken)
+            throws CheqiApiException {
         if (request == null) {
-            throw new CheqiApiException(
-                    "RecipientResolutionRequest is required",
-                    400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST,
-                    null
-            );
+            throw new CheqiApiException("Identification details are required", 400,
+                    CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
         }
-
         try {
-            String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Serialized customer match request with API key");
-
-            Request httpRequest = buildPostRequestWithApiKey(Endpoints.CUSTOMER_MATCH_ENDPOINT, requestJson);
-            Response response = retryHandler.executeWithRetry(httpRequest, "matchCustomer");
-
-            RecipientResolutionResponse result = responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
-            logger.info("Customer match successful: routeFound={}", result.getRouteFound());
-            return result;
-        } catch (CheqiApiException e) {
-            throw e;
-        } catch (IOException e) {
-            logger.error("Network error during customer matching", e);
-            throw new CheqiApiException(
-                    "Network error during customer matching: " + e.getMessage(),
-                    e,
-                    0,
-                    CheqiApiException.ErrorCodes.NETWORK_ERROR,
-                    null
-            );
-        } catch (Exception e) {
-            logger.error("Unexpected error during customer matching", e);
-            throw new CheqiApiException(
-                    "Customer matching failed due to unexpected error: " + e.getMessage(),
-                    e,
-                    0,
-                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR,
-                    null
-            );
+            String json = objectMapper.writeValueAsString(request);
+            Request httpRequest = accessToken == null
+                    ? buildPostRequestWithApiKey(Endpoints.CUSTOMER_MATCH_ENDPOINT, json)
+                    : buildJsonPostRequest(Endpoints.CUSTOMER_MATCH_ENDPOINT, json, accessToken);
+            Response response = retryHandler.executeWithRetry(httpRequest, "apiRequest");
+            return responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
+        } catch (CheqiApiException exception) {
+            throw exception;
+        } catch (IOException exception) {
+            throw networkError(exception);
+        } catch (Exception exception) {
+            throw new CheqiApiException("Customer matching failed", exception, 0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
         }
     }
 
     @Override
-    public RecipientResolutionResponse matchCustomer(IdentificationDetails request, String accessToken) throws CheqiApiException {
-        logger.info("Matching customer with payment identifiers");
+    public MatchStatusResponse getMatch(String matchId) throws CheqiApiException {
+        return getMatchInternal(matchId, null);
+    }
 
-        if (accessToken == null || accessToken.trim().isEmpty()) {
-            throw new CheqiApiException(
-                    "Access token is required for customer matching",
-                    400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST,
-                    null
-            );
+    @Override
+    public MatchStatusResponse getMatch(String matchId, String accessToken) throws CheqiApiException {
+        validateAccessToken(accessToken);
+        return getMatchInternal(matchId, accessToken);
+    }
+
+    private MatchStatusResponse getMatchInternal(String matchId, String accessToken)
+            throws CheqiApiException {
+        if (matchId == null || matchId.trim().isEmpty()) {
+            throw new CheqiApiException("matchId is required", 400, CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
         }
-
-        if (request == null) {
-            throw new CheqiApiException(
-                    "RecipientResolutionRequest is required",
-                    400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST,
-                    null
-            );
-        }
-
+        String credential = accessToken == null ? config.getApiKey() : accessToken;
+        validateAccessToken(credential);
         try {
-            // Serialize request to JSON
-            String requestJson = objectMapper.writeValueAsString(request);
-            logger.debug("Serialized customer match request with access token");
-
-            // Build HTTP request
-            Request httpRequest = buildJsonPostRequest(Endpoints.CUSTOMER_MATCH_ENDPOINT, requestJson, accessToken);
-
-            // Execute request with retry logic
-            Response response = retryHandler.executeWithRetry(httpRequest, "matchCustomer");
-
-            RecipientResolutionResponse result = responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
-
-            logger.info("Customer match successful: routeFound={}", result.getRouteFound());
-            return result;
-        } catch (CheqiApiException e) {
-            throw e;
-        } catch (IOException e) {
-            logger.error("Network error during customer matching", e);
-            throw new CheqiApiException(
-                    "Network error during customer matching: " + e.getMessage(),
-                    e,
-                    0,
-                    CheqiApiException.ErrorCodes.NETWORK_ERROR,
-                    null
-            );
-        } catch (Exception e) {
-            logger.error("Unexpected error during customer matching", e);
-            throw new CheqiApiException(
-                    "Customer matching failed due to unexpected error: " + e.getMessage(),
-                    e,
-                    0,
-                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR,
-                    null
-            );
+            String url = HttpUrl.get(buildUrl(Endpoints.MATCH_STATUS_ENDPOINT.getPath(""))).newBuilder()
+                    .addPathSegment(matchId).build().toString();
+            Response response = retryHandler.executeWithRetry(buildGetRequest(url, credential), "getMatch");
+            return responseHandler.handleJsonResponse(response, MatchStatusResponse.class, "Match retrieval");
+        } catch (CheqiApiException exception) {
+            throw exception;
         }
     }
 
+    private static CheqiApiException networkError(IOException cause) {
+        if (cause instanceof com.fasterxml.jackson.core.JsonProcessingException) {
+            return new CheqiApiException("Invalid API data", cause, 0,
+                    CheqiApiException.ErrorCodes.INVALID_RESPONSE, null);
+        }
+        return new CheqiApiException("Cheqi could not be reached", cause, 0,
+                CheqiApiException.ErrorCodes.NETWORK_ERROR, null);
+    }
 
     @Override
     public ReceiptSubmissionResponse submitEncryptedReceipt(EncryptedReceiptEnvelope request)
@@ -162,8 +128,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     private ReceiptSubmissionResponse submitEncryptedReceiptInternal(
-            EncryptedReceiptEnvelope request,
-            String accessToken
+            EncryptedReceiptEnvelope request, String accessToken
     ) throws CheqiApiException {
         if (request == null
                 || request.getMatchId() == null
@@ -228,9 +193,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     private ReceiptSubmissionResponse postSubmission(
-            Endpoints endpoint,
-            Object request,
-            String accessToken,
+            Endpoints endpoint, Object request, String accessToken,
             String operation
     ) throws CheqiApiException {
         try {
@@ -238,22 +201,34 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             Request httpRequest = accessToken == null
                     ? buildPostRequestWithApiKey(endpoint, requestJson)
                     : buildJsonPostRequest(endpoint, requestJson, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, operation);
-            return responseHandler.handleJsonResponse(
-                    response,
-                    ReceiptSubmissionResponse.class,
-                    operation
-            );
+            Response response = httpClient.newCall(httpRequest).execute();
+            String json = responseHandler.handleStringResponse(response, operation);
+            try {
+                com.fasterxml.jackson.databind.JsonNode body = objectMapper.readTree(json);
+                if (body == null || !body.isObject()) {
+                    throw new CheqiApiException("Invalid receipt submission response", response.code(),
+                            CheqiApiException.ErrorCodes.INVALID_RESPONSE, response.header("X-Correlation-ID"));
+                }
+                if ("IN_PROGRESS".equals(body.path("state").asText())) {
+                    throw new com.cheqi.sdk.http.exceptions.SubmissionInProgressException(
+                            Math.max(1, body.path("retryAfterSeconds").asInt(2)));
+                }
+                ReceiptSubmissionResponse submitted = objectMapper.treeToValue(body, ReceiptSubmissionResponse.class);
+                if (submitted == null || submitted.getCheqiReceiptId() == null
+                        || submitted.getCheqiReceiptId().trim().isEmpty()
+                        || submitted.getMatchId() == null || submitted.getMatchId().trim().isEmpty()) {
+                    throw new CheqiApiException("Invalid receipt submission response", 0,
+                            CheqiApiException.ErrorCodes.INVALID_RESPONSE, null);
+                }
+                return submitted;
+            } catch (com.fasterxml.jackson.core.JsonProcessingException | IllegalArgumentException exception) {
+                throw new CheqiApiException("Invalid receipt submission response", exception, response.code(),
+                        CheqiApiException.ErrorCodes.INVALID_RESPONSE, response.header("X-Correlation-ID"));
+            }
         } catch (CheqiApiException exception) {
             throw exception;
         } catch (IOException exception) {
-            throw new CheqiApiException(
-                    "Network error during encrypted submission: " + exception.getMessage(),
-                    exception,
-                    0,
-                    CheqiApiException.ErrorCodes.NETWORK_ERROR,
-                    null
-            );
+            throw networkError(exception);
         } catch (Exception exception) {
             throw new CheqiApiException(
                     "Encrypted submission failed: " + exception.getMessage(),
@@ -298,7 +273,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             Request httpRequest = accessToken == null
                     ? buildPostRequestWithApiKey(Endpoints.CLIENT_RECEIPT_DOWNLOAD_ENDPOINT, requestJson)
                     : buildJsonPostRequest(Endpoints.CLIENT_RECEIPT_DOWNLOAD_ENDPOINT, requestJson, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, "uploadEncryptedDownloadReceipt");
+            Response response = httpClient.newCall(httpRequest).execute();
             return responseHandler.handleJsonResponse(
                     response, ClientReceiptDownloadResponse.class, "Upload client-encrypted receipt");
         } catch (CheqiApiException e) {
@@ -348,8 +323,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             // Build HTTP request
             Request httpRequest = buildPostRequestWithApiKey(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson);
 
-            // Execute request with retry logic
-            Response response = retryHandler.executeWithRetry(httpRequest, "sendReceiptViaEmail");
+            // Execute using the existing HTTP retry policy.
+            Response response = httpClient.newCall(httpRequest).execute();
             responseHandler.handleVoidResponse(response, "Send receipt via email");
 
         } catch (CheqiApiException e) {
@@ -412,8 +387,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             // Build HTTP request
             Request httpRequest = buildJsonPostRequest(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson, accessToken);
 
-            // Execute request with retry logic
-            Response response = retryHandler.executeWithRetry(httpRequest, "sendReceiptViaEmail");
+            // Execute one request; the integration owns retry policy.
+            Response response = httpClient.newCall(httpRequest).execute();
             responseHandler.handleVoidResponse(response, "Send receipt via email");
 
         } catch (CheqiApiException e) {
@@ -520,7 +495,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             String url = buildUrl(Endpoints.COMPANY_STORES_ENDPOINT.getPath(companyId));
 
             Request httpRequest = buildJsonPostRequest(url, requestJson, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, "createStore");
+            Response response = httpClient.newCall(httpRequest).execute();
 
             return responseHandler.handleJsonResponse(response, StoreDTO.class, "Create store");
         } catch (CheqiApiException e) {
@@ -543,7 +518,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             }
 
             Request httpRequest = buildGetRequest(url, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, "getStores");
+            Response response = httpClient.newCall(httpRequest).execute();
 
             return responseHandler.handleJsonListResponse(response, StoreDTO.class, "Get stores");
         } catch (CheqiApiException e) {
@@ -563,7 +538,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             String url = buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildGetRequest(url, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, "getStore");
+            Response response = httpClient.newCall(httpRequest).execute();
 
             return responseHandler.handleJsonResponse(response, StoreDTO.class, "Get store");
         } catch (CheqiApiException e) {
@@ -584,7 +559,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             String url = buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildPutRequest(url, requestJson, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, "updateStore");
+            Response response = httpClient.newCall(httpRequest).execute();
 
             return responseHandler.handleJsonResponse(response, StoreDTO.class, "Update store");
         } catch (CheqiApiException e) {
@@ -604,7 +579,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             String url = buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildDeleteRequest(url, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, "deleteStore");
+            Response response = httpClient.newCall(httpRequest).execute();
 
             responseHandler.handleVoidResponse(response, "Delete store");
         } catch (CheqiApiException e) {
@@ -624,7 +599,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             String url = buildUrl(Endpoints.COMPANY_STORE_ACTIVATE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildPatchRequest(url, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, "activateStore");
+            Response response = httpClient.newCall(httpRequest).execute();
 
             responseHandler.handleVoidResponse(response, "Activate store");
         } catch (CheqiApiException e) {
@@ -644,7 +619,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             String url = buildUrl(Endpoints.COMPANY_STORE_DEACTIVATE_ENDPOINT.getPath(companyId, storeId));
 
             Request httpRequest = buildPatchRequest(url, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, "deactivateStore");
+            Response response = httpClient.newCall(httpRequest).execute();
 
             responseHandler.handleVoidResponse(response, "Deactivate store");
         } catch (CheqiApiException e) {
