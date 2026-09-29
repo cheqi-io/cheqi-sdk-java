@@ -5,6 +5,7 @@ package com.cheqi.sdk.http;
  */
 public enum Endpoints {
     CUSTOMER_MATCH_ENDPOINT("/recipient/resolve"),
+    MATCH_STATUS_ENDPOINT("/recipient/matches/%s"),
     ENCRYPTED_RECEIPT_ENDPOINT("/receipt/encrypted"),
     CLIENT_RECEIPT_DOWNLOAD_ENDPOINT("/receipt/download"),
     ENCRYPTED_CREDIT_NOTE_ENDPOINT("/credit-note/encrypted"),

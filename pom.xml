@@ -6,7 +6,7 @@
 
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.0</version>
     <packaging>jar</packaging>
 
     <name>Cheqi SDK</name>
@@ -168,6 +168,7 @@
                             <generateModelTests>false</generateModelTests>
                             <generateModelDocumentation>false</generateModelDocumentation>
                             <generateSupportingFiles>false</generateSupportingFiles>
+                            <templateDirectory>${project.basedir}/src/main/openapi-templates</templateDirectory>
                             <output>${project.basedir}</output>
                             <configOptions>
                                 <sourceFolder>src/main/java</sourceFolder>
@@ -177,6 +178,7 @@
                                 <openApiNullable>false</openApiNullable>
                                 <useJakartaEe>false</useJakartaEe>
                                 <serializationLibrary>jackson</serializationLibrary>
+                                <useOneOfInterfaces>true</useOneOfInterfaces>
                                 <supportUrlQuery>false</supportUrlQuery>
                                 <additionalModelTypeAnnotations>@com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)</additionalModelTypeAnnotations>
                             </configOptions>

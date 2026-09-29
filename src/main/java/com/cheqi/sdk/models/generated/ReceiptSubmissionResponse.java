@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -37,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
-public class ReceiptSubmissionResponse {
+public class ReceiptSubmissionResponse implements SubmitEncryptedReceipt202Response {
   public static final String JSON_PROPERTY_CHEQI_RECEIPT_ID = "cheqiReceiptId";
   @javax.annotation.Nullable
   private String cheqiReceiptId;

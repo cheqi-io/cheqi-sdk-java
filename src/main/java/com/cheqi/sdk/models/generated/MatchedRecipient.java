@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * The list of recipients found for the given recipient
+ * MatchedRecipient
  */
 @JsonPropertyOrder({
   MatchedRecipient.JSON_PROPERTY_ID,

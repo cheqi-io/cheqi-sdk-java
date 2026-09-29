@@ -8,6 +8,12 @@ import java.util.UUID;
 
 /** HTTP boundary used by the handwritten SDK services. */
 public interface CheqiApiClient {
+
+    /** Match recovery uses only the opaque id; no original matching identifiers. */
+    MatchStatusResponse getMatch(String matchId, String accessToken) throws CheqiApiException;
+    MatchStatusResponse getMatch(String matchId) throws CheqiApiException;
+
+
     RecipientResolutionResponse matchCustomer(
             IdentificationDetails request,
             String accessToken
