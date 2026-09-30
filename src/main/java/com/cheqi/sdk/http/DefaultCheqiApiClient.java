@@ -6,6 +6,7 @@ import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.models.generated.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
+import okhttp3.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
