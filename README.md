@@ -225,8 +225,8 @@ Use `ReceiptResult.getState()` to decide whether checkout has submitted digitall
 
 When `IdentificationDetails.paymentType` is present and the backend selects `DOWNLOAD_FALLBACK`, `issueReceipt` completes the route automatically. The SDK:
 
-1. Creates a CHEQI JSON document from the definitive `ReceiptPayload` and the locally supplied `IdentificationDetails`.
-2. Places it in a `ReceiptEnvelope` and calculates its deterministic hash.
+1. Serializes the definitive `ReceiptPayload` into the `RECEIPT_PAYLOAD` document of a version 2 `ReceiptEnvelope`, with locally supplied `IdentificationDetails` in a separate document.
+2. Calculates a deterministic hash of the payload document.
 3. Generates a random AES-256-GCM content key and download ID.
 4. Uploads only the ciphertext, download ID, and hash.
 5. Returns a URL whose fragment contains the content key through `ReceiptResult.getDownloadUrl()`.

@@ -22,9 +22,7 @@ import com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument;
 import com.cheqi.sdk.models.generated.ReceiptSubmissionResponse;
 import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
 import com.cheqi.sdk.verification.VerificationService;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -516,32 +514,27 @@ public class ReceiptService {
             throw validationError("A receipt download base URL is required to prepare download fallback");
         }
         DownloadLink link = downloadService.generateDownloadLink(downloadBaseUrl);
-        // Recovery fallback contains the definitive payload only; never retain matching identifiers.
-        String cheqiDocument = identificationDetails == null ? objectMapper.writeValueAsString(receiptPayload)
-                : buildDownloadCheqiDocument(receiptPayload, identificationDetails);
+        String payloadDocument = objectMapper.writeValueAsString(receiptPayload);
         ReceiptEnvelope envelope = new ReceiptEnvelope()
-                .cheqiReceiptId(link.getDownloadId()).envelopeVersion(1)
-                .receiptGeneratorVersion(PAYLOAD_DOCUMENT_VERSION).receiptUuid(UUID.randomUUID())
-                .putDocumentsItem("CHEQI", new ReceiptEnvelopeDocument()
-                        .mediaType(ReceiptEnvelopeDocument.MediaTypeEnum.APPLICATION_JSON).content(cheqiDocument));
+                .cheqiReceiptId(link.getDownloadId())
+                .envelopeVersion(2)
+                .receiptGeneratorVersion(PAYLOAD_DOCUMENT_VERSION)
+                .receiptUuid(UUID.randomUUID())
+                .putDocumentsItem(
+                        "RECEIPT_PAYLOAD",
+                        new ReceiptEnvelopeDocument()
+                                .mediaType(ReceiptEnvelopeDocument.MediaTypeEnum.APPLICATION_JSON)
+                                .content(payloadDocument)
+                );
+        if (identificationDetails != null) {
+            envelope.putDocumentsItem("IDENTIFICATION_DETAILS", new ReceiptEnvelopeDocument()
+                    .mediaType(ReceiptEnvelopeDocument.MediaTypeEnum.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(identificationDetails)));
+        }
+        // Recovery fallbacks omit identification details, so matching identifiers are not retained.
         return new PreparedReceiptDownload(link.getUrl(), link.getDownloadId(),
                 downloadService.encryptDownloadEnvelope(envelope, link.getContentKey()),
-                verificationService.calculateCheqiReceiptHash(cheqiDocument));
-    }
-
-    /**
-     * Builds the CHEQI JSON used only by the browser download route. The generated receipt payload
-     * remains the base contract; the same generated identification details supplied for matching
-     * are included unchanged so cash, card, direct-debit, and PAR context survive fallback.
-     */
-    String buildDownloadCheqiDocument(
-            ReceiptPayload receiptPayload,
-            IdentificationDetails identificationDetails
-    ) throws Exception {
-        ObjectNode document = objectMapper.valueToTree(receiptPayload);
-        JsonNode identification = objectMapper.valueToTree(identificationDetails);
-        document.set("identificationDetails", identification);
-        return objectMapper.writeValueAsString(document);
+                verificationService.calculateCheqiReceiptHash(payloadDocument));
     }
 
     private static void validateResolvedRoute(RecipientResolutionResponse resolution)
