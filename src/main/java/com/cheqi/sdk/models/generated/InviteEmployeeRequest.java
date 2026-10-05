@@ -16,7 +16,6 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import com.cheqi.sdk.models.generated.CompanyRole;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -30,13 +29,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Invitation request with email addresses and role
+ * Invitation request with email addresses
  */
 @JsonPropertyOrder({
-  InviteEmployeeRequest.JSON_PROPERTY_EMAILS,
-  InviteEmployeeRequest.JSON_PROPERTY_ROLE,
-  InviteEmployeeRequest.JSON_PROPERTY_RECEIPT_RECIPIENT,
-  InviteEmployeeRequest.JSON_PROPERTY_RECEIPT_WRITER
+  InviteEmployeeRequest.JSON_PROPERTY_EMAILS
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -44,18 +40,6 @@ public class InviteEmployeeRequest {
   public static final String JSON_PROPERTY_EMAILS = "emails";
   @javax.annotation.Nonnull
   private Set<String> emails = new LinkedHashSet<>();
-
-  public static final String JSON_PROPERTY_ROLE = "role";
-  @javax.annotation.Nonnull
-  private CompanyRole role;
-
-  public static final String JSON_PROPERTY_RECEIPT_RECIPIENT = "receiptRecipient";
-  @javax.annotation.Nullable
-  private Boolean receiptRecipient;
-
-  public static final String JSON_PROPERTY_RECEIPT_WRITER = "receiptWriter";
-  @javax.annotation.Nullable
-  private Boolean receiptWriter;
 
   public InviteEmployeeRequest() { 
   }
@@ -93,78 +77,6 @@ public class InviteEmployeeRequest {
   }
 
 
-  public InviteEmployeeRequest role(@javax.annotation.Nonnull CompanyRole role) {
-    this.role = role;
-    return this;
-  }
-
-  /**
-   * Get role
-   * @return role
-   */
-  @javax.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_ROLE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public CompanyRole getRole() {
-    return role;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_ROLE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setRole(@javax.annotation.Nonnull CompanyRole role) {
-    this.role = role;
-  }
-
-
-  public InviteEmployeeRequest receiptRecipient(@javax.annotation.Nullable Boolean receiptRecipient) {
-    this.receiptRecipient = receiptRecipient;
-    return this;
-  }
-
-  /**
-   * Get receiptRecipient
-   * @return receiptRecipient
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_RECEIPT_RECIPIENT)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Boolean getReceiptRecipient() {
-    return receiptRecipient;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_RECEIPT_RECIPIENT)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReceiptRecipient(@javax.annotation.Nullable Boolean receiptRecipient) {
-    this.receiptRecipient = receiptRecipient;
-  }
-
-
-  public InviteEmployeeRequest receiptWriter(@javax.annotation.Nullable Boolean receiptWriter) {
-    this.receiptWriter = receiptWriter;
-    return this;
-  }
-
-  /**
-   * Get receiptWriter
-   * @return receiptWriter
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_RECEIPT_WRITER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Boolean getReceiptWriter() {
-    return receiptWriter;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_RECEIPT_WRITER)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReceiptWriter(@javax.annotation.Nullable Boolean receiptWriter) {
-    this.receiptWriter = receiptWriter;
-  }
-
-
   /**
    * Return true if this InviteEmployeeRequest object is equal to o.
    */
@@ -177,15 +89,12 @@ public class InviteEmployeeRequest {
       return false;
     }
     InviteEmployeeRequest inviteEmployeeRequest = (InviteEmployeeRequest) o;
-    return Objects.equals(this.emails, inviteEmployeeRequest.emails) &&
-        Objects.equals(this.role, inviteEmployeeRequest.role) &&
-        Objects.equals(this.receiptRecipient, inviteEmployeeRequest.receiptRecipient) &&
-        Objects.equals(this.receiptWriter, inviteEmployeeRequest.receiptWriter);
+    return Objects.equals(this.emails, inviteEmployeeRequest.emails);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(emails, role, receiptRecipient, receiptWriter);
+    return Objects.hash(emails);
   }
 
   @Override
@@ -193,9 +102,6 @@ public class InviteEmployeeRequest {
     StringBuilder sb = new StringBuilder();
     sb.append("class InviteEmployeeRequest {\n");
     sb.append("    emails: ").append(toIndentedString(emails)).append("\n");
-    sb.append("    role: ").append(toIndentedString(role)).append("\n");
-    sb.append("    receiptRecipient: ").append(toIndentedString(receiptRecipient)).append("\n");
-    sb.append("    receiptWriter: ").append(toIndentedString(receiptWriter)).append("\n");
     sb.append("}");
     return sb.toString();
   }

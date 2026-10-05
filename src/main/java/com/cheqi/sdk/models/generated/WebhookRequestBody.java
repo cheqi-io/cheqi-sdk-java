@@ -50,7 +50,9 @@ public class WebhookRequestBody {
     
     RETURN_REQUESTED(String.valueOf("RETURN_REQUESTED")),
     
-    CREDIT_NOTE_CREATED(String.valueOf("CREDIT_NOTE_CREATED"));
+    CREDIT_NOTE_CREATED(String.valueOf("CREDIT_NOTE_CREATED")),
+    
+    COMPANY_INVITATION_ACCEPTED(String.valueOf("COMPANY_INVITATION_ACCEPTED"));
 
     private String value;
 

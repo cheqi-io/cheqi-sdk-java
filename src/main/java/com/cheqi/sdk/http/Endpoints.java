@@ -10,6 +10,7 @@ public enum Endpoints {
     CLIENT_RECEIPT_DOWNLOAD_ENDPOINT("/receipt/download"),
     ENCRYPTED_CREDIT_NOTE_ENDPOINT("/credit-note/encrypted"),
     EMAIL_RECEIPT_ENDPOINT("/receipt/email"),
+    COMPANY_INVITE_EMPLOYEES_ENDPOINT("/company/%s/invite/employees"),
     COMPANY_STORES_ENDPOINT("/company/%s/stores"),
     COMPANY_STORE_ENDPOINT("/company/%s/stores/%s"),
     COMPANY_STORE_ACTIVATE_ENDPOINT("/company/%s/stores/%s/activate"),

@@ -19,7 +19,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     private static final Logger logger = LoggerFactory.getLogger(DefaultCheqiApiClient.class);
 
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
-    private static final String USER_AGENT = "CheqiSDK/2.5.0";
+    private static final String USER_AGENT = "CheqiSDK/2.6.0";
 
     private final CheqiSDKConfig config;
     private final OkHttpClient httpClient;
@@ -504,6 +504,24 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         } catch (Exception e) {
             logger.error("Failed to create store", e);
             throw new CheqiApiException("Failed to create store: " + e.getMessage(), e, 0, CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
+        }
+    }
+
+    @Override
+    public void inviteUsers(UUID companyId, List<String> emails, String accessToken) throws CheqiApiException {
+        validateAccessToken(accessToken);
+        try {
+            String url = buildUrl(Endpoints.COMPANY_INVITE_EMPLOYEES_ENDPOINT.getPath(companyId));
+            String requestJson = objectMapper.writeValueAsString(
+                    new InviteEmployeeRequest().emails(new java.util.LinkedHashSet<>(emails)));
+            Request request = buildJsonPostRequest(url, requestJson, accessToken);
+            Response response = httpClient.newCall(request).execute();
+            responseHandler.handleVoidResponse(response, "Invite employees");
+        } catch (CheqiApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CheqiApiException("Failed to invite employees: " + e.getMessage(), e, 0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
         }
     }
 

@@ -78,4 +78,6 @@ public interface CheqiApiClient {
     void activateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
 
     void deactivateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
+
+    void inviteUsers(UUID companyId, List<String> emails, String accessToken) throws CheqiApiException;
 }

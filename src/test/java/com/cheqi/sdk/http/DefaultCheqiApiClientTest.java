@@ -22,6 +22,26 @@ class DefaultCheqiApiClientTest {
     private static final ObjectMapper OBJECT_MAPPER = ObjectMapperConfig.getInstance();
 
     @Test
+    void inviteUsersPostsEmailsAndAcceptsEmptySuccess() throws Exception {
+        var companyId = java.util.UUID.randomUUID();
+        AtomicReference<String> body = new AtomicReference<>();
+        AtomicReference<String> authorization = new AtomicReference<>();
+        HttpServer server = httpServer("/company/" + companyId + "/invite/employees", exchange -> {
+            authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
+            body.set(new String(exchange.getRequestBody().readAllBytes()));
+            send(exchange, 200, "");
+        });
+        try {
+            new DefaultCheqiApiClient(configFor(server))
+                    .inviteUsers(companyId, List.of("employee@example.com"), "oauth-token");
+            assertEquals("Bearer oauth-token", authorization.get());
+            assertEquals("employee@example.com", OBJECT_MAPPER.readTree(body.get()).at("/emails/0").asText());
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
     void submitEncryptedReceipt_postsGeneratedEnvelopeToSingularReceiptRoute() throws Exception {
         AtomicReference<String> requestBody = new AtomicReference<>();
         AtomicReference<String> authorization = new AtomicReference<>();
