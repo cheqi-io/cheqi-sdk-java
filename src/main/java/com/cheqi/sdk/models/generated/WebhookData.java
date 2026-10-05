@@ -16,6 +16,7 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.cheqi.sdk.models.generated.WebhookCompanyInvitationAccepted;
 import com.cheqi.sdk.models.generated.WebhookCreditNoteInitiationRequest;
 import com.cheqi.sdk.models.generated.WebhookReceiptEnvelope;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -31,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * Container for the event-specific webhook object.
  */
 @JsonPropertyOrder({
+  WebhookData.JSON_PROPERTY_COMPANY_INVITATION_ACCEPTED,
   WebhookData.JSON_PROPERTY_ENCRYPTED_RECEIPT,
   WebhookData.JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE,
   WebhookData.JSON_PROPERTY_CREDIT_NOTE_INITIATION_REQUEST
@@ -38,6 +40,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class WebhookData {
+  public static final String JSON_PROPERTY_COMPANY_INVITATION_ACCEPTED = "companyInvitationAccepted";
+  @javax.annotation.Nullable
+  private WebhookCompanyInvitationAccepted companyInvitationAccepted;
+
   public static final String JSON_PROPERTY_ENCRYPTED_RECEIPT = "encryptedReceipt";
   @javax.annotation.Nullable
   private WebhookReceiptEnvelope encryptedReceipt;
@@ -52,6 +58,30 @@ public class WebhookData {
 
   public WebhookData() { 
   }
+
+  public WebhookData companyInvitationAccepted(@javax.annotation.Nullable WebhookCompanyInvitationAccepted companyInvitationAccepted) {
+    this.companyInvitationAccepted = companyInvitationAccepted;
+    return this;
+  }
+
+  /**
+   * Get companyInvitationAccepted
+   * @return companyInvitationAccepted
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_COMPANY_INVITATION_ACCEPTED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public WebhookCompanyInvitationAccepted getCompanyInvitationAccepted() {
+    return companyInvitationAccepted;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_COMPANY_INVITATION_ACCEPTED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCompanyInvitationAccepted(@javax.annotation.Nullable WebhookCompanyInvitationAccepted companyInvitationAccepted) {
+    this.companyInvitationAccepted = companyInvitationAccepted;
+  }
+
 
   public WebhookData encryptedReceipt(@javax.annotation.Nullable WebhookReceiptEnvelope encryptedReceipt) {
     this.encryptedReceipt = encryptedReceipt;
@@ -137,20 +167,22 @@ public class WebhookData {
       return false;
     }
     WebhookData webhookData = (WebhookData) o;
-    return Objects.equals(this.encryptedReceipt, webhookData.encryptedReceipt) &&
+    return Objects.equals(this.companyInvitationAccepted, webhookData.companyInvitationAccepted) &&
+        Objects.equals(this.encryptedReceipt, webhookData.encryptedReceipt) &&
         Objects.equals(this.encryptedCreditNote, webhookData.encryptedCreditNote) &&
         Objects.equals(this.creditNoteInitiationRequest, webhookData.creditNoteInitiationRequest);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(encryptedReceipt, encryptedCreditNote, creditNoteInitiationRequest);
+    return Objects.hash(companyInvitationAccepted, encryptedReceipt, encryptedCreditNote, creditNoteInitiationRequest);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class WebhookData {\n");
+    sb.append("    companyInvitationAccepted: ").append(toIndentedString(companyInvitationAccepted)).append("\n");
     sb.append("    encryptedReceipt: ").append(toIndentedString(encryptedReceipt)).append("\n");
     sb.append("    encryptedCreditNote: ").append(toIndentedString(encryptedCreditNote)).append("\n");
     sb.append("    creditNoteInitiationRequest: ").append(toIndentedString(creditNoteInitiationRequest)).append("\n");
