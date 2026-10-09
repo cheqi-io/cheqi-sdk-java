@@ -79,5 +79,13 @@ public interface CheqiApiClient {
 
     void deactivateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException;
 
-    void inviteUsers(UUID companyId, List<String> emails, String accessToken) throws CheqiApiException;
+    InviteEmployeesResponse inviteUsers(UUID companyId, List<String> emails, String accessToken) throws CheqiApiException;
+    InviteEmployeesResponse inviteUsers(UUID companyId, List<String> emails, Boolean resendPending, String accessToken) throws CheqiApiException;
+
+    List<DestinationResponse> listReceiptDestinations(String accessToken) throws CheqiApiException;
+    RegisterResponse registerReceiptDestination(RegisterRequest request, String accessToken) throws CheqiApiException;
+    List<WebhookReceiptEnvelope> getPendingReceipts(UUID destinationId, String accessToken) throws CheqiApiException;
+    void acknowledgeReceipts(UUID destinationId, List<String> receiptIds, String accessToken) throws CheqiApiException;
+    void deactivateReceiptDestination(UUID destinationId, String accessToken) throws CheqiApiException;
+    WebhookDTO updateWebhookSubscriptionUrl(UUID subscriptionId, String notificationUrl, String accessToken) throws CheqiApiException;
 }

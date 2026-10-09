@@ -19,7 +19,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     private static final Logger logger = LoggerFactory.getLogger(DefaultCheqiApiClient.class);
 
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
-    private static final String USER_AGENT = "CheqiSDK/2.6.0";
+    private static final String USER_AGENT = "CheqiSDK/2.7.0";
 
     private final CheqiSDKConfig config;
     private final OkHttpClient httpClient;
@@ -508,19 +508,114 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void inviteUsers(UUID companyId, List<String> emails, String accessToken) throws CheqiApiException {
+    public InviteEmployeesResponse inviteUsers(UUID companyId, List<String> emails, String accessToken) throws CheqiApiException {
+        return inviteUsers(companyId, emails, null, accessToken);
+    }
+
+    @Override
+    public InviteEmployeesResponse inviteUsers(UUID companyId, List<String> emails, Boolean resendPending, String accessToken) throws CheqiApiException {
         validateAccessToken(accessToken);
         try {
             String url = buildUrl(Endpoints.COMPANY_INVITE_EMPLOYEES_ENDPOINT.getPath(companyId));
             String requestJson = objectMapper.writeValueAsString(
-                    new InviteEmployeeRequest().emails(new java.util.LinkedHashSet<>(emails)));
+                    new InviteEmployeeRequest().emails(new java.util.LinkedHashSet<>(emails)).resendPending(resendPending));
             Request request = buildJsonPostRequest(url, requestJson, accessToken);
             Response response = httpClient.newCall(request).execute();
-            responseHandler.handleVoidResponse(response, "Invite employees");
+            return responseHandler.handleJsonResponse(response, InviteEmployeesResponse.class, "Invite employees");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
             throw new CheqiApiException("Failed to invite employees: " + e.getMessage(), e, 0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
+        }
+    }
+
+    @Override
+    public List<DestinationResponse> listReceiptDestinations(String accessToken) throws CheqiApiException {
+        validateAccessToken(accessToken);
+        try {
+            Request request = buildGetRequest(buildUrl(Endpoints.RECEIPT_DESTINATIONS_ENDPOINT.getPath()), accessToken);
+            return responseHandler.handleJsonListResponse(httpClient.newCall(request).execute(), DestinationResponse.class, "List receipt destinations");
+        } catch (CheqiApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CheqiApiException("Failed to list receipt destinations: " + e.getMessage(), e, 0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
+        }
+    }
+
+    @Override
+    public RegisterResponse registerReceiptDestination(RegisterRequest destination, String accessToken) throws CheqiApiException {
+        validateAccessToken(accessToken);
+        try {
+            String json = objectMapper.writeValueAsString(destination);
+            Request request = buildJsonPostRequest(buildUrl(Endpoints.RECEIPT_DESTINATIONS_ENDPOINT.getPath()), json, accessToken);
+            return responseHandler.handleJsonResponse(httpClient.newCall(request).execute(), RegisterResponse.class, "Register receipt destination");
+        } catch (CheqiApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CheqiApiException("Failed to register receipt destination: " + e.getMessage(), e, 0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
+        }
+    }
+
+    @Override
+    public List<WebhookReceiptEnvelope> getPendingReceipts(UUID destinationId, String accessToken) throws CheqiApiException {
+        validateAccessToken(accessToken);
+        try {
+            Request request = buildGetRequest(buildUrl(Endpoints.RECEIPT_DESTINATION_QUEUE_ENDPOINT.getPath(destinationId)), accessToken);
+            return responseHandler.handleJsonListResponse(httpClient.newCall(request).execute(), WebhookReceiptEnvelope.class, "Get pending receipts");
+        } catch (CheqiApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CheqiApiException("Failed to get pending receipts: " + e.getMessage(), e, 0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
+        }
+    }
+
+    @Override
+    public void acknowledgeReceipts(UUID destinationId, List<String> receiptIds, String accessToken) throws CheqiApiException {
+        validateAccessToken(accessToken);
+        try {
+            String json = objectMapper.writeValueAsString(
+                    new AcknowledgeRequest().receiptIds(new java.util.LinkedHashSet<>(receiptIds)));
+            Request request = buildJsonPostRequest(
+                    buildUrl(Endpoints.RECEIPT_DESTINATION_ACKNOWLEDGE_ENDPOINT.getPath(destinationId)), json, accessToken);
+            responseHandler.handleVoidResponse(httpClient.newCall(request).execute(), "Acknowledge receipts");
+        } catch (CheqiApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CheqiApiException("Failed to acknowledge receipts: " + e.getMessage(), e, 0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
+        }
+    }
+
+    @Override
+    public void deactivateReceiptDestination(UUID destinationId, String accessToken) throws CheqiApiException {
+        validateAccessToken(accessToken);
+        try {
+            Request request = buildDeleteRequest(buildUrl(Endpoints.RECEIPT_DESTINATION_ENDPOINT.getPath(destinationId)), accessToken);
+            responseHandler.handleVoidResponse(httpClient.newCall(request).execute(), "Deactivate receipt destination");
+        } catch (CheqiApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CheqiApiException("Failed to deactivate receipt destination: " + e.getMessage(), e, 0,
+                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
+        }
+    }
+
+    @Override
+    public WebhookDTO updateWebhookSubscriptionUrl(UUID subscriptionId, String notificationUrl, String accessToken) throws CheqiApiException {
+        validateAccessToken(accessToken);
+        try {
+            String json = objectMapper.writeValueAsString(new UpdateSubscriptionRequest().notificationUrl(notificationUrl));
+            Request request = buildJsonPatchRequest(
+                    buildUrl(Endpoints.WEBHOOK_SUBSCRIPTION_ENDPOINT.getPath(subscriptionId)), json, accessToken);
+            return responseHandler.handleJsonResponse(httpClient.newCall(request).execute(), WebhookDTO.class, "Update webhook subscription URL");
+        } catch (CheqiApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CheqiApiException("Failed to update webhook subscription URL: " + e.getMessage(), e, 0,
                     CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
         }
     }
@@ -709,6 +804,17 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
                 .url(url)
                 .patch(body)
                 .addHeader("Authorization", "Bearer " + accessToken)
+                .addHeader("User-Agent", USER_AGENT)
+                .build();
+    }
+
+    private Request buildJsonPatchRequest(String url, String requestBody, String accessToken) {
+        return new Request.Builder()
+                .url(url)
+                .patch(RequestBody.create(requestBody, JSON))
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "application/json")
                 .addHeader("User-Agent", USER_AGENT)
                 .build();
     }

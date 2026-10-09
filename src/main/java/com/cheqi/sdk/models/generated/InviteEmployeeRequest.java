@@ -32,7 +32,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * Invitation request with email addresses
  */
 @JsonPropertyOrder({
-  InviteEmployeeRequest.JSON_PROPERTY_EMAILS
+  InviteEmployeeRequest.JSON_PROPERTY_EMAILS,
+  InviteEmployeeRequest.JSON_PROPERTY_RESEND_PENDING
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -40,6 +41,10 @@ public class InviteEmployeeRequest {
   public static final String JSON_PROPERTY_EMAILS = "emails";
   @javax.annotation.Nonnull
   private Set<String> emails = new LinkedHashSet<>();
+
+  public static final String JSON_PROPERTY_RESEND_PENDING = "resendPending";
+  @javax.annotation.Nullable
+  private Boolean resendPending;
 
   public InviteEmployeeRequest() { 
   }
@@ -77,6 +82,30 @@ public class InviteEmployeeRequest {
   }
 
 
+  public InviteEmployeeRequest resendPending(@javax.annotation.Nullable Boolean resendPending) {
+    this.resendPending = resendPending;
+    return this;
+  }
+
+  /**
+   * Get resendPending
+   * @return resendPending
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_RESEND_PENDING)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getResendPending() {
+    return resendPending;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_RESEND_PENDING)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setResendPending(@javax.annotation.Nullable Boolean resendPending) {
+    this.resendPending = resendPending;
+  }
+
+
   /**
    * Return true if this InviteEmployeeRequest object is equal to o.
    */
@@ -89,12 +118,13 @@ public class InviteEmployeeRequest {
       return false;
     }
     InviteEmployeeRequest inviteEmployeeRequest = (InviteEmployeeRequest) o;
-    return Objects.equals(this.emails, inviteEmployeeRequest.emails);
+    return Objects.equals(this.emails, inviteEmployeeRequest.emails) &&
+        Objects.equals(this.resendPending, inviteEmployeeRequest.resendPending);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(emails);
+    return Objects.hash(emails, resendPending);
   }
 
   @Override
@@ -102,6 +132,7 @@ public class InviteEmployeeRequest {
     StringBuilder sb = new StringBuilder();
     sb.append("class InviteEmployeeRequest {\n");
     sb.append("    emails: ").append(toIndentedString(emails)).append("\n");
+    sb.append("    resendPending: ").append(toIndentedString(resendPending)).append("\n");
     sb.append("}");
     return sb.toString();
   }

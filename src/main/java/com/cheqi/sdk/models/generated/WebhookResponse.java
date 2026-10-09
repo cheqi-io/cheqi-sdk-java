@@ -33,7 +33,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({
   WebhookResponse.JSON_PROPERTY_CREATED_WEBHOOKS,
-  WebhookResponse.JSON_PROPERTY_FAILED_EVENTS
+  WebhookResponse.JSON_PROPERTY_FAILED_EVENTS,
+  WebhookResponse.JSON_PROPERTY_EXISTING_WEBHOOKS
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -45,6 +46,10 @@ public class WebhookResponse {
   public static final String JSON_PROPERTY_FAILED_EVENTS = "failedEvents";
   @javax.annotation.Nullable
   private List<String> failedEvents = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_EXISTING_WEBHOOKS = "existingWebhooks";
+  @javax.annotation.Nullable
+  private List<WebhookDTO> existingWebhooks = new ArrayList<>();
 
   public WebhookResponse() { 
   }
@@ -113,6 +118,38 @@ public class WebhookResponse {
   }
 
 
+  public WebhookResponse existingWebhooks(@javax.annotation.Nullable List<WebhookDTO> existingWebhooks) {
+    this.existingWebhooks = existingWebhooks;
+    return this;
+  }
+
+  public WebhookResponse addExistingWebhooksItem(WebhookDTO existingWebhooksItem) {
+    if (this.existingWebhooks == null) {
+      this.existingWebhooks = new ArrayList<>();
+    }
+    this.existingWebhooks.add(existingWebhooksItem);
+    return this;
+  }
+
+  /**
+   * Get existingWebhooks
+   * @return existingWebhooks
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_EXISTING_WEBHOOKS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<WebhookDTO> getExistingWebhooks() {
+    return existingWebhooks;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXISTING_WEBHOOKS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExistingWebhooks(@javax.annotation.Nullable List<WebhookDTO> existingWebhooks) {
+    this.existingWebhooks = existingWebhooks;
+  }
+
+
   /**
    * Return true if this WebhookResponse object is equal to o.
    */
@@ -126,12 +163,13 @@ public class WebhookResponse {
     }
     WebhookResponse webhookResponse = (WebhookResponse) o;
     return Objects.equals(this.createdWebhooks, webhookResponse.createdWebhooks) &&
-        Objects.equals(this.failedEvents, webhookResponse.failedEvents);
+        Objects.equals(this.failedEvents, webhookResponse.failedEvents) &&
+        Objects.equals(this.existingWebhooks, webhookResponse.existingWebhooks);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(createdWebhooks, failedEvents);
+    return Objects.hash(createdWebhooks, failedEvents, existingWebhooks);
   }
 
   @Override
@@ -140,6 +178,7 @@ public class WebhookResponse {
     sb.append("class WebhookResponse {\n");
     sb.append("    createdWebhooks: ").append(toIndentedString(createdWebhooks)).append("\n");
     sb.append("    failedEvents: ").append(toIndentedString(failedEvents)).append("\n");
+    sb.append("    existingWebhooks: ").append(toIndentedString(existingWebhooks)).append("\n");
     sb.append("}");
     return sb.toString();
   }

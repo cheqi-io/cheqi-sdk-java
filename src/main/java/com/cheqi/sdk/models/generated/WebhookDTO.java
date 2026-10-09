@@ -30,16 +30,22 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * WebhookDTO
  */
 @JsonPropertyOrder({
+  WebhookDTO.JSON_PROPERTY_ID,
   WebhookDTO.JSON_PROPERTY_NAME,
   WebhookDTO.JSON_PROPERTY_NOTIFICATION_URL,
   WebhookDTO.JSON_PROPERTY_EVENT,
   WebhookDTO.JSON_PROPERTY_CLIENT_APPLICATION_ID,
   WebhookDTO.JSON_PROPERTY_USER_ID,
-  WebhookDTO.JSON_PROPERTY_COMPANY_ID
+  WebhookDTO.JSON_PROPERTY_COMPANY_ID,
+  WebhookDTO.JSON_PROPERTY_DESTINATION_ID
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class WebhookDTO {
+  public static final String JSON_PROPERTY_ID = "id";
+  @javax.annotation.Nullable
+  private UUID id;
+
   public static final String JSON_PROPERTY_NAME = "name";
   @javax.annotation.Nullable
   private String name;
@@ -64,8 +70,36 @@ public class WebhookDTO {
   @javax.annotation.Nullable
   private String companyId;
 
+  public static final String JSON_PROPERTY_DESTINATION_ID = "destinationId";
+  @javax.annotation.Nullable
+  private UUID destinationId;
+
   public WebhookDTO() { 
   }
+
+  public WebhookDTO id(@javax.annotation.Nullable UUID id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * Get id
+   * @return id
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public UUID getId() {
+    return id;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setId(@javax.annotation.Nullable UUID id) {
+    this.id = id;
+  }
+
 
   public WebhookDTO name(@javax.annotation.Nullable String name) {
     this.name = name;
@@ -211,6 +245,30 @@ public class WebhookDTO {
   }
 
 
+  public WebhookDTO destinationId(@javax.annotation.Nullable UUID destinationId) {
+    this.destinationId = destinationId;
+    return this;
+  }
+
+  /**
+   * Get destinationId
+   * @return destinationId
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DESTINATION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public UUID getDestinationId() {
+    return destinationId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DESTINATION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDestinationId(@javax.annotation.Nullable UUID destinationId) {
+    this.destinationId = destinationId;
+  }
+
+
   /**
    * Return true if this WebhookDTO object is equal to o.
    */
@@ -223,29 +281,33 @@ public class WebhookDTO {
       return false;
     }
     WebhookDTO webhookDTO = (WebhookDTO) o;
-    return Objects.equals(this.name, webhookDTO.name) &&
+    return Objects.equals(this.id, webhookDTO.id) &&
+        Objects.equals(this.name, webhookDTO.name) &&
         Objects.equals(this.notificationUrl, webhookDTO.notificationUrl) &&
         Objects.equals(this.event, webhookDTO.event) &&
         Objects.equals(this.clientApplicationId, webhookDTO.clientApplicationId) &&
         Objects.equals(this.userId, webhookDTO.userId) &&
-        Objects.equals(this.companyId, webhookDTO.companyId);
+        Objects.equals(this.companyId, webhookDTO.companyId) &&
+        Objects.equals(this.destinationId, webhookDTO.destinationId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, notificationUrl, event, clientApplicationId, userId, companyId);
+    return Objects.hash(id, name, notificationUrl, event, clientApplicationId, userId, companyId, destinationId);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class WebhookDTO {\n");
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    notificationUrl: ").append(toIndentedString(notificationUrl)).append("\n");
     sb.append("    event: ").append(toIndentedString(event)).append("\n");
     sb.append("    clientApplicationId: ").append(toIndentedString(clientApplicationId)).append("\n");
     sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("    companyId: ").append(toIndentedString(companyId)).append("\n");
+    sb.append("    destinationId: ").append(toIndentedString(destinationId)).append("\n");
     sb.append("}");
     return sb.toString();
   }
