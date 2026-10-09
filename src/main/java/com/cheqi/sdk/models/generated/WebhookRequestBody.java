@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -33,7 +34,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
   WebhookRequestBody.JSON_PROPERTY_NAME,
   WebhookRequestBody.JSON_PROPERTY_EVENTS,
-  WebhookRequestBody.JSON_PROPERTY_NOTIFICATION_URL
+  WebhookRequestBody.JSON_PROPERTY_NOTIFICATION_URL,
+  WebhookRequestBody.JSON_PROPERTY_DESTINATION_ID
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -88,6 +90,10 @@ public class WebhookRequestBody {
   public static final String JSON_PROPERTY_NOTIFICATION_URL = "notificationUrl";
   @javax.annotation.Nullable
   private String notificationUrl;
+
+  public static final String JSON_PROPERTY_DESTINATION_ID = "destinationId";
+  @javax.annotation.Nullable
+  private UUID destinationId;
 
   public WebhookRequestBody() { 
   }
@@ -172,6 +178,30 @@ public class WebhookRequestBody {
   }
 
 
+  public WebhookRequestBody destinationId(@javax.annotation.Nullable UUID destinationId) {
+    this.destinationId = destinationId;
+    return this;
+  }
+
+  /**
+   * Get destinationId
+   * @return destinationId
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DESTINATION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public UUID getDestinationId() {
+    return destinationId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DESTINATION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDestinationId(@javax.annotation.Nullable UUID destinationId) {
+    this.destinationId = destinationId;
+  }
+
+
   /**
    * Return true if this WebhookRequestBody object is equal to o.
    */
@@ -186,12 +216,13 @@ public class WebhookRequestBody {
     WebhookRequestBody webhookRequestBody = (WebhookRequestBody) o;
     return Objects.equals(this.name, webhookRequestBody.name) &&
         Objects.equals(this.events, webhookRequestBody.events) &&
-        Objects.equals(this.notificationUrl, webhookRequestBody.notificationUrl);
+        Objects.equals(this.notificationUrl, webhookRequestBody.notificationUrl) &&
+        Objects.equals(this.destinationId, webhookRequestBody.destinationId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, events, notificationUrl);
+    return Objects.hash(name, events, notificationUrl, destinationId);
   }
 
   @Override
@@ -201,6 +232,7 @@ public class WebhookRequestBody {
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    events: ").append(toIndentedString(events)).append("\n");
     sb.append("    notificationUrl: ").append(toIndentedString(notificationUrl)).append("\n");
+    sb.append("    destinationId: ").append(toIndentedString(destinationId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

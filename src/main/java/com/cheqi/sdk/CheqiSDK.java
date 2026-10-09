@@ -2,6 +2,7 @@ package com.cheqi.sdk;
 
 import com.cheqi.sdk.company.StoreService;
 import com.cheqi.sdk.company.CompanyService;
+import com.cheqi.sdk.company.WebhookService;
 import com.cheqi.sdk.config.CheqiSDKConfig;
 import com.cheqi.sdk.config.Environment;
 import com.cheqi.sdk.creditNote.CreditNoteService;
@@ -42,6 +43,7 @@ public class CheqiSDK {
     private final ReceiptService receiptService;
     private final StoreService storeService;
     private final CompanyService companyService;
+    private final WebhookService webhookService;
     private final VerificationService verificationService;
     private final CreditNoteService creditNoteService;
 
@@ -63,6 +65,7 @@ public class CheqiSDK {
         );
         this.storeService = new StoreService(apiClient);
         this.companyService = new CompanyService(apiClient);
+        this.webhookService = new WebhookService(apiClient);
         this.creditNoteService = new CreditNoteService(apiClient, encryptionService, matchingService);
     }
 
@@ -154,6 +157,10 @@ public class CheqiSDK {
     /** Gets company management operations. */
     public CompanyService getCompanyService() {
         return companyService;
+    }
+
+    public WebhookService getWebhookService() {
+        return webhookService;
     }
 
     /**

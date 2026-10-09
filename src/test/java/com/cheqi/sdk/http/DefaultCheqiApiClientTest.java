@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,20 +23,58 @@ class DefaultCheqiApiClientTest {
     private static final ObjectMapper OBJECT_MAPPER = ObjectMapperConfig.getInstance();
 
     @Test
-    void inviteUsersPostsEmailsAndAcceptsEmptySuccess() throws Exception {
+    void inviteUsersPostsEmailsAndReturnsOutcomes() throws Exception {
         var companyId = java.util.UUID.randomUUID();
         AtomicReference<String> body = new AtomicReference<>();
         AtomicReference<String> authorization = new AtomicReference<>();
         HttpServer server = httpServer("/company/" + companyId + "/invite/employees", exchange -> {
             authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
             body.set(new String(exchange.getRequestBody().readAllBytes()));
-            send(exchange, 200, "");
+            send(exchange, 200, "{\"invitedEmails\":[\"employee@example.com\"],\"pendingEmails\":[],\"existingMembers\":[]}");
         });
         try {
-            new DefaultCheqiApiClient(configFor(server))
-                    .inviteUsers(companyId, List.of("employee@example.com"), "oauth-token");
+            InviteEmployeesResponse result = new DefaultCheqiApiClient(configFor(server))
+                    .inviteUsers(companyId, List.of("employee@example.com"), true, "oauth-token");
             assertEquals("Bearer oauth-token", authorization.get());
             assertEquals("employee@example.com", OBJECT_MAPPER.readTree(body.get()).at("/emails/0").asText());
+            assertEquals(true, OBJECT_MAPPER.readTree(body.get()).at("/resendPending").asBoolean());
+            assertEquals(List.of("employee@example.com"), result.getInvitedEmails());
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void receiptDestinationAndWebhookMethodsUseProductionRoutes() throws Exception {
+        var destinationId = java.util.UUID.randomUUID();
+        var subscriptionId = java.util.UUID.randomUUID();
+        List<String> calls = new ArrayList<>();
+        List<String> bodies = new ArrayList<>();
+        HttpServer server = httpServer("/", exchange -> {
+            String path = exchange.getRequestURI().getPath();
+            calls.add(exchange.getRequestMethod() + " " + path);
+            bodies.add(new String(exchange.getRequestBody().readAllBytes()));
+            String response = calls.size() == 1 || calls.size() == 3 ? "[]" : "{}";
+            send(exchange, 200, response);
+        });
+        try {
+            var client = new DefaultCheqiApiClient(configFor(server));
+            assertEquals(List.of(), client.listReceiptDestinations("oauth-token"));
+            client.registerReceiptDestination(new RegisterRequest().name("ERP").publicKey("key").keyAlgorithm("RSA"), "oauth-token");
+            assertEquals(List.of(), client.getPendingReceipts(destinationId, "oauth-token"));
+            client.acknowledgeReceipts(destinationId, List.of("receipt-1"), "oauth-token");
+            client.deactivateReceiptDestination(destinationId, "oauth-token");
+            client.updateWebhookSubscriptionUrl(subscriptionId, "https://example.com/hook", "oauth-token");
+            assertEquals(List.of(
+                    "GET /company/receipt-destinations",
+                    "POST /company/receipt-destinations",
+                    "GET /company/receipt-destinations/" + destinationId + "/receipts/queue",
+                    "POST /company/receipt-destinations/" + destinationId + "/receipts/queue/acknowledge",
+                    "DELETE /company/receipt-destinations/" + destinationId,
+                    "PATCH /webhook/subscription/" + subscriptionId
+            ), calls);
+            assertEquals("receipt-1", OBJECT_MAPPER.readTree(bodies.get(3)).at("/receiptIds/0").asText());
+            assertEquals("https://example.com/hook", OBJECT_MAPPER.readTree(bodies.get(5)).at("/notificationUrl").asText());
         } finally {
             server.stop(0);
         }
