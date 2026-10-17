@@ -60,7 +60,7 @@ class ReceiptServiceTest {
                 .routeFound(true)
                 .matchId("match-123")
                 .recipients(List.of(first, second));
-        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any()))
                 .thenReturn(resolution);
 
         EncryptedReceiptPayload firstDelivery = encrypted("device-1", "cipher-1");
@@ -68,7 +68,7 @@ class ReceiptServiceTest {
         encryptionService.deliveries = List.of(firstDelivery, secondDelivery);
 
         OffsetDateTime createdAt = OffsetDateTime.parse("2026-07-29T10:15:30Z");
-        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class)))
+        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class), org.mockito.ArgumentMatchers.any()))
                 .thenReturn(new ReceiptSubmissionResponse()
                         .cheqiReceiptId("CHQ-123")
                         .matchId("match-123")
@@ -100,7 +100,7 @@ class ReceiptServiceTest {
 
         ArgumentCaptor<EncryptedReceiptEnvelope> envelope =
                 ArgumentCaptor.forClass(EncryptedReceiptEnvelope.class);
-        verify(apiClient).submitEncryptedReceipt(envelope.capture());
+        verify(apiClient).submitEncryptedReceipt(envelope.capture(), org.mockito.ArgumentMatchers.any());
         assertEquals("match-123", envelope.getValue().getMatchId());
         assertEquals(storeId, envelope.getValue().getStoreId());
         assertEquals(List.of(firstDelivery, secondDelivery), envelope.getValue().getDeviceDeliveries());
@@ -108,7 +108,7 @@ class ReceiptServiceTest {
 
     @Test
     void doesNotEncryptOrSubmitWhenNoOwnerDeviceRouteExists() throws Exception {
-        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any()))
                 .thenReturn(new RecipientResolutionResponse().routeFound(false));
 
         assertThrows(
@@ -126,10 +126,10 @@ class ReceiptServiceTest {
                 .routeFound(true)
                 .deliveryRouteType(RecipientResolutionResponse.DeliveryRouteTypeEnum.DOWNLOAD_FALLBACK)
                 .matchId("match-download");
-        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any()))
                 .thenReturn(resolution);
         when(apiClient.uploadEncryptedDownloadReceipt(
-                org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class)
+                org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class), org.mockito.ArgumentMatchers.any()
         )).thenReturn(new ClientReceiptDownloadResponse().cheqiReceiptId("CHQ-DL"));
 
         DownloadService downloads = new DownloadService();
@@ -158,7 +158,7 @@ class ReceiptServiceTest {
         DownloadLink link = downloads.parseDownloadUrl(result.getDownloadUrl());
         ArgumentCaptor<ClientReceiptDownloadRequest> upload =
                 ArgumentCaptor.forClass(ClientReceiptDownloadRequest.class);
-        verify(apiClient).uploadEncryptedDownloadReceipt(upload.capture());
+        verify(apiClient).uploadEncryptedDownloadReceipt(upload.capture(), org.mockito.ArgumentMatchers.any());
         ReceiptEnvelope envelope = downloads.decryptDownloadEnvelope(
                 upload.getValue().getCiphertext(),
                 link.getContentKey()
@@ -182,7 +182,7 @@ class ReceiptServiceTest {
     void explicitCashDownloadDoesNotAttemptCustomerMatching() throws Exception {
         when(apiClient.uploadEncryptedDownloadReceipt(
                 org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class),
-                org.mockito.ArgumentMatchers.eq("company-token")
+                org.mockito.ArgumentMatchers.eq(com.cheqi.sdk.http.RequestOptions.withAccessToken("company-token"))
         )).thenReturn(new ClientReceiptDownloadResponse().cheqiReceiptId("CHQ-CASH"));
         DownloadService downloads = new DownloadService();
         service = new ReceiptService(
@@ -196,7 +196,7 @@ class ReceiptServiceTest {
         ReceiptResult result = service.issueDownloadReceipt(
                 new IdentificationDetails().paymentType(PaymentType.CASH),
                 receipt(),
-                "company-token"
+                com.cheqi.sdk.http.RequestOptions.withAccessToken("company-token")
         );
 
         assertTrue(result.isAccepted());
@@ -207,12 +207,12 @@ class ReceiptServiceTest {
         );
         verify(apiClient, never()).matchCustomer(
                 org.mockito.ArgumentMatchers.any(IdentificationDetails.class),
-                org.mockito.ArgumentMatchers.anyString()
+                org.mockito.ArgumentMatchers.any()
         );
         ArgumentCaptor<ClientReceiptDownloadRequest> upload =
                 ArgumentCaptor.forClass(ClientReceiptDownloadRequest.class);
         verify(apiClient).uploadEncryptedDownloadReceipt(upload.capture(),
-                org.mockito.ArgumentMatchers.eq("company-token"));
+                org.mockito.ArgumentMatchers.eq(com.cheqi.sdk.http.RequestOptions.withAccessToken("company-token")));
         DownloadLink link = downloads.parseDownloadUrl(result.getDownloadUrl());
         ReceiptEnvelope envelope = downloads.decryptDownloadEnvelope(
                 upload.getValue().getCiphertext(),
@@ -224,7 +224,7 @@ class ReceiptServiceTest {
     }
 
     private void digitalMatch() throws Exception {
-        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any()))
                 .thenReturn(new RecipientResolutionResponse().routeFound(true).matchId("match-123")
                         .deliveryRouteType(RecipientResolutionResponse.DeliveryRouteTypeEnum.DIGITAL)
                         .recipients(List.of(new MatchedRecipient().id("device-1").publicKey("key-1"))));
@@ -239,7 +239,7 @@ class ReceiptServiceTest {
     @Test
     void submissionTimeoutReturnsDigitalPendingWithDurableFallbackAndNoMatchingIdentifiers() throws Exception {
         digitalMatch();
-        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class)))
+        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class), org.mockito.ArgumentMatchers.any()))
                 .thenThrow(networkError());
         var identification = new IdentificationDetails().paymentType(PaymentType.CARD_PAYMENT)
                 .cardDetails(new CardDetails().paymentAccountReference("PAR-not-retained"));
@@ -261,12 +261,12 @@ class ReceiptServiceTest {
         assertTrue(!json.contains("identificationDetails"));
         assertEquals("R-100", ObjectMapperConfig.getInstance().readTree(json).get("documentNumber").asText());
         verify(apiClient, never()).uploadEncryptedDownloadReceipt(
-                org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class));
+                org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
     void unreachableMatchingReturnsLocalDownloadWithoutAMatchOrBlockingUpload() throws Exception {
-        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any()))
                 .thenThrow(networkError());
         var result = service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), receipt());
         assertEquals(ReceiptIssueState.DOWNLOAD_FALLBACK, result.getState());
@@ -275,13 +275,13 @@ class ReceiptServiceTest {
         assertTrue(result.isRetryable());
         assertTrue(encryptionService.plaintexts.isEmpty());
         verify(apiClient, never()).uploadEncryptedDownloadReceipt(
-                org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class));
+                org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
     void inProgressSubmissionReturnsPendingAndRetryDelay() throws Exception {
         digitalMatch();
-        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class)))
+        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class), org.mockito.ArgumentMatchers.any()))
                 .thenThrow(new com.cheqi.sdk.http.exceptions.SubmissionInProgressException(2));
         var result = service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), receipt());
         assertEquals(ReceiptIssueState.DIGITAL_PENDING, result.getState());
@@ -291,7 +291,7 @@ class ReceiptServiceTest {
     @Test
     void permanentMatchingAndSubmissionErrorsStillThrowWithApiDetails() throws Exception {
         for (int status : List.of(400, 401, 403)) {
-            when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+            when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any()))
                     .thenThrow(new com.cheqi.sdk.http.exceptions.CheqiApiException("permanent", status, "API_ERROR", "correlation"));
             var error = assertThrows(com.cheqi.sdk.exceptions.CheqiSDKException.class,
                     () -> service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), receipt()));
@@ -303,7 +303,7 @@ class ReceiptServiceTest {
         digitalMatch();
         for (int status : List.of(400, 401, 403, 404)) {
             encryptionService.plaintexts.clear();
-            when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class)))
+            when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class), org.mockito.ArgumentMatchers.any()))
                     .thenThrow(new com.cheqi.sdk.http.exceptions.CheqiApiException("permanent", status, "API_ERROR", null));
             var error = assertThrows(com.cheqi.sdk.exceptions.CheqiSDKException.class,
                     () -> service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), receipt()));
@@ -315,21 +315,21 @@ class ReceiptServiceTest {
     void resumeRecoversOriginalSubmissionWithoutMatchingOrEncryption() throws Exception {
         var submitted = new ReceiptSubmissionResponse().cheqiReceiptId("CHQ-original").matchId("match-123")
                 .status(ReceiptSubmissionResponse.StatusEnum.PENDING);
-        when(apiClient.getMatch("match-123")).thenReturn(new com.cheqi.sdk.models.generated.MatchStatusResponse()
+        when(apiClient.getMatch(org.mockito.ArgumentMatchers.eq("match-123"), org.mockito.ArgumentMatchers.any())).thenReturn(new com.cheqi.sdk.models.generated.MatchStatusResponse()
                 .matchId("match-123").state(com.cheqi.sdk.models.generated.MatchState.SUBMITTED).submission(submitted));
         var result = service.resumeReceipt("match-123", receipt());
         assertEquals(ReceiptIssueState.DIGITAL_SUBMITTED, result.getState());
         assertEquals(submitted, result.getSubmission());
         assertTrue(!result.isRetryable());
         assertTrue(encryptionService.plaintexts.isEmpty());
-        verify(apiClient, never()).matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class));
-        verify(apiClient, never()).submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class));
+        verify(apiClient, never()).matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any());
+        verify(apiClient, never()).submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
     void resumeMatchedRegeneratesCiphertextUsingOnlyMatchIdAndPayloadWithCompanyToken() throws Exception {
         var recipient = new MatchedRecipient().id("original-device").publicKey("original-key");
-        when(apiClient.getMatch("match-123", "rotated-token"))
+        when(apiClient.getMatch("match-123", com.cheqi.sdk.http.RequestOptions.withAccessToken("rotated-token")))
                 .thenReturn(new com.cheqi.sdk.models.generated.MatchStatusResponse().matchId("match-123")
                         .state(com.cheqi.sdk.models.generated.MatchState.MATCHED)
                         .route(com.cheqi.sdk.models.generated.MatchStatusResponse.RouteEnum.DIGITAL)
@@ -337,37 +337,37 @@ class ReceiptServiceTest {
         encryptionService.deliveries = List.of(encrypted("original-device", "regenerated-ciphertext"));
         var submitted = new ReceiptSubmissionResponse().matchId("match-123").cheqiReceiptId("CHQ-recovered");
         when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class),
-                org.mockito.ArgumentMatchers.eq("rotated-token"))).thenReturn(submitted);
+                org.mockito.ArgumentMatchers.eq(com.cheqi.sdk.http.RequestOptions.withAccessToken("rotated-token")))).thenReturn(submitted);
         var storeId = UUID.randomUUID();
-        var result = service.resumeReceipt("match-123", receipt(), storeId, "rotated-token");
+        var result = service.resumeReceipt("match-123", receipt(), storeId, com.cheqi.sdk.http.RequestOptions.withAccessToken("rotated-token"));
         assertEquals(ReceiptIssueState.DIGITAL_SUBMITTED, result.getState());
         assertEquals(List.of(recipient), encryptionService.recipients);
         var captor = ArgumentCaptor.forClass(EncryptedReceiptEnvelope.class);
-        verify(apiClient).submitEncryptedReceipt(captor.capture(), org.mockito.ArgumentMatchers.eq("rotated-token"));
+        verify(apiClient).submitEncryptedReceipt(captor.capture(), org.mockito.ArgumentMatchers.eq(com.cheqi.sdk.http.RequestOptions.withAccessToken("rotated-token")));
         assertEquals(storeId, captor.getValue().getStoreId());
         assertEquals("match-123", captor.getValue().getMatchId());
         assertEquals("regenerated-ciphertext", captor.getValue().getDeviceDeliveries().get(0).getEncryptedContent());
         assertTrue(!encryptionService.plaintexts.get(0).contains("identificationDetails"));
         verify(apiClient, never()).matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class),
-                org.mockito.ArgumentMatchers.anyString());
+                org.mockito.ArgumentMatchers.any());
     }
 
     @Test
     void resumeInProgressAndNetworkFailureReturnPendingWithoutNewQr() throws Exception {
-        when(apiClient.getMatch("match-123")).thenReturn(new com.cheqi.sdk.models.generated.MatchStatusResponse()
+        when(apiClient.getMatch(org.mockito.ArgumentMatchers.eq("match-123"), org.mockito.ArgumentMatchers.any())).thenReturn(new com.cheqi.sdk.models.generated.MatchStatusResponse()
                 .matchId("match-123").state(com.cheqi.sdk.models.generated.MatchState.IN_PROGRESS).retryAfterSeconds(2));
         var result = service.resumeReceipt("match-123", receipt());
         assertEquals(ReceiptIssueState.DIGITAL_PENDING, result.getState());
         assertEquals(2, result.getRetryAfterSeconds());
         assertEquals(null, result.getDownloadUrl());
-        when(apiClient.getMatch("match-123")).thenThrow(networkError());
+        when(apiClient.getMatch(org.mockito.ArgumentMatchers.eq("match-123"), org.mockito.ArgumentMatchers.any())).thenThrow(networkError());
         assertEquals(ReceiptIssueState.DIGITAL_PENDING, service.resumeReceipt("match-123", receipt()).getState());
         assertTrue(encryptionService.plaintexts.isEmpty());
     }
 
     @Test
     void resumeExpiredIsTypedAndUnauthorizedMatchStillThrows() throws Exception {
-        when(apiClient.getMatch("match-123")).thenReturn(new com.cheqi.sdk.models.generated.MatchStatusResponse()
+        when(apiClient.getMatch(org.mockito.ArgumentMatchers.eq("match-123"), org.mockito.ArgumentMatchers.any())).thenReturn(new com.cheqi.sdk.models.generated.MatchStatusResponse()
                 .matchId("match-123").state(com.cheqi.sdk.models.generated.MatchState.EXPIRED));
         var expired = service.resumeReceipt("match-123", receipt());
         assertEquals(ReceiptIssueState.DIGITAL_EXPIRED, expired.getState());
@@ -375,17 +375,17 @@ class ReceiptServiceTest {
         assertTrue(!expired.isRetryable());
         assertTrue(!expired.isAccepted());
         assertTrue(encryptionService.plaintexts.isEmpty());
-        verify(apiClient, never()).submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class));
-        when(apiClient.getMatch("match-123")).thenThrow(
+        verify(apiClient, never()).submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class), org.mockito.ArgumentMatchers.any());
+        when(apiClient.getMatch(org.mockito.ArgumentMatchers.eq("match-123"), org.mockito.ArgumentMatchers.any())).thenThrow(
                 new com.cheqi.sdk.http.exceptions.CheqiApiException("Match not found", 404, "NOT_FOUND", null));
         assertEquals(404, assertThrows(com.cheqi.sdk.exceptions.CheqiSDKException.class,
                 () -> service.resumeReceipt("match-123", receipt())).getHttpStatusCode());
-        verify(apiClient, never()).matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class));
+        verify(apiClient, never()).matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
     void preparedDownloadCanBePersistedAndUploadedRepeatedlyWithoutChangingQrOrCiphertext() throws Exception {
-        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any()))
                 .thenThrow(networkError());
         var result = service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), receipt());
         var mapper = ObjectMapperConfig.getInstance();
@@ -393,12 +393,12 @@ class ReceiptServiceTest {
         var restored = mapper.readValue(mapper.writeValueAsString(original), PreparedReceiptDownload.class);
         assertEquals(original.getDownloadUrl(), restored.getDownloadUrl());
         assertEquals(original.getCiphertext(), restored.getCiphertext());
-        when(apiClient.uploadEncryptedDownloadReceipt(org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class)))
+        when(apiClient.uploadEncryptedDownloadReceipt(org.mockito.ArgumentMatchers.any(ClientReceiptDownloadRequest.class), org.mockito.ArgumentMatchers.any()))
                 .thenThrow(networkError()).thenReturn(new ClientReceiptDownloadResponse().cheqiReceiptId("CHQ-DL"));
         assertThrows(com.cheqi.sdk.exceptions.CheqiSDKException.class, () -> service.uploadPreparedDownload(restored));
         assertEquals("CHQ-DL", service.uploadPreparedDownload(restored).getCheqiReceiptId());
         var requests = ArgumentCaptor.forClass(ClientReceiptDownloadRequest.class);
-        verify(apiClient, org.mockito.Mockito.times(2)).uploadEncryptedDownloadReceipt(requests.capture());
+        verify(apiClient, org.mockito.Mockito.times(2)).uploadEncryptedDownloadReceipt(requests.capture(), org.mockito.ArgumentMatchers.any());
         for (var request : requests.getAllValues()) {
             assertEquals(original.getDownloadId(), request.getDownloadId());
             assertEquals(original.getCiphertext(), request.getCiphertext());
@@ -448,7 +448,7 @@ class ReceiptServiceTest {
         digitalMatch();
         for (int status : List.of(0, 202)) {
             encryptionService.plaintexts.clear();
-            when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class)))
+            when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class), org.mockito.ArgumentMatchers.any()))
                     .thenThrow(new com.cheqi.sdk.http.exceptions.CheqiApiException("Invalid response", status,
                             com.cheqi.sdk.http.exceptions.CheqiApiException.ErrorCodes.INVALID_RESPONSE, null));
             var result = service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), receipt());
@@ -458,7 +458,7 @@ class ReceiptServiceTest {
             assertTrue(result.getDownloadUrl() != null);
             assertTrue(result.getPreparedDownload() != null);
         }
-        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class)))
+        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class), org.mockito.ArgumentMatchers.any()))
                 .thenReturn(null);
         encryptionService.plaintexts.clear();
         assertEquals(ReceiptIssueState.DIGITAL_PENDING,
@@ -468,14 +468,14 @@ class ReceiptServiceTest {
     @Test
     void submissionExpiryRaceReturnsTypedNonRetryableOutcome() throws Exception {
         digitalMatch();
-        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class)))
+        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(EncryptedReceiptEnvelope.class), org.mockito.ArgumentMatchers.any()))
                 .thenThrow(new com.cheqi.sdk.http.exceptions.CheqiApiException("Expired", 410, "MATCH_EXPIRED", null));
         var result = service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), receipt());
         assertEquals(ReceiptIssueState.DIGITAL_EXPIRED, result.getState());
         assertEquals("match-123", result.getMatchId());
         assertTrue(!result.isRetryable());
         assertTrue(!result.isAccepted());
-        when(apiClient.getMatch("match-123")).thenReturn(new com.cheqi.sdk.models.generated.MatchStatusResponse()
+        when(apiClient.getMatch(org.mockito.ArgumentMatchers.eq("match-123"), org.mockito.ArgumentMatchers.any())).thenReturn(new com.cheqi.sdk.models.generated.MatchStatusResponse()
                 .matchId("match-123").state(com.cheqi.sdk.models.generated.MatchState.MATCHED)
                 .route(com.cheqi.sdk.models.generated.MatchStatusResponse.RouteEnum.DIGITAL)
                 .recipients(List.of(new MatchedRecipient().id("device-1").publicKey("key-1"))));
@@ -489,7 +489,7 @@ class ReceiptServiceTest {
                 .deviceDeliveries(List.of(encrypted("device-1", "ciphertext")));
         var apiError = new com.cheqi.sdk.http.exceptions.CheqiApiException(
                 "Unauthorized", 401, "AUTHENTICATION_FAILED", "correlation-123");
-        when(apiClient.submitEncryptedReceipt(envelope)).thenThrow(apiError);
+        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.eq(envelope), org.mockito.ArgumentMatchers.any())).thenThrow(apiError);
         var error = assertThrows(com.cheqi.sdk.exceptions.CheqiSDKException.class,
                 () -> service.submitEncryptedReceipt(envelope));
         assertEquals("AUTHENTICATION_FAILED", error.getErrorCode());
@@ -499,9 +499,10 @@ class ReceiptServiceTest {
         assertEquals(null, error.getRetryAfterSeconds());
 
         var inProgress = new com.cheqi.sdk.http.exceptions.SubmissionInProgressException(7);
-        when(apiClient.submitEncryptedReceipt(envelope, "token")).thenThrow(inProgress);
+        org.mockito.Mockito.doThrow(inProgress).when(apiClient)
+                .submitEncryptedReceipt(envelope, com.cheqi.sdk.http.RequestOptions.withAccessToken("token"));
         error = assertThrows(com.cheqi.sdk.exceptions.CheqiSDKException.class,
-                () -> service.submitEncryptedReceipt(envelope, "token"));
+                () -> service.submitEncryptedReceipt(envelope, com.cheqi.sdk.http.RequestOptions.withAccessToken("token")));
         assertEquals("SUBMISSION_IN_PROGRESS", error.getErrorCode());
         assertEquals(202, error.getHttpStatusCode());
         assertEquals(7, error.getRetryAfterSeconds());

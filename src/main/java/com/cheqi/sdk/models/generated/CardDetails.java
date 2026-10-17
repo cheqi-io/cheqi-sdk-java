@@ -46,7 +46,9 @@ public class CardDetails {
     
     VISA(String.valueOf("VISA")),
     
-    AMERICAN_EXPRESS(String.valueOf("AMERICAN_EXPRESS"));
+    AMERICAN_EXPRESS(String.valueOf("AMERICAN_EXPRESS")),
+    
+    UNKNOWN(String.valueOf("UNKNOWN"));
 
     private String value;
 

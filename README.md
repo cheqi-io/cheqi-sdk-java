@@ -12,20 +12,20 @@ The SDK preserves Cheqi's zero-knowledge boundary: receipt contents are supplied
 
 ## Installation
 
-Add version `2.7.0` with Maven:
+Add version `3.0.0` with Maven:
 
 ```xml
 <dependency>
     <groupId>io.cheqi</groupId>
     <artifactId>cheqi-sdk</artifactId>
-    <version>2.7.0</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
 Or with Gradle:
 
 ```gradle
-implementation 'io.cheqi:cheqi-sdk:2.7.0'
+implementation 'io.cheqi:cheqi-sdk:3.0.0'
 ```
 
 To build and install this branch locally:
@@ -62,7 +62,43 @@ CheqiSDK sdk = CheqiSDK.builder()
     .build();
 ```
 
-When no API key is configured, pass the OAuth access token to the service method that supports it. Do not put credentials or plaintext receipt contents in logs.
+Do not put credentials or plaintext receipt contents in logs.
+
+## Request Options and OAuth
+
+Every API method has an overload that takes `RequestOptions` as its last argument. Use it to
+act on behalf of a connected company with its OAuth access token, or to override the timeout
+or retry count for a single call. Without an access token, the call uses the configured API key.
+
+```java
+RequestOptions options = RequestOptions.withAccessToken(accessToken);
+
+ReceiptResult result = sdk.getReceiptService()
+    .issueReceipt(identificationDetails, receiptPayload, storeId, options);
+
+RequestOptions slowCall = RequestOptions.builder()
+    .accessToken(accessToken)
+    .timeout(Duration.ofSeconds(60))
+    .maxRetries(0)
+    .build();
+```
+
+Company access tokens are short-lived and bound to one Grant, so an integration that serves
+several companies holds one token per Grant. Request one with the client-credentials grant:
+
+```java
+OAuthTokenExchangeResponse token = sdk.getOAuthService().requestAccessToken(
+    new ClientCredentialsTokenRequest()
+        .clientId(clientId)
+        .clientSecret(clientSecret)
+        .grantId(grantId)
+        .scope("receipt:issue"));
+
+// token.getAccessToken(), token.getExpiresIn()
+```
+
+The SDK does not cache or refresh tokens. Store each token with its expiry in your own token
+store, request a new one before it expires, and pass the current token with `RequestOptions`.
 
 ## Receipt Issuance
 
@@ -155,18 +191,18 @@ if (result.isAccepted()) {
 }
 ```
 
-With an OAuth access token:
+On behalf of a connected company:
 
 ```java
 ReceiptResult result = sdk.getReceiptService()
-    .issueReceipt(identificationDetails, receiptPayload, accessToken);
+    .issueReceipt(identificationDetails, receiptPayload, RequestOptions.withAccessToken(accessToken));
 ```
 
 To associate the receipt with a store, use the overload accepting `storeId`:
 
 ```java
 ReceiptResult result = sdk.getReceiptService()
-    .issueReceipt(identificationDetails, receiptPayload, storeId, accessToken);
+    .issueReceipt(identificationDetails, receiptPayload, storeId, RequestOptions.withAccessToken(accessToken));
 ```
 
 ### Supplying definitive receipt values
@@ -239,7 +275,7 @@ For an explicit customer-without-Cheqi flow, skip recipient matching:
 ReceiptResult result = sdk.getReceiptService().issueDownloadReceipt(
     new IdentificationDetails().paymentType(PaymentType.CASH),
     receiptPayload,
-    accessToken
+    RequestOptions.withAccessToken(accessToken)
 );
 
 String downloadUrl = result.getDownloadUrl();
@@ -252,7 +288,7 @@ ReceiptResult completed = sdk.getReceiptService().completeDownloadFallback(
     result,
     receiptEnvelope,
     templateHash,
-    accessToken
+    RequestOptions.withAccessToken(accessToken)
 );
 ```
 
@@ -288,7 +324,7 @@ if (result.getState() == ReceiptIssueState.DIGITAL_PENDING) {
 `getMatch(String matchId)` exposes the generated `MatchStatusResponse` directly.
 `resumeReceipt` recovers `SUBMITTED` without encrypting or resubmitting, obtains original
 recipient keys for `MATCHED`, and returns pending for `IN_PROGRESS` or transient failures.
-All operations have optional delegated access-token overloads. Match ids are opaque strings, not UUIDs.
+All operations have `RequestOptions` overloads for delegated access tokens. Match ids are opaque strings, not UUIDs.
 
 An expired unsubmitted match throws `MATCH_EXPIRED` (HTTP 410); an absent or unauthorized
 match throws the API's 404 error. Authentication, invalid payloads, invalid responses,
@@ -314,13 +350,13 @@ Use the service APIs when you need to control matching, encryption, or submissio
 
 ```java
 RecipientResolutionResponse resolution = sdk.getMatchingService()
-    .matchCustomer(identificationDetails, accessToken);
+    .matchCustomer(identificationDetails, options);
 
 EncryptedReceiptPayload delivery = sdk.getEncryptionService()
     .encryptReceiptForRecipient(receiptPayloadJson, resolution.getRecipients().get(0));
 
 ReceiptSubmissionResponse response = sdk.getReceiptService()
-    .submitEncryptedReceipt(encryptedReceiptEnvelope, accessToken);
+    .submitEncryptedReceipt(encryptedReceiptEnvelope, options);
 ```
 
 The caller is responsible for validating the selected route, encrypting for every owner device, and preserving the same definitive plaintext across those device encryptions.
@@ -334,7 +370,7 @@ CreditNoteResult result = sdk.getCreditNoteService().issueCreditNote(
     identificationDetails,
     parentCheqiReceiptId,
     creditNotePayload,
-    accessToken
+    RequestOptions.withAccessToken(accessToken)
 );
 ```
 
@@ -385,14 +421,16 @@ String hash = sdk.getVerificationService()
 Store operations require an OAuth access token with the relevant store permissions:
 
 ```java
+RequestOptions options = RequestOptions.withAccessToken(accessToken);
+
 StoreDTO store = sdk.getStoreService()
-    .createStore(companyId, createStoreRequest, accessToken);
+    .createStore(companyId, createStoreRequest, options);
 
 List<StoreDTO> stores = sdk.getStoreService()
-    .getStores(companyId, accessToken);
+    .getStores(companyId, options);
 
 StoreDTO updated = sdk.getStoreService()
-    .updateStore(companyId, storeId, updateStoreRequest, accessToken);
+    .updateStore(companyId, storeId, updateStoreRequest, options);
 ```
 
 ## Error Handling
@@ -402,7 +440,7 @@ High-level receipt and credit-note methods throw `CheqiSDKException`. Direct HTT
 ```java
 try {
     ReceiptResult result = sdk.getReceiptService()
-        .issueReceipt(identificationDetails, receiptPayload, accessToken);
+        .issueReceipt(identificationDetails, receiptPayload, options);
 } catch (CheqiSDKException exception) {
     System.err.println(exception.getMessage());
     System.err.println("Error code: " + exception.getErrorCode());

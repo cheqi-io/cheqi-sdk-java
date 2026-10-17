@@ -4,6 +4,7 @@ package com.cheqi.sdk.http;
  * Defines API endpoint paths for the Cheqi SDK.
  */
 public enum Endpoints {
+    OAUTH_TOKEN_ENDPOINT("/oauth2/token"),
     CUSTOMER_MATCH_ENDPOINT("/recipient/resolve"),
     MATCH_STATUS_ENDPOINT("/recipient/matches/%s"),
     ENCRYPTED_RECEIPT_ENDPOINT("/receipt/encrypted"),

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +20,7 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     private static final Logger logger = LoggerFactory.getLogger(DefaultCheqiApiClient.class);
 
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
-    private static final String USER_AGENT = "CheqiSDK/2.7.0";
+    private static final String USER_AGENT = "CheqiSDK/3.0.0";
 
     private final CheqiSDKConfig config;
     private final OkHttpClient httpClient;
@@ -34,37 +35,59 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         this.httpClient = createHttpClient(config);
         this.retryHandler = new RetryHandler(httpClient, config.getMaxRetries());
         this.responseHandler = new ResponseHandler(objectMapper);
-        
+
         logger.info("CheqiApiClient initialized with endpoint: {}, timeout: {}s",
                 config.getApiEndpoint(), config.getTimeoutSeconds());
     }
 
-
     @Override
-    public RecipientResolutionResponse matchCustomer(IdentificationDetails request) throws CheqiApiException {
-        return matchCustomerInternal(request, null);
-    }
-
-    @Override
-    public RecipientResolutionResponse matchCustomer(IdentificationDetails request, String accessToken)
+    public OAuthTokenExchangeResponse requestAccessToken(ClientCredentialsTokenRequest request, RequestOptions options)
             throws CheqiApiException {
-        validateAccessToken(accessToken);
-        return matchCustomerInternal(request, accessToken);
+        if (request == null || isBlank(request.getClientId()) || isBlank(request.getClientSecret())
+                || request.getGrantId() == null) {
+            throw new CheqiApiException("Token request requires clientId, clientSecret and grantId", 400,
+                    CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
+        }
+        if (request.getGrantType() == null) {
+            request.setGrantType(ClientCredentialsTokenRequest.GrantTypeEnum.CLIENT_CREDENTIALS);
+        }
+        options = RequestOptions.orDefaults(options);
+        try {
+            // Client credentials travel in the body; this call carries no bearer credential.
+            Request httpRequest = new Request.Builder()
+                    .url(buildUrl(Endpoints.OAUTH_TOKEN_ENDPOINT.getPath()))
+                    .post(RequestBody.create(objectMapper.writeValueAsString(request), JSON))
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
+                    .addHeader("User-Agent", USER_AGENT)
+                    .build();
+            Response response = clientFor(options).newCall(httpRequest).execute();
+            OAuthTokenExchangeResponse token = responseHandler.handleJsonResponse(
+                    response, OAuthTokenExchangeResponse.class, "Access token request");
+            if (token == null || isBlank(token.getAccessToken())) {
+                throw new CheqiApiException("Token response did not include an access token", 0,
+                        CheqiApiException.ErrorCodes.INVALID_RESPONSE, null);
+            }
+            return token;
+        } catch (CheqiApiException exception) {
+            throw exception;
+        } catch (IOException exception) {
+            throw networkError(exception);
+        }
     }
 
-    private RecipientResolutionResponse matchCustomerInternal(IdentificationDetails request,
-                                                               String accessToken)
+    @Override
+    public RecipientResolutionResponse matchCustomer(IdentificationDetails request, RequestOptions options)
             throws CheqiApiException {
         if (request == null) {
             throw new CheqiApiException("Identification details are required", 400,
                     CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
         }
+        options = RequestOptions.orDefaults(options);
         try {
             String json = objectMapper.writeValueAsString(request);
-            Request httpRequest = accessToken == null
-                    ? buildPostRequestWithApiKey(Endpoints.CUSTOMER_MATCH_ENDPOINT, json)
-                    : buildJsonPostRequest(Endpoints.CUSTOMER_MATCH_ENDPOINT, json, accessToken);
-            Response response = retryHandler.executeWithRetry(httpRequest, "apiRequest");
+            Request httpRequest = buildPostRequest(buildUrl(Endpoints.CUSTOMER_MATCH_ENDPOINT.getPath()), json, options);
+            Response response = executeWithRetry(httpRequest, options, "apiRequest");
             return responseHandler.handleJsonResponse(response, RecipientResolutionResponse.class, "Customer matching");
         } catch (CheqiApiException exception) {
             throw exception;
@@ -77,31 +100,15 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public MatchStatusResponse getMatch(String matchId) throws CheqiApiException {
-        return getMatchInternal(matchId, null);
-    }
-
-    @Override
-    public MatchStatusResponse getMatch(String matchId, String accessToken) throws CheqiApiException {
-        validateAccessToken(accessToken);
-        return getMatchInternal(matchId, accessToken);
-    }
-
-    private MatchStatusResponse getMatchInternal(String matchId, String accessToken)
-            throws CheqiApiException {
+    public MatchStatusResponse getMatch(String matchId, RequestOptions options) throws CheqiApiException {
         if (matchId == null || matchId.trim().isEmpty()) {
             throw new CheqiApiException("matchId is required", 400, CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
         }
-        String credential = accessToken == null ? config.getApiKey() : accessToken;
-        validateAccessToken(credential);
-        try {
-            String url = HttpUrl.get(buildUrl(Endpoints.MATCH_STATUS_ENDPOINT.getPath(""))).newBuilder()
-                    .addPathSegment(matchId).build().toString();
-            Response response = retryHandler.executeWithRetry(buildGetRequest(url, credential), "getMatch");
-            return responseHandler.handleJsonResponse(response, MatchStatusResponse.class, "Match retrieval");
-        } catch (CheqiApiException exception) {
-            throw exception;
-        }
+        options = RequestOptions.orDefaults(options);
+        String url = HttpUrl.get(buildUrl(Endpoints.MATCH_STATUS_ENDPOINT.getPath(""))).newBuilder()
+                .addPathSegment(matchId).build().toString();
+        Response response = executeWithRetry(buildGetRequest(url, options), options, "getMatch");
+        return responseHandler.handleJsonResponse(response, MatchStatusResponse.class, "Match retrieval");
     }
 
     private static CheqiApiException networkError(IOException cause) {
@@ -114,23 +121,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public ReceiptSubmissionResponse submitEncryptedReceipt(EncryptedReceiptEnvelope request)
+    public ReceiptSubmissionResponse submitEncryptedReceipt(EncryptedReceiptEnvelope request, RequestOptions options)
             throws CheqiApiException {
-        return submitEncryptedReceiptInternal(request, null);
-    }
-
-    @Override
-    public ReceiptSubmissionResponse submitEncryptedReceipt(
-            EncryptedReceiptEnvelope request,
-            String accessToken
-    ) throws CheqiApiException {
-        validateAccessToken(accessToken);
-        return submitEncryptedReceiptInternal(request, accessToken);
-    }
-
-    private ReceiptSubmissionResponse submitEncryptedReceiptInternal(
-            EncryptedReceiptEnvelope request, String accessToken
-    ) throws CheqiApiException {
         if (request == null
                 || request.getMatchId() == null
                 || request.getMatchId().trim().isEmpty()
@@ -146,30 +138,14 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         return postSubmission(
                 Endpoints.ENCRYPTED_RECEIPT_ENDPOINT,
                 request,
-                accessToken,
+                RequestOptions.orDefaults(options),
                 "submitEncryptedReceipt"
         );
     }
 
     @Override
-    public ReceiptSubmissionResponse submitEncryptedCreditNote(EncryptedCreditNoteEnvelope request)
-            throws CheqiApiException {
-        return submitEncryptedCreditNoteInternal(request, null);
-    }
-
-    @Override
-    public ReceiptSubmissionResponse submitEncryptedCreditNote(
-            EncryptedCreditNoteEnvelope request,
-            String accessToken
-    ) throws CheqiApiException {
-        validateAccessToken(accessToken);
-        return submitEncryptedCreditNoteInternal(request, accessToken);
-    }
-
-    private ReceiptSubmissionResponse submitEncryptedCreditNoteInternal(
-            EncryptedCreditNoteEnvelope request,
-            String accessToken
-    ) throws CheqiApiException {
+    public ReceiptSubmissionResponse submitEncryptedCreditNote(EncryptedCreditNoteEnvelope request,
+                                                               RequestOptions options) throws CheqiApiException {
         if (request == null
                 || request.getMatchId() == null
                 || request.getMatchId().trim().isEmpty()
@@ -188,21 +164,20 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         return postSubmission(
                 Endpoints.ENCRYPTED_CREDIT_NOTE_ENDPOINT,
                 request,
-                accessToken,
+                RequestOptions.orDefaults(options),
                 "submitEncryptedCreditNote"
         );
     }
 
     private ReceiptSubmissionResponse postSubmission(
-            Endpoints endpoint, Object request, String accessToken,
+            Endpoints endpoint, Object request, RequestOptions options,
             String operation
     ) throws CheqiApiException {
         try {
             String requestJson = objectMapper.writeValueAsString(request);
-            Request httpRequest = accessToken == null
-                    ? buildPostRequestWithApiKey(endpoint, requestJson)
-                    : buildJsonPostRequest(endpoint, requestJson, accessToken);
-            Response response = httpClient.newCall(httpRequest).execute();
+            Request httpRequest = buildPostRequest(buildUrl(endpoint.getPath()), requestJson, options);
+            // Submissions are never retried automatically; the integration owns that decision.
+            Response response = clientFor(options).newCall(httpRequest).execute();
             String json = responseHandler.handleStringResponse(response, operation);
             try {
                 com.fasterxml.jackson.databind.JsonNode body = objectMapper.readTree(json);
@@ -242,22 +217,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public ClientReceiptDownloadResponse uploadEncryptedDownloadReceipt(ClientReceiptDownloadRequest request) throws CheqiApiException {
-        return uploadEncryptedDownloadReceiptInternal(request, null);
-    }
-
-    @Override
     public ClientReceiptDownloadResponse uploadEncryptedDownloadReceipt(
-            ClientReceiptDownloadRequest request, String accessToken) throws CheqiApiException {
-        if (accessToken == null || accessToken.trim().isEmpty()) {
-            throw new CheqiApiException("Access token is required for receipt download upload", 400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
-        }
-        return uploadEncryptedDownloadReceiptInternal(request, accessToken);
-    }
-
-    private ClientReceiptDownloadResponse uploadEncryptedDownloadReceiptInternal(
-            ClientReceiptDownloadRequest request, String accessToken) throws CheqiApiException {
+            ClientReceiptDownloadRequest request, RequestOptions options) throws CheqiApiException {
         if (request == null
                 || request.getDownloadId() == null
                 || !request.getDownloadId().matches("[A-Za-z0-9_-]{22,64}")) {
@@ -268,13 +229,13 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
             throw new CheqiApiException("ciphertext is required", 400,
                     CheqiApiException.ErrorCodes.INVALID_REQUEST, null);
         }
+        options = RequestOptions.orDefaults(options);
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
-            Request httpRequest = accessToken == null
-                    ? buildPostRequestWithApiKey(Endpoints.CLIENT_RECEIPT_DOWNLOAD_ENDPOINT, requestJson)
-                    : buildJsonPostRequest(Endpoints.CLIENT_RECEIPT_DOWNLOAD_ENDPOINT, requestJson, accessToken);
-            Response response = httpClient.newCall(httpRequest).execute();
+            Request httpRequest = buildPostRequest(
+                    buildUrl(Endpoints.CLIENT_RECEIPT_DOWNLOAD_ENDPOINT.getPath()), requestJson, options);
+            Response response = clientFor(options).newCall(httpRequest).execute();
             return responseHandler.handleJsonResponse(
                     response, ClientReceiptDownloadResponse.class, "Upload client-encrypted receipt");
         } catch (CheqiApiException e) {
@@ -288,9 +249,9 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
         }
     }
 
-
     @Override
-    public void sendReceiptViaEmail(String customerEmail, CheqiReceipt cheqiReceipt) throws CheqiApiException {
+    public void sendReceiptViaEmail(String customerEmail, CheqiReceipt cheqiReceipt, RequestOptions options)
+            throws CheqiApiException {
         logger.info("Sending receipt via email to: {}", customerEmail);
 
         if (customerEmail == null || customerEmail.trim().isEmpty()) {
@@ -310,86 +271,21 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
                     null
             );
         }
+        options = RequestOptions.orDefaults(options);
 
         try {
-            // Create request DTO with email and receipt
             EmailReceiptRequest emailReceiptRequest = new EmailReceiptRequest();
             emailReceiptRequest.setCustomerEmail(customerEmail);
             emailReceiptRequest.setCheqiReceipt(cheqiReceipt);
 
-            // Serialize request to JSON
             String requestJson = objectMapper.writeValueAsString(emailReceiptRequest);
             logger.debug("Serialized email receipt request");
 
-            // Build HTTP request
-            Request httpRequest = buildPostRequestWithApiKey(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson);
-
-            // Execute using the existing HTTP retry policy.
-            Response response = httpClient.newCall(httpRequest).execute();
-            responseHandler.handleVoidResponse(response, "Send receipt via email");
-
-        } catch (CheqiApiException e) {
-            throw e;
-        } catch (IOException e) {
-            logger.error("Network error during email receipt submission", e);
-            throw new CheqiApiException(
-                    "Network error during email receipt submission: " + e.getMessage(),
-                    e,
-                    0,
-                    CheqiApiException.ErrorCodes.NETWORK_ERROR,
-                    null
-            );
-        } catch (Exception e) {
-            logger.error("Unexpected error during email receipt submission", e);
-            throw new CheqiApiException(
-                    "Email receipt submission failed due to unexpected error: " + e.getMessage(),
-                    e,
-                    0,
-                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR,
-                    null
-            );
-        }
-    }
-
-    @Override
-    public void sendReceiptViaEmail(String customerEmail, CheqiReceipt cheqiReceipt, String accessToken) throws CheqiApiException {
-        logger.info("Sending receipt via email to: {}", customerEmail);
-
-        validateAccessToken(accessToken);
-
-        if (customerEmail == null || customerEmail.trim().isEmpty()) {
-            throw new CheqiApiException(
-                    "Customer email is required",
-                    400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST,
-                    null
-            );
-        }
-
-        if (cheqiReceipt == null) {
-            throw new CheqiApiException(
-                    "Purchase receipt is required",
-                    400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST,
-                    null
-            );
-        }
-
-        try {
-            // Create request DTO with email and receipt
-            EmailReceiptRequest emailReceiptRequest = new EmailReceiptRequest();
-            emailReceiptRequest.setCustomerEmail(customerEmail);
-            emailReceiptRequest.setCheqiReceipt(cheqiReceipt);
-
-            // Serialize request to JSON
-            String requestJson = objectMapper.writeValueAsString(emailReceiptRequest);
-            logger.debug("Serialized email receipt request");
-
-            // Build HTTP request
-            Request httpRequest = buildJsonPostRequest(Endpoints.EMAIL_RECEIPT_ENDPOINT, requestJson, accessToken);
+            Request httpRequest = buildPostRequest(
+                    buildUrl(Endpoints.EMAIL_RECEIPT_ENDPOINT.getPath()), requestJson, options);
 
             // Execute one request; the integration owns retry policy.
-            Response response = httpClient.newCall(httpRequest).execute();
+            Response response = clientFor(options).newCall(httpRequest).execute();
             responseHandler.handleVoidResponse(response, "Send receipt via email");
 
         } catch (CheqiApiException e) {
@@ -413,48 +309,6 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
                     null
             );
         }
-    }
-
-    /**
-     * Builds a POST request with common headers.
-     */
-    private Request buildPostRequest(Endpoints endpoint, String requestBody, String accessToken, String acceptHeader) {
-        RequestBody body = RequestBody.create(requestBody, JSON);
-        return new Request.Builder()
-                .url(buildUrl(endpoint.getPath()))
-                .post(body)
-                .addHeader("Authorization", "Bearer " + accessToken)
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Accept", acceptHeader)
-                .addHeader("User-Agent", USER_AGENT)
-                .build();
-    }
-
-    /**
-     * Builds a POST request with API Key authentication (Bearer token).
-     * Uses the API key from config for direct company access.
-     */
-    private Request buildPostRequestWithApiKey(Endpoints endpoint, String requestBody) {
-        if (config.getApiKey() == null || config.getApiKey().trim().isEmpty()) {
-            throw new IllegalStateException("API key is not configured. Use .apiKey() when building SDK config.");
-        }
-        
-        RequestBody body = RequestBody.create(requestBody, JSON);
-        return new Request.Builder()
-                .url(buildUrl(endpoint.getPath()))
-                .post(body)
-                .addHeader("Authorization", "Bearer " + config.getApiKey())
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Accept", "application/json")
-                .addHeader("User-Agent", USER_AGENT)
-                .build();
-    }
-
-    /**
-     * Builds a POST request with JSON accept header.
-     */
-    private Request buildJsonPostRequest(Endpoints endpoint, String requestBody, String accessToken) {
-        return buildPostRequest(endpoint, requestBody, accessToken, "application/json");
     }
 
     private String buildUrl(String path) {
@@ -486,17 +340,37 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
                 .build();
     }
 
+    /** Returns the shared client, or a derived one (same pool) when the call overrides the timeout. */
+    private OkHttpClient clientFor(RequestOptions options) {
+        Duration timeout = options.getTimeout();
+        if (timeout == null) {
+            return httpClient;
+        }
+        return httpClient.newBuilder()
+                .connectTimeout(timeout)
+                .readTimeout(timeout)
+                .writeTimeout(timeout)
+                .build();
+    }
+
+    private Response executeWithRetry(Request request, RequestOptions options, String operation)
+            throws CheqiApiException {
+        int maxRetries = options.getMaxRetries() != null ? options.getMaxRetries() : config.getMaxRetries();
+        return retryHandler.executeWithRetry(clientFor(options), request, operation, maxRetries);
+    }
+
     @Override
-    public StoreDTO createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiApiException {
+    public StoreDTO createStore(UUID companyId, CreateStoreRequest request, RequestOptions options)
+            throws CheqiApiException {
         logger.info("Creating store for company: {}", companyId);
-        validateAccessToken(accessToken);
+        options = RequestOptions.orDefaults(options);
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
             String url = buildUrl(Endpoints.COMPANY_STORES_ENDPOINT.getPath(companyId));
 
-            Request httpRequest = buildJsonPostRequest(url, requestJson, accessToken);
-            Response response = httpClient.newCall(httpRequest).execute();
+            Request httpRequest = buildPostRequest(url, requestJson, options);
+            Response response = clientFor(options).newCall(httpRequest).execute();
 
             return responseHandler.handleJsonResponse(response, StoreDTO.class, "Create store");
         } catch (CheqiApiException e) {
@@ -508,19 +382,15 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public InviteEmployeesResponse inviteUsers(UUID companyId, List<String> emails, String accessToken) throws CheqiApiException {
-        return inviteUsers(companyId, emails, null, accessToken);
-    }
-
-    @Override
-    public InviteEmployeesResponse inviteUsers(UUID companyId, List<String> emails, Boolean resendPending, String accessToken) throws CheqiApiException {
-        validateAccessToken(accessToken);
+    public InviteEmployeesResponse inviteUsers(UUID companyId, List<String> emails, Boolean resendPending,
+                                               RequestOptions options) throws CheqiApiException {
+        options = RequestOptions.orDefaults(options);
         try {
             String url = buildUrl(Endpoints.COMPANY_INVITE_EMPLOYEES_ENDPOINT.getPath(companyId));
             String requestJson = objectMapper.writeValueAsString(
                     new InviteEmployeeRequest().emails(new java.util.LinkedHashSet<>(emails)).resendPending(resendPending));
-            Request request = buildJsonPostRequest(url, requestJson, accessToken);
-            Response response = httpClient.newCall(request).execute();
+            Request request = buildPostRequest(url, requestJson, options);
+            Response response = clientFor(options).newCall(request).execute();
             return responseHandler.handleJsonResponse(response, InviteEmployeesResponse.class, "Invite employees");
         } catch (CheqiApiException e) {
             throw e;
@@ -531,11 +401,11 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public List<DestinationResponse> listReceiptDestinations(String accessToken) throws CheqiApiException {
-        validateAccessToken(accessToken);
+    public List<DestinationResponse> listReceiptDestinations(RequestOptions options) throws CheqiApiException {
+        options = RequestOptions.orDefaults(options);
         try {
-            Request request = buildGetRequest(buildUrl(Endpoints.RECEIPT_DESTINATIONS_ENDPOINT.getPath()), accessToken);
-            return responseHandler.handleJsonListResponse(httpClient.newCall(request).execute(), DestinationResponse.class, "List receipt destinations");
+            Request request = buildGetRequest(buildUrl(Endpoints.RECEIPT_DESTINATIONS_ENDPOINT.getPath()), options);
+            return responseHandler.handleJsonListResponse(clientFor(options).newCall(request).execute(), DestinationResponse.class, "List receipt destinations");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
@@ -545,12 +415,13 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public RegisterResponse registerReceiptDestination(RegisterRequest destination, String accessToken) throws CheqiApiException {
-        validateAccessToken(accessToken);
+    public RegisterResponse registerReceiptDestination(RegisterRequest destination, RequestOptions options)
+            throws CheqiApiException {
+        options = RequestOptions.orDefaults(options);
         try {
             String json = objectMapper.writeValueAsString(destination);
-            Request request = buildJsonPostRequest(buildUrl(Endpoints.RECEIPT_DESTINATIONS_ENDPOINT.getPath()), json, accessToken);
-            return responseHandler.handleJsonResponse(httpClient.newCall(request).execute(), RegisterResponse.class, "Register receipt destination");
+            Request request = buildPostRequest(buildUrl(Endpoints.RECEIPT_DESTINATIONS_ENDPOINT.getPath()), json, options);
+            return responseHandler.handleJsonResponse(clientFor(options).newCall(request).execute(), RegisterResponse.class, "Register receipt destination");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
@@ -560,11 +431,12 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public List<WebhookReceiptEnvelope> getPendingReceipts(UUID destinationId, String accessToken) throws CheqiApiException {
-        validateAccessToken(accessToken);
+    public List<WebhookReceiptEnvelope> getPendingReceipts(UUID destinationId, RequestOptions options)
+            throws CheqiApiException {
+        options = RequestOptions.orDefaults(options);
         try {
-            Request request = buildGetRequest(buildUrl(Endpoints.RECEIPT_DESTINATION_QUEUE_ENDPOINT.getPath(destinationId)), accessToken);
-            return responseHandler.handleJsonListResponse(httpClient.newCall(request).execute(), WebhookReceiptEnvelope.class, "Get pending receipts");
+            Request request = buildGetRequest(buildUrl(Endpoints.RECEIPT_DESTINATION_QUEUE_ENDPOINT.getPath(destinationId)), options);
+            return responseHandler.handleJsonListResponse(clientFor(options).newCall(request).execute(), WebhookReceiptEnvelope.class, "Get pending receipts");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
@@ -574,14 +446,15 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void acknowledgeReceipts(UUID destinationId, List<String> receiptIds, String accessToken) throws CheqiApiException {
-        validateAccessToken(accessToken);
+    public void acknowledgeReceipts(UUID destinationId, List<String> receiptIds, RequestOptions options)
+            throws CheqiApiException {
+        options = RequestOptions.orDefaults(options);
         try {
             String json = objectMapper.writeValueAsString(
                     new AcknowledgeRequest().receiptIds(new java.util.LinkedHashSet<>(receiptIds)));
-            Request request = buildJsonPostRequest(
-                    buildUrl(Endpoints.RECEIPT_DESTINATION_ACKNOWLEDGE_ENDPOINT.getPath(destinationId)), json, accessToken);
-            responseHandler.handleVoidResponse(httpClient.newCall(request).execute(), "Acknowledge receipts");
+            Request request = buildPostRequest(
+                    buildUrl(Endpoints.RECEIPT_DESTINATION_ACKNOWLEDGE_ENDPOINT.getPath(destinationId)), json, options);
+            responseHandler.handleVoidResponse(clientFor(options).newCall(request).execute(), "Acknowledge receipts");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
@@ -591,11 +464,11 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void deactivateReceiptDestination(UUID destinationId, String accessToken) throws CheqiApiException {
-        validateAccessToken(accessToken);
+    public void deactivateReceiptDestination(UUID destinationId, RequestOptions options) throws CheqiApiException {
+        options = RequestOptions.orDefaults(options);
         try {
-            Request request = buildDeleteRequest(buildUrl(Endpoints.RECEIPT_DESTINATION_ENDPOINT.getPath(destinationId)), accessToken);
-            responseHandler.handleVoidResponse(httpClient.newCall(request).execute(), "Deactivate receipt destination");
+            Request request = buildDeleteRequest(buildUrl(Endpoints.RECEIPT_DESTINATION_ENDPOINT.getPath(destinationId)), options);
+            responseHandler.handleVoidResponse(clientFor(options).newCall(request).execute(), "Deactivate receipt destination");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
@@ -605,13 +478,14 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public WebhookDTO updateWebhookSubscriptionUrl(UUID subscriptionId, String notificationUrl, String accessToken) throws CheqiApiException {
-        validateAccessToken(accessToken);
+    public WebhookDTO updateWebhookSubscriptionUrl(UUID subscriptionId, String notificationUrl, RequestOptions options)
+            throws CheqiApiException {
+        options = RequestOptions.orDefaults(options);
         try {
             String json = objectMapper.writeValueAsString(new UpdateSubscriptionRequest().notificationUrl(notificationUrl));
             Request request = buildJsonPatchRequest(
-                    buildUrl(Endpoints.WEBHOOK_SUBSCRIPTION_ENDPOINT.getPath(subscriptionId)), json, accessToken);
-            return responseHandler.handleJsonResponse(httpClient.newCall(request).execute(), WebhookDTO.class, "Update webhook subscription URL");
+                    buildUrl(Endpoints.WEBHOOK_SUBSCRIPTION_ENDPOINT.getPath(subscriptionId)), json, options);
+            return responseHandler.handleJsonResponse(clientFor(options).newCall(request).execute(), WebhookDTO.class, "Update webhook subscription URL");
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
@@ -621,9 +495,10 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public List<StoreDTO> getStores(UUID companyId, Boolean activeOnly, String accessToken) throws CheqiApiException {
+    public List<StoreDTO> getStores(UUID companyId, Boolean activeOnly, RequestOptions options)
+            throws CheqiApiException {
         logger.debug("Getting stores for company: {}", companyId);
-        validateAccessToken(accessToken);
+        options = RequestOptions.orDefaults(options);
 
         try {
             String url = buildUrl(Endpoints.COMPANY_STORES_ENDPOINT.getPath(companyId));
@@ -631,8 +506,8 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
                 url += "?active=true";
             }
 
-            Request httpRequest = buildGetRequest(url, accessToken);
-            Response response = httpClient.newCall(httpRequest).execute();
+            Request httpRequest = buildGetRequest(url, options);
+            Response response = clientFor(options).newCall(httpRequest).execute();
 
             return responseHandler.handleJsonListResponse(response, StoreDTO.class, "Get stores");
         } catch (CheqiApiException e) {
@@ -644,15 +519,15 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public StoreDTO getStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException {
+    public StoreDTO getStore(UUID companyId, UUID storeId, RequestOptions options) throws CheqiApiException {
         logger.debug("Getting store {} for company {}", storeId, companyId);
-        validateAccessToken(accessToken);
+        options = RequestOptions.orDefaults(options);
 
         try {
             String url = buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId));
 
-            Request httpRequest = buildGetRequest(url, accessToken);
-            Response response = httpClient.newCall(httpRequest).execute();
+            Request httpRequest = buildGetRequest(url, options);
+            Response response = clientFor(options).newCall(httpRequest).execute();
 
             return responseHandler.handleJsonResponse(response, StoreDTO.class, "Get store");
         } catch (CheqiApiException e) {
@@ -664,16 +539,17 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public StoreDTO updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, String accessToken) throws CheqiApiException {
+    public StoreDTO updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, RequestOptions options)
+            throws CheqiApiException {
         logger.info("Updating store {} for company {}", storeId, companyId);
-        validateAccessToken(accessToken);
+        options = RequestOptions.orDefaults(options);
 
         try {
             String requestJson = objectMapper.writeValueAsString(request);
             String url = buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId));
 
-            Request httpRequest = buildPutRequest(url, requestJson, accessToken);
-            Response response = httpClient.newCall(httpRequest).execute();
+            Request httpRequest = buildPutRequest(url, requestJson, options);
+            Response response = clientFor(options).newCall(httpRequest).execute();
 
             return responseHandler.handleJsonResponse(response, StoreDTO.class, "Update store");
         } catch (CheqiApiException e) {
@@ -685,137 +561,111 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
-    public void deleteStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException {
+    public void deleteStore(UUID companyId, UUID storeId, RequestOptions options) throws CheqiApiException {
         logger.info("Deleting store {} for company {}", storeId, companyId);
-        validateAccessToken(accessToken);
-
-        try {
-            String url = buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId));
-
-            Request httpRequest = buildDeleteRequest(url, accessToken);
-            Response response = httpClient.newCall(httpRequest).execute();
-
-            responseHandler.handleVoidResponse(response, "Delete store");
-        } catch (CheqiApiException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("Failed to delete store", e);
-            throw new CheqiApiException("Failed to delete store: " + e.getMessage(), e, 0, CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
-        }
+        storeVoidOperation(buildDeleteRequest(
+                buildUrl(Endpoints.COMPANY_STORE_ENDPOINT.getPath(companyId, storeId)),
+                RequestOptions.orDefaults(options)), options, "Delete store", "Failed to delete store");
     }
 
     @Override
-    public void activateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException {
+    public void activateStore(UUID companyId, UUID storeId, RequestOptions options) throws CheqiApiException {
         logger.info("Activating store {} for company {}", storeId, companyId);
-        validateAccessToken(accessToken);
-
-        try {
-            String url = buildUrl(Endpoints.COMPANY_STORE_ACTIVATE_ENDPOINT.getPath(companyId, storeId));
-
-            Request httpRequest = buildPatchRequest(url, accessToken);
-            Response response = httpClient.newCall(httpRequest).execute();
-
-            responseHandler.handleVoidResponse(response, "Activate store");
-        } catch (CheqiApiException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("Failed to activate store", e);
-            throw new CheqiApiException("Failed to activate store: " + e.getMessage(), e, 0, CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
-        }
+        storeVoidOperation(buildPatchRequest(
+                buildUrl(Endpoints.COMPANY_STORE_ACTIVATE_ENDPOINT.getPath(companyId, storeId)),
+                RequestOptions.orDefaults(options)), options, "Activate store", "Failed to activate store");
     }
 
     @Override
-    public void deactivateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiApiException {
+    public void deactivateStore(UUID companyId, UUID storeId, RequestOptions options) throws CheqiApiException {
         logger.info("Deactivating store {} for company {}", storeId, companyId);
-        validateAccessToken(accessToken);
+        storeVoidOperation(buildPatchRequest(
+                buildUrl(Endpoints.COMPANY_STORE_DEACTIVATE_ENDPOINT.getPath(companyId, storeId)),
+                RequestOptions.orDefaults(options)), options, "Deactivate store", "Failed to deactivate store");
+    }
 
+    private void storeVoidOperation(Request httpRequest, RequestOptions options, String operation, String failure)
+            throws CheqiApiException {
         try {
-            String url = buildUrl(Endpoints.COMPANY_STORE_DEACTIVATE_ENDPOINT.getPath(companyId, storeId));
-
-            Request httpRequest = buildPatchRequest(url, accessToken);
-            Response response = httpClient.newCall(httpRequest).execute();
-
-            responseHandler.handleVoidResponse(response, "Deactivate store");
+            Response response = clientFor(RequestOptions.orDefaults(options)).newCall(httpRequest).execute();
+            responseHandler.handleVoidResponse(response, operation);
         } catch (CheqiApiException e) {
             throw e;
         } catch (Exception e) {
-            logger.error("Failed to deactivate store", e);
-            throw new CheqiApiException("Failed to deactivate store: " + e.getMessage(), e, 0, CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
+            logger.error(failure, e);
+            throw new CheqiApiException(failure + ": " + e.getMessage(), e, 0, CheqiApiException.ErrorCodes.UNKNOWN_ERROR, null);
         }
     }
 
-    private void validateAccessToken(String accessToken) throws CheqiApiException {
-        if (accessToken == null || accessToken.trim().isEmpty()) {
+    /**
+     * Resolves the bearer credential for a call: the per-call access token when present,
+     * otherwise the API key configured on the SDK.
+     */
+    private String credential(RequestOptions options) throws CheqiApiException {
+        String token = options.getAccessToken() != null ? options.getAccessToken() : config.getApiKey();
+        if (isBlank(token)) {
             throw new CheqiApiException(
-                    "Access token is required",
-                    400,
-                    CheqiApiException.ErrorCodes.INVALID_REQUEST,
+                    "No credentials for this call: pass RequestOptions.withAccessToken(...) or configure apiKey",
+                    0,
+                    CheqiApiException.ErrorCodes.AUTHENTICATION_FAILED,
                     null
             );
         }
+        return token;
     }
 
-    private Request buildGetRequest(String url, String accessToken) {
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private Request.Builder authorized(String url, RequestOptions options) throws CheqiApiException {
         return new Request.Builder()
                 .url(url)
+                .addHeader("Authorization", "Bearer " + credential(options))
+                .addHeader("User-Agent", USER_AGENT);
+    }
+
+    private Request buildGetRequest(String url, RequestOptions options) throws CheqiApiException {
+        return authorized(url, options)
                 .get()
-                .addHeader("Authorization", "Bearer " + accessToken)
                 .addHeader("Accept", "application/json")
-                .addHeader("User-Agent", USER_AGENT)
                 .build();
     }
 
-    private Request buildJsonPostRequest(String url, String requestBody, String accessToken) {
-        RequestBody body = RequestBody.create(requestBody, JSON);
-        return new Request.Builder()
-                .url(url)
-                .post(body)
-                .addHeader("Authorization", "Bearer " + accessToken)
+    private Request buildPostRequest(String url, String requestBody, RequestOptions options) throws CheqiApiException {
+        return authorized(url, options)
+                .post(RequestBody.create(requestBody, JSON))
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Accept", "application/json")
-                .addHeader("User-Agent", USER_AGENT)
                 .build();
     }
 
-    private Request buildPutRequest(String url, String requestBody, String accessToken) {
-        RequestBody body = RequestBody.create(requestBody, JSON);
-        return new Request.Builder()
-                .url(url)
-                .put(body)
-                .addHeader("Authorization", "Bearer " + accessToken)
+    private Request buildPutRequest(String url, String requestBody, RequestOptions options) throws CheqiApiException {
+        return authorized(url, options)
+                .put(RequestBody.create(requestBody, JSON))
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Accept", "application/json")
-                .addHeader("User-Agent", USER_AGENT)
                 .build();
     }
 
-    private Request buildDeleteRequest(String url, String accessToken) {
-        return new Request.Builder()
-                .url(url)
+    private Request buildDeleteRequest(String url, RequestOptions options) throws CheqiApiException {
+        return authorized(url, options)
                 .delete()
-                .addHeader("Authorization", "Bearer " + accessToken)
-                .addHeader("User-Agent", USER_AGENT)
                 .build();
     }
 
-    private Request buildPatchRequest(String url, String accessToken) {
-        RequestBody body = RequestBody.create("", JSON);
-        return new Request.Builder()
-                .url(url)
-                .patch(body)
-                .addHeader("Authorization", "Bearer " + accessToken)
-                .addHeader("User-Agent", USER_AGENT)
+    private Request buildPatchRequest(String url, RequestOptions options) throws CheqiApiException {
+        return authorized(url, options)
+                .patch(RequestBody.create("", JSON))
                 .build();
     }
 
-    private Request buildJsonPatchRequest(String url, String requestBody, String accessToken) {
-        return new Request.Builder()
-                .url(url)
+    private Request buildJsonPatchRequest(String url, String requestBody, RequestOptions options)
+            throws CheqiApiException {
+        return authorized(url, options)
                 .patch(RequestBody.create(requestBody, JSON))
-                .addHeader("Authorization", "Bearer " + accessToken)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Accept", "application/json")
-                .addHeader("User-Agent", USER_AGENT)
                 .build();
     }
 }

@@ -34,7 +34,7 @@ class DefaultCheqiApiClientTest {
         });
         try {
             InviteEmployeesResponse result = new DefaultCheqiApiClient(configFor(server))
-                    .inviteUsers(companyId, List.of("employee@example.com"), true, "oauth-token");
+                    .inviteUsers(companyId, List.of("employee@example.com"), true, RequestOptions.withAccessToken("oauth-token"));
             assertEquals("Bearer oauth-token", authorization.get());
             assertEquals("employee@example.com", OBJECT_MAPPER.readTree(body.get()).at("/emails/0").asText());
             assertEquals(true, OBJECT_MAPPER.readTree(body.get()).at("/resendPending").asBoolean());
@@ -59,12 +59,12 @@ class DefaultCheqiApiClientTest {
         });
         try {
             var client = new DefaultCheqiApiClient(configFor(server));
-            assertEquals(List.of(), client.listReceiptDestinations("oauth-token"));
-            client.registerReceiptDestination(new RegisterRequest().name("ERP").publicKey("key").keyAlgorithm("RSA"), "oauth-token");
-            assertEquals(List.of(), client.getPendingReceipts(destinationId, "oauth-token"));
-            client.acknowledgeReceipts(destinationId, List.of("receipt-1"), "oauth-token");
-            client.deactivateReceiptDestination(destinationId, "oauth-token");
-            client.updateWebhookSubscriptionUrl(subscriptionId, "https://example.com/hook", "oauth-token");
+            assertEquals(List.of(), client.listReceiptDestinations(RequestOptions.withAccessToken("oauth-token")));
+            client.registerReceiptDestination(new RegisterRequest().name("ERP").publicKey("key").keyAlgorithm("RSA"), RequestOptions.withAccessToken("oauth-token"));
+            assertEquals(List.of(), client.getPendingReceipts(destinationId, RequestOptions.withAccessToken("oauth-token")));
+            client.acknowledgeReceipts(destinationId, List.of("receipt-1"), RequestOptions.withAccessToken("oauth-token"));
+            client.deactivateReceiptDestination(destinationId, RequestOptions.withAccessToken("oauth-token"));
+            client.updateWebhookSubscriptionUrl(subscriptionId, "https://example.com/hook", RequestOptions.withAccessToken("oauth-token"));
             assertEquals(List.of(
                     "GET /company/receipt-destinations",
                     "POST /company/receipt-destinations",
@@ -99,7 +99,8 @@ class DefaultCheqiApiClientTest {
                             .deviceDeliveries(List.of(new EncryptedReceiptPayload()
                                     .deviceRecipientId("device-1")
                                     .encryptedContent("ciphertext")
-                                    .encryptedAesKey("encrypted-key")))
+                                    .encryptedAesKey("encrypted-key"))),
+                    null
             );
 
             assertEquals("Bearer sk_test_123", authorization.get());
@@ -130,7 +131,7 @@ class DefaultCheqiApiClientTest {
                     .paymentType(PaymentType.CARD_PAYMENT)
                     .recipientEmail("customer@example.com");
 
-            var response = client.matchCustomer(request, "token-abc");
+            var response = client.matchCustomer(request, RequestOptions.withAccessToken("token-abc"));
             assertEquals("Bearer token-abc", authorization.get());
             assertEquals("/recipient/resolve", path.get());
             assertEquals("match-123", response.getMatchId());
@@ -156,7 +157,7 @@ class DefaultCheqiApiClientTest {
                     new ClientReceiptDownloadRequest()
                             .downloadId("Zk9qYx3vT1KpN8wL2sRd_g")
                             .ciphertext("AAAA")
-                            .templateHash("hash-1"));
+                            .templateHash("hash-1"), null);
 
             assertEquals("Bearer sk_test_123", authorization.get());
             assertEquals("Zk9qYx3vT1KpN8wL2sRd_g", OBJECT_MAPPER.readTree(requestBody.get()).get("downloadId").asText());
@@ -178,12 +179,12 @@ class DefaultCheqiApiClientTest {
         });
         try {
             var client = new DefaultCheqiApiClient(configFor(server));
-            var match = client.getMatch("match_opaque");
+            var match = client.getMatch("match_opaque", null);
             assertEquals(MatchState.MATCHED, match.getState());
             assertEquals("rcpt_original", match.getRecipients().get(0).getId());
             assertEquals("GET", method.get());
             assertEquals("Bearer sk_test_123", authorization.get());
-            client.getMatch("match_opaque", "rotated-token");
+            client.getMatch("match_opaque", RequestOptions.withAccessToken("rotated-token"));
             assertEquals("Bearer rotated-token", authorization.get());
         } finally { server.stop(0); }
     }
@@ -196,7 +197,7 @@ class DefaultCheqiApiClientTest {
             var client = new DefaultCheqiApiClient(configFor(server));
             var error = org.junit.jupiter.api.Assertions.assertThrows(
                     com.cheqi.sdk.http.exceptions.SubmissionInProgressException.class,
-                    () -> client.submitEncryptedReceipt(testEnvelope()));
+                    () -> client.submitEncryptedReceipt(testEnvelope(), null));
             assertEquals(2, error.getRetryAfterSeconds());
             org.junit.jupiter.api.Assertions.assertTrue(error.isRetryable());
         } finally { server.stop(0); }
@@ -215,14 +216,14 @@ class DefaultCheqiApiClientTest {
                     .timeoutSeconds(5).maxRetries(0).build();
             var client = new DefaultCheqiApiClient(config);
             org.junit.jupiter.api.Assertions.assertThrows(com.cheqi.sdk.http.exceptions.CheqiApiException.class,
-                    () -> client.matchCustomer(new IdentificationDetails().recipientEmail("buyer@example.com")));
+                    () -> client.matchCustomer(new IdentificationDetails().recipientEmail("buyer@example.com"), null));
             org.junit.jupiter.api.Assertions.assertThrows(com.cheqi.sdk.http.exceptions.CheqiApiException.class,
-                    () -> client.submitEncryptedReceipt(testEnvelope()));
+                    () -> client.submitEncryptedReceipt(testEnvelope(), null));
             org.junit.jupiter.api.Assertions.assertThrows(com.cheqi.sdk.http.exceptions.CheqiApiException.class,
-                    () -> client.getMatch("match-123"));
+                    () -> client.getMatch("match-123", null));
             org.junit.jupiter.api.Assertions.assertThrows(com.cheqi.sdk.http.exceptions.CheqiApiException.class,
                     () -> client.uploadEncryptedDownloadReceipt(new ClientReceiptDownloadRequest()
-                            .downloadId("Zk9qYx3vT1KpN8wL2sRd_g").ciphertext("encrypted")));
+                            .downloadId("Zk9qYx3vT1KpN8wL2sRd_g").ciphertext("encrypted"), null));
             assertEquals(4, count.get());
         } finally { server.stop(0); }
     }
@@ -240,11 +241,11 @@ class DefaultCheqiApiClientTest {
             var client = new DefaultCheqiApiClient(configFor(server));
             var invalid = org.junit.jupiter.api.Assertions.assertThrows(
                     com.cheqi.sdk.http.exceptions.CheqiApiException.class,
-                    () -> client.submitEncryptedReceipt(testEnvelope()));
+                    () -> client.submitEncryptedReceipt(testEnvelope(), null));
             assertEquals("INVALID_RESPONSE", invalid.getErrorCode());
             var absent = org.junit.jupiter.api.Assertions.assertThrows(
                     com.cheqi.sdk.http.exceptions.CheqiApiException.class,
-                    () -> client.getMatch("another-requester-match"));
+                    () -> client.getMatch("another-requester-match", null));
             assertEquals(404, absent.getHttpStatusCode());
         } finally { server.stop(0); }
     }
@@ -339,6 +340,107 @@ class DefaultCheqiApiClientTest {
                 assertNotNull(result.getDownloadUrl());
             } finally { server.stop(0); }
         }
+    }
+
+    @Test
+    void perCallAccessTokenOverridesApiKeyAndDefaultsFallBackToIt() throws Exception {
+        List<String> authorizations = new ArrayList<>();
+        HttpServer server = httpServer("/", exchange -> {
+            authorizations.add(exchange.getRequestHeaders().getFirst("Authorization"));
+            send(exchange, 200, "[]");
+        });
+        try {
+            var client = new DefaultCheqiApiClient(configFor(server));
+            client.listReceiptDestinations(RequestOptions.withAccessToken("customer-a"));
+            client.listReceiptDestinations(RequestOptions.withAccessToken("customer-b"));
+            client.listReceiptDestinations(RequestOptions.defaults());
+            client.listReceiptDestinations(null);
+            assertEquals(List.of("Bearer customer-a", "Bearer customer-b", "Bearer sk_test_123", "Bearer sk_test_123"),
+                    authorizations);
+        } finally { server.stop(0); }
+    }
+
+    @Test
+    void callWithoutAccessTokenOrApiKeyFailsBeforeSendingAnything() throws Exception {
+        var count = new java.util.concurrent.atomic.AtomicInteger();
+        HttpServer server = httpServer("/", exchange -> {
+            count.incrementAndGet();
+            send(exchange, 200, "[]");
+        });
+        try {
+            var config = CheqiSDKConfig.builder()
+                    .customApiEndpoint("http://127.0.0.1:" + server.getAddress().getPort())
+                    .timeoutSeconds(5).maxRetries(0).build();
+            var client = new DefaultCheqiApiClient(config);
+            var error = org.junit.jupiter.api.Assertions.assertThrows(
+                    com.cheqi.sdk.http.exceptions.CheqiApiException.class,
+                    () -> client.listReceiptDestinations(RequestOptions.defaults()));
+            assertEquals("AUTHENTICATION_FAILED", error.getErrorCode());
+            assertEquals(0, count.get());
+            client.listReceiptDestinations(RequestOptions.withAccessToken("customer-a"));
+            assertEquals(1, count.get());
+        } finally { server.stop(0); }
+    }
+
+    @Test
+    void perCallMaxRetriesOverridesConfiguredRetries() throws Exception {
+        var count = new java.util.concurrent.atomic.AtomicInteger();
+        HttpServer server = httpServer("/", exchange -> {
+            count.incrementAndGet();
+            exchange.getResponseHeaders().add("Retry-After", "1");
+            send(exchange, 503, "{\"message\":\"Temporary outage\"}");
+        });
+        try {
+            var client = new DefaultCheqiApiClient(configFor(server));
+            org.junit.jupiter.api.Assertions.assertThrows(com.cheqi.sdk.http.exceptions.CheqiApiException.class,
+                    () -> client.getMatch("match-123", RequestOptions.builder().maxRetries(2).build()));
+            assertEquals(3, count.get());
+        } finally { server.stop(0); }
+    }
+
+    @Test
+    void requestAccessTokenPostsClientCredentialsForOneGrantWithoutBearer() throws Exception {
+        var grantId = java.util.UUID.randomUUID();
+        AtomicReference<String> body = new AtomicReference<>();
+        AtomicReference<String> authorization = new AtomicReference<>();
+        HttpServer server = httpServer("/oauth2/token", exchange -> {
+            authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
+            body.set(new String(exchange.getRequestBody().readAllBytes()));
+            send(exchange, 200, "{\"access_token\":\"company-token\",\"token_type\":\"bearer\","
+                    + "\"expires_in\":900,\"scope\":\"receipt:issue\"}");
+        });
+        try {
+            var token = new DefaultCheqiApiClient(configFor(server)).requestAccessToken(
+                    new ClientCredentialsTokenRequest().clientId("client").clientSecret("secret")
+                            .grantId(grantId).scope("receipt:issue"), null);
+            assertEquals("company-token", token.getAccessToken());
+            assertEquals(900L, token.getExpiresIn());
+            assertEquals(null, authorization.get());
+            var json = OBJECT_MAPPER.readTree(body.get());
+            assertEquals("client_credentials", json.get("grant_type").asText());
+            assertEquals(grantId.toString(), json.get("grant_id").asText());
+            assertEquals("client", json.get("client_id").asText());
+        } finally { server.stop(0); }
+    }
+
+    @Test
+    void requestAccessTokenRequiresAGrant() {
+        var client = new DefaultCheqiApiClient(CheqiSDKConfig.builder()
+                .customApiEndpoint("http://127.0.0.1:1").build());
+        var error = org.junit.jupiter.api.Assertions.assertThrows(
+                com.cheqi.sdk.http.exceptions.CheqiApiException.class,
+                () -> client.requestAccessToken(
+                        new ClientCredentialsTokenRequest().clientId("client").clientSecret("secret"), null));
+        assertEquals("INVALID_REQUEST", error.getErrorCode());
+    }
+
+    @Test
+    void requestOptionsRejectBlankTokensAndHideTokenInToString() {
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> RequestOptions.withAccessToken(" "));
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> RequestOptions.builder().maxRetries(-1).build());
+        assertFalse(RequestOptions.withAccessToken("secret-token").toString().contains("secret-token"));
     }
 
     private static EncryptedReceiptEnvelope testEnvelope() {

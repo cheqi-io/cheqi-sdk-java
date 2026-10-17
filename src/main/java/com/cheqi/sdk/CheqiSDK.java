@@ -12,6 +12,7 @@ import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.http.CheqiApiClient;
 import com.cheqi.sdk.http.DefaultCheqiApiClient;
 import com.cheqi.sdk.matching.MatchingService;
+import com.cheqi.sdk.oauth.OAuthService;
 import com.cheqi.sdk.receipt.ReceiptService;
 import com.cheqi.sdk.verification.VerificationService;
 import okhttp3.OkHttpClient;
@@ -46,6 +47,7 @@ public class CheqiSDK {
     private final WebhookService webhookService;
     private final VerificationService verificationService;
     private final CreditNoteService creditNoteService;
+    private final OAuthService oauthService;
 
 
     private CheqiSDK(CheqiSDKConfig config) {
@@ -67,6 +69,7 @@ public class CheqiSDK {
         this.companyService = new CompanyService(apiClient);
         this.webhookService = new WebhookService(apiClient);
         this.creditNoteService = new CreditNoteService(apiClient, encryptionService, matchingService);
+        this.oauthService = new OAuthService(apiClient);
     }
 
     /**
@@ -171,6 +174,11 @@ public class CheqiSDK {
      */
     public CreditNoteService getCreditNoteService() {
         return creditNoteService;
+    }
+
+    /** Gets the OAuth service for requesting per-Grant Company access tokens. */
+    public OAuthService getOAuthService() {
+        return oauthService;
     }
 
     /**

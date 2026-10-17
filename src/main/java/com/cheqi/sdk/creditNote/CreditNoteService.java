@@ -4,6 +4,7 @@ import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
+import com.cheqi.sdk.http.RequestOptions;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.matching.MatchingService;
 import com.cheqi.sdk.models.generated.EncryptedCreditNoteEnvelope;
@@ -49,16 +50,14 @@ public class CreditNoteService {
             String parentCheqiReceiptId,
             Object creditNotePayload,
             UUID storeId,
-            String accessToken
+            RequestOptions options
     ) throws CheqiSDKException {
         requireNonNull(identificationDetails, "identificationDetails");
         requireText(parentCheqiReceiptId, "parentCheqiReceiptId");
         requireNonNull(creditNotePayload, "creditNotePayload");
 
         try {
-            RecipientResolutionResponse resolution = accessToken == null
-                    ? matchingService.matchCustomer(identificationDetails)
-                    : matchingService.matchCustomer(identificationDetails, accessToken);
+            RecipientResolutionResponse resolution = matchingService.matchCustomer(identificationDetails, options);
             validateDeviceRoute(resolution);
 
             String plaintextJson = creditNotePayload instanceof String
@@ -76,9 +75,7 @@ public class CreditNoteService {
                     .storeId(storeId)
                     .parentCheqiReceiptId(parentCheqiReceiptId)
                     .deviceDeliveries(deliveries);
-            ReceiptSubmissionResponse response = accessToken == null
-                    ? apiClient.submitEncryptedCreditNote(envelope)
-                    : apiClient.submitEncryptedCreditNote(envelope, accessToken);
+            ReceiptSubmissionResponse response = apiClient.submitEncryptedCreditNote(envelope, options);
             return CreditNoteResult.accepted(parentCheqiReceiptId, response);
         } catch (CheqiSDKException exception) {
             throw exception;
@@ -99,15 +96,19 @@ public class CreditNoteService {
             IdentificationDetails identificationDetails,
             String parentCheqiReceiptId,
             Object creditNotePayload,
-            String accessToken
+            RequestOptions options
     ) throws CheqiSDKException {
-        return issueCreditNote(
-                identificationDetails,
-                parentCheqiReceiptId,
-                creditNotePayload,
-                null,
-                accessToken
-        );
+        return issueCreditNote(identificationDetails, parentCheqiReceiptId, creditNotePayload, null, options);
+    }
+
+    public CreditNoteResult issueCreditNote(
+            IdentificationDetails identificationDetails,
+            String parentCheqiReceiptId,
+            Object creditNotePayload,
+            UUID storeId
+    ) throws CheqiSDKException {
+        return issueCreditNote(identificationDetails, parentCheqiReceiptId, creditNotePayload, storeId,
+                RequestOptions.defaults());
     }
 
     public CreditNoteResult issueCreditNote(
@@ -115,13 +116,8 @@ public class CreditNoteService {
             String parentCheqiReceiptId,
             Object creditNotePayload
     ) throws CheqiSDKException {
-        return issueCreditNote(
-                identificationDetails,
-                parentCheqiReceiptId,
-                creditNotePayload,
-                null,
-                null
-        );
+        return issueCreditNote(identificationDetails, parentCheqiReceiptId, creditNotePayload, null,
+                RequestOptions.defaults());
     }
 
     private static void validateDeviceRoute(RecipientResolutionResponse resolution)
