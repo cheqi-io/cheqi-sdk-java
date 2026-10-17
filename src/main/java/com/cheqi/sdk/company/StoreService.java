@@ -2,6 +2,7 @@ package com.cheqi.sdk.company;
 
 import com.cheqi.sdk.exceptions.CheqiSDKException;
 import com.cheqi.sdk.http.CheqiApiClient;
+import com.cheqi.sdk.http.RequestOptions;
 import com.cheqi.sdk.models.generated.CreateStoreRequest;
 import com.cheqi.sdk.models.generated.StoreDTO;
 import org.slf4j.Logger;
@@ -33,11 +34,11 @@ import java.util.UUID;
  *     .build();
  *
  * Store store = sdk.getStoreService()
- *     .createStore(companyId, storeRequest, accessToken);
+ *     .createStore(companyId, storeRequest, RequestOptions.withAccessToken(accessToken));
  *
  * // List all stores
  * List&lt;Store&gt; stores = sdk.getStoreService()
- *     .getStores(companyId, accessToken);
+ *     .getStores(companyId, RequestOptions.withAccessToken(accessToken));
  * </pre>
  */
 public class StoreService {
@@ -50,18 +51,21 @@ public class StoreService {
         logger.info("StoreService initialized successfully");
     }
 
+    public StoreDTO createStore(UUID companyId, CreateStoreRequest request) throws CheqiSDKException {
+        return createStore(companyId, request, RequestOptions.defaults());
+    }
+
     /**
      * Creates a new store/location for a company.
      *
      * @param companyId The company ID to create the store for
      * @param request Store creation request with store details
-     * @param accessToken OAuth access token with WRITE_STORES scope
+     * @param options per-call options, such as the OAuth access token (needs WRITE_STORES scope)
      * @return Created Store with ID and timestamps
      * @throws CheqiSDKException if creation fails
      */
-    public StoreDTO createStore(UUID companyId, CreateStoreRequest request, String accessToken) throws CheqiSDKException {
+    public StoreDTO createStore(UUID companyId, CreateStoreRequest request, RequestOptions options) throws CheqiSDKException {
         validateCompanyId(companyId);
-        validateAccessToken(accessToken);
 
         if (request == null) {
             throw new CheqiSDKException("Store request cannot be null",
@@ -71,7 +75,7 @@ public class StoreService {
         logger.info("Creating store '{}' for company {}", request.getStoreName(), companyId);
 
         try {
-            StoreDTO store = apiClient.createStore(companyId, request, accessToken);
+            StoreDTO store = apiClient.createStore(companyId, request, options);
             logger.info("Store created successfully: storeId={}", store.getId());
             return store;
         } catch (Exception e) {
@@ -80,48 +84,58 @@ public class StoreService {
         }
     }
 
+    public List<StoreDTO> getStores(UUID companyId) throws CheqiSDKException {
+        return getStores(companyId, RequestOptions.defaults());
+    }
+
     /**
      * Gets all stores for a company.
      *
      * @param companyId The company ID
-     * @param accessToken OAuth access token
+     * @param options per-call options, such as the OAuth access token
      * @return List of stores
      * @throws CheqiSDKException if retrieval fails
      */
-    public List<StoreDTO> getStores(UUID companyId, String accessToken) throws CheqiSDKException {
+    public List<StoreDTO> getStores(UUID companyId, RequestOptions options) throws CheqiSDKException {
         validateCompanyId(companyId);
-        validateAccessToken(accessToken);
 
         logger.debug("Getting stores for company {}", companyId);
 
         try {
-            return apiClient.getStores(companyId, null, accessToken);
+            return apiClient.getStores(companyId, null, options);
         } catch (Exception e) {
             logger.error("Failed to get stores: {}", e.getMessage(), e);
             throw new CheqiSDKException("Failed to get stores: " + e.getMessage(), e);
         }
     }
 
+    public List<StoreDTO> getActiveStores(UUID companyId) throws CheqiSDKException {
+        return getActiveStores(companyId, RequestOptions.defaults());
+    }
+
     /**
      * Gets active stores for a company.
      *
      * @param companyId The company ID
-     * @param accessToken OAuth access token
+     * @param options per-call options, such as the OAuth access token
      * @return List of active stores
      * @throws CheqiSDKException if retrieval fails
      */
-    public List<StoreDTO> getActiveStores(UUID companyId, String accessToken) throws CheqiSDKException {
+    public List<StoreDTO> getActiveStores(UUID companyId, RequestOptions options) throws CheqiSDKException {
         validateCompanyId(companyId);
-        validateAccessToken(accessToken);
 
         logger.debug("Getting active stores for company {}", companyId);
 
         try {
-            return apiClient.getStores(companyId, true, accessToken);
+            return apiClient.getStores(companyId, true, options);
         } catch (Exception e) {
             logger.error("Failed to get active stores: {}", e.getMessage(), e);
             throw new CheqiSDKException("Failed to get active stores: " + e.getMessage(), e);
         }
+    }
+
+    public StoreDTO getStore(UUID companyId, UUID storeId) throws CheqiSDKException {
+        return getStore(companyId, storeId, RequestOptions.defaults());
     }
 
     /**
@@ -129,23 +143,26 @@ public class StoreService {
      *
      * @param companyId The company ID
      * @param storeId The store ID
-     * @param accessToken OAuth access token
+     * @param options per-call options, such as the OAuth access token
      * @return Store details
      * @throws CheqiSDKException if retrieval fails
      */
-    public StoreDTO getStore(UUID companyId, UUID storeId, String accessToken) throws CheqiSDKException {
+    public StoreDTO getStore(UUID companyId, UUID storeId, RequestOptions options) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateStoreId(storeId);
-        validateAccessToken(accessToken);
 
         logger.debug("Getting store {} for company {}", storeId, companyId);
 
         try {
-            return apiClient.getStore(companyId, storeId, accessToken);
+            return apiClient.getStore(companyId, storeId, options);
         } catch (Exception e) {
             logger.error("Failed to get store: {}", e.getMessage(), e);
             throw new CheqiSDKException("Failed to get store: " + e.getMessage(), e);
         }
+    }
+
+    public StoreDTO updateStore(UUID companyId, UUID storeId, CreateStoreRequest request) throws CheqiSDKException {
+        return updateStore(companyId, storeId, request, RequestOptions.defaults());
     }
 
     /**
@@ -154,14 +171,13 @@ public class StoreService {
      * @param companyId The company ID
      * @param storeId The store ID to update
      * @param request Updated store details
-     * @param accessToken OAuth access token with WRITE_STORES scope
+     * @param options per-call options, such as the OAuth access token (needs WRITE_STORES scope)
      * @return Updated store
      * @throws CheqiSDKException if update fails
      */
-    public StoreDTO updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, String accessToken) throws CheqiSDKException {
+    public StoreDTO updateStore(UUID companyId, UUID storeId, CreateStoreRequest request, RequestOptions options) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateStoreId(storeId);
-        validateAccessToken(accessToken);
 
         if (request == null) {
             throw new CheqiSDKException("Store request cannot be null",
@@ -171,7 +187,7 @@ public class StoreService {
         logger.info("Updating store {} for company {}", storeId, companyId);
 
         try {
-            StoreDTO store = apiClient.updateStore(companyId, storeId, request, accessToken);
+            StoreDTO store = apiClient.updateStore(companyId, storeId, request, options);
             logger.info("Store updated successfully: storeId={}", store.getId());
             return store;
         } catch (Exception e) {
@@ -180,23 +196,26 @@ public class StoreService {
         }
     }
 
+    public void deleteStore(UUID companyId, UUID storeId) throws CheqiSDKException {
+        deleteStore(companyId, storeId, RequestOptions.defaults());
+    }
+
     /**
      * Deletes a store.
      *
      * @param companyId The company ID
      * @param storeId The store ID to delete
-     * @param accessToken OAuth access token with WRITE_STORES scope
+     * @param options per-call options, such as the OAuth access token (needs WRITE_STORES scope)
      * @throws CheqiSDKException if deletion fails
      */
-    public void deleteStore(UUID companyId, UUID storeId, String accessToken) throws CheqiSDKException {
+    public void deleteStore(UUID companyId, UUID storeId, RequestOptions options) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateStoreId(storeId);
-        validateAccessToken(accessToken);
 
         logger.info("Deleting store {} for company {}", storeId, companyId);
 
         try {
-            apiClient.deleteStore(companyId, storeId, accessToken);
+            apiClient.deleteStore(companyId, storeId, options);
             logger.info("Store deleted successfully: storeId={}", storeId);
         } catch (Exception e) {
             logger.error("Failed to delete store: {}", e.getMessage(), e);
@@ -204,23 +223,26 @@ public class StoreService {
         }
     }
 
+    public void activateStore(UUID companyId, UUID storeId) throws CheqiSDKException {
+        activateStore(companyId, storeId, RequestOptions.defaults());
+    }
+
     /**
      * Activates a store.
      *
      * @param companyId The company ID
      * @param storeId The store ID to activate
-     * @param accessToken OAuth access token with WRITE_STORES scope
+     * @param options per-call options, such as the OAuth access token (needs WRITE_STORES scope)
      * @throws CheqiSDKException if activation fails
      */
-    public void activateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiSDKException {
+    public void activateStore(UUID companyId, UUID storeId, RequestOptions options) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateStoreId(storeId);
-        validateAccessToken(accessToken);
 
         logger.info("Activating store {} for company {}", storeId, companyId);
 
         try {
-            apiClient.activateStore(companyId, storeId, accessToken);
+            apiClient.activateStore(companyId, storeId, options);
             logger.info("Store activated successfully: storeId={}", storeId);
         } catch (Exception e) {
             logger.error("Failed to activate store: {}", e.getMessage(), e);
@@ -228,23 +250,26 @@ public class StoreService {
         }
     }
 
+    public void deactivateStore(UUID companyId, UUID storeId) throws CheqiSDKException {
+        deactivateStore(companyId, storeId, RequestOptions.defaults());
+    }
+
     /**
      * Deactivates a store.
      *
      * @param companyId The company ID
      * @param storeId The store ID to deactivate
-     * @param accessToken OAuth access token with WRITE_STORES scope
+     * @param options per-call options, such as the OAuth access token (needs WRITE_STORES scope)
      * @throws CheqiSDKException if deactivation fails
      */
-    public void deactivateStore(UUID companyId, UUID storeId, String accessToken) throws CheqiSDKException {
+    public void deactivateStore(UUID companyId, UUID storeId, RequestOptions options) throws CheqiSDKException {
         validateCompanyId(companyId);
         validateStoreId(storeId);
-        validateAccessToken(accessToken);
 
         logger.info("Deactivating store {} for company {}", storeId, companyId);
 
         try {
-            apiClient.deactivateStore(companyId, storeId, accessToken);
+            apiClient.deactivateStore(companyId, storeId, options);
             logger.info("Store deactivated successfully: storeId={}", storeId);
         } catch (Exception e) {
             logger.error("Failed to deactivate store: {}", e.getMessage(), e);
@@ -263,13 +288,6 @@ public class StoreService {
         if (storeId == null) {
             throw new CheqiSDKException("Store ID cannot be null",
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 400, null);
-        }
-    }
-
-    private void validateAccessToken(String accessToken) throws CheqiSDKException {
-        if (accessToken == null || accessToken.trim().isEmpty()) {
-            throw new CheqiSDKException("Access token cannot be null or empty",
-                    CheqiSDKException.ErrorCodes.AUTHENTICATION_FAILED, 401, null);
         }
     }
 

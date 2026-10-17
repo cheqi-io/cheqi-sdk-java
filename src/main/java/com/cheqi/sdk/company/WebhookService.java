@@ -1,6 +1,7 @@
 package com.cheqi.sdk.company;
 
 import com.cheqi.sdk.http.CheqiApiClient;
+import com.cheqi.sdk.http.RequestOptions;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.models.generated.WebhookDTO;
 import java.util.UUID;
@@ -13,11 +14,15 @@ public class WebhookService {
         this.apiClient = apiClient;
     }
 
-    public WebhookDTO updateSubscriptionUrl(UUID subscriptionId, String notificationUrl, String accessToken)
+    public WebhookDTO updateSubscriptionUrl(UUID subscriptionId, String notificationUrl) throws CheqiApiException {
+        return updateSubscriptionUrl(subscriptionId, notificationUrl, RequestOptions.defaults());
+    }
+
+    public WebhookDTO updateSubscriptionUrl(UUID subscriptionId, String notificationUrl, RequestOptions options)
             throws CheqiApiException {
         if (notificationUrl == null || notificationUrl.isBlank()) {
             throw new IllegalArgumentException("Notification URL is required");
         }
-        return apiClient.updateWebhookSubscriptionUrl(subscriptionId, notificationUrl, accessToken);
+        return apiClient.updateWebhookSubscriptionUrl(subscriptionId, notificationUrl, options);
     }
 }

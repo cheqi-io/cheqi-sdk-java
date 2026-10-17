@@ -35,6 +35,14 @@ public class RetryHandler {
      * Executes HTTP request with automatic retry logic for transient failures.
      */
     public Response executeWithRetry(Request request, String operationName) throws CheqiApiException {
+        return executeWithRetry(httpClient, request, operationName, maxRetries);
+    }
+
+    /**
+     * Executes HTTP request on the given client with a per-call retry limit.
+     */
+    public Response executeWithRetry(OkHttpClient httpClient, Request request, String operationName, int maxRetries)
+            throws CheqiApiException {
         int attempt = 0;
         CheqiApiException lastException = null;
         Instant startTime = Instant.now();
@@ -47,7 +55,7 @@ public class RetryHandler {
 
                 Response response = httpClient.newCall(request).execute();
 
-                if (shouldRetry(response, attempt)) {
+                if (shouldRetry(response, attempt, maxRetries)) {
                     int statusCode = response.code();
                     String retryAfter = response.header("Retry-After");
                     response.close();
@@ -113,7 +121,7 @@ public class RetryHandler {
         );
     }
 
-    private boolean shouldRetry(Response response, int attempt) {
+    private boolean shouldRetry(Response response, int attempt, int maxRetries) {
         if (attempt >= maxRetries) {
             return false;
         }

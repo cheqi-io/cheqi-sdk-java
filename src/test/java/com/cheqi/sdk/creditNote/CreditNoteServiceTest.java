@@ -31,7 +31,7 @@ class CreditNoteServiceTest {
         CreditNoteService service = new CreditNoteService(apiClient, encryptionService, matchingService);
 
         MatchedRecipient recipient = new MatchedRecipient().id("device-1").publicKey("public-key");
-        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class)))
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(IdentificationDetails.class), org.mockito.ArgumentMatchers.any()))
                 .thenReturn(new RecipientResolutionResponse()
                         .routeFound(true)
                         .matchId("match-credit")
@@ -42,7 +42,7 @@ class CreditNoteServiceTest {
                 .encryptedAesKey("encrypted-key");
         encryptionService.delivery = encrypted;
         when(apiClient.submitEncryptedCreditNote(
-                org.mockito.ArgumentMatchers.any(EncryptedCreditNoteEnvelope.class)))
+                org.mockito.ArgumentMatchers.any(EncryptedCreditNoteEnvelope.class), org.mockito.ArgumentMatchers.any()))
                 .thenReturn(new ReceiptSubmissionResponse()
                         .cheqiReceiptId("CHQ-CN-1")
                         .matchId("match-credit")
@@ -64,7 +64,7 @@ class CreditNoteServiceTest {
 
         ArgumentCaptor<EncryptedCreditNoteEnvelope> envelope =
                 ArgumentCaptor.forClass(EncryptedCreditNoteEnvelope.class);
-        verify(apiClient).submitEncryptedCreditNote(envelope.capture());
+        verify(apiClient).submitEncryptedCreditNote(envelope.capture(), org.mockito.ArgumentMatchers.any());
         assertEquals("match-credit", envelope.getValue().getMatchId());
         assertEquals("CHQ-PARENT", envelope.getValue().getParentCheqiReceiptId());
         assertEquals(List.of(encrypted), envelope.getValue().getDeviceDeliveries());

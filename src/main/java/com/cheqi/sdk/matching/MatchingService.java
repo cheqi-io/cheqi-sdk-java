@@ -1,6 +1,7 @@
 package com.cheqi.sdk.matching;
 
 import com.cheqi.sdk.http.CheqiApiClient;
+import com.cheqi.sdk.http.RequestOptions;
 import com.cheqi.sdk.http.exceptions.CheqiApiException;
 import com.cheqi.sdk.models.generated.CardDetails;
 import com.cheqi.sdk.models.generated.IdentificationDetails;
@@ -34,23 +35,33 @@ public class MatchingService {
     }
     
     /**
-     * Matches a customer using the provided identification details (OAuth mode).
+     * Matches a customer using the API key configured during SDK initialization.
+     *
+     * @see #matchCustomer(IdentificationDetails, RequestOptions)
+     */
+    public RecipientResolutionResponse matchCustomer(
+            IdentificationDetails identificationDetails) throws CheqiApiException {
+        return matchCustomer(identificationDetails, RequestOptions.defaults());
+    }
+
+    /**
+     * Matches a customer using the provided identification details.
      *
      * <p>At least one identifier must be present: pairing code, card details,
      * payment account details, or email.</p>
      *
      * @param identificationDetails Customer identifiers (card, pairing code, email, etc.)
-     * @param accessToken OAuth access token for API calls
+     * @param options per-call options, such as the OAuth access token of the connected company
      * @return RecipientResolutionResponse with matched recipients or empty if not found
      * @throws CheqiApiException if matching operation fails
      * @throws IllegalArgumentException if no valid identifiers are provided
      */
     public RecipientResolutionResponse matchCustomer(
             IdentificationDetails identificationDetails,
-            String accessToken) throws CheqiApiException {
-        
+            RequestOptions options) throws CheqiApiException {
+
         logger.debug("Starting customer matching");
-        
+
         // Validate request has at least one identifier
         if (!hasValidIdentifiers(identificationDetails)) {
             String error = "IdentificationDetails must contain at least one identifier (card details, payment account details, or email)";
@@ -59,18 +70,18 @@ public class MatchingService {
         }
 
         logAvailableIdentifiers(identificationDetails);
-        
+
         try {
-            RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, accessToken);
-            
+            RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails, options);
+
             if (Boolean.TRUE.equals(response.getRouteFound())) {
                 logger.info("Customer matched successfully: {} recipients found", response.getRecipients() == null ? 0 : response.getRecipients().size());
             } else {
                 logger.info("No customer match found");
             }
-            
+
             return response;
-            
+
         } catch (CheqiApiException e) {
             logger.error("Customer matching failed: {}", e.getMessage());
             throw e;
@@ -86,57 +97,6 @@ public class MatchingService {
         }
     }
 
-    /**
-     * Matches a customer using API key authentication (configured during SDK initialization).
-     *
-     * <p>At least one identifier must be present: pairing code, card details,
-     * payment account details, or email.</p>
-     *
-     * @param identificationDetails Customer identifiers (card, pairing code, email, etc.)
-     * @return RecipientResolutionResponse with matched recipients or empty if not found
-     * @throws CheqiApiException if matching operation fails
-     * @throws IllegalArgumentException if no valid identifiers are provided
-     */
-    public RecipientResolutionResponse matchCustomer(
-            IdentificationDetails identificationDetails) throws CheqiApiException {
-
-        logger.debug("Starting customer matching with API key");
-
-        // Validate request has at least one identifier
-        if (!hasValidIdentifiers(identificationDetails)) {
-            String error = "Identification details must contain at least one identifier (card details, payment account details, or email)";
-            logger.error(error);
-            throw new IllegalArgumentException(error);
-        }
-
-        logAvailableIdentifiers(identificationDetails);
-
-        try {
-            RecipientResolutionResponse response = apiClient.matchCustomer(identificationDetails);
-
-            if (Boolean.TRUE.equals(response.getRouteFound())) {
-                logger.info("Customer matched successfully: {} recipients found", response.getRecipients() == null ? 0 : response.getRecipients().size());
-            } else {
-                logger.info("No customer match found");
-            }
-
-            return response;
-
-        } catch (CheqiApiException e) {
-            logger.error("Customer matching failed: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            logger.error("Unexpected error during customer matching: {}", e.getMessage(), e);
-            throw new CheqiApiException(
-                    "Customer matching failed: " + e.getMessage(),
-                    e,
-                    0,
-                    CheqiApiException.ErrorCodes.UNKNOWN_ERROR,
-                    null
-            );
-        }
-    }
-    
     /**
      * Validates that the payment details are usable for resolution.
      *
