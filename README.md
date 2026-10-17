@@ -75,13 +75,9 @@ RequestOptions options = RequestOptions.withAccessToken(accessToken);
 
 ReceiptResult result = sdk.getReceiptService()
     .issueReceipt(identificationDetails, receiptPayload, storeId, options);
-
-RequestOptions slowCall = RequestOptions.builder()
-    .accessToken(accessToken)
-    .timeout(Duration.ofSeconds(60))
-    .maxRetries(0)
-    .build();
 ```
+
+`RequestOptions.builder()` can also set `timeout` and `maxRetries` for a single call.
 
 Company access tokens are short-lived and bound to one Grant, so an integration that serves
 several companies holds one token per Grant. Request one with the client-credentials grant:
