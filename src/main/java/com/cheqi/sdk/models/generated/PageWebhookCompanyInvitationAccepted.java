@@ -41,9 +41,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_NUMBER,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_PAGEABLE,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_SORT,
-  PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_NUMBER_OF_ELEMENTS,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_FIRST,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_LAST,
+  PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_NUMBER_OF_ELEMENTS,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_EMPTY
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
@@ -77,10 +77,6 @@ public class PageWebhookCompanyInvitationAccepted {
   @javax.annotation.Nullable
   private SortObject sort;
 
-  public static final String JSON_PROPERTY_NUMBER_OF_ELEMENTS = "numberOfElements";
-  @javax.annotation.Nullable
-  private Integer numberOfElements;
-
   public static final String JSON_PROPERTY_FIRST = "first";
   @javax.annotation.Nullable
   private Boolean first;
@@ -88,6 +84,10 @@ public class PageWebhookCompanyInvitationAccepted {
   public static final String JSON_PROPERTY_LAST = "last";
   @javax.annotation.Nullable
   private Boolean last;
+
+  public static final String JSON_PROPERTY_NUMBER_OF_ELEMENTS = "numberOfElements";
+  @javax.annotation.Nullable
+  private Integer numberOfElements;
 
   public static final String JSON_PROPERTY_EMPTY = "empty";
   @javax.annotation.Nullable
@@ -272,30 +272,6 @@ public class PageWebhookCompanyInvitationAccepted {
   }
 
 
-  public PageWebhookCompanyInvitationAccepted numberOfElements(@javax.annotation.Nullable Integer numberOfElements) {
-    this.numberOfElements = numberOfElements;
-    return this;
-  }
-
-  /**
-   * Get numberOfElements
-   * @return numberOfElements
-   */
-  @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_NUMBER_OF_ELEMENTS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Integer getNumberOfElements() {
-    return numberOfElements;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_NUMBER_OF_ELEMENTS)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setNumberOfElements(@javax.annotation.Nullable Integer numberOfElements) {
-    this.numberOfElements = numberOfElements;
-  }
-
-
   public PageWebhookCompanyInvitationAccepted first(@javax.annotation.Nullable Boolean first) {
     this.first = first;
     return this;
@@ -344,6 +320,30 @@ public class PageWebhookCompanyInvitationAccepted {
   }
 
 
+  public PageWebhookCompanyInvitationAccepted numberOfElements(@javax.annotation.Nullable Integer numberOfElements) {
+    this.numberOfElements = numberOfElements;
+    return this;
+  }
+
+  /**
+   * Get numberOfElements
+   * @return numberOfElements
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_NUMBER_OF_ELEMENTS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getNumberOfElements() {
+    return numberOfElements;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_NUMBER_OF_ELEMENTS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setNumberOfElements(@javax.annotation.Nullable Integer numberOfElements) {
+    this.numberOfElements = numberOfElements;
+  }
+
+
   public PageWebhookCompanyInvitationAccepted empty(@javax.annotation.Nullable Boolean empty) {
     this.empty = empty;
     return this;
@@ -387,15 +387,15 @@ public class PageWebhookCompanyInvitationAccepted {
         Objects.equals(this.number, pageWebhookCompanyInvitationAccepted.number) &&
         Objects.equals(this.pageable, pageWebhookCompanyInvitationAccepted.pageable) &&
         Objects.equals(this.sort, pageWebhookCompanyInvitationAccepted.sort) &&
-        Objects.equals(this.numberOfElements, pageWebhookCompanyInvitationAccepted.numberOfElements) &&
         Objects.equals(this.first, pageWebhookCompanyInvitationAccepted.first) &&
         Objects.equals(this.last, pageWebhookCompanyInvitationAccepted.last) &&
+        Objects.equals(this.numberOfElements, pageWebhookCompanyInvitationAccepted.numberOfElements) &&
         Objects.equals(this.empty, pageWebhookCompanyInvitationAccepted.empty);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(totalElements, totalPages, size, content, number, pageable, sort, numberOfElements, first, last, empty);
+    return Objects.hash(totalElements, totalPages, size, content, number, pageable, sort, first, last, numberOfElements, empty);
   }
 
   @Override
@@ -409,9 +409,9 @@ public class PageWebhookCompanyInvitationAccepted {
     sb.append("    number: ").append(toIndentedString(number)).append("\n");
     sb.append("    pageable: ").append(toIndentedString(pageable)).append("\n");
     sb.append("    sort: ").append(toIndentedString(sort)).append("\n");
-    sb.append("    numberOfElements: ").append(toIndentedString(numberOfElements)).append("\n");
     sb.append("    first: ").append(toIndentedString(first)).append("\n");
     sb.append("    last: ").append(toIndentedString(last)).append("\n");
+    sb.append("    numberOfElements: ").append(toIndentedString(numberOfElements)).append("\n");
     sb.append("    empty: ").append(toIndentedString(empty)).append("\n");
     sb.append("}");
     return sb.toString();
