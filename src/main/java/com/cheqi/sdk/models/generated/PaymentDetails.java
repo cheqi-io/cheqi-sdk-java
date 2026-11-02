@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -106,7 +108,7 @@ public class PaymentDetails {
 
   public static final String JSON_PROPERTY_PAYMENT_METHODS = "paymentMethods";
   @javax.annotation.Nullable
-  private List<PaymentMethod> paymentMethods = new ArrayList<>();
+  private List<@Valid PaymentMethod> paymentMethods = new ArrayList<>();
 
   public PaymentDetails() { 
   }
@@ -121,6 +123,7 @@ public class PaymentDetails {
    * @return paymentMeansCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_MEANS_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPaymentMeansCode() {
@@ -145,6 +148,7 @@ public class PaymentDetails {
    * @return description
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DESCRIPTION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getDescription() {
@@ -169,6 +173,7 @@ public class PaymentDetails {
    * @return cardProvider
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CARD_PROVIDER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCardProvider() {
@@ -193,6 +198,7 @@ public class PaymentDetails {
    * @return cardLastFour
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CARD_LAST_FOUR)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCardLastFour() {
@@ -217,6 +223,7 @@ public class PaymentDetails {
    * @return accountIdentifier
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAccountIdentifier() {
@@ -241,6 +248,7 @@ public class PaymentDetails {
    * @return accountIdentifierType
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAccountIdentifierType() {
@@ -265,6 +273,7 @@ public class PaymentDetails {
    * @return merchantId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_MERCHANT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getMerchantId() {
@@ -289,6 +298,7 @@ public class PaymentDetails {
    * @return paymentTerminalId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_TERMINAL_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPaymentTerminalId() {
@@ -309,10 +319,12 @@ public class PaymentDetails {
   }
 
   /**
-   * Issuer-supplied amount paid when the receipt was issued, across all payment methods. Cheqi never calculates or fills in this value; later payments do not change it.
+   * Issuer-supplied amount paid when the receipt was issued, across all payment methods. Required in new ReceiptPayloads, including zero when unpaid. Cheqi never calculates or fills in this value; later payments do not change it.
    * @return paidAmount
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PAID_AMOUNT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public BigDecimal getPaidAmount() {
@@ -333,10 +345,12 @@ public class PaymentDetails {
   }
 
   /**
-   * Issuer-supplied amount still owed after the receipt was issued, for example 0 for a receipt paid in full. Must equal totalAmount minus paidAmount plus roundingAmount.
+   * Issuer-supplied amount still owed after the receipt was issued, for example 0 for a receipt paid in full. Required in every new ReceiptPayload. Must equal totalAmount minus paidAmount plus roundingAmount.
    * @return amountDue
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_AMOUNT_DUE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public BigDecimal getAmountDue() {
@@ -357,10 +371,12 @@ public class PaymentDetails {
   }
 
   /**
-   * Issuer-supplied rounding applied to the amount due, for example cash rounding.
+   * Issuer-supplied rounding applied to the amount due, for example cash rounding. Required in new ReceiptPayloads; explicitly send zero when there is no rounding.
    * @return roundingAmount
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ROUNDING_AMOUNT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public BigDecimal getRoundingAmount() {
@@ -385,6 +401,8 @@ public class PaymentDetails {
    * @return dueDate
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_DUE_DATE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public LocalDate getDueDate() {
@@ -409,6 +427,7 @@ public class PaymentDetails {
    * @return paymentTerms
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_TERMS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPaymentTerms() {
@@ -423,7 +442,7 @@ public class PaymentDetails {
   }
 
 
-  public PaymentDetails paymentMethods(@javax.annotation.Nullable List<PaymentMethod> paymentMethods) {
+  public PaymentDetails paymentMethods(@javax.annotation.Nullable List<@Valid PaymentMethod> paymentMethods) {
     this.paymentMethods = paymentMethods;
     return this;
   }
@@ -441,16 +460,18 @@ public class PaymentDetails {
    * @return paymentMethods
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_METHODS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<PaymentMethod> getPaymentMethods() {
+  public List<@Valid PaymentMethod> getPaymentMethods() {
     return paymentMethods;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PAYMENT_METHODS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPaymentMethods(@javax.annotation.Nullable List<PaymentMethod> paymentMethods) {
+  public void setPaymentMethods(@javax.annotation.Nullable List<@Valid PaymentMethod> paymentMethods) {
     this.paymentMethods = paymentMethods;
   }
 

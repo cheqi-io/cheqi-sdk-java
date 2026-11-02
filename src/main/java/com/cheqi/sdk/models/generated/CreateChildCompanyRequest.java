@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -57,6 +59,8 @@ public class CreateChildCompanyRequest {
    * @return company
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_COMPANY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public CompanyCreationRequest getCompany() {
@@ -81,6 +85,7 @@ public class CreateChildCompanyRequest {
    * @return adminEmail
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ADMIN_EMAIL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAdminEmail() {

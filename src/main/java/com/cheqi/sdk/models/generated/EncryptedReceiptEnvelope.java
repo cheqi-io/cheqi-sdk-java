@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -55,7 +57,7 @@ public class EncryptedReceiptEnvelope {
 
   public static final String JSON_PROPERTY_DEVICE_DELIVERIES = "deviceDeliveries";
   @javax.annotation.Nonnull
-  private List<EncryptedReceiptPayload> deviceDeliveries = new ArrayList<>();
+  private List<@Valid EncryptedReceiptPayload> deviceDeliveries = new ArrayList<>();
 
   public EncryptedReceiptEnvelope() { 
   }
@@ -70,6 +72,8 @@ public class EncryptedReceiptEnvelope {
    * @return matchId
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_MATCH_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getMatchId() {
@@ -96,6 +100,8 @@ public class EncryptedReceiptEnvelope {
    */
   @Deprecated
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CHILD_COMPANY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getChildCompanyId() {
@@ -120,6 +126,8 @@ public class EncryptedReceiptEnvelope {
    * @return storeId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_STORE_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getStoreId() {
@@ -134,7 +142,7 @@ public class EncryptedReceiptEnvelope {
   }
 
 
-  public EncryptedReceiptEnvelope deviceDeliveries(@javax.annotation.Nonnull List<EncryptedReceiptPayload> deviceDeliveries) {
+  public EncryptedReceiptEnvelope deviceDeliveries(@javax.annotation.Nonnull List<@Valid EncryptedReceiptPayload> deviceDeliveries) {
     this.deviceDeliveries = deviceDeliveries;
     return this;
   }
@@ -152,16 +160,19 @@ public class EncryptedReceiptEnvelope {
    * @return deviceDeliveries
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_DEVICE_DELIVERIES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public List<EncryptedReceiptPayload> getDeviceDeliveries() {
+  public List<@Valid EncryptedReceiptPayload> getDeviceDeliveries() {
     return deviceDeliveries;
   }
 
 
   @JsonProperty(JSON_PROPERTY_DEVICE_DELIVERIES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setDeviceDeliveries(@javax.annotation.Nonnull List<EncryptedReceiptPayload> deviceDeliveries) {
+  public void setDeviceDeliveries(@javax.annotation.Nonnull List<@Valid EncryptedReceiptPayload> deviceDeliveries) {
     this.deviceDeliveries = deviceDeliveries;
   }
 

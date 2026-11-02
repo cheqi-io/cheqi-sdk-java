@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -101,7 +103,7 @@ public class MatchStatusResponse implements SubmitEncryptedReceipt202Response {
 
   public static final String JSON_PROPERTY_RECIPIENTS = "recipients";
   @javax.annotation.Nullable
-  private List<MatchedRecipient> recipients = new ArrayList<>();
+  private List<@Valid MatchedRecipient> recipients = new ArrayList<>();
 
   public static final String JSON_PROPERTY_SUBMISSION = "submission";
   @javax.annotation.Nullable
@@ -124,6 +126,8 @@ public class MatchStatusResponse implements SubmitEncryptedReceipt202Response {
    * @return state
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_STATE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public MatchState getState() {
@@ -148,6 +152,7 @@ public class MatchStatusResponse implements SubmitEncryptedReceipt202Response {
    * @return matchId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_MATCH_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getMatchId() {
@@ -172,6 +177,7 @@ public class MatchStatusResponse implements SubmitEncryptedReceipt202Response {
    * @return route
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ROUTE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public RouteEnum getRoute() {
@@ -196,6 +202,8 @@ public class MatchStatusResponse implements SubmitEncryptedReceipt202Response {
    * @return expiresAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_EXPIRES_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getExpiresAt() {
@@ -210,7 +218,7 @@ public class MatchStatusResponse implements SubmitEncryptedReceipt202Response {
   }
 
 
-  public MatchStatusResponse recipients(@javax.annotation.Nullable List<MatchedRecipient> recipients) {
+  public MatchStatusResponse recipients(@javax.annotation.Nullable List<@Valid MatchedRecipient> recipients) {
     this.recipients = recipients;
     return this;
   }
@@ -228,16 +236,18 @@ public class MatchStatusResponse implements SubmitEncryptedReceipt202Response {
    * @return recipients
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_RECIPIENTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<MatchedRecipient> getRecipients() {
+  public List<@Valid MatchedRecipient> getRecipients() {
     return recipients;
   }
 
 
   @JsonProperty(JSON_PROPERTY_RECIPIENTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setRecipients(@javax.annotation.Nullable List<MatchedRecipient> recipients) {
+  public void setRecipients(@javax.annotation.Nullable List<@Valid MatchedRecipient> recipients) {
     this.recipients = recipients;
   }
 
@@ -252,6 +262,8 @@ public class MatchStatusResponse implements SubmitEncryptedReceipt202Response {
    * @return submission
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_SUBMISSION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public ReceiptSubmissionResponse getSubmission() {
@@ -276,6 +288,7 @@ public class MatchStatusResponse implements SubmitEncryptedReceipt202Response {
    * @return retryAfterSeconds
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_RETRY_AFTER_SECONDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Integer getRetryAfterSeconds() {

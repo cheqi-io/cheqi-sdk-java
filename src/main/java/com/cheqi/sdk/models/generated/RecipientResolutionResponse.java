@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -96,7 +98,7 @@ public class RecipientResolutionResponse {
 
   public static final String JSON_PROPERTY_RECIPIENTS = "recipients";
   @javax.annotation.Nullable
-  private List<MatchedRecipient> recipients = new ArrayList<>();
+  private List<@Valid MatchedRecipient> recipients = new ArrayList<>();
 
   public static final String JSON_PROPERTY_EXPIRES_AT = "expiresAt";
   @javax.annotation.Nullable
@@ -123,6 +125,7 @@ public class RecipientResolutionResponse {
    * @return routeFound
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ROUTE_FOUND)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getRouteFound() {
@@ -147,6 +150,7 @@ public class RecipientResolutionResponse {
    * @return deliveryRouteType
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DELIVERY_ROUTE_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public DeliveryRouteTypeEnum getDeliveryRouteType() {
@@ -171,6 +175,7 @@ public class RecipientResolutionResponse {
    * @return matchId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_MATCH_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getMatchId() {
@@ -185,7 +190,7 @@ public class RecipientResolutionResponse {
   }
 
 
-  public RecipientResolutionResponse recipients(@javax.annotation.Nullable List<MatchedRecipient> recipients) {
+  public RecipientResolutionResponse recipients(@javax.annotation.Nullable List<@Valid MatchedRecipient> recipients) {
     this.recipients = recipients;
     return this;
   }
@@ -203,16 +208,18 @@ public class RecipientResolutionResponse {
    * @return recipients
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_RECIPIENTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<MatchedRecipient> getRecipients() {
+  public List<@Valid MatchedRecipient> getRecipients() {
     return recipients;
   }
 
 
   @JsonProperty(JSON_PROPERTY_RECIPIENTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setRecipients(@javax.annotation.Nullable List<MatchedRecipient> recipients) {
+  public void setRecipients(@javax.annotation.Nullable List<@Valid MatchedRecipient> recipients) {
     this.recipients = recipients;
   }
 
@@ -227,6 +234,8 @@ public class RecipientResolutionResponse {
    * @return expiresAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_EXPIRES_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getExpiresAt() {
@@ -251,6 +260,7 @@ public class RecipientResolutionResponse {
    * @return buyerCountryCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_BUYER_COUNTRY_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getBuyerCountryCode() {
@@ -275,6 +285,8 @@ public class RecipientResolutionResponse {
    * @return buyerType
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_BUYER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public BuyerType getBuyerType() {

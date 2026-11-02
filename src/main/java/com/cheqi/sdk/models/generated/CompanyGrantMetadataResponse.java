@@ -27,6 +27,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -125,6 +127,8 @@ public class CompanyGrantMetadataResponse {
    * @return grantId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_GRANT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getGrantId() {
@@ -149,6 +153,7 @@ public class CompanyGrantMetadataResponse {
    * @return grantVersion
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_GRANT_VERSION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Long getGrantVersion() {
@@ -173,6 +178,8 @@ public class CompanyGrantMetadataResponse {
    * @return issuerCompanyId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ISSUER_COMPANY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getIssuerCompanyId() {
@@ -197,6 +204,7 @@ public class CompanyGrantMetadataResponse {
    * @return companyLegalName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_LEGAL_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyLegalName() {
@@ -221,6 +229,7 @@ public class CompanyGrantMetadataResponse {
    * @return taxId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_TAX_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getTaxId() {
@@ -253,6 +262,7 @@ public class CompanyGrantMetadataResponse {
    * @return scopes
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SCOPES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Set<String> getScopes() {
@@ -286,6 +296,8 @@ public class CompanyGrantMetadataResponse {
    * @return storeIds
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_STORE_IDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Set<UUID> getStoreIds() {
@@ -311,6 +323,7 @@ public class CompanyGrantMetadataResponse {
    * @return storeAccessMode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_STORE_ACCESS_MODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public StoreAccessModeEnum getStoreAccessMode() {

@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -89,6 +91,8 @@ public class ReceiptEnvelope {
    * @return cheqiReceiptId
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCheqiReceiptId() {
@@ -121,6 +125,9 @@ public class ReceiptEnvelope {
    * @return documents
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_DOCUMENTS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Map<String, ReceiptEnvelopeDocument> getDocuments() {
@@ -147,6 +154,8 @@ public class ReceiptEnvelope {
    * @return envelopeVersion
    */
   @javax.annotation.Nonnull
+  @NotNull
+ @Min(1) @Max(2)
   @JsonProperty(JSON_PROPERTY_ENVELOPE_VERSION)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Integer getEnvelopeVersion() {
@@ -171,6 +180,8 @@ public class ReceiptEnvelope {
    * @return expenseSubmission
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_EXPENSE_SUBMISSION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public ExpenseSubmissionEnvelope getExpenseSubmission() {
@@ -195,6 +206,8 @@ public class ReceiptEnvelope {
    * @return receiptGeneratorVersion
    */
   @javax.annotation.Nonnull
+  @NotNull
+ @Pattern(regexp="^[A-Za-z0-9][A-Za-z0-9._+\\-]{0,63}$")
   @JsonProperty(JSON_PROPERTY_RECEIPT_GENERATOR_VERSION)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getReceiptGeneratorVersion() {
@@ -219,6 +232,9 @@ public class ReceiptEnvelope {
    * @return receiptUuid
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public UUID getReceiptUuid() {
@@ -251,6 +267,8 @@ public class ReceiptEnvelope {
    * @return documentProfiles
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_DOCUMENT_PROFILES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<ReceiptDocumentProfile> getDocumentProfiles() {

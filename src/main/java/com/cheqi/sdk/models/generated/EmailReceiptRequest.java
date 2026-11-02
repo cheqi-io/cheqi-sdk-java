@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -57,6 +59,8 @@ public class EmailReceiptRequest {
    * @return customerEmail
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_CUSTOMER_EMAIL)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCustomerEmail() {
@@ -81,6 +85,9 @@ public class EmailReceiptRequest {
    * @return cheqiReceipt
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public CheqiReceipt getCheqiReceipt() {

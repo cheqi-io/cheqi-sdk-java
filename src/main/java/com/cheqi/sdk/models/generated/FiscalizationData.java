@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -121,7 +123,7 @@ public class FiscalizationData {
 
   public static final String JSON_PROPERTY_ADDITIONAL_FIELDS = "additionalFields";
   @javax.annotation.Nullable
-  private List<JurisdictionField> additionalFields = new ArrayList<>();
+  private List<@Valid JurisdictionField> additionalFields = new ArrayList<>();
 
   public FiscalizationData() { 
   }
@@ -136,6 +138,8 @@ public class FiscalizationData {
    * @return system
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_SYSTEM)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getSystem() {
@@ -160,6 +164,9 @@ public class FiscalizationData {
    * @return status
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_STATUS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public FiscalizationStatus getStatus() {
@@ -184,6 +191,7 @@ public class FiscalizationData {
    * @return fiscalDocumentNumber
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_FISCAL_DOCUMENT_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getFiscalDocumentNumber() {
@@ -208,6 +216,7 @@ public class FiscalizationData {
    * @return fiscalDeviceId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_FISCAL_DEVICE_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getFiscalDeviceId() {
@@ -232,6 +241,7 @@ public class FiscalizationData {
    * @return cashRegisterId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CASH_REGISTER_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCashRegisterId() {
@@ -256,6 +266,7 @@ public class FiscalizationData {
    * @return businessPremiseId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_BUSINESS_PREMISE_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getBusinessPremiseId() {
@@ -280,6 +291,7 @@ public class FiscalizationData {
    * @return operatorId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_OPERATOR_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getOperatorId() {
@@ -304,6 +316,7 @@ public class FiscalizationData {
    * @return transactionId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_TRANSACTION_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getTransactionId() {
@@ -328,6 +341,7 @@ public class FiscalizationData {
    * @return sequenceNumber
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SEQUENCE_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getSequenceNumber() {
@@ -352,6 +366,7 @@ public class FiscalizationData {
    * @return authorityReference
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_AUTHORITY_REFERENCE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAuthorityReference() {
@@ -376,6 +391,7 @@ public class FiscalizationData {
    * @return softwareId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SOFTWARE_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getSoftwareId() {
@@ -400,6 +416,7 @@ public class FiscalizationData {
    * @return verificationCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_VERIFICATION_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getVerificationCode() {
@@ -424,6 +441,7 @@ public class FiscalizationData {
    * @return signature
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SIGNATURE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getSignature() {
@@ -448,6 +466,7 @@ public class FiscalizationData {
    * @return signatureAlgorithm
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SIGNATURE_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getSignatureAlgorithm() {
@@ -472,6 +491,7 @@ public class FiscalizationData {
    * @return verificationUrl
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_VERIFICATION_URL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getVerificationUrl() {
@@ -496,6 +516,8 @@ public class FiscalizationData {
    * @return timestamp
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TIMESTAMP)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getTimestamp() {
@@ -510,7 +532,7 @@ public class FiscalizationData {
   }
 
 
-  public FiscalizationData additionalFields(@javax.annotation.Nullable List<JurisdictionField> additionalFields) {
+  public FiscalizationData additionalFields(@javax.annotation.Nullable List<@Valid JurisdictionField> additionalFields) {
     this.additionalFields = additionalFields;
     return this;
   }
@@ -528,16 +550,18 @@ public class FiscalizationData {
    * @return additionalFields
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ADDITIONAL_FIELDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<JurisdictionField> getAdditionalFields() {
+  public List<@Valid JurisdictionField> getAdditionalFields() {
     return additionalFields;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ADDITIONAL_FIELDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAdditionalFields(@javax.annotation.Nullable List<JurisdictionField> additionalFields) {
+  public void setAdditionalFields(@javax.annotation.Nullable List<@Valid JurisdictionField> additionalFields) {
     this.additionalFields = additionalFields;
   }
 

@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -85,6 +87,8 @@ public class DestinationResponse {
    * @return id
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getId() {
@@ -109,6 +113,7 @@ public class DestinationResponse {
    * @return name
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getName() {
@@ -133,6 +138,7 @@ public class DestinationResponse {
    * @return publicKey
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPublicKey() {
@@ -157,6 +163,7 @@ public class DestinationResponse {
    * @return keyAlgorithm
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_KEY_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getKeyAlgorithm() {
@@ -181,6 +188,7 @@ public class DestinationResponse {
    * @return active
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACTIVE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getActive() {
@@ -205,6 +213,7 @@ public class DestinationResponse {
    * @return acceptsEmployeeSubmissions
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getAcceptsEmployeeSubmissions() {
@@ -237,6 +246,8 @@ public class DestinationResponse {
    * @return formatPreferences
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_FORMAT_PREFERENCES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<ReceiptFormat> getFormatPreferences() {

@@ -25,6 +25,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -73,6 +75,9 @@ public class ExpenseSubmissionEnvelope {
    * @return expenseSubmissionId
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_EXPENSE_SUBMISSION_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public UUID getExpenseSubmissionId() {
@@ -97,6 +102,9 @@ public class ExpenseSubmissionEnvelope {
    * @return targetCompanyId
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TARGET_COMPANY_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public UUID getTargetCompanyId() {
@@ -121,6 +129,9 @@ public class ExpenseSubmissionEnvelope {
    * @return submittedByUserId
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_SUBMITTED_BY_USER_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public UUID getSubmittedByUserId() {
@@ -145,6 +156,9 @@ public class ExpenseSubmissionEnvelope {
    * @return submittedAt
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_SUBMITTED_AT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public OffsetDateTime getSubmittedAt() {
@@ -169,6 +183,7 @@ public class ExpenseSubmissionEnvelope {
    * @return reason
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_REASON)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getReason() {

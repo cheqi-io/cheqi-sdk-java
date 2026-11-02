@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -67,6 +69,8 @@ public class InviteEmployeeRequest {
    * @return emails
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_EMAILS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Set<String> getEmails() {
@@ -92,6 +96,7 @@ public class InviteEmployeeRequest {
    * @return resendPending
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_RESEND_PENDING)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getResendPending() {

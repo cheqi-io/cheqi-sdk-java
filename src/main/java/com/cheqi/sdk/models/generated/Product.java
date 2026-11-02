@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -95,15 +97,15 @@ public class Product {
 
   public static final String JSON_PROPERTY_DISCOUNTS = "discounts";
   @javax.annotation.Nullable
-  private List<Discount> discounts = new ArrayList<>();
+  private List<@Valid Discount> discounts = new ArrayList<>();
 
   public static final String JSON_PROPERTY_CHARGES = "charges";
   @javax.annotation.Nullable
-  private List<Charge> charges = new ArrayList<>();
+  private List<@Valid Charge> charges = new ArrayList<>();
 
   public static final String JSON_PROPERTY_TAXES = "taxes";
   @javax.annotation.Nullable
-  private List<Tax> taxes = new ArrayList<>();
+  private List<@Valid Tax> taxes = new ArrayList<>();
 
   public static final String JSON_PROPERTY_SUBTOTAL = "subtotal";
   @javax.annotation.Nonnull
@@ -115,7 +117,7 @@ public class Product {
 
   public static final String JSON_PROPERTY_BARCODES = "barcodes";
   @javax.annotation.Nullable
-  private List<Barcode> barcodes = new ArrayList<>();
+  private List<@Valid Barcode> barcodes = new ArrayList<>();
 
   public Product() { 
   }
@@ -130,6 +132,8 @@ public class Product {
    * @return name
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getName() {
@@ -154,6 +158,7 @@ public class Product {
    * @return brandName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_BRAND_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getBrandName() {
@@ -178,6 +183,8 @@ public class Product {
    * @return identifier
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_IDENTIFIER)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getIdentifier() {
@@ -202,6 +209,7 @@ public class Product {
    * @return description
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DESCRIPTION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getDescription() {
@@ -226,6 +234,8 @@ public class Product {
    * @return quantity
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_QUANTITY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Double getQuantity() {
@@ -250,6 +260,7 @@ public class Product {
    * @return baseQuantity
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_BASE_QUANTITY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Double getBaseQuantity() {
@@ -274,6 +285,9 @@ public class Product {
    * @return unitCode
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_UNIT_CODE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public UnitCode getUnitCode() {
@@ -298,6 +312,8 @@ public class Product {
    * @return period
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PERIOD)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Period getPeriod() {
@@ -322,6 +338,9 @@ public class Product {
    * @return unitPrice
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_UNIT_PRICE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public BigDecimal getUnitPrice() {
@@ -336,7 +355,7 @@ public class Product {
   }
 
 
-  public Product discounts(@javax.annotation.Nullable List<Discount> discounts) {
+  public Product discounts(@javax.annotation.Nullable List<@Valid Discount> discounts) {
     this.discounts = discounts;
     return this;
   }
@@ -354,21 +373,23 @@ public class Product {
    * @return discounts
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_DISCOUNTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Discount> getDiscounts() {
+  public List<@Valid Discount> getDiscounts() {
     return discounts;
   }
 
 
   @JsonProperty(JSON_PROPERTY_DISCOUNTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setDiscounts(@javax.annotation.Nullable List<Discount> discounts) {
+  public void setDiscounts(@javax.annotation.Nullable List<@Valid Discount> discounts) {
     this.discounts = discounts;
   }
 
 
-  public Product charges(@javax.annotation.Nullable List<Charge> charges) {
+  public Product charges(@javax.annotation.Nullable List<@Valid Charge> charges) {
     this.charges = charges;
     return this;
   }
@@ -386,21 +407,23 @@ public class Product {
    * @return charges
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CHARGES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Charge> getCharges() {
+  public List<@Valid Charge> getCharges() {
     return charges;
   }
 
 
   @JsonProperty(JSON_PROPERTY_CHARGES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCharges(@javax.annotation.Nullable List<Charge> charges) {
+  public void setCharges(@javax.annotation.Nullable List<@Valid Charge> charges) {
     this.charges = charges;
   }
 
 
-  public Product taxes(@javax.annotation.Nullable List<Tax> taxes) {
+  public Product taxes(@javax.annotation.Nullable List<@Valid Tax> taxes) {
     this.taxes = taxes;
     return this;
   }
@@ -418,16 +441,18 @@ public class Product {
    * @return taxes
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TAXES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Tax> getTaxes() {
+  public List<@Valid Tax> getTaxes() {
     return taxes;
   }
 
 
   @JsonProperty(JSON_PROPERTY_TAXES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTaxes(@javax.annotation.Nullable List<Tax> taxes) {
+  public void setTaxes(@javax.annotation.Nullable List<@Valid Tax> taxes) {
     this.taxes = taxes;
   }
 
@@ -442,6 +467,9 @@ public class Product {
    * @return subtotal
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_SUBTOTAL)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public BigDecimal getSubtotal() {
@@ -466,6 +494,9 @@ public class Product {
    * @return total
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TOTAL)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public BigDecimal getTotal() {
@@ -480,7 +511,7 @@ public class Product {
   }
 
 
-  public Product barcodes(@javax.annotation.Nullable List<Barcode> barcodes) {
+  public Product barcodes(@javax.annotation.Nullable List<@Valid Barcode> barcodes) {
     this.barcodes = barcodes;
     return this;
   }
@@ -498,16 +529,18 @@ public class Product {
    * @return barcodes
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_BARCODES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Barcode> getBarcodes() {
+  public List<@Valid Barcode> getBarcodes() {
     return barcodes;
   }
 
 
   @JsonProperty(JSON_PROPERTY_BARCODES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setBarcodes(@javax.annotation.Nullable List<Barcode> barcodes) {
+  public void setBarcodes(@javax.annotation.Nullable List<@Valid Barcode> barcodes) {
     this.barcodes = barcodes;
   }
 

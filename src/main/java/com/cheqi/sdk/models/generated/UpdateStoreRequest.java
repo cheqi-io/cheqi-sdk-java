@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -77,6 +79,7 @@ public class UpdateStoreRequest {
    * @return storeName
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=255)
   @JsonProperty(JSON_PROPERTY_STORE_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getStoreName() {
@@ -101,6 +104,8 @@ public class UpdateStoreRequest {
    * @return addressDto
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ADDRESS_DTO)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public AddressDTO getAddressDto() {
@@ -125,6 +130,7 @@ public class UpdateStoreRequest {
    * @return phoneNumber
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=20)
   @JsonProperty(JSON_PROPERTY_PHONE_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPhoneNumber() {
@@ -149,6 +155,7 @@ public class UpdateStoreRequest {
    * @return email
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=255)
   @JsonProperty(JSON_PROPERTY_EMAIL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getEmail() {
@@ -173,6 +180,7 @@ public class UpdateStoreRequest {
    * @return isActive
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_IS_ACTIVE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getIsActive() {
@@ -197,6 +205,7 @@ public class UpdateStoreRequest {
    * @return openingHours
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=500)
   @JsonProperty(JSON_PROPERTY_OPENING_HOURS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getOpeningHours() {

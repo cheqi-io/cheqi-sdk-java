@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -66,6 +68,7 @@ public class AuthorizationCodeExchangeRequest {
    * @return clientId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CLIENT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getClientId() {
@@ -90,6 +93,7 @@ public class AuthorizationCodeExchangeRequest {
    * @return clientSecret
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CLIENT_SECRET)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getClientSecret() {
@@ -114,6 +118,7 @@ public class AuthorizationCodeExchangeRequest {
    * @return code
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCode() {
@@ -138,6 +143,7 @@ public class AuthorizationCodeExchangeRequest {
    * @return codeVerifier
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CODE_VERIFIER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCodeVerifier() {

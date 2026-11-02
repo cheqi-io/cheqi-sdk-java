@@ -25,6 +25,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -126,6 +128,8 @@ public class EncryptedCreditNoteInitiationRequestResponse {
    * @return requestId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_REQUEST_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getRequestId() {
@@ -150,6 +154,7 @@ public class EncryptedCreditNoteInitiationRequestResponse {
    * @return cheqiReceiptId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCheqiReceiptId() {
@@ -174,6 +179,7 @@ public class EncryptedCreditNoteInitiationRequestResponse {
    * @return encryptedSymmetricKey
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getEncryptedSymmetricKey() {
@@ -198,6 +204,7 @@ public class EncryptedCreditNoteInitiationRequestResponse {
    * @return publicKey
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPublicKey() {
@@ -222,6 +229,7 @@ public class EncryptedCreditNoteInitiationRequestResponse {
    * @return status
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_STATUS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public StatusEnum getStatus() {
@@ -246,6 +254,8 @@ public class EncryptedCreditNoteInitiationRequestResponse {
    * @return createdAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CREATED_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getCreatedAt() {
@@ -270,6 +280,7 @@ public class EncryptedCreditNoteInitiationRequestResponse {
    * @return encryptedCreditNoteInitiationRequest
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE_INITIATION_REQUEST)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getEncryptedCreditNoteInitiationRequest() {

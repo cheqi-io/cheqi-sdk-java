@@ -26,6 +26,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -162,6 +164,8 @@ public class WebhookReceiptEnvelope {
    * @return companyId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_COMPANY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getCompanyId() {
@@ -186,6 +190,8 @@ public class WebhookReceiptEnvelope {
    * @return userId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_USER_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getUserId() {
@@ -210,6 +216,7 @@ public class WebhookReceiptEnvelope {
    * @return deliveryPurpose
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DELIVERY_PURPOSE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public DeliveryPurposeEnum getDeliveryPurpose() {
@@ -234,6 +241,8 @@ public class WebhookReceiptEnvelope {
    * @return expenseSubmissionId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_EXPENSE_SUBMISSION_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getExpenseSubmissionId() {
@@ -258,6 +267,8 @@ public class WebhookReceiptEnvelope {
    * @return submittedByUserId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_SUBMITTED_BY_USER_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getSubmittedByUserId() {
@@ -282,6 +293,7 @@ public class WebhookReceiptEnvelope {
    * @return cheqiReceiptId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCheqiReceiptId() {
@@ -306,6 +318,8 @@ public class WebhookReceiptEnvelope {
    * @return routingIdentifier
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ROUTING_IDENTIFIER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public RoutingIdentifier getRoutingIdentifier() {
@@ -330,6 +344,7 @@ public class WebhookReceiptEnvelope {
    * @return encryptedEnvelope
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_ENVELOPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getEncryptedEnvelope() {
@@ -354,6 +369,7 @@ public class WebhookReceiptEnvelope {
    * @return encryptedEnvelopeKey
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_ENVELOPE_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getEncryptedEnvelopeKey() {
@@ -378,6 +394,7 @@ public class WebhookReceiptEnvelope {
    * @return publicKey
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPublicKey() {
@@ -402,6 +419,7 @@ public class WebhookReceiptEnvelope {
    * @return recipientKeyAlgorithm
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_RECIPIENT_KEY_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getRecipientKeyAlgorithm() {
@@ -426,6 +444,7 @@ public class WebhookReceiptEnvelope {
    * @return envelopeVersion
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ENVELOPE_VERSION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Integer getEnvelopeVersion() {
@@ -450,6 +469,7 @@ public class WebhookReceiptEnvelope {
    * @return receiptGeneratorVersion
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_RECEIPT_GENERATOR_VERSION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getReceiptGeneratorVersion() {
@@ -474,6 +494,7 @@ public class WebhookReceiptEnvelope {
    * @return finalHash
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_FINAL_HASH)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getFinalHash() {
@@ -498,6 +519,7 @@ public class WebhookReceiptEnvelope {
    * @return clientId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CLIENT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getClientId() {
@@ -522,6 +544,8 @@ public class WebhookReceiptEnvelope {
    * @return createdAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CREATED_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getCreatedAt() {

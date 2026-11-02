@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -77,6 +79,7 @@ public class PageableObject {
    * @return offset
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_OFFSET)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Long getOffset() {
@@ -101,6 +104,7 @@ public class PageableObject {
    * @return paged
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAGED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getPaged() {
@@ -125,6 +129,7 @@ public class PageableObject {
    * @return pageNumber
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAGE_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Integer getPageNumber() {
@@ -149,6 +154,7 @@ public class PageableObject {
    * @return pageSize
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAGE_SIZE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Integer getPageSize() {
@@ -173,6 +179,8 @@ public class PageableObject {
    * @return sort
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_SORT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public SortObject getSort() {
@@ -197,6 +205,7 @@ public class PageableObject {
    * @return unpaged
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_UNPAGED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getUnpaged() {

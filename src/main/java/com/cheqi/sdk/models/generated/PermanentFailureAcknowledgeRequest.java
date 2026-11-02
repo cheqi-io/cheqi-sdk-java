@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -67,6 +69,7 @@ public class PermanentFailureAcknowledgeRequest {
    * @return receiptIds
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_RECEIPT_IDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Set<String> getReceiptIds() {
@@ -92,6 +95,7 @@ public class PermanentFailureAcknowledgeRequest {
    * @return failureReason
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_FAILURE_REASON)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getFailureReason() {

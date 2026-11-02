@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -105,6 +107,7 @@ public class ClientCredentialsTokenRequest {
    * @return scope
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SCOPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getScope() {
@@ -129,6 +132,7 @@ public class ClientCredentialsTokenRequest {
    * @return grantType
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_GRANT_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public GrantTypeEnum getGrantType() {
@@ -153,6 +157,7 @@ public class ClientCredentialsTokenRequest {
    * @return clientId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CLIENT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getClientId() {
@@ -177,6 +182,7 @@ public class ClientCredentialsTokenRequest {
    * @return clientSecret
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CLIENT_SECRET)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getClientSecret() {
@@ -201,6 +207,8 @@ public class ClientCredentialsTokenRequest {
    * @return grantId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_GRANT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getGrantId() {

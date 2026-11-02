@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -92,6 +94,9 @@ public class PaymentMethod {
    * @return amount
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_AMOUNT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public BigDecimal getAmount() {
@@ -116,6 +121,7 @@ public class PaymentMethod {
    * @return paymentMeansCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_MEANS_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPaymentMeansCode() {
@@ -140,6 +146,7 @@ public class PaymentMethod {
    * @return description
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DESCRIPTION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getDescription() {
@@ -164,6 +171,7 @@ public class PaymentMethod {
    * @return cardProvider
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CARD_PROVIDER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCardProvider() {
@@ -188,6 +196,7 @@ public class PaymentMethod {
    * @return cardLastFour
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CARD_LAST_FOUR)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCardLastFour() {
@@ -212,6 +221,7 @@ public class PaymentMethod {
    * @return accountIdentifier
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAccountIdentifier() {
@@ -236,6 +246,7 @@ public class PaymentMethod {
    * @return accountIdentifierType
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAccountIdentifierType() {
@@ -260,6 +271,7 @@ public class PaymentMethod {
    * @return merchantId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_MERCHANT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getMerchantId() {
@@ -284,6 +296,7 @@ public class PaymentMethod {
    * @return paymentTerminalId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_TERMINAL_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPaymentTerminalId() {

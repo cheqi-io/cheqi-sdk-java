@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -48,15 +50,15 @@ public class AuthorizedResourcesResponse {
 
   public static final String JSON_PROPERTY_COMPANIES = "companies";
   @javax.annotation.Nullable
-  private List<AuthorizedCompanyDTO> companies = new ArrayList<>();
+  private List<@Valid AuthorizedCompanyDTO> companies = new ArrayList<>();
 
   public static final String JSON_PROPERTY_STANDALONE_PAYMENT_ACCOUNTS = "standalonePaymentAccounts";
   @javax.annotation.Nullable
-  private List<AuthorizedPaymentAccountDTO> standalonePaymentAccounts = new ArrayList<>();
+  private List<@Valid AuthorizedPaymentAccountDTO> standalonePaymentAccounts = new ArrayList<>();
 
   public static final String JSON_PROPERTY_STANDALONE_EMAILS = "standaloneEmails";
   @javax.annotation.Nullable
-  private List<AuthorizedEmailDTO> standaloneEmails = new ArrayList<>();
+  private List<@Valid AuthorizedEmailDTO> standaloneEmails = new ArrayList<>();
 
   public AuthorizedResourcesResponse() { 
   }
@@ -79,6 +81,7 @@ public class AuthorizedResourcesResponse {
    * @return scopes
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SCOPES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<String> getScopes() {
@@ -93,7 +96,7 @@ public class AuthorizedResourcesResponse {
   }
 
 
-  public AuthorizedResourcesResponse companies(@javax.annotation.Nullable List<AuthorizedCompanyDTO> companies) {
+  public AuthorizedResourcesResponse companies(@javax.annotation.Nullable List<@Valid AuthorizedCompanyDTO> companies) {
     this.companies = companies;
     return this;
   }
@@ -111,21 +114,23 @@ public class AuthorizedResourcesResponse {
    * @return companies
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_COMPANIES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<AuthorizedCompanyDTO> getCompanies() {
+  public List<@Valid AuthorizedCompanyDTO> getCompanies() {
     return companies;
   }
 
 
   @JsonProperty(JSON_PROPERTY_COMPANIES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCompanies(@javax.annotation.Nullable List<AuthorizedCompanyDTO> companies) {
+  public void setCompanies(@javax.annotation.Nullable List<@Valid AuthorizedCompanyDTO> companies) {
     this.companies = companies;
   }
 
 
-  public AuthorizedResourcesResponse standalonePaymentAccounts(@javax.annotation.Nullable List<AuthorizedPaymentAccountDTO> standalonePaymentAccounts) {
+  public AuthorizedResourcesResponse standalonePaymentAccounts(@javax.annotation.Nullable List<@Valid AuthorizedPaymentAccountDTO> standalonePaymentAccounts) {
     this.standalonePaymentAccounts = standalonePaymentAccounts;
     return this;
   }
@@ -143,21 +148,23 @@ public class AuthorizedResourcesResponse {
    * @return standalonePaymentAccounts
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_STANDALONE_PAYMENT_ACCOUNTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<AuthorizedPaymentAccountDTO> getStandalonePaymentAccounts() {
+  public List<@Valid AuthorizedPaymentAccountDTO> getStandalonePaymentAccounts() {
     return standalonePaymentAccounts;
   }
 
 
   @JsonProperty(JSON_PROPERTY_STANDALONE_PAYMENT_ACCOUNTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setStandalonePaymentAccounts(@javax.annotation.Nullable List<AuthorizedPaymentAccountDTO> standalonePaymentAccounts) {
+  public void setStandalonePaymentAccounts(@javax.annotation.Nullable List<@Valid AuthorizedPaymentAccountDTO> standalonePaymentAccounts) {
     this.standalonePaymentAccounts = standalonePaymentAccounts;
   }
 
 
-  public AuthorizedResourcesResponse standaloneEmails(@javax.annotation.Nullable List<AuthorizedEmailDTO> standaloneEmails) {
+  public AuthorizedResourcesResponse standaloneEmails(@javax.annotation.Nullable List<@Valid AuthorizedEmailDTO> standaloneEmails) {
     this.standaloneEmails = standaloneEmails;
     return this;
   }
@@ -175,16 +182,18 @@ public class AuthorizedResourcesResponse {
    * @return standaloneEmails
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_STANDALONE_EMAILS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<AuthorizedEmailDTO> getStandaloneEmails() {
+  public List<@Valid AuthorizedEmailDTO> getStandaloneEmails() {
     return standaloneEmails;
   }
 
 
   @JsonProperty(JSON_PROPERTY_STANDALONE_EMAILS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setStandaloneEmails(@javax.annotation.Nullable List<AuthorizedEmailDTO> standaloneEmails) {
+  public void setStandaloneEmails(@javax.annotation.Nullable List<@Valid AuthorizedEmailDTO> standaloneEmails) {
     this.standaloneEmails = standaloneEmails;
   }
 

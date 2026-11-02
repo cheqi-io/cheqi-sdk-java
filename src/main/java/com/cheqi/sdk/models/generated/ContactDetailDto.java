@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -66,6 +68,7 @@ public class ContactDetailDto {
    * @return id
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Long getId() {
@@ -90,6 +93,7 @@ public class ContactDetailDto {
    * @return contactType
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CONTACT_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getContactType() {
@@ -114,6 +118,7 @@ public class ContactDetailDto {
    * @return contactValue
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CONTACT_VALUE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getContactValue() {
@@ -138,6 +143,7 @@ public class ContactDetailDto {
    * @return displayName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DISPLAY_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getDisplayName() {

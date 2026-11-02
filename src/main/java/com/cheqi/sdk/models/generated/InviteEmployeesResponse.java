@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -41,7 +43,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class InviteEmployeesResponse {
   public static final String JSON_PROPERTY_EXISTING_MEMBERS = "existingMembers";
   @javax.annotation.Nullable
-  private List<ExistingMember> existingMembers = new ArrayList<>();
+  private List<@Valid ExistingMember> existingMembers = new ArrayList<>();
 
   public static final String JSON_PROPERTY_INVITED_EMAILS = "invitedEmails";
   @javax.annotation.Nullable
@@ -54,7 +56,7 @@ public class InviteEmployeesResponse {
   public InviteEmployeesResponse() { 
   }
 
-  public InviteEmployeesResponse existingMembers(@javax.annotation.Nullable List<ExistingMember> existingMembers) {
+  public InviteEmployeesResponse existingMembers(@javax.annotation.Nullable List<@Valid ExistingMember> existingMembers) {
     this.existingMembers = existingMembers;
     return this;
   }
@@ -72,16 +74,18 @@ public class InviteEmployeesResponse {
    * @return existingMembers
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_EXISTING_MEMBERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<ExistingMember> getExistingMembers() {
+  public List<@Valid ExistingMember> getExistingMembers() {
     return existingMembers;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXISTING_MEMBERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExistingMembers(@javax.annotation.Nullable List<ExistingMember> existingMembers) {
+  public void setExistingMembers(@javax.annotation.Nullable List<@Valid ExistingMember> existingMembers) {
     this.existingMembers = existingMembers;
   }
 
@@ -104,6 +108,7 @@ public class InviteEmployeesResponse {
    * @return invitedEmails
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_INVITED_EMAILS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<String> getInvitedEmails() {
@@ -136,6 +141,7 @@ public class InviteEmployeesResponse {
    * @return pendingEmails
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PENDING_EMAILS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<String> getPendingEmails() {

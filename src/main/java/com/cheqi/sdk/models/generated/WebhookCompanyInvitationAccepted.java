@@ -25,6 +25,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -83,6 +85,8 @@ public class WebhookCompanyInvitationAccepted {
    * @return eventId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_EVENT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getEventId() {
@@ -107,6 +111,8 @@ public class WebhookCompanyInvitationAccepted {
    * @return occurredAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_OCCURRED_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getOccurredAt() {
@@ -131,6 +137,8 @@ public class WebhookCompanyInvitationAccepted {
    * @return companyId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_COMPANY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getCompanyId() {
@@ -155,6 +163,7 @@ public class WebhookCompanyInvitationAccepted {
    * @return invitedEmail
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_INVITED_EMAIL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getInvitedEmail() {
@@ -179,6 +188,8 @@ public class WebhookCompanyInvitationAccepted {
    * @return cheqiUserId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CHEQI_USER_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getCheqiUserId() {
@@ -203,6 +214,7 @@ public class WebhookCompanyInvitationAccepted {
    * @return clientId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CLIENT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getClientId() {
@@ -227,6 +239,7 @@ public class WebhookCompanyInvitationAccepted {
    * @return cheqiReceiptId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCheqiReceiptId() {

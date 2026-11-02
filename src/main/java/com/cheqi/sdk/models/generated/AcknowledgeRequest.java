@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -62,6 +64,7 @@ public class AcknowledgeRequest {
    * @return receiptIds
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_RECEIPT_IDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Set<String> getReceiptIds() {

@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -107,6 +109,7 @@ public class OAuthTokenExchangeResponse {
    * @return accessToken
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCESS_TOKEN)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAccessToken() {
@@ -131,6 +134,7 @@ public class OAuthTokenExchangeResponse {
    * @return tokenType
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_TOKEN_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public TokenTypeEnum getTokenType() {
@@ -155,6 +159,7 @@ public class OAuthTokenExchangeResponse {
    * @return expiresIn
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_EXPIRES_IN)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Long getExpiresIn() {
@@ -179,6 +184,7 @@ public class OAuthTokenExchangeResponse {
    * @return scope
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SCOPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getScope() {

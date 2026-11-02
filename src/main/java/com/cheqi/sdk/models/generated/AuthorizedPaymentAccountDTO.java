@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -104,7 +106,7 @@ public class AuthorizedPaymentAccountDTO {
 
   public static final String JSON_PROPERTY_CARDS = "cards";
   @javax.annotation.Nullable
-  private List<AuthorizedCardDTO> cards = new ArrayList<>();
+  private List<@Valid AuthorizedCardDTO> cards = new ArrayList<>();
 
   public AuthorizedPaymentAccountDTO() { 
   }
@@ -119,6 +121,8 @@ public class AuthorizedPaymentAccountDTO {
    * @return id
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getId() {
@@ -143,6 +147,7 @@ public class AuthorizedPaymentAccountDTO {
    * @return accountIdentifier
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAccountIdentifier() {
@@ -167,6 +172,7 @@ public class AuthorizedPaymentAccountDTO {
    * @return accountIdentifierType
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public AccountIdentifierTypeEnum getAccountIdentifierType() {
@@ -191,6 +197,8 @@ public class AuthorizedPaymentAccountDTO {
    * @return company
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_COMPANY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public AuthorizedCompanyDTO getCompany() {
@@ -205,7 +213,7 @@ public class AuthorizedPaymentAccountDTO {
   }
 
 
-  public AuthorizedPaymentAccountDTO cards(@javax.annotation.Nullable List<AuthorizedCardDTO> cards) {
+  public AuthorizedPaymentAccountDTO cards(@javax.annotation.Nullable List<@Valid AuthorizedCardDTO> cards) {
     this.cards = cards;
     return this;
   }
@@ -223,16 +231,18 @@ public class AuthorizedPaymentAccountDTO {
    * @return cards
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CARDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<AuthorizedCardDTO> getCards() {
+  public List<@Valid AuthorizedCardDTO> getCards() {
     return cards;
   }
 
 
   @JsonProperty(JSON_PROPERTY_CARDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCards(@javax.annotation.Nullable List<AuthorizedCardDTO> cards) {
+  public void setCards(@javax.annotation.Nullable List<@Valid AuthorizedCardDTO> cards) {
     this.cards = cards;
   }
 

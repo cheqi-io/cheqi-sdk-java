@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -61,6 +63,7 @@ public class SortObject {
    * @return empty
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_EMPTY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getEmpty() {
@@ -85,6 +88,7 @@ public class SortObject {
    * @return sorted
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SORTED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getSorted() {
@@ -109,6 +113,7 @@ public class SortObject {
    * @return unsorted
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_UNSORTED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getUnsorted() {

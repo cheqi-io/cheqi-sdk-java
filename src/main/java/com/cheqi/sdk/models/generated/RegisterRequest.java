@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -74,6 +76,8 @@ public class RegisterRequest {
    * @return name
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getName() {
@@ -98,6 +102,8 @@ public class RegisterRequest {
    * @return publicKey
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPublicKey() {
@@ -122,6 +128,8 @@ public class RegisterRequest {
    * @return keyAlgorithm
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_KEY_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getKeyAlgorithm() {
@@ -146,6 +154,7 @@ public class RegisterRequest {
    * @return acceptsEmployeeSubmissions
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getAcceptsEmployeeSubmissions() {
@@ -178,6 +187,8 @@ public class RegisterRequest {
    * @return formatPreferences
    */
   @javax.annotation.Nullable
+  @Valid
+ @Size(min=1,max=2147483647)
   @JsonProperty(JSON_PROPERTY_FORMAT_PREFERENCES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<ReceiptFormat> getFormatPreferences() {

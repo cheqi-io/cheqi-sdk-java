@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -74,6 +76,8 @@ public class WebhookData {
    * @return companyInvitationAccepted
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_COMPANY_INVITATION_ACCEPTED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public WebhookCompanyInvitationAccepted getCompanyInvitationAccepted() {
@@ -98,6 +102,8 @@ public class WebhookData {
    * @return encryptedReceipt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_RECEIPT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public WebhookReceiptEnvelope getEncryptedReceipt() {
@@ -122,6 +128,8 @@ public class WebhookData {
    * @return encryptedCreditNote
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public WebhookReceiptEnvelope getEncryptedCreditNote() {
@@ -146,6 +154,8 @@ public class WebhookData {
    * @return encryptedSelfBilledInvoice
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_SELF_BILLED_INVOICE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public WebhookReceiptEnvelope getEncryptedSelfBilledInvoice() {
@@ -170,6 +180,8 @@ public class WebhookData {
    * @return creditNoteInitiationRequest
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CREDIT_NOTE_INITIATION_REQUEST)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public WebhookCreditNoteInitiationRequest getCreditNoteInitiationRequest() {

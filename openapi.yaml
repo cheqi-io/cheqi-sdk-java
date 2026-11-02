@@ -116,14 +116,14 @@ paths:
               $ref: "#/components/schemas/AuthorizationCodeExchangeRequest"
         required: true
       responses:
-        "401":
-          description: Invalid client credentials
+        "200":
+          description: Authorization code exchanged successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CompanyAuthorizationResponse"
-        "200":
-          description: Authorization code exchanged successfully
+        "401":
+          description: Invalid client credentials
           content:
             '*/*':
               schema:
@@ -283,18 +283,18 @@ paths:
               $ref: "#/components/schemas/UpdateStoreRequest"
         required: true
       responses:
-        "200":
-          description: Store updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
           content:
             '*/*':
               schema:
                 type: object
+        "200":
+          description: Store updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to update this store
           content:
@@ -324,6 +324,12 @@ paths:
               $ref: "#/components/schemas/WebhookRequestBody"
         required: true
       responses:
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
         "400":
           description: Invalid webhook request data
           content:
@@ -334,12 +340,6 @@ paths:
           description: Duplicate webhook subscription already exists
           content:
             '*/*':
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
         "403":
@@ -433,18 +433,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "404":
-          description: Company not found
-          content:
-            '*/*':
-              schema:
-                type: object
         "201":
           description: Store created successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
+        "404":
+          description: Company not found
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: Invalid request data
           content:
@@ -474,14 +474,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
+        "403":
+          description: Insufficient permissions - requires receipt:issue scope
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "403":
-          description: Insufficient permissions - requires receipt:issue scope
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
@@ -571,14 +571,6 @@ paths:
               $ref: "#/components/schemas/EncryptedReceiptEnvelope"
         required: true
       responses:
-        "202":
-          description: Encrypted receipt payload accepted for on-device formatting
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                - $ref: "#/components/schemas/ReceiptSubmissionResponse"
-                - $ref: "#/components/schemas/MatchStatusResponse"
         "403":
           description: Insufficient permissions
           content:
@@ -597,6 +589,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
+        "202":
+          description: Encrypted receipt payload accepted for on-device formatting
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/ReceiptSubmissionResponse"
+                - $ref: "#/components/schemas/MatchStatusResponse"
         "404":
           description: Match absent or belongs to another requester
           content:
@@ -657,6 +657,18 @@ paths:
               $ref: "#/components/schemas/ClientReceiptDownloadRequest"
         required: true
       responses:
+        "201":
+          description: Encrypted receipt stored
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
+        "200":
+          description: Idempotent replay of an identical earlier upload
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
         "409":
           description: A different receipt is already stored under this download id
           content:
@@ -671,18 +683,6 @@ paths:
                 $ref: "#/components/schemas/ClientReceiptDownloadResponse"
         "403":
           description: Insufficient permissions - requires receipt:issue scope
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "200":
-          description: Idempotent replay of an identical earlier upload
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "201":
-          description: Encrypted receipt stored
           content:
             '*/*':
               schema:
@@ -746,14 +746,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "202":
-          description: Encrypted credit-note generation job accepted
+        "403":
+          description: Insufficient permissions - requires receipt:issue scope
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "403":
-          description: Insufficient permissions - requires receipt:issue scope
+        "202":
+          description: Encrypted credit-note generation job accepted
           content:
             '*/*':
               schema:
@@ -1142,14 +1142,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store deactivated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
@@ -1190,14 +1190,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
+        "403":
+          description: Not authorized to activate this store
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "403":
-          description: Not authorized to activate this store
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
@@ -1219,14 +1219,14 @@ paths:
         schema:
           type: string
       responses:
-        "404":
-          description: Match absent or belongs to another requester
+        "200":
+          description: Match status
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/MatchStatusResponse"
-        "200":
-          description: Match status
+        "404":
+          description: Match absent or belongs to another requester
           content:
             '*/*':
               schema:
@@ -1873,27 +1873,6 @@ components:
             public key.
       description: One encrypted definitive receipt payload addressed to an owner
         device.
-    ReceiptSubmissionResponse:
-      type: object
-      properties:
-        cheqiReceiptId:
-          type: string
-          description: Stable Cheqi receipt identifier assigned to the processing
-            job.
-        matchId:
-          type: string
-        status:
-          type: string
-          description: Processing status of an encrypted receipt payload submission.
-          enum:
-          - PENDING
-          - CLAIMED
-          - COMPLETED
-          - FAILED_PERMANENT
-        createdAt:
-          type: string
-          format: date-time
-      description: Acknowledgement of an accepted encrypted receipt payload submission.
     MatchState:
       type: string
       description: State of a receipt match and its submission
@@ -1927,6 +1906,27 @@ components:
         retryAfterSeconds:
           type: integer
           format: int32
+    ReceiptSubmissionResponse:
+      type: object
+      properties:
+        cheqiReceiptId:
+          type: string
+          description: Stable Cheqi receipt identifier assigned to the processing
+            job.
+        matchId:
+          type: string
+        status:
+          type: string
+          description: Processing status of an encrypted receipt payload submission.
+          enum:
+          - PENDING
+          - CLAIMED
+          - COMPLETED
+          - FAILED_PERMANENT
+        createdAt:
+          type: string
+          format: date-time
+      description: Acknowledgement of an accepted encrypted receipt payload submission.
     Barcode:
       type: object
       properties:
@@ -2373,21 +2373,23 @@ components:
         paidAmount:
           type: number
           description: "Issuer-supplied amount paid when the receipt was issued, across\
-            \ all payment methods. Cheqi never calculates or fills in this value;\
-            \ later payments do not change it."
+            \ all payment methods. Required in new ReceiptPayloads, including zero\
+            \ when unpaid. Cheqi never calculates or fills in this value; later payments\
+            \ do not change it."
           format: decimal
           example: 50.0
         amountDue:
           type: number
           description: "Issuer-supplied amount still owed after the receipt was issued,\
-            \ for example 0 for a receipt paid in full. Must equal totalAmount minus\
-            \ paidAmount plus roundingAmount."
+            \ for example 0 for a receipt paid in full. Required in every new ReceiptPayload.\
+            \ Must equal totalAmount minus paidAmount plus roundingAmount."
           format: decimal
           example: 0.0
         roundingAmount:
           type: number
           description: "Issuer-supplied rounding applied to the amount due, for example\
-            \ cash rounding."
+            \ cash rounding. Required in new ReceiptPayloads; explicitly send zero\
+            \ when there is no rounding."
           format: decimal
           example: -0.01
         dueDate:
@@ -3756,8 +3758,10 @@ components:
       - currency
       - documentNumber
       - issueDate
+      - paymentDetails
       - products
       - receiptSubtotal
+      - taxes
       - taxesApplied
       - totalAmount
       - totalBeforeTax
@@ -3778,6 +3782,7 @@ components:
           description: Date and time at which the issuer issued the receipt.
           format: date-time
         currency:
+          pattern: "[A-Z]{3}"
           type: string
           description: ISO 4217 currency code.
           example: EUR
@@ -3801,37 +3806,48 @@ components:
           type: number
           description: Issuer-supplied sum of the receipt-level discounts. Cheqi never
             calculates or fills in this value; it only checks it against the discounts.
-            Required with discounts for EN 16931 invoices.
+            Required whenever receipt-level discounts are present.
           format: decimal
           example: 1.0
         totalChargeAmount:
           type: number
           description: Issuer-supplied sum of the receipt-level charges. Cheqi never
             calculates or fills in this value; it only checks it against the charges.
-            Required with charges for EN 16931 invoices.
+            Required whenever receipt-level charges are present.
           format: decimal
           example: 2.0
         taxesApplied:
           type: boolean
           description: Issuer-supplied indication whether taxes apply to this receipt.
         products:
+          maxItems: 1024
+          minItems: 1
           type: array
-          description: Issuer-supplied receipt line items.
+          description: "Issuer-supplied receipt line items. Each line must have exactly\
+            \ one VAT entry with an explicit category and tax amount, including zero\
+            \ tax."
           items:
             $ref: "#/components/schemas/Product"
         discounts:
+          maxItems: 256
+          minItems: 0
           type: array
           description: Issuer-supplied receipt-level discounts.
           items:
             $ref: "#/components/schemas/Discount"
         charges:
+          maxItems: 256
+          minItems: 0
           type: array
           description: Issuer-supplied receipt-level charges.
           items:
             $ref: "#/components/schemas/Charge"
         taxes:
+          maxItems: 64
+          minItems: 1
           type: array
-          description: Issuer-supplied receipt-level tax breakdown.
+          description: "Issuer-supplied VAT breakdown, including zero tax. Each entry\
+            \ must state category, rate, taxableAmount and amount."
           items:
             $ref: "#/components/schemas/Tax"
         transactionDate:
@@ -3856,7 +3872,9 @@ components:
       description: "Definitive merchant-supplied receipt values encrypted independently\
         \ for each matched owner device. Cheqi never receives this object in plaintext.\
         \ All monetary, tax, fiscalization, signature, sequence, and QR values must\
-        \ be provided by the issuer; the SDK does not calculate them."
+        \ be provided by the issuer. Every new payload must satisfy the shared issuer\
+        \ validator, regardless of receiver formats; no financial values are inferred\
+        \ or repaired."
       x-tags:
       - Receipt Management
     CreditNoteContextEnvelope:

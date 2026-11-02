@@ -224,6 +224,8 @@ ReceiptResult result = sdk.getReceiptService()
 
 The JAR bundles the Rust WASM validator and its SHA-256/provenance manifest. Chicory compiles the pinned module to Java bytecode when the SDK is built. Consumers need only Java 11 and the SDK's normal Maven dependencies; there is no Rust installation, native library, runtime compiler or validator download.
 
+Required fields and field limits are defined by the backend contract and carried into the generated models as Bean Validation annotations such as `@NotNull`, `@Size` and `@Pattern`. Update them through `make fetch-spec` and `make generate`. Annotations describe individual fields; the automatic payload validator also checks conditional requirements and whether amounts agree. Some nested fields remain optional in the shared models to support older received receipts, but are required when issuing a new receipt as described above.
+
 Validation runs automatically for issuance, recovery, download issuance and local envelope generation, before the corresponding matching/encryption/submission. The SDK serializes BigDecimal amounts as exact decimal strings, preserving their values and scale. The exact validated JSON is used for encryption and fallback even if the caller subsequently mutates the payload.
 
 ```java

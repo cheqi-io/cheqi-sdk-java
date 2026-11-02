@@ -25,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -68,6 +70,8 @@ public class ReturnLineItem {
    * @return productId
    */
   @javax.annotation.Nonnull
+  @NotNull
+ @Size(min=0,max=255)
   @JsonProperty(JSON_PROPERTY_PRODUCT_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getProductId() {
@@ -93,6 +97,9 @@ public class ReturnLineItem {
    * @return quantity
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+ @DecimalMin(value="0",inclusive=false)
   @JsonProperty(JSON_PROPERTY_QUANTITY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public BigDecimal getQuantity() {
@@ -117,6 +124,9 @@ public class ReturnLineItem {
    * @return reasonCode
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_REASON_CODE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public ReturnReasonCode getReasonCode() {
@@ -141,6 +151,7 @@ public class ReturnLineItem {
    * @return reasonDescription
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=1000)
   @JsonProperty(JSON_PROPERTY_REASON_DESCRIPTION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getReasonDescription() {

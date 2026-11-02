@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -103,6 +105,8 @@ public class JurisdictionLegalText {
    * @return code
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_CODE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCode() {
@@ -127,6 +131,8 @@ public class JurisdictionLegalText {
    * @return text
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_TEXT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getText() {
@@ -151,6 +157,7 @@ public class JurisdictionLegalText {
    * @return languageCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_LANGUAGE_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getLanguageCode() {
@@ -175,6 +182,7 @@ public class JurisdictionLegalText {
    * @return displayRole
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DISPLAY_ROLE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public DisplayRoleEnum getDisplayRole() {

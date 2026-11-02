@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -62,6 +64,7 @@ public class ClientReceiptDownloadResponse {
    * @return cheqiReceiptId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCheqiReceiptId() {
@@ -86,6 +89,8 @@ public class ClientReceiptDownloadResponse {
    * @return createdAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CREATED_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getCreatedAt() {
@@ -110,6 +115,8 @@ public class ClientReceiptDownloadResponse {
    * @return expiresAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_EXPIRES_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getExpiresAt() {

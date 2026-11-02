@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -57,6 +59,8 @@ public class UploadPublicKeyRequest {
    * @return publicKey
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPublicKey() {
@@ -81,6 +85,9 @@ public class UploadPublicKeyRequest {
    * @return keyAlgorithm
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_KEY_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public KeyAlgorithm getKeyAlgorithm() {

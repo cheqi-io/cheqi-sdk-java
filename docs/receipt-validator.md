@@ -15,16 +15,20 @@ rules or amount calculations. The single validated JSON snapshot is encrypted
 unchanged for each device and reused by fallback; BigDecimal values are encoded
 as exact decimal strings.
 
-## Preview provenance
+## Bundle provenance
 
-This preview uses the successful four-language CI artifact from
+This bundle uses the successful four-language CI artifact from the merged
 [Cheqi PR #712](https://github.com/cheqi-io/cheqi/pull/712),
-[run 41459984708](https://github.com/cheqi-io/cheqi/actions/runs/41459984708).
+[run 41487248795](https://github.com/cheqi-io/cheqi/actions/runs/41487248795).
 The committed manifest records the precise source commit, ABI and SHA-256.
-It is a pinned preview rather than a published validator release.
+It is pinned to main commit `fb96508512b4d42eb72078632dd4238c174bbe75`,
+rather than a published validator release.
 
 The Java models were regenerated from `https://test.api.cheqi.io/v3/api-docs.yaml`
-to include the new payment status, split-payment and adjustment-total fields.
+using `make fetch-spec` and `make generate`. The models include payment status,
+split-payment and adjustment-total fields, plus the required payment object and
+VAT breakdown constraints deployed with PR #712. Bean Validation annotations
+are emitted by the generator; generated classes are not edited manually.
 The production-spec CI guard remains enabled. Production API promotion and the
 normal schema sync are prerequisites for a releasable SDK; this work publishes
 nothing to Maven Central and changes no release tags.

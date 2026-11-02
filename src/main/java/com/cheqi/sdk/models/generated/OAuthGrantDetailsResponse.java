@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -61,7 +63,7 @@ public class OAuthGrantDetailsResponse {
 
   public static final String JSON_PROPERTY_STORES = "stores";
   @javax.annotation.Nullable
-  private List<StoreDTO> stores = new ArrayList<>();
+  private List<@Valid StoreDTO> stores = new ArrayList<>();
 
   public static final String JSON_PROPERTY_SCOPES = "scopes";
   @javax.annotation.Nullable
@@ -119,6 +121,8 @@ public class OAuthGrantDetailsResponse {
    * @return grantId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_GRANT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getGrantId() {
@@ -143,6 +147,7 @@ public class OAuthGrantDetailsResponse {
    * @return grantVersion
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_GRANT_VERSION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Long getGrantVersion() {
@@ -167,6 +172,8 @@ public class OAuthGrantDetailsResponse {
    * @return company
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_COMPANY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OAuthGrantCompanyResponse getCompany() {
@@ -181,7 +188,7 @@ public class OAuthGrantDetailsResponse {
   }
 
 
-  public OAuthGrantDetailsResponse stores(@javax.annotation.Nullable List<StoreDTO> stores) {
+  public OAuthGrantDetailsResponse stores(@javax.annotation.Nullable List<@Valid StoreDTO> stores) {
     this.stores = stores;
     return this;
   }
@@ -199,16 +206,18 @@ public class OAuthGrantDetailsResponse {
    * @return stores
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_STORES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<StoreDTO> getStores() {
+  public List<@Valid StoreDTO> getStores() {
     return stores;
   }
 
 
   @JsonProperty(JSON_PROPERTY_STORES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setStores(@javax.annotation.Nullable List<StoreDTO> stores) {
+  public void setStores(@javax.annotation.Nullable List<@Valid StoreDTO> stores) {
     this.stores = stores;
   }
 
@@ -231,6 +240,7 @@ public class OAuthGrantDetailsResponse {
    * @return scopes
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_SCOPES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Set<String> getScopes() {
@@ -256,6 +266,7 @@ public class OAuthGrantDetailsResponse {
    * @return storeAccessMode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_STORE_ACCESS_MODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public StoreAccessModeEnum getStoreAccessMode() {

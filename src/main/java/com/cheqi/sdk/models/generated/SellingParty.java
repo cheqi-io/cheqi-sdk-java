@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -61,7 +63,7 @@ public class SellingParty {
 
   public static final String JSON_PROPERTY_IDENTIFIERS = "identifiers";
   @javax.annotation.Nullable
-  private List<CompanyIdentifierDTO> identifiers = new ArrayList<>();
+  private List<@Valid CompanyIdentifierDTO> identifiers = new ArrayList<>();
 
   public static final String JSON_PROPERTY_ADDRESS = "address";
   @javax.annotation.Nullable
@@ -80,6 +82,7 @@ public class SellingParty {
    * @return companyName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyName() {
@@ -104,6 +107,7 @@ public class SellingParty {
    * @return companyLegalName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_LEGAL_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyLegalName() {
@@ -128,6 +132,7 @@ public class SellingParty {
    * @return taxNumber
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_TAX_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getTaxNumber() {
@@ -152,6 +157,7 @@ public class SellingParty {
    * @return phoneNumber
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PHONE_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPhoneNumber() {
@@ -166,7 +172,7 @@ public class SellingParty {
   }
 
 
-  public SellingParty identifiers(@javax.annotation.Nullable List<CompanyIdentifierDTO> identifiers) {
+  public SellingParty identifiers(@javax.annotation.Nullable List<@Valid CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
     return this;
   }
@@ -184,16 +190,18 @@ public class SellingParty {
    * @return identifiers
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<CompanyIdentifierDTO> getIdentifiers() {
+  public List<@Valid CompanyIdentifierDTO> getIdentifiers() {
     return identifiers;
   }
 
 
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setIdentifiers(@javax.annotation.Nullable List<CompanyIdentifierDTO> identifiers) {
+  public void setIdentifiers(@javax.annotation.Nullable List<@Valid CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
   }
 
@@ -208,6 +216,8 @@ public class SellingParty {
    * @return address
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public PartyAddress getAddress() {

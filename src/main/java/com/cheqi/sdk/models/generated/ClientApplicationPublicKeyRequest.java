@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -67,6 +69,7 @@ public class ClientApplicationPublicKeyRequest {
    * @return clientSecret
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=512)
   @JsonProperty(JSON_PROPERTY_CLIENT_SECRET)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getClientSecret() {
@@ -91,6 +94,8 @@ public class ClientApplicationPublicKeyRequest {
    * @return publicKey
    */
   @javax.annotation.Nonnull
+  @NotNull
+ @Size(min=0,max=16384)
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPublicKey() {
@@ -115,6 +120,9 @@ public class ClientApplicationPublicKeyRequest {
    * @return keyAlgorithm
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_KEY_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public KeyAlgorithm getKeyAlgorithm() {
@@ -139,6 +147,8 @@ public class ClientApplicationPublicKeyRequest {
    * @return clientId
    */
   @javax.annotation.Nonnull
+  @NotNull
+ @Size(min=0,max=256)
   @JsonProperty(JSON_PROPERTY_CLIENT_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getClientId() {

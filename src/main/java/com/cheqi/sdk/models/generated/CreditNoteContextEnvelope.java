@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -52,6 +54,8 @@ public class CreditNoteContextEnvelope {
    * @return receivingParty
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_RECEIVING_PARTY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public ReceivingPartyEnvelope getReceivingParty() {
