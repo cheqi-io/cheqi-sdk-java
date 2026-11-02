@@ -1,5 +1,8 @@
 package com.cheqi.sdk.exceptions;
 
+import com.cheqi.sdk.validation.InvoiceValidationReport;
+import java.util.Objects;
+
 /**
  * Main exception class for Cheqi SDK operations.
  * 
@@ -22,6 +25,7 @@ public class CheqiSDKException extends Exception {
     private final String errorCode;
     private final int httpStatusCode;
     private final String correlationId;
+    private InvoiceValidationReport validationReport;
 
     /**
      * Creates a new CheqiSDKException with a message.
@@ -77,6 +81,18 @@ public class CheqiSDKException extends Exception {
         this.errorCode = errorCode;
         this.httpStatusCode = httpStatusCode;
         this.correlationId = correlationId;
+    }
+
+    /** Validation failure with every value-free rule finding from the shared engine. */
+    public static CheqiSDKException forReceiptValidation(InvoiceValidationReport report) {
+        CheqiSDKException failure = new CheqiSDKException(
+                "Receipt payload validation failed", ErrorCodes.VALIDATION_ERROR, 0, null);
+        failure.validationReport = Objects.requireNonNull(report, "report");
+        return failure;
+    }
+
+    public InvoiceValidationReport getValidationReport() {
+        return validationReport;
     }
 
     /**

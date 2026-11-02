@@ -29,7 +29,9 @@ public enum DocumentType {
   
   RECEIPT("RECEIPT"),
   
-  CREDIT_NOTE("CREDIT_NOTE");
+  CREDIT_NOTE("CREDIT_NOTE"),
+  
+  SELF_BILLED_INVOICE("SELF_BILLED_INVOICE");
 
   private String value;
 

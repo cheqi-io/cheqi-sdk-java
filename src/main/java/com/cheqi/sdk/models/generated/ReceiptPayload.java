@@ -50,6 +50,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   ReceiptPayload.JSON_PROPERTY_TOTAL_BEFORE_TAX,
   ReceiptPayload.JSON_PROPERTY_TOTAL_TAX_AMOUNT,
   ReceiptPayload.JSON_PROPERTY_TOTAL_AMOUNT,
+  ReceiptPayload.JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT,
+  ReceiptPayload.JSON_PROPERTY_TOTAL_CHARGE_AMOUNT,
   ReceiptPayload.JSON_PROPERTY_TAXES_APPLIED,
   ReceiptPayload.JSON_PROPERTY_PRODUCTS,
   ReceiptPayload.JSON_PROPERTY_DISCOUNTS,
@@ -96,6 +98,14 @@ public class ReceiptPayload {
   public static final String JSON_PROPERTY_TOTAL_AMOUNT = "totalAmount";
   @javax.annotation.Nonnull
   private BigDecimal totalAmount;
+
+  public static final String JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT = "totalDiscountAmount";
+  @javax.annotation.Nullable
+  private BigDecimal totalDiscountAmount;
+
+  public static final String JSON_PROPERTY_TOTAL_CHARGE_AMOUNT = "totalChargeAmount";
+  @javax.annotation.Nullable
+  private BigDecimal totalChargeAmount;
 
   public static final String JSON_PROPERTY_TAXES_APPLIED = "taxesApplied";
   @javax.annotation.Nonnull
@@ -341,6 +351,54 @@ public class ReceiptPayload {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setTotalAmount(@javax.annotation.Nonnull BigDecimal totalAmount) {
     this.totalAmount = totalAmount;
+  }
+
+
+  public ReceiptPayload totalDiscountAmount(@javax.annotation.Nullable BigDecimal totalDiscountAmount) {
+    this.totalDiscountAmount = totalDiscountAmount;
+    return this;
+  }
+
+  /**
+   * Issuer-supplied sum of the receipt-level discounts. Cheqi never calculates or fills in this value; it only checks it against the discounts. Required with discounts for EN 16931 invoices.
+   * @return totalDiscountAmount
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public BigDecimal getTotalDiscountAmount() {
+    return totalDiscountAmount;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTotalDiscountAmount(@javax.annotation.Nullable BigDecimal totalDiscountAmount) {
+    this.totalDiscountAmount = totalDiscountAmount;
+  }
+
+
+  public ReceiptPayload totalChargeAmount(@javax.annotation.Nullable BigDecimal totalChargeAmount) {
+    this.totalChargeAmount = totalChargeAmount;
+    return this;
+  }
+
+  /**
+   * Issuer-supplied sum of the receipt-level charges. Cheqi never calculates or fills in this value; it only checks it against the charges. Required with charges for EN 16931 invoices.
+   * @return totalChargeAmount
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_TOTAL_CHARGE_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public BigDecimal getTotalChargeAmount() {
+    return totalChargeAmount;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TOTAL_CHARGE_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTotalChargeAmount(@javax.annotation.Nullable BigDecimal totalChargeAmount) {
+    this.totalChargeAmount = totalChargeAmount;
   }
 
 
@@ -668,6 +726,8 @@ public class ReceiptPayload {
         Objects.equals(this.totalBeforeTax, receiptPayload.totalBeforeTax) &&
         Objects.equals(this.totalTaxAmount, receiptPayload.totalTaxAmount) &&
         Objects.equals(this.totalAmount, receiptPayload.totalAmount) &&
+        Objects.equals(this.totalDiscountAmount, receiptPayload.totalDiscountAmount) &&
+        Objects.equals(this.totalChargeAmount, receiptPayload.totalChargeAmount) &&
         Objects.equals(this.taxesApplied, receiptPayload.taxesApplied) &&
         Objects.equals(this.products, receiptPayload.products) &&
         Objects.equals(this.discounts, receiptPayload.discounts) &&
@@ -683,7 +743,7 @@ public class ReceiptPayload {
 
   @Override
   public int hashCode() {
-    return Objects.hash(documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, taxesApplied, products, discounts, charges, taxes, transactionDate, purchaseDate, period, barcodes, paymentDetails, jurisdictionalData);
+    return Objects.hash(documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, totalAmount, totalDiscountAmount, totalChargeAmount, taxesApplied, products, discounts, charges, taxes, transactionDate, purchaseDate, period, barcodes, paymentDetails, jurisdictionalData);
   }
 
   @Override
@@ -698,6 +758,8 @@ public class ReceiptPayload {
     sb.append("    totalBeforeTax: ").append(toIndentedString(totalBeforeTax)).append("\n");
     sb.append("    totalTaxAmount: ").append(toIndentedString(totalTaxAmount)).append("\n");
     sb.append("    totalAmount: ").append(toIndentedString(totalAmount)).append("\n");
+    sb.append("    totalDiscountAmount: ").append(toIndentedString(totalDiscountAmount)).append("\n");
+    sb.append("    totalChargeAmount: ").append(toIndentedString(totalChargeAmount)).append("\n");
     sb.append("    taxesApplied: ").append(toIndentedString(taxesApplied)).append("\n");
     sb.append("    products: ").append(toIndentedString(products)).append("\n");
     sb.append("    discounts: ").append(toIndentedString(discounts)).append("\n");

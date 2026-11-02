@@ -16,6 +16,7 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.cheqi.sdk.models.generated.ReceiptDocumentProfile;
 import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,7 +36,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   MatchedRecipient.JSON_PROPERTY_ID,
   MatchedRecipient.JSON_PROPERTY_PUBLIC_KEY,
   MatchedRecipient.JSON_PROPERTY_KEY_ALGORITHM,
-  MatchedRecipient.JSON_PROPERTY_ACCEPTED_FORMATS
+  MatchedRecipient.JSON_PROPERTY_ACCEPTED_FORMATS,
+  MatchedRecipient.JSON_PROPERTY_REQUIRED_DOCUMENT_PROFILES
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -55,6 +57,10 @@ public class MatchedRecipient {
   public static final String JSON_PROPERTY_ACCEPTED_FORMATS = "acceptedFormats";
   @javax.annotation.Nullable
   private List<ReceiptFormat> acceptedFormats = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_REQUIRED_DOCUMENT_PROFILES = "requiredDocumentProfiles";
+  @javax.annotation.Nullable
+  private List<ReceiptDocumentProfile> requiredDocumentProfiles = new ArrayList<>();
 
   public MatchedRecipient() { 
   }
@@ -163,6 +169,38 @@ public class MatchedRecipient {
   }
 
 
+  public MatchedRecipient requiredDocumentProfiles(@javax.annotation.Nullable List<ReceiptDocumentProfile> requiredDocumentProfiles) {
+    this.requiredDocumentProfiles = requiredDocumentProfiles;
+    return this;
+  }
+
+  public MatchedRecipient addRequiredDocumentProfilesItem(ReceiptDocumentProfile requiredDocumentProfilesItem) {
+    if (this.requiredDocumentProfiles == null) {
+      this.requiredDocumentProfiles = new ArrayList<>();
+    }
+    this.requiredDocumentProfiles.add(requiredDocumentProfilesItem);
+    return this;
+  }
+
+  /**
+   * Get requiredDocumentProfiles
+   * @return requiredDocumentProfiles
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_REQUIRED_DOCUMENT_PROFILES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<ReceiptDocumentProfile> getRequiredDocumentProfiles() {
+    return requiredDocumentProfiles;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_REQUIRED_DOCUMENT_PROFILES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRequiredDocumentProfiles(@javax.annotation.Nullable List<ReceiptDocumentProfile> requiredDocumentProfiles) {
+    this.requiredDocumentProfiles = requiredDocumentProfiles;
+  }
+
+
   /**
    * Return true if this MatchedRecipient object is equal to o.
    */
@@ -178,12 +216,13 @@ public class MatchedRecipient {
     return Objects.equals(this.id, matchedRecipient.id) &&
         Objects.equals(this.publicKey, matchedRecipient.publicKey) &&
         Objects.equals(this.keyAlgorithm, matchedRecipient.keyAlgorithm) &&
-        Objects.equals(this.acceptedFormats, matchedRecipient.acceptedFormats);
+        Objects.equals(this.acceptedFormats, matchedRecipient.acceptedFormats) &&
+        Objects.equals(this.requiredDocumentProfiles, matchedRecipient.requiredDocumentProfiles);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, publicKey, keyAlgorithm, acceptedFormats);
+    return Objects.hash(id, publicKey, keyAlgorithm, acceptedFormats, requiredDocumentProfiles);
   }
 
   @Override
@@ -194,6 +233,7 @@ public class MatchedRecipient {
     sb.append("    publicKey: ").append(toIndentedString(publicKey)).append("\n");
     sb.append("    keyAlgorithm: ").append(toIndentedString(keyAlgorithm)).append("\n");
     sb.append("    acceptedFormats: ").append(toIndentedString(acceptedFormats)).append("\n");
+    sb.append("    requiredDocumentProfiles: ").append(toIndentedString(requiredDocumentProfiles)).append("\n");
     sb.append("}");
     return sb.toString();
   }

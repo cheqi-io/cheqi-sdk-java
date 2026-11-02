@@ -54,7 +54,9 @@ public class WebhookRequestBody {
     
     CREDIT_NOTE_CREATED(String.valueOf("CREDIT_NOTE_CREATED")),
     
-    COMPANY_INVITATION_ACCEPTED(String.valueOf("COMPANY_INVITATION_ACCEPTED"));
+    COMPANY_INVITATION_ACCEPTED(String.valueOf("COMPANY_INVITATION_ACCEPTED")),
+    
+    SELF_BILLED_INVOICE_CREATED(String.valueOf("SELF_BILLED_INVOICE_CREATED"));
 
     private String value;
 

@@ -53,6 +53,41 @@ class ReceiptServiceTest {
     }
 
     @Test
+    void invalidSourceFactsStopBeforeMatchingOrEncryption() throws Exception {
+        ReceiptPayload payload = receipt();
+        payload.getPaymentDetails().setAmountDue(null);
+        payload.getPaymentDetails().setRoundingAmount(null);
+        var error = assertThrows(com.cheqi.sdk.exceptions.CheqiSDKException.class,
+                () -> service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), payload));
+        assertTrue(error.isValidationError());
+        assertTrue(error.getValidationReport().getIssues().stream()
+                .anyMatch(i -> i.getPath().equals("paymentDetails.amountDue")));
+        assertTrue(error.getValidationReport().getIssues().stream()
+                .anyMatch(i -> i.getPath().equals("paymentDetails.roundingAmount")));
+        org.mockito.Mockito.verifyNoInteractions(apiClient);
+        assertTrue(encryptionService.plaintexts.isEmpty());
+    }
+
+    @Test
+    void matchingCannotChangeTheValidatedSnapshotThatGetsEncrypted() throws Exception {
+        ReceiptPayload payload = receipt();
+        MatchedRecipient recipient = new MatchedRecipient().id("device-1").publicKey("key-1");
+        when(apiClient.matchCustomer(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
+                .thenAnswer(invocation -> {
+                    payload.setTotalAmount(new java.math.BigDecimal("999.99"));
+                    return new RecipientResolutionResponse().routeFound(true).matchId("match-123")
+                            .recipients(List.of(recipient));
+                });
+        encryptionService.deliveries = List.of(encrypted("device-1", "cipher"));
+        when(apiClient.submitEncryptedReceipt(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
+                .thenReturn(new ReceiptSubmissionResponse().matchId("match-123").cheqiReceiptId("CHQ-1"));
+        assertTrue(service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), payload).isAccepted());
+        assertEquals("12.34", ObjectMapperConfig.getInstance().readTree(encryptionService.plaintexts.get(0))
+                .path("totalAmount").asText());
+        assertEquals(new java.math.BigDecimal("999.99"), payload.getTotalAmount());
+    }
+
+    @Test
     void issuesDefinitivePayloadUnchangedToEveryResolvedDevice() throws Exception {
         MatchedRecipient first = new MatchedRecipient().id("device-1").publicKey("key-1");
         MatchedRecipient second = new MatchedRecipient().id("device-2").publicKey("key-2");
@@ -92,7 +127,7 @@ class ReceiptServiceTest {
         assertEquals(encryptionService.plaintexts.get(0), encryptionService.plaintexts.get(1));
         String json = encryptionService.plaintexts.get(1);
         assertTrue(json.contains("\"documentNumber\":\"R-100\""));
-        assertEquals("10.1", ObjectMapperConfig.getInstance().readTree(json)
+        assertEquals("10.10", ObjectMapperConfig.getInstance().readTree(json)
                 .get("receiptSubtotal").asText());
         assertEquals("12.34", ObjectMapperConfig.getInstance().readTree(json)
                 .get("totalAmount").asText());
@@ -534,7 +569,18 @@ class ReceiptServiceTest {
                         .unitPrice("10.10")
                         .subtotal("10.10")
                         .total("12.34")
+                        .addTax(new com.cheqi.sdk.models.generated.Tax().type("VAT").rate(22.2)
+                                .category(com.cheqi.sdk.models.generated.TaxCategoryCode.STANDARD)
+                                .amount(new java.math.BigDecimal("2.24"))
+                                .taxableAmount(new java.math.BigDecimal("10.10")))
                         .build())
+                .addTax(new com.cheqi.sdk.models.generated.Tax().type("VAT").rate(22.2)
+                        .category(com.cheqi.sdk.models.generated.TaxCategoryCode.STANDARD)
+                        .amount(new java.math.BigDecimal("2.24"))
+                        .taxableAmount(new java.math.BigDecimal("10.10")))
+                .paymentDetails(new com.cheqi.sdk.models.generated.PaymentDetails()
+                        .paidAmount(new java.math.BigDecimal("12.34"))
+                        .amountDue(java.math.BigDecimal.ZERO).roundingAmount(java.math.BigDecimal.ZERO))
                 .build();
     }
 

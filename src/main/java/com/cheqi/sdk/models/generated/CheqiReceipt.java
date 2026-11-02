@@ -46,6 +46,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({
   CheqiReceipt.JSON_PROPERTY_TOTAL_AMOUNT,
+  CheqiReceipt.JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT,
+  CheqiReceipt.JSON_PROPERTY_TOTAL_CHARGE_AMOUNT,
   CheqiReceipt.JSON_PROPERTY_DOCUMENT_NUMBER,
   CheqiReceipt.JSON_PROPERTY_IDENTIFIERS,
   CheqiReceipt.JSON_PROPERTY_ISSUE_DATE,
@@ -75,6 +77,14 @@ public class CheqiReceipt {
   public static final String JSON_PROPERTY_TOTAL_AMOUNT = "totalAmount";
   @javax.annotation.Nullable
   private BigDecimal totalAmount;
+
+  public static final String JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT = "totalDiscountAmount";
+  @javax.annotation.Nullable
+  private BigDecimal totalDiscountAmount;
+
+  public static final String JSON_PROPERTY_TOTAL_CHARGE_AMOUNT = "totalChargeAmount";
+  @javax.annotation.Nullable
+  private BigDecimal totalChargeAmount;
 
   public static final String JSON_PROPERTY_DOCUMENT_NUMBER = "documentNumber";
   @javax.annotation.Nullable
@@ -188,6 +198,54 @@ public class CheqiReceipt {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setTotalAmount(@javax.annotation.Nullable BigDecimal totalAmount) {
     this.totalAmount = totalAmount;
+  }
+
+
+  public CheqiReceipt totalDiscountAmount(@javax.annotation.Nullable BigDecimal totalDiscountAmount) {
+    this.totalDiscountAmount = totalDiscountAmount;
+    return this;
+  }
+
+  /**
+   * Issuer-supplied sum of the receipt-level discounts.
+   * @return totalDiscountAmount
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public BigDecimal getTotalDiscountAmount() {
+    return totalDiscountAmount;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTotalDiscountAmount(@javax.annotation.Nullable BigDecimal totalDiscountAmount) {
+    this.totalDiscountAmount = totalDiscountAmount;
+  }
+
+
+  public CheqiReceipt totalChargeAmount(@javax.annotation.Nullable BigDecimal totalChargeAmount) {
+    this.totalChargeAmount = totalChargeAmount;
+    return this;
+  }
+
+  /**
+   * Issuer-supplied sum of the receipt-level charges.
+   * @return totalChargeAmount
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_TOTAL_CHARGE_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public BigDecimal getTotalChargeAmount() {
+    return totalChargeAmount;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TOTAL_CHARGE_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTotalChargeAmount(@javax.annotation.Nullable BigDecimal totalChargeAmount) {
+    this.totalChargeAmount = totalChargeAmount;
   }
 
 
@@ -780,6 +838,8 @@ public class CheqiReceipt {
     }
     CheqiReceipt cheqiReceipt = (CheqiReceipt) o;
     return Objects.equals(this.totalAmount, cheqiReceipt.totalAmount) &&
+        Objects.equals(this.totalDiscountAmount, cheqiReceipt.totalDiscountAmount) &&
+        Objects.equals(this.totalChargeAmount, cheqiReceipt.totalChargeAmount) &&
         Objects.equals(this.documentNumber, cheqiReceipt.documentNumber) &&
         Objects.equals(this.identifiers, cheqiReceipt.identifiers) &&
         Objects.equals(this.issueDate, cheqiReceipt.issueDate) &&
@@ -806,7 +866,7 @@ public class CheqiReceipt {
 
   @Override
   public int hashCode() {
-    return Objects.hash(totalAmount, documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, products, discounts, charges, taxes, transactionDate, purchaseDate, period, note, sellingParty, store, receivingParty, paymentMeans, barcodes, jurisdictionalData, receiptUuid);
+    return Objects.hash(totalAmount, totalDiscountAmount, totalChargeAmount, documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, products, discounts, charges, taxes, transactionDate, purchaseDate, period, note, sellingParty, store, receivingParty, paymentMeans, barcodes, jurisdictionalData, receiptUuid);
   }
 
   @Override
@@ -814,6 +874,8 @@ public class CheqiReceipt {
     StringBuilder sb = new StringBuilder();
     sb.append("class CheqiReceipt {\n");
     sb.append("    totalAmount: ").append(toIndentedString(totalAmount)).append("\n");
+    sb.append("    totalDiscountAmount: ").append(toIndentedString(totalDiscountAmount)).append("\n");
+    sb.append("    totalChargeAmount: ").append(toIndentedString(totalChargeAmount)).append("\n");
     sb.append("    documentNumber: ").append(toIndentedString(documentNumber)).append("\n");
     sb.append("    identifiers: ").append(toIndentedString(identifiers)).append("\n");
     sb.append("    issueDate: ").append(toIndentedString(issueDate)).append("\n");

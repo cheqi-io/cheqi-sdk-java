@@ -16,12 +16,15 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -32,7 +35,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   RegisterRequest.JSON_PROPERTY_NAME,
   RegisterRequest.JSON_PROPERTY_PUBLIC_KEY,
   RegisterRequest.JSON_PROPERTY_KEY_ALGORITHM,
-  RegisterRequest.JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS
+  RegisterRequest.JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS,
+  RegisterRequest.JSON_PROPERTY_FORMAT_PREFERENCES
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -52,6 +56,10 @@ public class RegisterRequest {
   public static final String JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS = "acceptsEmployeeSubmissions";
   @javax.annotation.Nullable
   private Boolean acceptsEmployeeSubmissions;
+
+  public static final String JSON_PROPERTY_FORMAT_PREFERENCES = "formatPreferences";
+  @javax.annotation.Nullable
+  private List<ReceiptFormat> formatPreferences = new ArrayList<>();
 
   public RegisterRequest() { 
   }
@@ -152,6 +160,38 @@ public class RegisterRequest {
   }
 
 
+  public RegisterRequest formatPreferences(@javax.annotation.Nullable List<ReceiptFormat> formatPreferences) {
+    this.formatPreferences = formatPreferences;
+    return this;
+  }
+
+  public RegisterRequest addFormatPreferencesItem(ReceiptFormat formatPreferencesItem) {
+    if (this.formatPreferences == null) {
+      this.formatPreferences = new ArrayList<>();
+    }
+    this.formatPreferences.add(formatPreferencesItem);
+    return this;
+  }
+
+  /**
+   * Get formatPreferences
+   * @return formatPreferences
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_FORMAT_PREFERENCES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<ReceiptFormat> getFormatPreferences() {
+    return formatPreferences;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_FORMAT_PREFERENCES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFormatPreferences(@javax.annotation.Nullable List<ReceiptFormat> formatPreferences) {
+    this.formatPreferences = formatPreferences;
+  }
+
+
   /**
    * Return true if this RegisterRequest object is equal to o.
    */
@@ -167,12 +207,13 @@ public class RegisterRequest {
     return Objects.equals(this.name, registerRequest.name) &&
         Objects.equals(this.publicKey, registerRequest.publicKey) &&
         Objects.equals(this.keyAlgorithm, registerRequest.keyAlgorithm) &&
-        Objects.equals(this.acceptsEmployeeSubmissions, registerRequest.acceptsEmployeeSubmissions);
+        Objects.equals(this.acceptsEmployeeSubmissions, registerRequest.acceptsEmployeeSubmissions) &&
+        Objects.equals(this.formatPreferences, registerRequest.formatPreferences);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, publicKey, keyAlgorithm, acceptsEmployeeSubmissions);
+    return Objects.hash(name, publicKey, keyAlgorithm, acceptsEmployeeSubmissions, formatPreferences);
   }
 
   @Override
@@ -183,6 +224,7 @@ public class RegisterRequest {
     sb.append("    publicKey: ").append(toIndentedString(publicKey)).append("\n");
     sb.append("    keyAlgorithm: ").append(toIndentedString(keyAlgorithm)).append("\n");
     sb.append("    acceptsEmployeeSubmissions: ").append(toIndentedString(acceptsEmployeeSubmissions)).append("\n");
+    sb.append("    formatPreferences: ").append(toIndentedString(formatPreferences)).append("\n");
     sb.append("}");
     return sb.toString();
   }

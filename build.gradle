@@ -17,6 +17,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.dylibso.chicory:runtime:1.7.5'
     api libs.org.bouncycastle.bcprov.jdk18on
     api libs.com.fasterxml.jackson.core.jackson.databind
     api libs.com.fasterxml.jackson.core.jackson.annotations
@@ -122,3 +123,19 @@ tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:none', '-quiet')
     failOnError = false
 }
+
+// Compile the pinned WASM during SDK builds; customers need only the pure-Java runtime.
+// Both build systems use the same official Maven compiler configuration.
+def generateReceiptValidator = tasks.register('generateReceiptValidator', Exec) {
+    inputs.file('src/main/resources/com/cheqi/sdk/validation/cheqi-receipt-validator.wasm')
+    inputs.file('pom.xml')
+    outputs.dir('target/generated-sources/chicory-compiler')
+    outputs.dir('target/generated-resources/chicory-compiler')
+    commandLine 'mvn', '-q', 'com.dylibso.chicory:chicory-compiler-maven-plugin:1.7.5:compile'
+}
+sourceSets.main.java.srcDir('target/generated-sources/chicory-compiler')
+sourceSets.main.compileClasspath += files('target/generated-resources/chicory-compiler')
+sourceSets.main.resources.srcDir('target/generated-resources/chicory-compiler')
+tasks.named('compileJava') { dependsOn(generateReceiptValidator) }
+tasks.named('processResources') { dependsOn(generateReceiptValidator) }
+tasks.named('sourcesJar') { dependsOn(generateReceiptValidator) }

@@ -1,6 +1,7 @@
 package com.cheqi.sdk.models;
 
 import java.math.BigDecimal;
+import com.cheqi.sdk.models.generated.TaxCategoryCode;
 
 /**
  * Tax applied to a product line or receipt.
@@ -30,6 +31,9 @@ public class Tax extends com.cheqi.sdk.models.generated.Tax {
         private BigDecimal taxableAmount;
         private BigDecimal amount;
         private String label;
+        private TaxCategoryCode category;
+        private String exemptionReasonCode;
+        private String exemptionReason;
 
         private Builder() {}
 
@@ -39,6 +43,9 @@ public class Tax extends com.cheqi.sdk.models.generated.Tax {
             this.taxableAmount = other.getTaxableAmount();
             this.amount = other.getAmount();
             this.label = other.getLabel();
+            this.category = other.getCategory();
+            this.exemptionReasonCode = other.getExemptionReasonCode();
+            this.exemptionReason = other.getExemptionReason();
             return this;
         }
 
@@ -77,6 +84,10 @@ public class Tax extends com.cheqi.sdk.models.generated.Tax {
             return this;
         }
 
+        public Builder category(TaxCategoryCode value) { category = value; return this; }
+        public Builder exemptionReasonCode(String value) { exemptionReasonCode = value; return this; }
+        public Builder exemptionReason(String value) { exemptionReason = value; return this; }
+
         public Tax build() {
             if (rate == null) {
                 throw new IllegalStateException("Tax rate is required");
@@ -93,6 +104,9 @@ public class Tax extends com.cheqi.sdk.models.generated.Tax {
             tax.setTaxableAmount(taxableAmount);
             tax.setAmount(amount);
             tax.setLabel(label);
+            tax.setCategory(category);
+            tax.setExemptionReasonCode(exemptionReasonCode);
+            tax.setExemptionReason(exemptionReason);
             return tax;
         }
     }

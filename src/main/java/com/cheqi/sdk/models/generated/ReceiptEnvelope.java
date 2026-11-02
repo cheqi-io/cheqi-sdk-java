@@ -17,14 +17,17 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
 import com.cheqi.sdk.models.generated.ExpenseSubmissionEnvelope;
+import com.cheqi.sdk.models.generated.ReceiptDocumentProfile;
 import com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -39,7 +42,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   ReceiptEnvelope.JSON_PROPERTY_ENVELOPE_VERSION,
   ReceiptEnvelope.JSON_PROPERTY_EXPENSE_SUBMISSION,
   ReceiptEnvelope.JSON_PROPERTY_RECEIPT_GENERATOR_VERSION,
-  ReceiptEnvelope.JSON_PROPERTY_RECEIPT_UUID
+  ReceiptEnvelope.JSON_PROPERTY_RECEIPT_UUID,
+  ReceiptEnvelope.JSON_PROPERTY_DOCUMENT_PROFILES
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -67,6 +71,10 @@ public class ReceiptEnvelope {
   public static final String JSON_PROPERTY_RECEIPT_UUID = "receiptUuid";
   @javax.annotation.Nonnull
   private UUID receiptUuid;
+
+  public static final String JSON_PROPERTY_DOCUMENT_PROFILES = "documentProfiles";
+  @javax.annotation.Nullable
+  private List<ReceiptDocumentProfile> documentProfiles = new ArrayList<>();
 
   public ReceiptEnvelope() { 
   }
@@ -225,6 +233,38 @@ public class ReceiptEnvelope {
   }
 
 
+  public ReceiptEnvelope documentProfiles(@javax.annotation.Nullable List<ReceiptDocumentProfile> documentProfiles) {
+    this.documentProfiles = documentProfiles;
+    return this;
+  }
+
+  public ReceiptEnvelope addDocumentProfilesItem(ReceiptDocumentProfile documentProfilesItem) {
+    if (this.documentProfiles == null) {
+      this.documentProfiles = new ArrayList<>();
+    }
+    this.documentProfiles.add(documentProfilesItem);
+    return this;
+  }
+
+  /**
+   * Versioned profiles of documents inside this encrypted envelope. Recipients validate their decrypted documents against these profiles.
+   * @return documentProfiles
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DOCUMENT_PROFILES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<ReceiptDocumentProfile> getDocumentProfiles() {
+    return documentProfiles;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DOCUMENT_PROFILES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDocumentProfiles(@javax.annotation.Nullable List<ReceiptDocumentProfile> documentProfiles) {
+    this.documentProfiles = documentProfiles;
+  }
+
+
   /**
    * Return true if this ReceiptEnvelope object is equal to o.
    */
@@ -242,12 +282,13 @@ public class ReceiptEnvelope {
         Objects.equals(this.envelopeVersion, receiptEnvelope.envelopeVersion) &&
         Objects.equals(this.expenseSubmission, receiptEnvelope.expenseSubmission) &&
         Objects.equals(this.receiptGeneratorVersion, receiptEnvelope.receiptGeneratorVersion) &&
-        Objects.equals(this.receiptUuid, receiptEnvelope.receiptUuid);
+        Objects.equals(this.receiptUuid, receiptEnvelope.receiptUuid) &&
+        Objects.equals(this.documentProfiles, receiptEnvelope.documentProfiles);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cheqiReceiptId, documents, envelopeVersion, expenseSubmission, receiptGeneratorVersion, receiptUuid);
+    return Objects.hash(cheqiReceiptId, documents, envelopeVersion, expenseSubmission, receiptGeneratorVersion, receiptUuid, documentProfiles);
   }
 
   @Override
@@ -260,6 +301,7 @@ public class ReceiptEnvelope {
     sb.append("    expenseSubmission: ").append(toIndentedString(expenseSubmission)).append("\n");
     sb.append("    receiptGeneratorVersion: ").append(toIndentedString(receiptGeneratorVersion)).append("\n");
     sb.append("    receiptUuid: ").append(toIndentedString(receiptUuid)).append("\n");
+    sb.append("    documentProfiles: ").append(toIndentedString(documentProfiles)).append("\n");
     sb.append("}");
     return sb.toString();
   }

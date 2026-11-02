@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * Receipt output format
+ * Receipt output selection. Choose at most one invoice format: UBL_INVOICE (generic UBL 2.1, valid against the UBL 2.1-2.5 schemas) or UBL_INVOICE_2_1_EN16931_CORE_2017_V1 (EN 16931:2017 core invoice, UBL 2.1 binding).
  */
 public enum ReceiptFormat {
   
@@ -33,7 +33,9 @@ public enum ReceiptFormat {
   
   UBL_INVOICE("UBL_INVOICE"),
   
-  UBL_CREDIT_NOTE("UBL_CREDIT_NOTE");
+  UBL_CREDIT_NOTE("UBL_CREDIT_NOTE"),
+  
+  UBL_INVOICE_2_1_EN16931_CORE_2017_V1("UBL_INVOICE_2_1_EN16931_CORE_2017_V1");
 
   private String value;
 

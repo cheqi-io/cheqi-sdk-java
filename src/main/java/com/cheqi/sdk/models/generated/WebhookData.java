@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   WebhookData.JSON_PROPERTY_COMPANY_INVITATION_ACCEPTED,
   WebhookData.JSON_PROPERTY_ENCRYPTED_RECEIPT,
   WebhookData.JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE,
+  WebhookData.JSON_PROPERTY_ENCRYPTED_SELF_BILLED_INVOICE,
   WebhookData.JSON_PROPERTY_CREDIT_NOTE_INITIATION_REQUEST
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
@@ -51,6 +52,10 @@ public class WebhookData {
   public static final String JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE = "encryptedCreditNote";
   @javax.annotation.Nullable
   private WebhookReceiptEnvelope encryptedCreditNote;
+
+  public static final String JSON_PROPERTY_ENCRYPTED_SELF_BILLED_INVOICE = "encryptedSelfBilledInvoice";
+  @javax.annotation.Nullable
+  private WebhookReceiptEnvelope encryptedSelfBilledInvoice;
 
   public static final String JSON_PROPERTY_CREDIT_NOTE_INITIATION_REQUEST = "creditNoteInitiationRequest";
   @javax.annotation.Nullable
@@ -131,6 +136,30 @@ public class WebhookData {
   }
 
 
+  public WebhookData encryptedSelfBilledInvoice(@javax.annotation.Nullable WebhookReceiptEnvelope encryptedSelfBilledInvoice) {
+    this.encryptedSelfBilledInvoice = encryptedSelfBilledInvoice;
+    return this;
+  }
+
+  /**
+   * Get encryptedSelfBilledInvoice
+   * @return encryptedSelfBilledInvoice
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ENCRYPTED_SELF_BILLED_INVOICE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public WebhookReceiptEnvelope getEncryptedSelfBilledInvoice() {
+    return encryptedSelfBilledInvoice;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ENCRYPTED_SELF_BILLED_INVOICE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEncryptedSelfBilledInvoice(@javax.annotation.Nullable WebhookReceiptEnvelope encryptedSelfBilledInvoice) {
+    this.encryptedSelfBilledInvoice = encryptedSelfBilledInvoice;
+  }
+
+
   public WebhookData creditNoteInitiationRequest(@javax.annotation.Nullable WebhookCreditNoteInitiationRequest creditNoteInitiationRequest) {
     this.creditNoteInitiationRequest = creditNoteInitiationRequest;
     return this;
@@ -170,12 +199,13 @@ public class WebhookData {
     return Objects.equals(this.companyInvitationAccepted, webhookData.companyInvitationAccepted) &&
         Objects.equals(this.encryptedReceipt, webhookData.encryptedReceipt) &&
         Objects.equals(this.encryptedCreditNote, webhookData.encryptedCreditNote) &&
+        Objects.equals(this.encryptedSelfBilledInvoice, webhookData.encryptedSelfBilledInvoice) &&
         Objects.equals(this.creditNoteInitiationRequest, webhookData.creditNoteInitiationRequest);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(companyInvitationAccepted, encryptedReceipt, encryptedCreditNote, creditNoteInitiationRequest);
+    return Objects.hash(companyInvitationAccepted, encryptedReceipt, encryptedCreditNote, encryptedSelfBilledInvoice, creditNoteInitiationRequest);
   }
 
   @Override
@@ -185,6 +215,7 @@ public class WebhookData {
     sb.append("    companyInvitationAccepted: ").append(toIndentedString(companyInvitationAccepted)).append("\n");
     sb.append("    encryptedReceipt: ").append(toIndentedString(encryptedReceipt)).append("\n");
     sb.append("    encryptedCreditNote: ").append(toIndentedString(encryptedCreditNote)).append("\n");
+    sb.append("    encryptedSelfBilledInvoice: ").append(toIndentedString(encryptedSelfBilledInvoice)).append("\n");
     sb.append("    creditNoteInitiationRequest: ").append(toIndentedString(creditNoteInitiationRequest)).append("\n");
     sb.append("}");
     return sb.toString();
