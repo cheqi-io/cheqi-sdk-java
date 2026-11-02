@@ -2,6 +2,7 @@ package com.cheqi.sdk.exceptions;
 
 import com.cheqi.sdk.validation.InvoiceValidationReport;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Main exception class for Cheqi SDK operations.
@@ -85,9 +86,13 @@ public class CheqiSDKException extends Exception {
 
     /** Creates a validation error containing all detected receipt issues. */
     public static CheqiSDKException forReceiptValidation(InvoiceValidationReport report) {
+        Objects.requireNonNull(report, "report");
+        String details = report.getIssues().stream()
+                .map(issue -> issue.getRuleId() + " at " + issue.getPath() + ": " + issue.getMessage())
+                .collect(Collectors.joining("; "));
         CheqiSDKException failure = new CheqiSDKException(
-                "Receipt payload validation failed", ErrorCodes.VALIDATION_ERROR, 0, null);
-        failure.validationReport = Objects.requireNonNull(report, "report");
+                "Receipt payload validation failed: " + details, ErrorCodes.VALIDATION_ERROR, 0, null);
+        failure.validationReport = report;
         return failure;
     }
 

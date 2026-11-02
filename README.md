@@ -244,7 +244,7 @@ For an explicit preflight without matching or encryption:
 var report = new com.cheqi.sdk.validation.ReceiptPayloadValidator().validate(receiptPayload);
 ```
 
-A successful report has `completeDocument: false`: the wallet still validates resolved party context and the finished EN XML. A missing/corrupt validator or runtime failure stops issuance with `CONFIGURATION_ERROR`. No payload values are added to validation errors.
+A successful report has `completeDocument: false`: the wallet still validates resolved party context and the finished EN XML. A missing/corrupt validator or runtime failure stops issuance with `CONFIGURATION_ERROR`. Validation exceptions include every detected rule, field and explanation in both the message and structured report. Serialization and runtime failures preserve their underlying causes for local diagnostics. These errors are returned to the caller, not submitted to Cheqi.
 
 Run the offline example against the actual packaged JAR:
 

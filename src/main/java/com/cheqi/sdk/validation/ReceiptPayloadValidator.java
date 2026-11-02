@@ -70,8 +70,7 @@ public final class ReceiptPayloadValidator {
             call(instance, "reset");
             return report;
         } catch (Exception | LinkageError error) {
-            // Stop processing without exposing receipt contents through errors.
-            throw new CheqiSDKException("Receipt payload validator is unavailable",
+            throw new CheqiSDKException("Receipt payload validator is unavailable", error,
                     CheqiSDKException.ErrorCodes.CONFIGURATION_ERROR, 0, null);
         }
     }
@@ -92,7 +91,7 @@ public final class ReceiptPayloadValidator {
         try {
             return PAYLOAD_MAPPER.writeValueAsString(payload);
         } catch (Exception error) {
-            throw new CheqiSDKException("Receipt payload cannot be serialized",
+            throw new CheqiSDKException("Receipt payload cannot be serialized", error,
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 0, null);
         }
     }
@@ -122,20 +121,28 @@ public final class ReceiptPayloadValidator {
             verifyBundle(wasm, manifest);
             return Parser.parse(wasm);
         } catch (IOException error) {
-            throw new IllegalStateException("Bundled validator unavailable");
+            throw new IllegalStateException("Bundled validator unavailable", error);
         }
     }
 
     static void verifyBundle(byte[] wasm, JsonNode manifest) {
-        if (manifest.path("abiVersion").asInt() != 1 || manifest.path("sourceDirty").asBoolean(true)
-                || !HashUtils.sha256Hex(wasm).equals(manifest.path("sha256").asText())) {
-            throw new IllegalStateException("Validator integrity check failed");
+        if (manifest.path("abiVersion").asInt() != 1) {
+            throw new IllegalStateException("Unsupported validator ABI: expected 1, found "
+                    + manifest.path("abiVersion").asText("missing"));
+        }
+        if (manifest.path("sourceDirty").asBoolean(true)) {
+            throw new IllegalStateException("Validator provenance does not confirm a clean source build");
+        }
+        String expected = manifest.path("sha256").asText();
+        String actual = HashUtils.sha256Hex(wasm);
+        if (!actual.equals(expected)) {
+            throw new IllegalStateException("Validator checksum mismatch: expected " + expected + ", found " + actual);
         }
     }
 
     private static byte[] resource(String name) throws IOException {
         try (InputStream input = ReceiptPayloadValidator.class.getResourceAsStream(name)) {
-            if (input == null) throw new IOException("Missing validator resource");
+            if (input == null) throw new IOException("Missing validator resource: " + name);
             return input.readAllBytes();
         }
     }

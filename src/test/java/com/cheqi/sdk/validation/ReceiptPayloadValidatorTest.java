@@ -51,7 +51,9 @@ class ReceiptPayloadValidatorTest {
         assertTrue(paths.contains("paymentDetails.amountDue"));
         assertTrue(paths.contains("paymentDetails.roundingAmount"));
         assertTrue(paths.contains("products[0].taxes[0].category"));
-        assertFalse(error.toString().contains("19.41"));
+        assertTrue(error.getMessage().contains("paymentDetails.amountDue"));
+        assertTrue(error.getMessage().contains("paymentDetails.roundingAmount"));
+        assertTrue(error.getMessage().contains("products[0].taxes[0].category"));
         assertThrows(UnsupportedOperationException.class, () -> error.getValidationReport().getIssues().clear());
     }
 
@@ -67,12 +69,24 @@ class ReceiptPayloadValidatorTest {
     }
 
     @Test
-    void malformedInputProducesOnlySafeFindings() throws Exception {
+    void malformedInputReturnsAnInvalidReport() throws Exception {
         InvoiceValidationReport report = validator.validateJson("{\"private-receipt-value\":");
         assertFalse(report.isValid());
         assertFalse(report.isCompleteDocument());
         assertEquals("CORE-INPUT", report.getIssues().get(0).getRuleId());
-        assertFalse(mapper.writeValueAsString(report).contains("private-receipt-value"));
+    }
+
+    @Test
+    void serializationFailuresPreserveTheOriginalCauseAndFieldContext() {
+        IllegalArgumentException source = new IllegalArgumentException("POS amount cannot be read");
+        ReceiptPayload payload = new ReceiptPayload() {
+            @Override public BigDecimal getTotalAmount() { throw source; }
+        };
+        CheqiSDKException error = assertThrows(CheqiSDKException.class, () -> validator.validate(payload));
+        assertTrue(error.isValidationError());
+        assertNotNull(error.getCause());
+        assertTrue(error.getCause().getMessage().contains("totalAmount"));
+        assertSame(source, error.getCause().getCause());
     }
 
     @Test
