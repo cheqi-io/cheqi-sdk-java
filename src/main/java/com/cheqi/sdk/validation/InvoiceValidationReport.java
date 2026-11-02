@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 import java.util.Objects;
 
-/** Java binding of the existing issuer-only Rust InvoiceValidationReport. */
+/** The result of checking receipt data, including any validation issues. */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({"profile", "valid", "completeDocument", "issues"})
 public final class InvoiceValidationReport {

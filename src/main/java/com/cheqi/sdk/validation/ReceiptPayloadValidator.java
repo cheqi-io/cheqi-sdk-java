@@ -21,8 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.math.BigDecimal;
 
 /**
- * Local validation using the bundled Rust WASM, compiled to Java bytecode at SDK build time.
- * Instances are stateless: every call owns its own WASM memory. No network access occurs here.
+ * Checks receipt data for missing fields and inconsistent values before issuance.
  */
 public final class ReceiptPayloadValidator {
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -34,18 +33,18 @@ public final class ReceiptPayloadValidator {
         private static final WasmModule MODULE = loadBundledModule();
     }
 
+    /** Checks receipt data and returns all detected validation issues. */
     public InvoiceValidationReport validate(ReceiptPayload payload) throws CheqiSDKException {
         return validateJson(serialize(payload));
     }
 
-    /** Validate public ReceiptPayload JSON with the same report and rules as native Rust. */
+    /** Checks receipt data supplied as JSON and returns all detected validation issues. */
     public InvoiceValidationReport validateJson(String json) throws CheqiSDKException {
         if (json == null) {
             throw new CheqiSDKException("Receipt payload cannot be null",
                     CheqiSDKException.ErrorCodes.VALIDATION_ERROR, 0, null);
         }
         try {
-            // No host imports. Code was compiled by Maven from this exact bundled WASM.
             Instance instance = Instance.builder(ModuleHolder.MODULE)
                     .withMachineFactory(ReceiptValidatorModule::create).build();
             Memory memory = instance.memory();
@@ -71,14 +70,13 @@ public final class ReceiptPayloadValidator {
             call(instance, "reset");
             return report;
         } catch (Exception | LinkageError error) {
-            // Fail closed; no payload, source parser error, memory contents or runtime operands escape.
-            // The failed instance is discarded, never pooled or reused.
+            // Stop processing without exposing receipt contents through errors.
             throw new CheqiSDKException("Receipt payload validator is unavailable",
                     CheqiSDKException.ErrorCodes.CONFIGURATION_ERROR, 0, null);
         }
     }
 
-    /** Serialize once, validate those exact bytes, and return them unchanged for encryption. */
+    /** Returns receipt data as JSON after successful validation; throws if validation fails. */
     public String requireValidJson(ReceiptPayload payload) throws CheqiSDKException {
         String json = serialize(payload);
         InvoiceValidationReport report = validateJson(json);
@@ -105,8 +103,7 @@ public final class ReceiptPayloadValidator {
             @Override
             public void serialize(BigDecimal value, JsonGenerator generator, SerializerProvider serializers)
                     throws IOException {
-                // The shared payload contract accepts decimal strings. Preserve the issuer's
-                // exact BigDecimal and scale, including prices beyond binary-float precision.
+                // Preserve the supplied amount and decimal precision.
                 generator.writeString(value.toPlainString());
             }
         });

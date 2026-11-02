@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.Objects;
 
-/** A value-free rule finding from the shared Rust validation report. */
+/** A validation issue identifying the affected field and failed rule. */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({"ruleId", "path", "message"})
 public final class InvoiceValidationIssue {

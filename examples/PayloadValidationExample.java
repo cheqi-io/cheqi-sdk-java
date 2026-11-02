@@ -10,7 +10,7 @@ import com.cheqi.sdk.validation.ReceiptPayloadValidator;
 import java.lang.reflect.Proxy;
 import java.nio.file.Path;
 
-/** Offline example using the actual packaged SDK and bundled Rust validator. */
+/** Shows how validation prevents issuing receipts with missing fields. */
 public class PayloadValidationExample {
     public static void main(String[] args) throws Exception {
         ReceiptPayload payload = ObjectMapperConfig.getInstance().readValue(

@@ -83,7 +83,7 @@ public class CheqiSDKException extends Exception {
         this.correlationId = correlationId;
     }
 
-    /** Validation failure with every value-free rule finding from the shared engine. */
+    /** Creates a validation error containing all detected receipt issues. */
     public static CheqiSDKException forReceiptValidation(InvoiceValidationReport report) {
         CheqiSDKException failure = new CheqiSDKException(
                 "Receipt payload validation failed", ErrorCodes.VALIDATION_ERROR, 0, null);
