@@ -1,9 +1,13 @@
 sequenceDiagram
     participant POS as Integration checkout
     participant SDK as Java SDK
+    participant Validator as Bundled WASM validator
     participant API as Cheqi API
     participant Worker as Integration recovery worker
     POS->>SDK: issueReceipt(identification, payload, storeId)
+    SDK->>Validator: Validate issuer payload locally
+    Validator-->>SDK: All detected rules and field paths
+    Note over POS,Validator: Invalid data stops issuance before matching or encryption, supplied values stay unchanged
     SDK->>API: Resolve owner devices (one attempt)
     API-->>SDK: matchId and temporary device keys
     SDK->>API: Submit independently encrypted device payloads (one attempt)
@@ -18,6 +22,8 @@ sequenceDiagram
         SDK->>API: Upload original ciphertext and download id
         Note over SDK,API: URL fragment AES key never reaches API
         Worker->>SDK: resumeReceipt(matchId, payload, storeId)
+        SDK->>Validator: Validate issuer payload locally
+        Validator-->>SDK: Validation report
         SDK->>API: GET match status (no matching identifiers)
         alt SUBMITTED
             API-->>SDK: Original submission

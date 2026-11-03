@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.core.JsonGenerator;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -141,9 +142,15 @@ public final class ReceiptPayloadValidator {
     }
 
     private static byte[] resource(String name) throws IOException {
-        try (InputStream input = ReceiptPayloadValidator.class.getResourceAsStream(name)) {
+        try (InputStream input = ReceiptPayloadValidator.class.getResourceAsStream("/com/cheqi/sdk/validation/" + name)) {
             if (input == null) throw new IOException("Missing validator resource: " + name);
-            return input.readAllBytes();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int count;
+            while ((count = input.read(buffer)) != -1) {
+                output.write(buffer, 0, count);
+            }
+            return output.toByteArray();
         }
     }
 }

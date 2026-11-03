@@ -24,14 +24,27 @@ The committed manifest records the precise source commit, ABI and SHA-256.
 It is pinned to main commit `fb96508512b4d42eb72078632dd4238c174bbe75`,
 rather than a published validator release.
 
-The Java models were regenerated from `https://test.api.cheqi.io/v3/api-docs.yaml`
-using `make fetch-spec` and `make generate`. The models include payment status,
-split-payment and adjustment-total fields, plus the required payment object and
-VAT breakdown constraints deployed with PR #712. Bean Validation annotations
-are emitted by the generator; generated classes are not edited manually.
-The production-spec CI guard remains enabled. Production API promotion and the
-normal schema sync are prerequisites for a releasable SDK; this work publishes
-nothing to Maven Central and changes no release tags.
+The Java models were regenerated from `https://api.cheqi.io/v3/api-docs.yaml`
+using `make fetch-spec ENV=prod` and `make generate`. The models include payment
+status, split-payment and adjustment-total fields, plus the required payment
+object and VAT breakdown constraints. Bean Validation annotations are emitted
+by the generator; generated classes are not edited manually. The production
+spec guard remains enabled. This work publishes nothing to Maven Central and
+changes no release tags.
+
+## Android
+
+Enable core library desugaring in the consuming Android app. Chicory uses
+Java collection APIs that are unavailable on older Android versions without
+desugaring. Cheqi Android enables `com.android.tools:desugar_jdk_libs:2.1.5`
+and supports API 28 and newer. The validator loader reads resources using
+stream operations available on those versions. The JAR includes consumer R8
+rules for the validation reports and compiled module resource names.
+
+The module is compiled when building the SDK; Android does not need a runtime
+compiler, Rust toolchain, JNI wrapper or validator download. Validation applies
+to new issuance; historical received receipt data is not revalidated through
+this issuer preflight.
 
 ## Updating the bundle
 

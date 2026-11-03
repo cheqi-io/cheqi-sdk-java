@@ -116,14 +116,14 @@ paths:
               $ref: "#/components/schemas/AuthorizationCodeExchangeRequest"
         required: true
       responses:
-        "200":
-          description: Authorization code exchanged successfully
+        "401":
+          description: Invalid client credentials
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CompanyAuthorizationResponse"
-        "401":
-          description: Invalid client credentials
+        "200":
+          description: Authorization code exchanged successfully
           content:
             '*/*':
               schema:
@@ -190,6 +190,12 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/OAuthTokenExchangeResponse"
+        "400":
+          description: Invalid authorization code or request parameters
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
         "200":
           description: OAuth exchange completed successfully
           content:
@@ -205,12 +211,6 @@ paths:
                     token_type: bearer
                     expires_in: 900
                     scope: receipt:issue
-        "400":
-          description: Invalid authorization code or request parameters
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/OAuthTokenExchangeResponse"
       security: []
   /company/{companyId}/stores/{storeId}:
     get:
@@ -236,12 +236,6 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Store retrieved successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "403":
           description: Not authorized to view this store
           content:
@@ -250,6 +244,12 @@ paths:
                 $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Store or company not found
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
+        "200":
+          description: Store retrieved successfully
           content:
             '*/*':
               schema:
@@ -283,18 +283,18 @@ paths:
               $ref: "#/components/schemas/UpdateStoreRequest"
         required: true
       responses:
-        "404":
-          description: Store or company not found
-          content:
-            '*/*':
-              schema:
-                type: object
         "200":
           description: Store updated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
+        "404":
+          description: Store or company not found
+          content:
+            '*/*':
+              schema:
+                type: object
         "403":
           description: Not authorized to update this store
           content:
@@ -324,12 +324,6 @@ paths:
               $ref: "#/components/schemas/WebhookRequestBody"
         required: true
       responses:
-        "200":
-          description: Webhook subscription created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WebhookResponse"
         "400":
           description: Invalid webhook request data
           content:
@@ -340,6 +334,12 @@ paths:
           description: Duplicate webhook subscription already exists
           content:
             '*/*':
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+        "200":
+          description: Webhook subscription created successfully
+          content:
+            application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResponse"
         "403":
@@ -433,18 +433,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "201":
-          description: Store created successfully
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/StoreDTO"
         "404":
           description: Company not found
           content:
             '*/*':
               schema:
                 type: object
+        "201":
+          description: Store created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
         "400":
           description: Invalid request data
           content:
@@ -474,14 +474,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "403":
-          description: Insufficient permissions - requires receipt:issue scope
+        "200":
+          description: Recipient successfully resolved and matched
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RecipientResolutionResponse"
-        "200":
-          description: Recipient successfully resolved and matched
+        "403":
+          description: Insufficient permissions - requires receipt:issue scope
           content:
             '*/*':
               schema:
@@ -571,18 +571,18 @@ paths:
               $ref: "#/components/schemas/EncryptedReceiptEnvelope"
         required: true
       responses:
-        "403":
-          description: Insufficient permissions
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ReceiptSubmissionResponse"
         "410":
           description: Unsubmitted match expired
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/MatchStatusResponse"
+        "403":
+          description: Insufficient permissions
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReceiptSubmissionResponse"
         "400":
           description: Invalid encrypted generation request
           content:
@@ -657,8 +657,14 @@ paths:
               $ref: "#/components/schemas/ClientReceiptDownloadRequest"
         required: true
       responses:
-        "201":
-          description: Encrypted receipt stored
+        "409":
+          description: A different receipt is already stored under this download id
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
+        "400":
+          description: "Invalid download id, IV, or ciphertext"
           content:
             '*/*':
               schema:
@@ -669,14 +675,8 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "409":
-          description: A different receipt is already stored under this download id
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ClientReceiptDownloadResponse"
-        "400":
-          description: "Invalid download id, IV, or ciphertext"
+        "201":
+          description: Encrypted receipt stored
           content:
             '*/*':
               schema:
@@ -746,14 +746,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "403":
-          description: Insufficient permissions - requires receipt:issue scope
+        "202":
+          description: Encrypted credit-note generation job accepted
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ReceiptSubmissionResponse"
-        "202":
-          description: Encrypted credit-note generation job accepted
+        "403":
+          description: Insufficient permissions - requires receipt:issue scope
           content:
             '*/*':
               schema:
@@ -945,14 +945,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: Public key retrieved successfully
+        "404":
+          description: Client application not found or public key not configured
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PublicKeyResponse"
-        "404":
-          description: Client application not found or public key not configured
+        "200":
+          description: Public key retrieved successfully
           content:
             application/json:
               schema:
@@ -1142,14 +1142,14 @@ paths:
           type: string
           format: uuid
       responses:
-        "404":
-          description: Store or company not found
+        "200":
+          description: Store deactivated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store deactivated successfully
+        "404":
+          description: Store or company not found
           content:
             '*/*':
               schema:
@@ -1190,14 +1190,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "403":
-          description: Not authorized to activate this store
+        "200":
+          description: Store activated successfully
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StoreDTO"
-        "200":
-          description: Store activated successfully
+        "403":
+          description: Not authorized to activate this store
           content:
             '*/*':
               schema:
@@ -1404,14 +1404,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "200":
-          description: Authorized resources retrieved successfully
+        "403":
+          description: Missing receipt:read or a valid delegated context
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthorizedResourcesResponse"
-        "403":
-          description: Missing receipt:read or a valid delegated context
+        "200":
+          description: Authorized resources retrieved successfully
           content:
             '*/*':
               schema:
@@ -1749,16 +1749,6 @@ components:
           description: "Receipt formats this recipient accepts (e.g., CHEQI, UBL_PURCHASE_RECEIPT)."
           items:
             $ref: "#/components/schemas/ReceiptFormat"
-        requiredDocumentProfiles:
-          type: array
-          items:
-            $ref: "#/components/schemas/ReceiptDocumentProfile"
-    ReceiptDocumentProfile:
-      type: string
-      description: Versioned document-generation profile. EN16931_CORE_2017_V1 uses
-        EN 16931-1:2017+A1:2019 and its UBL 2.1 binding; no network-specific rules.
-      enum:
-      - EN16931_CORE_2017_V1
     ReceiptFormat:
       type: string
       description: "Receipt output selection. Choose at most one invoice format: UBL_INVOICE\
@@ -3344,13 +3334,13 @@ components:
           $ref: "#/components/schemas/PageableObject"
         sort:
           $ref: "#/components/schemas/SortObject"
+        numberOfElements:
+          type: integer
+          format: int32
         first:
           type: boolean
         last:
           type: boolean
-        numberOfElements:
-          type: integer
-          format: int32
         empty:
           type: boolean
     PageableObject:
@@ -3666,6 +3656,12 @@ components:
       description: Optional company-expense attribution carried inside the encrypted
         receipt envelope.
       nullable: true
+    ReceiptDocumentProfile:
+      type: string
+      description: Versioned document-generation profile. EN16931_CORE_2017_V1 uses
+        EN 16931-1:2017+A1:2019 and its UBL 2.1 binding; no network-specific rules.
+      enum:
+      - EN16931_CORE_2017_V1
     ReceiptEnvelope:
       required:
       - cheqiReceiptId
@@ -4015,7 +4011,7 @@ components:
               company
             company:members:invite: Invite ordinary members to an authorized company
         authorizationCode:
-          authorizationUrl: https://test.api.cheqi.io/oauth2/authorize
+          authorizationUrl: https://api.cheqi.io/oauth2/authorize
           tokenUrl: https://sandbox.api.cheqi.io/oauth2/token
           scopes:
             receipt:read: "Receive receipts automatically from the companies, payment\
