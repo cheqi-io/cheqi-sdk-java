@@ -16,13 +16,20 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.cheqi.sdk.models.generated.PaymentMethod;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -36,7 +43,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   PaymentDetails.JSON_PROPERTY_ACCOUNT_IDENTIFIER,
   PaymentDetails.JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE,
   PaymentDetails.JSON_PROPERTY_MERCHANT_ID,
-  PaymentDetails.JSON_PROPERTY_PAYMENT_TERMINAL_ID
+  PaymentDetails.JSON_PROPERTY_PAYMENT_TERMINAL_ID,
+  PaymentDetails.JSON_PROPERTY_PAID_AMOUNT,
+  PaymentDetails.JSON_PROPERTY_AMOUNT_DUE,
+  PaymentDetails.JSON_PROPERTY_ROUNDING_AMOUNT,
+  PaymentDetails.JSON_PROPERTY_DUE_DATE,
+  PaymentDetails.JSON_PROPERTY_PAYMENT_TERMS,
+  PaymentDetails.JSON_PROPERTY_PAYMENT_METHODS
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -73,6 +86,30 @@ public class PaymentDetails {
   @javax.annotation.Nullable
   private String paymentTerminalId;
 
+  public static final String JSON_PROPERTY_PAID_AMOUNT = "paidAmount";
+  @javax.annotation.Nullable
+  private BigDecimal paidAmount;
+
+  public static final String JSON_PROPERTY_AMOUNT_DUE = "amountDue";
+  @javax.annotation.Nullable
+  private BigDecimal amountDue;
+
+  public static final String JSON_PROPERTY_ROUNDING_AMOUNT = "roundingAmount";
+  @javax.annotation.Nullable
+  private BigDecimal roundingAmount;
+
+  public static final String JSON_PROPERTY_DUE_DATE = "dueDate";
+  @javax.annotation.Nullable
+  private LocalDate dueDate;
+
+  public static final String JSON_PROPERTY_PAYMENT_TERMS = "paymentTerms";
+  @javax.annotation.Nullable
+  private String paymentTerms;
+
+  public static final String JSON_PROPERTY_PAYMENT_METHODS = "paymentMethods";
+  @javax.annotation.Nullable
+  private List<@Valid PaymentMethod> paymentMethods = new ArrayList<>();
+
   public PaymentDetails() { 
   }
 
@@ -86,6 +123,7 @@ public class PaymentDetails {
    * @return paymentMeansCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_MEANS_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPaymentMeansCode() {
@@ -110,6 +148,7 @@ public class PaymentDetails {
    * @return description
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DESCRIPTION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getDescription() {
@@ -134,6 +173,7 @@ public class PaymentDetails {
    * @return cardProvider
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CARD_PROVIDER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCardProvider() {
@@ -158,6 +198,7 @@ public class PaymentDetails {
    * @return cardLastFour
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CARD_LAST_FOUR)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCardLastFour() {
@@ -182,6 +223,7 @@ public class PaymentDetails {
    * @return accountIdentifier
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAccountIdentifier() {
@@ -206,6 +248,7 @@ public class PaymentDetails {
    * @return accountIdentifierType
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAccountIdentifierType() {
@@ -230,6 +273,7 @@ public class PaymentDetails {
    * @return merchantId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_MERCHANT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getMerchantId() {
@@ -254,6 +298,7 @@ public class PaymentDetails {
    * @return paymentTerminalId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_TERMINAL_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPaymentTerminalId() {
@@ -265,6 +310,169 @@ public class PaymentDetails {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setPaymentTerminalId(@javax.annotation.Nullable String paymentTerminalId) {
     this.paymentTerminalId = paymentTerminalId;
+  }
+
+
+  public PaymentDetails paidAmount(@javax.annotation.Nullable BigDecimal paidAmount) {
+    this.paidAmount = paidAmount;
+    return this;
+  }
+
+  /**
+   * Issuer-supplied amount paid when the receipt was issued, across all payment methods. Required in new ReceiptPayloads, including zero when unpaid. Cheqi never calculates or fills in this value; later payments do not change it.
+   * @return paidAmount
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_PAID_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public BigDecimal getPaidAmount() {
+    return paidAmount;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PAID_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPaidAmount(@javax.annotation.Nullable BigDecimal paidAmount) {
+    this.paidAmount = paidAmount;
+  }
+
+
+  public PaymentDetails amountDue(@javax.annotation.Nullable BigDecimal amountDue) {
+    this.amountDue = amountDue;
+    return this;
+  }
+
+  /**
+   * Issuer-supplied amount still owed after the receipt was issued, for example 0 for a receipt paid in full. Required in every new ReceiptPayload. Must equal totalAmount minus paidAmount plus roundingAmount.
+   * @return amountDue
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_AMOUNT_DUE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public BigDecimal getAmountDue() {
+    return amountDue;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_AMOUNT_DUE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAmountDue(@javax.annotation.Nullable BigDecimal amountDue) {
+    this.amountDue = amountDue;
+  }
+
+
+  public PaymentDetails roundingAmount(@javax.annotation.Nullable BigDecimal roundingAmount) {
+    this.roundingAmount = roundingAmount;
+    return this;
+  }
+
+  /**
+   * Issuer-supplied rounding applied to the amount due, for example cash rounding. Required in new ReceiptPayloads; explicitly send zero when there is no rounding.
+   * @return roundingAmount
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_ROUNDING_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public BigDecimal getRoundingAmount() {
+    return roundingAmount;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ROUNDING_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRoundingAmount(@javax.annotation.Nullable BigDecimal roundingAmount) {
+    this.roundingAmount = roundingAmount;
+  }
+
+
+  public PaymentDetails dueDate(@javax.annotation.Nullable LocalDate dueDate) {
+    this.dueDate = dueDate;
+    return this;
+  }
+
+  /**
+   * Date by which a remaining amountDue must be paid (YYYY-MM-DD). When amountDue is positive, supply dueDate or paymentTerms.
+   * @return dueDate
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_DUE_DATE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public LocalDate getDueDate() {
+    return dueDate;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DUE_DATE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDueDate(@javax.annotation.Nullable LocalDate dueDate) {
+    this.dueDate = dueDate;
+  }
+
+
+  public PaymentDetails paymentTerms(@javax.annotation.Nullable String paymentTerms) {
+    this.paymentTerms = paymentTerms;
+    return this;
+  }
+
+  /**
+   * Free-text payment terms for a remaining amountDue.
+   * @return paymentTerms
+   */
+  @javax.annotation.Nullable
+
+  @JsonProperty(JSON_PROPERTY_PAYMENT_TERMS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getPaymentTerms() {
+    return paymentTerms;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PAYMENT_TERMS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPaymentTerms(@javax.annotation.Nullable String paymentTerms) {
+    this.paymentTerms = paymentTerms;
+  }
+
+
+  public PaymentDetails paymentMethods(@javax.annotation.Nullable List<@Valid PaymentMethod> paymentMethods) {
+    this.paymentMethods = paymentMethods;
+    return this;
+  }
+
+  public PaymentDetails addPaymentMethodsItem(PaymentMethod paymentMethodsItem) {
+    if (this.paymentMethods == null) {
+      this.paymentMethods = new ArrayList<>();
+    }
+    this.paymentMethods.add(paymentMethodsItem);
+    return this;
+  }
+
+  /**
+   * Split payment only: every payment method used, each with the amount paid with it. Their amounts must add up to paidAmount. When present, leave the single-method fields (paymentMeansCode, card and account fields) empty; a receipt paid with one method uses those fields instead of this list.
+   * @return paymentMethods
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_PAYMENT_METHODS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<@Valid PaymentMethod> getPaymentMethods() {
+    return paymentMethods;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PAYMENT_METHODS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPaymentMethods(@javax.annotation.Nullable List<@Valid PaymentMethod> paymentMethods) {
+    this.paymentMethods = paymentMethods;
   }
 
 
@@ -287,12 +495,18 @@ public class PaymentDetails {
         Objects.equals(this.accountIdentifier, paymentDetails.accountIdentifier) &&
         Objects.equals(this.accountIdentifierType, paymentDetails.accountIdentifierType) &&
         Objects.equals(this.merchantId, paymentDetails.merchantId) &&
-        Objects.equals(this.paymentTerminalId, paymentDetails.paymentTerminalId);
+        Objects.equals(this.paymentTerminalId, paymentDetails.paymentTerminalId) &&
+        Objects.equals(this.paidAmount, paymentDetails.paidAmount) &&
+        Objects.equals(this.amountDue, paymentDetails.amountDue) &&
+        Objects.equals(this.roundingAmount, paymentDetails.roundingAmount) &&
+        Objects.equals(this.dueDate, paymentDetails.dueDate) &&
+        Objects.equals(this.paymentTerms, paymentDetails.paymentTerms) &&
+        Objects.equals(this.paymentMethods, paymentDetails.paymentMethods);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(paymentMeansCode, description, cardProvider, cardLastFour, accountIdentifier, accountIdentifierType, merchantId, paymentTerminalId);
+    return Objects.hash(paymentMeansCode, description, cardProvider, cardLastFour, accountIdentifier, accountIdentifierType, merchantId, paymentTerminalId, paidAmount, amountDue, roundingAmount, dueDate, paymentTerms, paymentMethods);
   }
 
   @Override
@@ -307,6 +521,12 @@ public class PaymentDetails {
     sb.append("    accountIdentifierType: ").append(toIndentedString(accountIdentifierType)).append("\n");
     sb.append("    merchantId: ").append(toIndentedString(merchantId)).append("\n");
     sb.append("    paymentTerminalId: ").append(toIndentedString(paymentTerminalId)).append("\n");
+    sb.append("    paidAmount: ").append(toIndentedString(paidAmount)).append("\n");
+    sb.append("    amountDue: ").append(toIndentedString(amountDue)).append("\n");
+    sb.append("    roundingAmount: ").append(toIndentedString(roundingAmount)).append("\n");
+    sb.append("    dueDate: ").append(toIndentedString(dueDate)).append("\n");
+    sb.append("    paymentTerms: ").append(toIndentedString(paymentTerms)).append("\n");
+    sb.append("    paymentMethods: ").append(toIndentedString(paymentMethods)).append("\n");
     sb.append("}");
     return sb.toString();
   }

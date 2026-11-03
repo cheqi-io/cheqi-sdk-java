@@ -29,6 +29,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -73,7 +75,7 @@ public class CompanyResponse {
 
   public static final String JSON_PROPERTY_IDENTIFIERS = "identifiers";
   @javax.annotation.Nullable
-  private Set<CompanyIdentifierDTO> identifiers = new LinkedHashSet<>();
+  private Set<@Valid CompanyIdentifierDTO> identifiers = new LinkedHashSet<>();
 
   public static final String JSON_PROPERTY_WEBSITE = "website";
   @javax.annotation.Nullable
@@ -92,6 +94,8 @@ public class CompanyResponse {
    * @return id
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getId() {
@@ -116,6 +120,7 @@ public class CompanyResponse {
    * @return companyName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyName() {
@@ -140,6 +145,7 @@ public class CompanyResponse {
    * @return companyLegalName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_LEGAL_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyLegalName() {
@@ -164,6 +170,8 @@ public class CompanyResponse {
    * @return address
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public AddressDTO getAddress() {
@@ -188,6 +196,7 @@ public class CompanyResponse {
    * @return companyEmail
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_EMAIL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyEmail() {
@@ -212,6 +221,7 @@ public class CompanyResponse {
    * @return phoneNumber
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PHONE_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPhoneNumber() {
@@ -226,7 +236,7 @@ public class CompanyResponse {
   }
 
 
-  public CompanyResponse identifiers(@javax.annotation.Nullable Set<CompanyIdentifierDTO> identifiers) {
+  public CompanyResponse identifiers(@javax.annotation.Nullable Set<@Valid CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
     return this;
   }
@@ -244,9 +254,11 @@ public class CompanyResponse {
    * @return identifiers
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Set<CompanyIdentifierDTO> getIdentifiers() {
+  public Set<@Valid CompanyIdentifierDTO> getIdentifiers() {
     return identifiers;
   }
 
@@ -254,7 +266,7 @@ public class CompanyResponse {
   @JsonDeserialize(as = LinkedHashSet.class)
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setIdentifiers(@javax.annotation.Nullable Set<CompanyIdentifierDTO> identifiers) {
+  public void setIdentifiers(@javax.annotation.Nullable Set<@Valid CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
   }
 
@@ -269,6 +281,7 @@ public class CompanyResponse {
    * @return website
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_WEBSITE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getWebsite() {

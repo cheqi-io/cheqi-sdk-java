@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -66,6 +68,8 @@ public class EncryptedCreditNoteInitiationRequest {
    * @return cheqiReceiptId
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCheqiReceiptId() {
@@ -90,6 +94,8 @@ public class EncryptedCreditNoteInitiationRequest {
    * @return publicKey
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPublicKey() {
@@ -114,6 +120,8 @@ public class EncryptedCreditNoteInitiationRequest {
    * @return encryptedCreditNoteInitiationRequest
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_CREDIT_NOTE_INITIATION_REQUEST)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getEncryptedCreditNoteInitiationRequest() {
@@ -138,6 +146,8 @@ public class EncryptedCreditNoteInitiationRequest {
    * @return encryptedSymmetricKey
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_SYMMETRIC_KEY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getEncryptedSymmetricKey() {

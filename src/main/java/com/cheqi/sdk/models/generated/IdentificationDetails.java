@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -86,6 +88,8 @@ public class IdentificationDetails {
    * @return paymentType
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public PaymentType getPaymentType() {
@@ -110,6 +114,8 @@ public class IdentificationDetails {
    * @return cardDetails
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CARD_DETAILS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public CardDetails getCardDetails() {
@@ -134,6 +140,8 @@ public class IdentificationDetails {
    * @return paymentAccountDetails
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_ACCOUNT_DETAILS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public PaymentAccountDetails getPaymentAccountDetails() {
@@ -166,6 +174,7 @@ public class IdentificationDetails {
    * @return paymentIds
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_IDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<String> getPaymentIds() {
@@ -190,6 +199,7 @@ public class IdentificationDetails {
    * @return recipientEmail
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_RECIPIENT_EMAIL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getRecipientEmail() {
@@ -214,6 +224,7 @@ public class IdentificationDetails {
    * @return cheqiReceiptId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCheqiReceiptId() {
@@ -238,6 +249,7 @@ public class IdentificationDetails {
    * @return pairingCode
    */
   @javax.annotation.Nullable
+ @Pattern(regexp="\\d{8}")
   @JsonProperty(JSON_PROPERTY_PAIRING_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPairingCode() {

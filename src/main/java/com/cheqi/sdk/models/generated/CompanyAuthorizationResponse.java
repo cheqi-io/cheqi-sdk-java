@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -39,12 +41,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class CompanyAuthorizationResponse {
   public static final String JSON_PROPERTY_GRANTS = "grants";
   @javax.annotation.Nullable
-  private List<CompanyGrantMetadataResponse> grants = new ArrayList<>();
+  private List<@Valid CompanyGrantMetadataResponse> grants = new ArrayList<>();
 
   public CompanyAuthorizationResponse() { 
   }
 
-  public CompanyAuthorizationResponse grants(@javax.annotation.Nullable List<CompanyGrantMetadataResponse> grants) {
+  public CompanyAuthorizationResponse grants(@javax.annotation.Nullable List<@Valid CompanyGrantMetadataResponse> grants) {
     this.grants = grants;
     return this;
   }
@@ -62,16 +64,18 @@ public class CompanyAuthorizationResponse {
    * @return grants
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_GRANTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<CompanyGrantMetadataResponse> getGrants() {
+  public List<@Valid CompanyGrantMetadataResponse> getGrants() {
     return grants;
   }
 
 
   @JsonProperty(JSON_PROPERTY_GRANTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setGrants(@javax.annotation.Nullable List<CompanyGrantMetadataResponse> grants) {
+  public void setGrants(@javax.annotation.Nullable List<@Valid CompanyGrantMetadataResponse> grants) {
     this.grants = grants;
   }
 

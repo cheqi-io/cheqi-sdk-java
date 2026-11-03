@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -108,6 +110,7 @@ public class ReceiptSubmissionResponse implements SubmitEncryptedReceipt202Respo
    * @return cheqiReceiptId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCheqiReceiptId() {
@@ -132,6 +135,7 @@ public class ReceiptSubmissionResponse implements SubmitEncryptedReceipt202Respo
    * @return matchId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_MATCH_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getMatchId() {
@@ -156,6 +160,7 @@ public class ReceiptSubmissionResponse implements SubmitEncryptedReceipt202Respo
    * @return status
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_STATUS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public StatusEnum getStatus() {
@@ -180,6 +185,8 @@ public class ReceiptSubmissionResponse implements SubmitEncryptedReceipt202Respo
    * @return createdAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CREATED_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getCreatedAt() {

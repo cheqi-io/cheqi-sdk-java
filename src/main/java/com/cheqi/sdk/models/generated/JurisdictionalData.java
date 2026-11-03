@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -62,11 +64,11 @@ public class JurisdictionalData {
 
   public static final String JSON_PROPERTY_LEGAL_TEXTS = "legalTexts";
   @javax.annotation.Nullable
-  private List<JurisdictionLegalText> legalTexts = new ArrayList<>();
+  private List<@Valid JurisdictionLegalText> legalTexts = new ArrayList<>();
 
   public static final String JSON_PROPERTY_ADDITIONAL_FIELDS = "additionalFields";
   @javax.annotation.Nullable
-  private List<JurisdictionField> additionalFields = new ArrayList<>();
+  private List<@Valid JurisdictionField> additionalFields = new ArrayList<>();
 
   public JurisdictionalData() { 
   }
@@ -81,6 +83,7 @@ public class JurisdictionalData {
    * @return countryCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COUNTRY_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCountryCode() {
@@ -105,6 +108,7 @@ public class JurisdictionalData {
    * @return regime
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_REGIME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getRegime() {
@@ -129,6 +133,7 @@ public class JurisdictionalData {
    * @return regimeVersion
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_REGIME_VERSION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getRegimeVersion() {
@@ -153,6 +158,8 @@ public class JurisdictionalData {
    * @return fiscalization
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_FISCALIZATION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public FiscalizationData getFiscalization() {
@@ -167,7 +174,7 @@ public class JurisdictionalData {
   }
 
 
-  public JurisdictionalData legalTexts(@javax.annotation.Nullable List<JurisdictionLegalText> legalTexts) {
+  public JurisdictionalData legalTexts(@javax.annotation.Nullable List<@Valid JurisdictionLegalText> legalTexts) {
     this.legalTexts = legalTexts;
     return this;
   }
@@ -185,21 +192,23 @@ public class JurisdictionalData {
    * @return legalTexts
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_LEGAL_TEXTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<JurisdictionLegalText> getLegalTexts() {
+  public List<@Valid JurisdictionLegalText> getLegalTexts() {
     return legalTexts;
   }
 
 
   @JsonProperty(JSON_PROPERTY_LEGAL_TEXTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setLegalTexts(@javax.annotation.Nullable List<JurisdictionLegalText> legalTexts) {
+  public void setLegalTexts(@javax.annotation.Nullable List<@Valid JurisdictionLegalText> legalTexts) {
     this.legalTexts = legalTexts;
   }
 
 
-  public JurisdictionalData additionalFields(@javax.annotation.Nullable List<JurisdictionField> additionalFields) {
+  public JurisdictionalData additionalFields(@javax.annotation.Nullable List<@Valid JurisdictionField> additionalFields) {
     this.additionalFields = additionalFields;
     return this;
   }
@@ -217,16 +226,18 @@ public class JurisdictionalData {
    * @return additionalFields
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ADDITIONAL_FIELDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<JurisdictionField> getAdditionalFields() {
+  public List<@Valid JurisdictionField> getAdditionalFields() {
     return additionalFields;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ADDITIONAL_FIELDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAdditionalFields(@javax.annotation.Nullable List<JurisdictionField> additionalFields) {
+  public void setAdditionalFields(@javax.annotation.Nullable List<@Valid JurisdictionField> additionalFields) {
     this.additionalFields = additionalFields;
   }
 

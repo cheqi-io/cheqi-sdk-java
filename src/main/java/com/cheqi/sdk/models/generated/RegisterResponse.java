@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -62,6 +64,8 @@ public class RegisterResponse {
    * @return id
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getId() {
@@ -86,6 +90,8 @@ public class RegisterResponse {
    * @return companyId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_COMPANY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getCompanyId() {
@@ -110,6 +116,7 @@ public class RegisterResponse {
    * @return webhookSecret
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_WEBHOOK_SECRET)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getWebhookSecret() {

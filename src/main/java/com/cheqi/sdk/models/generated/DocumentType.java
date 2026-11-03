@@ -17,6 +17,8 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -29,7 +31,9 @@ public enum DocumentType {
   
   RECEIPT("RECEIPT"),
   
-  CREDIT_NOTE("CREDIT_NOTE");
+  CREDIT_NOTE("CREDIT_NOTE"),
+  
+  SELF_BILLED_INVOICE("SELF_BILLED_INVOICE");
 
   private String value;
 

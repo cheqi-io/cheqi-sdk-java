@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -71,6 +73,7 @@ public class PartyAddress {
    * @return street
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_STREET)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getStreet() {
@@ -95,6 +98,7 @@ public class PartyAddress {
    * @return city
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CITY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCity() {
@@ -119,6 +123,7 @@ public class PartyAddress {
    * @return state
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_STATE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getState() {
@@ -143,6 +148,7 @@ public class PartyAddress {
    * @return zipCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ZIP_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getZipCode() {
@@ -167,6 +173,7 @@ public class PartyAddress {
    * @return country
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COUNTRY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCountry() {

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -69,6 +71,7 @@ public class MatchedRecipient {
    * @return id
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getId() {
@@ -93,6 +96,7 @@ public class MatchedRecipient {
    * @return publicKey
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPublicKey() {
@@ -117,6 +121,7 @@ public class MatchedRecipient {
    * @return keyAlgorithm
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_KEY_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getKeyAlgorithm() {
@@ -149,6 +154,8 @@ public class MatchedRecipient {
    * @return acceptedFormats
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ACCEPTED_FORMATS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<ReceiptFormat> getAcceptedFormats() {

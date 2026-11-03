@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -61,6 +63,8 @@ public class ClientReceiptDownloadRequest {
    * @return downloadId
    */
   @javax.annotation.Nonnull
+  @NotNull
+ @Pattern(regexp="^[A-Za-z0-9_-]{22,64}$")
   @JsonProperty(JSON_PROPERTY_DOWNLOAD_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getDownloadId() {
@@ -85,6 +89,8 @@ public class ClientReceiptDownloadRequest {
    * @return ciphertext
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_CIPHERTEXT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCiphertext() {
@@ -109,6 +115,7 @@ public class ClientReceiptDownloadRequest {
    * @return templateHash
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_TEMPLATE_HASH)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getTemplateHash() {

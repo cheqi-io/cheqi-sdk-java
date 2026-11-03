@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -46,7 +48,9 @@ public class WebhookEvent {
     
     CREDIT_NOTE_CREATED(String.valueOf("CREDIT_NOTE_CREATED")),
     
-    COMPANY_INVITATION_ACCEPTED(String.valueOf("COMPANY_INVITATION_ACCEPTED"));
+    COMPANY_INVITATION_ACCEPTED(String.valueOf("COMPANY_INVITATION_ACCEPTED")),
+    
+    SELF_BILLED_INVOICE_CREATED(String.valueOf("SELF_BILLED_INVOICE_CREATED"));
 
     private String value;
 
@@ -96,6 +100,7 @@ public class WebhookEvent {
    * @return event
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_EVENT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public EventEnum getEvent() {
@@ -120,6 +125,8 @@ public class WebhookEvent {
    * @return data
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_DATA)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public WebhookData getData() {

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -41,7 +43,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class WebhookResponse {
   public static final String JSON_PROPERTY_CREATED_WEBHOOKS = "createdWebhooks";
   @javax.annotation.Nullable
-  private List<WebhookDTO> createdWebhooks = new ArrayList<>();
+  private List<@Valid WebhookDTO> createdWebhooks = new ArrayList<>();
 
   public static final String JSON_PROPERTY_FAILED_EVENTS = "failedEvents";
   @javax.annotation.Nullable
@@ -49,12 +51,12 @@ public class WebhookResponse {
 
   public static final String JSON_PROPERTY_EXISTING_WEBHOOKS = "existingWebhooks";
   @javax.annotation.Nullable
-  private List<WebhookDTO> existingWebhooks = new ArrayList<>();
+  private List<@Valid WebhookDTO> existingWebhooks = new ArrayList<>();
 
   public WebhookResponse() { 
   }
 
-  public WebhookResponse createdWebhooks(@javax.annotation.Nullable List<WebhookDTO> createdWebhooks) {
+  public WebhookResponse createdWebhooks(@javax.annotation.Nullable List<@Valid WebhookDTO> createdWebhooks) {
     this.createdWebhooks = createdWebhooks;
     return this;
   }
@@ -72,16 +74,18 @@ public class WebhookResponse {
    * @return createdWebhooks
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CREATED_WEBHOOKS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<WebhookDTO> getCreatedWebhooks() {
+  public List<@Valid WebhookDTO> getCreatedWebhooks() {
     return createdWebhooks;
   }
 
 
   @JsonProperty(JSON_PROPERTY_CREATED_WEBHOOKS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCreatedWebhooks(@javax.annotation.Nullable List<WebhookDTO> createdWebhooks) {
+  public void setCreatedWebhooks(@javax.annotation.Nullable List<@Valid WebhookDTO> createdWebhooks) {
     this.createdWebhooks = createdWebhooks;
   }
 
@@ -104,6 +108,7 @@ public class WebhookResponse {
    * @return failedEvents
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_FAILED_EVENTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<String> getFailedEvents() {
@@ -118,7 +123,7 @@ public class WebhookResponse {
   }
 
 
-  public WebhookResponse existingWebhooks(@javax.annotation.Nullable List<WebhookDTO> existingWebhooks) {
+  public WebhookResponse existingWebhooks(@javax.annotation.Nullable List<@Valid WebhookDTO> existingWebhooks) {
     this.existingWebhooks = existingWebhooks;
     return this;
   }
@@ -136,16 +141,18 @@ public class WebhookResponse {
    * @return existingWebhooks
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_EXISTING_WEBHOOKS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<WebhookDTO> getExistingWebhooks() {
+  public List<@Valid WebhookDTO> getExistingWebhooks() {
     return existingWebhooks;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXISTING_WEBHOOKS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExistingWebhooks(@javax.annotation.Nullable List<WebhookDTO> existingWebhooks) {
+  public void setExistingWebhooks(@javax.annotation.Nullable List<@Valid WebhookDTO> existingWebhooks) {
     this.existingWebhooks = existingWebhooks;
   }
 

@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -86,6 +88,7 @@ public class AddressDTO {
    * @return id
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Long getId() {
@@ -110,6 +113,8 @@ public class AddressDTO {
    * @return streetName
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_STREET_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getStreetName() {
@@ -134,6 +139,7 @@ public class AddressDTO {
    * @return additionalStreetName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ADDITIONAL_STREET_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAdditionalStreetName() {
@@ -158,6 +164,7 @@ public class AddressDTO {
    * @return addressLine
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ADDRESS_LINE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAddressLine() {
@@ -182,6 +189,7 @@ public class AddressDTO {
    * @return region
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_REGION)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getRegion() {
@@ -206,6 +214,8 @@ public class AddressDTO {
    * @return cityName
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_CITY_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCityName() {
@@ -230,6 +240,8 @@ public class AddressDTO {
    * @return postalZone
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_POSTAL_ZONE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPostalZone() {
@@ -254,6 +266,8 @@ public class AddressDTO {
    * @return countryIsoCode
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_COUNTRY_ISO_CODE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCountryIsoCode() {

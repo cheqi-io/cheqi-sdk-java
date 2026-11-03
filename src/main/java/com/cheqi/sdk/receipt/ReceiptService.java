@@ -23,6 +23,8 @@ import com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument;
 import com.cheqi.sdk.models.generated.ReceiptSubmissionResponse;
 import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
 import com.cheqi.sdk.verification.VerificationService;
+import com.cheqi.sdk.validation.InvoiceValidationReport;
+import com.cheqi.sdk.validation.ReceiptPayloadValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ public class ReceiptService {
     private final DownloadService downloadService;
     private final VerificationService verificationService;
     private final String downloadBaseUrl;
+    private final ReceiptPayloadValidator payloadValidator = new ReceiptPayloadValidator();
 
     public ReceiptService(
             CheqiApiClient apiClient,
@@ -81,6 +84,16 @@ public class ReceiptService {
         this.downloadBaseUrl = downloadBaseUrl;
     }
 
+    /**
+     * Checks receipt data and returns all detected issues without issuing a receipt.
+     *
+     * <p>Invalid receipt data is returned in the report. A null payload, serialization
+     * error or unavailable validator throws {@link CheqiSDKException}.</p>
+     */
+    public InvoiceValidationReport validate(ReceiptPayload receiptPayload) throws CheqiSDKException {
+        return payloadValidator.validate(receiptPayload);
+    }
+
     public ReceiptResult issueReceipt(
             IdentificationDetails identificationDetails,
             ReceiptPayload receiptPayload
@@ -111,14 +124,14 @@ public class ReceiptService {
             RequestOptions options
     ) throws CheqiSDKException {
         requireNonNull(identificationDetails, "identificationDetails");
-        validatePayload(receiptPayload);
+        String validatedPayloadJson = payloadValidator.requireValidJson(receiptPayload);
         try {
             RecipientResolutionResponse resolution;
             try {
                 resolution = matchingService.matchCustomer(identificationDetails, options);
             } catch (CheqiApiException exception) {
                 if (!isRecoverable(exception)) throw exception;
-                return ReceiptResult.downloadPrepared(prepareDownload(receiptPayload, null));
+                return ReceiptResult.downloadPrepared(prepareDownload(validatedPayloadJson, null));
             }
             validateResolvedRoute(resolution);
 
@@ -128,7 +141,7 @@ public class ReceiptService {
                     return ReceiptResult.downloadEnvelopeRequired(resolution);
                 }
                 return deliverClientEncryptedDownload(
-                        resolution.getMatchId(), identificationDetails, receiptPayload, options);
+                        resolution.getMatchId(), identificationDetails, validatedPayloadJson, options);
             }
             if (route == RecipientResolutionResponse.DeliveryRouteTypeEnum.EMAIL_FALLBACK) {
                 return ReceiptResult.emailReceiptRequired(resolution);
@@ -136,12 +149,12 @@ public class ReceiptService {
             validateDeviceRecipients(resolution);
             try {
                 return ReceiptResult.accepted(submitPayload(resolution.getMatchId(),
-                        resolution.getRecipients(), receiptPayload, storeId, options));
+                        resolution.getRecipients(), validatedPayloadJson, storeId, options));
             } catch (CheqiApiException exception) {
                 if (exception.getHttpStatusCode() == 410) return ReceiptResult.digitalExpired(resolution.getMatchId());
                 if (!isAmbiguousSubmission(exception)) throw exception;
                 return ReceiptResult.digitalPending(resolution.getMatchId(),
-                        prepareDownload(receiptPayload, null), retryAfter(exception));
+                        prepareDownload(validatedPayloadJson, null), retryAfter(exception));
             }
         } catch (CheqiSDKException exception) {
             throw exception;
@@ -173,7 +186,7 @@ public class ReceiptService {
     public ReceiptResult resumeReceipt(String matchId, ReceiptPayload receiptPayload,
                                        UUID storeId, RequestOptions options) throws CheqiSDKException {
         validateMatchId(matchId);
-        validatePayload(receiptPayload);
+        String validatedPayloadJson = payloadValidator.requireValidJson(receiptPayload);
         try {
             MatchStatusResponse match = apiClient.getMatch(matchId, options);
             if (match == null || match.getState() == null || !matchId.equals(match.getMatchId())) {
@@ -198,7 +211,7 @@ public class ReceiptService {
                         throw validationError("Match does not contain a digital owner-device route");
                     }
                     return ReceiptResult.accepted(submitPayload(matchId, match.getRecipients(),
-                            receiptPayload, storeId, options));
+                            validatedPayloadJson, storeId, options));
                 default:
                     throw validationError("Unknown match state");
             }
@@ -240,9 +253,9 @@ public class ReceiptService {
             throws CheqiSDKException { return uploadPreparedDownload(download, RequestOptions.defaults()); }
 
     private ReceiptSubmissionResponse submitPayload(String matchId, List<MatchedRecipient> recipients,
-                                                      ReceiptPayload payload, UUID storeId, RequestOptions options)
+                                                      String validatedPayloadJson, UUID storeId, RequestOptions options)
             throws Exception {
-        EncryptedReceiptEnvelope envelope = generateEnvelope(matchId, recipients, payload, storeId);
+        EncryptedReceiptEnvelope envelope = generateEnvelope(matchId, recipients, validatedPayloadJson, storeId);
         ReceiptSubmissionResponse response = apiClient.submitEncryptedReceipt(envelope, options);
         if (response == null || response.getCheqiReceiptId() == null
                 || response.getCheqiReceiptId().trim().isEmpty() || !matchId.equals(response.getMatchId())) {
@@ -263,7 +276,7 @@ public class ReceiptService {
         if (resolveRoute(match) != RecipientResolutionResponse.DeliveryRouteTypeEnum.DIGITAL) {
             throw validationError("Match does not contain a digital owner-device route");
         }
-        return generateEnvelope(match.getMatchId(), match.getRecipients(), receiptPayload, storeId);
+        return generateEnvelope(match.getMatchId(), match.getRecipients(), payloadValidator.requireValidJson(receiptPayload), storeId);
     }
 
     /** Encrypts locally using a retrieved, unsubmitted digital match. */
@@ -275,21 +288,20 @@ public class ReceiptService {
                 || match.getRoute() != MatchStatusResponse.RouteEnum.DIGITAL) {
             throw validationError("Match must be MATCHED with a digital owner-device route");
         }
-        return generateEnvelope(match.getMatchId(), match.getRecipients(), receiptPayload, storeId);
+        return generateEnvelope(match.getMatchId(), match.getRecipients(), payloadValidator.requireValidJson(receiptPayload), storeId);
     }
 
     private EncryptedReceiptEnvelope generateEnvelope(String matchId, List<MatchedRecipient> recipients,
-                                                       ReceiptPayload payload, UUID storeId)
+                                                       String validatedPayloadJson, UUID storeId)
             throws CheqiSDKException {
         validateMatchId(matchId);
-        validatePayload(payload);
         if (recipients == null || recipients.isEmpty()
                 || recipients.stream().anyMatch(Objects::isNull)) {
             throw validationError("Match must contain owner devices");
         }
         try {
             return new EncryptedReceiptEnvelope().matchId(matchId).storeId(storeId)
-                    .deviceDeliveries(encryptForDevices(objectMapper.writeValueAsString(payload), recipients));
+                    .deviceDeliveries(encryptForDevices(validatedPayloadJson, recipients));
         } catch (Exception exception) {
             throw new CheqiSDKException("Receipt encryption failed", exception);
         }
@@ -336,7 +348,7 @@ public class ReceiptService {
             RequestOptions options
     ) throws CheqiSDKException {
         requireNonNull(identificationDetails, "identificationDetails");
-        validatePayload(receiptPayload);
+        String validatedPayloadJson = payloadValidator.requireValidJson(receiptPayload);
         if (identificationDetails.getPaymentType() == null) {
             throw validationError("identificationDetails.paymentType is required");
         }
@@ -344,7 +356,7 @@ public class ReceiptService {
             return deliverClientEncryptedDownload(
                     null,
                     identificationDetails,
-                    receiptPayload,
+                    validatedPayloadJson,
                     options
             );
         } catch (CheqiSDKException exception) {
@@ -471,10 +483,10 @@ public class ReceiptService {
     private ReceiptResult deliverClientEncryptedDownload(
             String matchId,
             IdentificationDetails identificationDetails,
-            ReceiptPayload receiptPayload,
+            String validatedPayloadJson,
             RequestOptions options
     ) throws Exception {
-        PreparedReceiptDownload prepared = prepareDownload(receiptPayload, identificationDetails);
+        PreparedReceiptDownload prepared = prepareDownload(validatedPayloadJson, identificationDetails);
         try {
             ClientReceiptDownloadResponse response = apiClient.uploadEncryptedDownloadReceipt(
                     prepared.getUploadRequest(), options);
@@ -485,14 +497,13 @@ public class ReceiptService {
         }
     }
 
-    private PreparedReceiptDownload prepareDownload(ReceiptPayload receiptPayload,
+    private PreparedReceiptDownload prepareDownload(String payloadDocument,
                                                      IdentificationDetails identificationDetails)
             throws Exception {
         if (downloadBaseUrl == null || downloadBaseUrl.trim().isEmpty()) {
             throw validationError("A receipt download base URL is required to prepare download fallback");
         }
         DownloadLink link = downloadService.generateDownloadLink(downloadBaseUrl);
-        String payloadDocument = objectMapper.writeValueAsString(receiptPayload);
         ReceiptEnvelope envelope = new ReceiptEnvelope()
                 .cheqiReceiptId(link.getDownloadId())
                 .envelopeVersion(2)
@@ -546,19 +557,6 @@ public class ReceiptService {
             throws CheqiSDKException {
         if (resolution.getRecipients() == null || resolution.getRecipients().isEmpty()) {
             throw validationError("Recipient resolution did not include owner devices");
-        }
-    }
-
-    private static void validatePayload(ReceiptPayload payload) throws CheqiSDKException {
-        requireNonNull(payload, "receiptPayload");
-        if (payload.getDocumentNumber() == null || payload.getDocumentNumber().trim().isEmpty()
-                || payload.getCurrency() == null || payload.getCurrency().trim().isEmpty()
-                || payload.getIssueDate() == null || payload.getProducts() == null
-                || payload.getProducts().isEmpty() || payload.getProducts().stream().anyMatch(Objects::isNull)
-                || payload.getReceiptSubtotal() == null || payload.getTotalBeforeTax() == null
-                || payload.getTotalTaxAmount() == null || payload.getTotalAmount() == null
-                || payload.getTaxesApplied() == null) {
-            throw validationError("receiptPayload must contain the required receipt fields and products");
         }
     }
 

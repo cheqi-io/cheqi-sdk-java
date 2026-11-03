@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -58,7 +60,7 @@ public class CreditNoteInitiationRequest {
 
   public static final String JSON_PROPERTY_LINE_ITEMS = "lineItems";
   @javax.annotation.Nonnull
-  private List<ReturnLineItem> lineItems = new ArrayList<>();
+  private List<@Valid ReturnLineItem> lineItems = new ArrayList<>();
 
   public static final String JSON_PROPERTY_REFUND_PREFERENCE = "refundPreference";
   @javax.annotation.Nonnull
@@ -81,6 +83,8 @@ public class CreditNoteInitiationRequest {
    * @return cheqiReceiptId
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_CHEQI_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCheqiReceiptId() {
@@ -105,6 +109,8 @@ public class CreditNoteInitiationRequest {
    * @return receiptId
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_RECEIPT_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getReceiptId() {
@@ -129,6 +135,7 @@ public class CreditNoteInitiationRequest {
    * @return customerNote
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=1000)
   @JsonProperty(JSON_PROPERTY_CUSTOMER_NOTE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCustomerNote() {
@@ -143,7 +150,7 @@ public class CreditNoteInitiationRequest {
   }
 
 
-  public CreditNoteInitiationRequest lineItems(@javax.annotation.Nonnull List<ReturnLineItem> lineItems) {
+  public CreditNoteInitiationRequest lineItems(@javax.annotation.Nonnull List<@Valid ReturnLineItem> lineItems) {
     this.lineItems = lineItems;
     return this;
   }
@@ -161,16 +168,19 @@ public class CreditNoteInitiationRequest {
    * @return lineItems
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_LINE_ITEMS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public List<ReturnLineItem> getLineItems() {
+  public List<@Valid ReturnLineItem> getLineItems() {
     return lineItems;
   }
 
 
   @JsonProperty(JSON_PROPERTY_LINE_ITEMS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLineItems(@javax.annotation.Nonnull List<ReturnLineItem> lineItems) {
+  public void setLineItems(@javax.annotation.Nonnull List<@Valid ReturnLineItem> lineItems) {
     this.lineItems = lineItems;
   }
 
@@ -185,6 +195,9 @@ public class CreditNoteInitiationRequest {
    * @return refundPreference
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_REFUND_PREFERENCE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public RefundPreference getRefundPreference() {
@@ -209,6 +222,8 @@ public class CreditNoteInitiationRequest {
    * @return refundBankAccount
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_REFUND_BANK_ACCOUNT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public RefundBankAccount getRefundBankAccount() {

@@ -25,6 +25,8 @@ public class ReceiptPayload extends com.cheqi.sdk.models.generated.ReceiptPayloa
         private BigDecimal totalBeforeTax;
         private BigDecimal totalTaxAmount;
         private BigDecimal totalAmount;
+        private BigDecimal totalDiscountAmount;
+        private BigDecimal totalChargeAmount;
         private Boolean taxesApplied;
         private List<com.cheqi.sdk.models.generated.Product> products = new ArrayList<>();
         private List<com.cheqi.sdk.models.generated.Discount> discounts = new ArrayList<>();
@@ -52,6 +54,10 @@ public class ReceiptPayload extends com.cheqi.sdk.models.generated.ReceiptPayloa
         public Builder totalTaxAmount(String value) { return totalTaxAmount(decimal(value)); }
         public Builder totalAmount(BigDecimal value) { totalAmount = value; return this; }
         public Builder totalAmount(String value) { return totalAmount(decimal(value)); }
+        public Builder totalDiscountAmount(BigDecimal value) { totalDiscountAmount = value; return this; }
+        public Builder totalDiscountAmount(String value) { return totalDiscountAmount(decimal(value)); }
+        public Builder totalChargeAmount(BigDecimal value) { totalChargeAmount = value; return this; }
+        public Builder totalChargeAmount(String value) { return totalChargeAmount(decimal(value)); }
         public Builder taxesApplied(boolean value) { taxesApplied = value; return this; }
         public Builder transactionDate(OffsetDateTime value) { transactionDate = value; return this; }
         public Builder purchaseDate(OffsetDateTime value) { purchaseDate = value; return this; }
@@ -157,6 +163,8 @@ public class ReceiptPayload extends com.cheqi.sdk.models.generated.ReceiptPayloa
             payload.setTotalBeforeTax(totalBeforeTax);
             payload.setTotalTaxAmount(totalTaxAmount);
             payload.setTotalAmount(totalAmount);
+            payload.setTotalDiscountAmount(totalDiscountAmount);
+            payload.setTotalChargeAmount(totalChargeAmount);
             payload.setTaxesApplied(taxesApplied);
             payload.setProducts(products);
             payload.setDiscounts(emptyToNull(discounts));

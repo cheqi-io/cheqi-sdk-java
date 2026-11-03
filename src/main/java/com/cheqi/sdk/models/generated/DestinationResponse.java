@@ -16,14 +16,19 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -35,7 +40,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   DestinationResponse.JSON_PROPERTY_PUBLIC_KEY,
   DestinationResponse.JSON_PROPERTY_KEY_ALGORITHM,
   DestinationResponse.JSON_PROPERTY_ACTIVE,
-  DestinationResponse.JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS
+  DestinationResponse.JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS,
+  DestinationResponse.JSON_PROPERTY_FORMAT_PREFERENCES
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -64,6 +70,10 @@ public class DestinationResponse {
   @javax.annotation.Nullable
   private Boolean acceptsEmployeeSubmissions;
 
+  public static final String JSON_PROPERTY_FORMAT_PREFERENCES = "formatPreferences";
+  @javax.annotation.Nullable
+  private List<ReceiptFormat> formatPreferences = new ArrayList<>();
+
   public DestinationResponse() { 
   }
 
@@ -77,6 +87,8 @@ public class DestinationResponse {
    * @return id
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getId() {
@@ -101,6 +113,7 @@ public class DestinationResponse {
    * @return name
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getName() {
@@ -125,6 +138,7 @@ public class DestinationResponse {
    * @return publicKey
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPublicKey() {
@@ -149,6 +163,7 @@ public class DestinationResponse {
    * @return keyAlgorithm
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_KEY_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getKeyAlgorithm() {
@@ -173,6 +188,7 @@ public class DestinationResponse {
    * @return active
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACTIVE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getActive() {
@@ -197,6 +213,7 @@ public class DestinationResponse {
    * @return acceptsEmployeeSubmissions
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getAcceptsEmployeeSubmissions() {
@@ -208,6 +225,40 @@ public class DestinationResponse {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setAcceptsEmployeeSubmissions(@javax.annotation.Nullable Boolean acceptsEmployeeSubmissions) {
     this.acceptsEmployeeSubmissions = acceptsEmployeeSubmissions;
+  }
+
+
+  public DestinationResponse formatPreferences(@javax.annotation.Nullable List<ReceiptFormat> formatPreferences) {
+    this.formatPreferences = formatPreferences;
+    return this;
+  }
+
+  public DestinationResponse addFormatPreferencesItem(ReceiptFormat formatPreferencesItem) {
+    if (this.formatPreferences == null) {
+      this.formatPreferences = new ArrayList<>();
+    }
+    this.formatPreferences.add(formatPreferencesItem);
+    return this;
+  }
+
+  /**
+   * Get formatPreferences
+   * @return formatPreferences
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_FORMAT_PREFERENCES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<ReceiptFormat> getFormatPreferences() {
+    return formatPreferences;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_FORMAT_PREFERENCES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFormatPreferences(@javax.annotation.Nullable List<ReceiptFormat> formatPreferences) {
+    this.formatPreferences = formatPreferences;
   }
 
 
@@ -228,12 +279,13 @@ public class DestinationResponse {
         Objects.equals(this.publicKey, destinationResponse.publicKey) &&
         Objects.equals(this.keyAlgorithm, destinationResponse.keyAlgorithm) &&
         Objects.equals(this.active, destinationResponse.active) &&
-        Objects.equals(this.acceptsEmployeeSubmissions, destinationResponse.acceptsEmployeeSubmissions);
+        Objects.equals(this.acceptsEmployeeSubmissions, destinationResponse.acceptsEmployeeSubmissions) &&
+        Objects.equals(this.formatPreferences, destinationResponse.formatPreferences);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, publicKey, keyAlgorithm, active, acceptsEmployeeSubmissions);
+    return Objects.hash(id, name, publicKey, keyAlgorithm, active, acceptsEmployeeSubmissions, formatPreferences);
   }
 
   @Override
@@ -246,6 +298,7 @@ public class DestinationResponse {
     sb.append("    keyAlgorithm: ").append(toIndentedString(keyAlgorithm)).append("\n");
     sb.append("    active: ").append(toIndentedString(active)).append("\n");
     sb.append("    acceptsEmployeeSubmissions: ").append(toIndentedString(acceptsEmployeeSubmissions)).append("\n");
+    sb.append("    formatPreferences: ").append(toIndentedString(formatPreferences)).append("\n");
     sb.append("}");
     return sb.toString();
   }

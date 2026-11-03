@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -61,6 +63,8 @@ public class EncryptedReceiptPayload {
    * @return deviceRecipientId
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_DEVICE_RECIPIENT_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getDeviceRecipientId() {
@@ -85,6 +89,8 @@ public class EncryptedReceiptPayload {
    * @return encryptedContent
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_CONTENT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getEncryptedContent() {
@@ -109,6 +115,8 @@ public class EncryptedReceiptPayload {
    * @return encryptedAesKey
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_ENCRYPTED_AES_KEY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getEncryptedAesKey() {

@@ -26,6 +26,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -146,6 +148,8 @@ public class CompanyIdentifierDTO {
    * @return id
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getId() {
@@ -170,6 +174,8 @@ public class CompanyIdentifierDTO {
    * @return identifierType
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_IDENTIFIER_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public CompanyIdentifierType getIdentifierType() {
@@ -194,6 +200,7 @@ public class CompanyIdentifierDTO {
    * @return registrationScheme
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_REGISTRATION_SCHEME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public RegistrationSchemeEnum getRegistrationScheme() {
@@ -218,6 +225,7 @@ public class CompanyIdentifierDTO {
    * @return value
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getValue() {
@@ -242,6 +250,7 @@ public class CompanyIdentifierDTO {
    * @return label
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_LABEL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getLabel() {
@@ -266,6 +275,7 @@ public class CompanyIdentifierDTO {
    * @return countryCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COUNTRY_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCountryCode() {
@@ -290,6 +300,7 @@ public class CompanyIdentifierDTO {
    * @return isVerified
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_IS_VERIFIED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getIsVerified() {
@@ -314,6 +325,8 @@ public class CompanyIdentifierDTO {
    * @return verifiedAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_VERIFIED_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getVerifiedAt() {

@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -54,7 +56,9 @@ public class WebhookRequestBody {
     
     CREDIT_NOTE_CREATED(String.valueOf("CREDIT_NOTE_CREATED")),
     
-    COMPANY_INVITATION_ACCEPTED(String.valueOf("COMPANY_INVITATION_ACCEPTED"));
+    COMPANY_INVITATION_ACCEPTED(String.valueOf("COMPANY_INVITATION_ACCEPTED")),
+    
+    SELF_BILLED_INVOICE_CREATED(String.valueOf("SELF_BILLED_INVOICE_CREATED"));
 
     private String value;
 
@@ -108,6 +112,7 @@ public class WebhookRequestBody {
    * @return name
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getName() {
@@ -140,6 +145,7 @@ public class WebhookRequestBody {
    * @return events
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_EVENTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public List<EventsEnum> getEvents() {
@@ -164,6 +170,7 @@ public class WebhookRequestBody {
    * @return notificationUrl
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_NOTIFICATION_URL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getNotificationUrl() {
@@ -188,6 +195,8 @@ public class WebhookRequestBody {
    * @return destinationId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_DESTINATION_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getDestinationId() {

@@ -25,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -88,6 +90,8 @@ public class Tax {
    * @return rate
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_RATE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Double getRate() {
@@ -112,6 +116,8 @@ public class Tax {
    * @return type
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_TYPE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getType() {
@@ -136,6 +142,8 @@ public class Tax {
    * @return amount
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_AMOUNT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public BigDecimal getAmount() {
@@ -160,6 +168,9 @@ public class Tax {
    * @return taxableAmount
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TAXABLE_AMOUNT)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public BigDecimal getTaxableAmount() {
@@ -184,6 +195,7 @@ public class Tax {
    * @return label
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_LABEL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getLabel() {
@@ -208,6 +220,8 @@ public class Tax {
    * @return category
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CATEGORY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public TaxCategoryCode getCategory() {
@@ -232,6 +246,7 @@ public class Tax {
    * @return exemptionReasonCode
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_EXEMPTION_REASON_CODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getExemptionReasonCode() {
@@ -256,6 +271,7 @@ public class Tax {
    * @return exemptionReason
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_EXEMPTION_REASON)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getExemptionReason() {

@@ -26,6 +26,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -109,6 +111,7 @@ public class StoreDTO {
    * @return active
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACTIVE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getActive() {
@@ -133,6 +136,8 @@ public class StoreDTO {
    * @return id
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getId() {
@@ -157,6 +162,8 @@ public class StoreDTO {
    * @return companyId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_COMPANY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getCompanyId() {
@@ -181,6 +188,8 @@ public class StoreDTO {
    * @return storeName
    */
   @javax.annotation.Nonnull
+  @NotNull
+ @Size(min=0,max=255)
   @JsonProperty(JSON_PROPERTY_STORE_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getStoreName() {
@@ -205,6 +214,8 @@ public class StoreDTO {
    * @return storeCode
    */
   @javax.annotation.Nonnull
+  @NotNull
+ @Size(min=0,max=50)
   @JsonProperty(JSON_PROPERTY_STORE_CODE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getStoreCode() {
@@ -229,6 +240,8 @@ public class StoreDTO {
    * @return addressDto
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ADDRESS_DTO)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public AddressDTO getAddressDto() {
@@ -253,6 +266,7 @@ public class StoreDTO {
    * @return phoneNumber
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=20)
   @JsonProperty(JSON_PROPERTY_PHONE_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPhoneNumber() {
@@ -277,6 +291,7 @@ public class StoreDTO {
    * @return email
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=255)
   @JsonProperty(JSON_PROPERTY_EMAIL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getEmail() {
@@ -301,6 +316,7 @@ public class StoreDTO {
    * @return isActive
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_IS_ACTIVE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getIsActive() {
@@ -325,6 +341,7 @@ public class StoreDTO {
    * @return openingHours
    */
   @javax.annotation.Nullable
+ @Size(min=0,max=500)
   @JsonProperty(JSON_PROPERTY_OPENING_HOURS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getOpeningHours() {
@@ -349,6 +366,8 @@ public class StoreDTO {
    * @return createdAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CREATED_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getCreatedAt() {
@@ -373,6 +392,8 @@ public class StoreDTO {
    * @return updatedAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_UPDATED_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getUpdatedAt() {

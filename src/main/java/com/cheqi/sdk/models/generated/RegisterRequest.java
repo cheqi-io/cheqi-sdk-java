@@ -16,13 +16,18 @@ package com.cheqi.sdk.models.generated;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.cheqi.sdk.models.generated.ReceiptFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -32,7 +37,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   RegisterRequest.JSON_PROPERTY_NAME,
   RegisterRequest.JSON_PROPERTY_PUBLIC_KEY,
   RegisterRequest.JSON_PROPERTY_KEY_ALGORITHM,
-  RegisterRequest.JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS
+  RegisterRequest.JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS,
+  RegisterRequest.JSON_PROPERTY_FORMAT_PREFERENCES
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -53,6 +59,10 @@ public class RegisterRequest {
   @javax.annotation.Nullable
   private Boolean acceptsEmployeeSubmissions;
 
+  public static final String JSON_PROPERTY_FORMAT_PREFERENCES = "formatPreferences";
+  @javax.annotation.Nullable
+  private List<ReceiptFormat> formatPreferences = new ArrayList<>();
+
   public RegisterRequest() { 
   }
 
@@ -66,6 +76,8 @@ public class RegisterRequest {
    * @return name
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getName() {
@@ -90,6 +102,8 @@ public class RegisterRequest {
    * @return publicKey
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPublicKey() {
@@ -114,6 +128,8 @@ public class RegisterRequest {
    * @return keyAlgorithm
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_KEY_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getKeyAlgorithm() {
@@ -138,6 +154,7 @@ public class RegisterRequest {
    * @return acceptsEmployeeSubmissions
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCEPTS_EMPLOYEE_SUBMISSIONS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getAcceptsEmployeeSubmissions() {
@@ -149,6 +166,40 @@ public class RegisterRequest {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setAcceptsEmployeeSubmissions(@javax.annotation.Nullable Boolean acceptsEmployeeSubmissions) {
     this.acceptsEmployeeSubmissions = acceptsEmployeeSubmissions;
+  }
+
+
+  public RegisterRequest formatPreferences(@javax.annotation.Nullable List<ReceiptFormat> formatPreferences) {
+    this.formatPreferences = formatPreferences;
+    return this;
+  }
+
+  public RegisterRequest addFormatPreferencesItem(ReceiptFormat formatPreferencesItem) {
+    if (this.formatPreferences == null) {
+      this.formatPreferences = new ArrayList<>();
+    }
+    this.formatPreferences.add(formatPreferencesItem);
+    return this;
+  }
+
+  /**
+   * Get formatPreferences
+   * @return formatPreferences
+   */
+  @javax.annotation.Nullable
+  @Valid
+ @Size(min=1,max=2147483647)
+  @JsonProperty(JSON_PROPERTY_FORMAT_PREFERENCES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<ReceiptFormat> getFormatPreferences() {
+    return formatPreferences;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_FORMAT_PREFERENCES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFormatPreferences(@javax.annotation.Nullable List<ReceiptFormat> formatPreferences) {
+    this.formatPreferences = formatPreferences;
   }
 
 
@@ -167,12 +218,13 @@ public class RegisterRequest {
     return Objects.equals(this.name, registerRequest.name) &&
         Objects.equals(this.publicKey, registerRequest.publicKey) &&
         Objects.equals(this.keyAlgorithm, registerRequest.keyAlgorithm) &&
-        Objects.equals(this.acceptsEmployeeSubmissions, registerRequest.acceptsEmployeeSubmissions);
+        Objects.equals(this.acceptsEmployeeSubmissions, registerRequest.acceptsEmployeeSubmissions) &&
+        Objects.equals(this.formatPreferences, registerRequest.formatPreferences);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, publicKey, keyAlgorithm, acceptsEmployeeSubmissions);
+    return Objects.hash(name, publicKey, keyAlgorithm, acceptsEmployeeSubmissions, formatPreferences);
   }
 
   @Override
@@ -183,6 +235,7 @@ public class RegisterRequest {
     sb.append("    publicKey: ").append(toIndentedString(publicKey)).append("\n");
     sb.append("    keyAlgorithm: ").append(toIndentedString(keyAlgorithm)).append("\n");
     sb.append("    acceptsEmployeeSubmissions: ").append(toIndentedString(acceptsEmployeeSubmissions)).append("\n");
+    sb.append("    formatPreferences: ").append(toIndentedString(formatPreferences)).append("\n");
     sb.append("}");
     return sb.toString();
   }

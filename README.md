@@ -100,9 +100,9 @@ store, request a new one before it expires, and pass the current token with `Req
 
 `ReceiptService.issueReceipt(...)` performs the current receipt flow:
 
-1. Resolve a delivery route from the supplied `IdentificationDetails`.
-2. For a digital route, serialize the definitive `ReceiptPayload` without changing its values.
-3. Encrypt that payload independently for every matched owner device.
+1. Serialize the definitive `ReceiptPayload` once and validate it locally with the bundled Rust validator.
+2. Resolve a delivery route from the supplied `IdentificationDetails`.
+3. Encrypt those exact validated JSON bytes independently for every matched owner device.
 4. Submit an `EncryptedReceiptEnvelope` containing only ciphertext.
 5. Return a `ReceiptResult` describing the accepted receipt or the required fallback action.
 
@@ -121,9 +121,11 @@ import com.cheqi.sdk.models.generated.IdentificationDetails;
 import com.cheqi.sdk.models.generated.PaymentDetails;
 import com.cheqi.sdk.models.generated.PaymentType;
 import com.cheqi.sdk.models.generated.UnitCode;
+import com.cheqi.sdk.models.generated.TaxCategoryCode;
 import com.cheqi.sdk.receipt.ReceiptResult;
 
 import java.time.OffsetDateTime;
+import java.math.BigDecimal;
 
 CheqiSDK sdk = CheqiSDK.builder()
     .apiEndpoint(Environment.SANDBOX)
@@ -152,7 +154,10 @@ ReceiptPayload receiptPayload = ReceiptPayload.builder()
         .cardProvider("VISA")
         .cardLastFour("4242")
         .merchantId("MID-123")
-        .paymentTerminalId("TID-456"))
+        .paymentTerminalId("TID-456")
+        .paidAmount(new BigDecimal("12.10"))
+        .amountDue(BigDecimal.ZERO)
+        .roundingAmount(BigDecimal.ZERO))
     .addProduct(Product.builder()
         .name("Coffee beans")
         .brandName("Cheqi Coffee")
@@ -163,7 +168,9 @@ ReceiptPayload receiptPayload = ReceiptPayload.builder()
         .unitPrice("10.00")
         .subtotal("10.00")
         .total("12.10")
-        .addTax(21.0, "VAT", "10.00", "2.10")
+        .addTax(Tax.builder().rate(21.0).type("VAT")
+            .category(TaxCategoryCode.STANDARD)
+            .taxableAmount("10.00").amount("2.10").build())
         .build())
     .addTax(Tax.builder()
         .rate(21.0)
@@ -171,6 +178,7 @@ ReceiptPayload receiptPayload = ReceiptPayload.builder()
         .taxableAmount("10.00")
         .amount("2.10")
         .label("VAT 21%")
+        .category(TaxCategoryCode.STANDARD)
         .build())
     .build();
 
@@ -210,7 +218,49 @@ ReceiptResult result = sdk.getReceiptService()
 - Put issuer-supplied payment presentation data in `ReceiptPayload.paymentDetails`.
 - Use `IdentificationDetails` for recipient resolution and payment context. Matching data is not copied into `paymentDetails`.
 
-`paymentDetails` remains inside the encrypted receipt body on the digital route. If it is absent, the SDK does not infer it from matching metadata.
+`paymentDetails` remains inside the encrypted receipt body on the digital route. New receipts must state `paidAmount`, `amountDue` and `roundingAmount`, including zero when applicable. Supply a VAT breakdown and one explicit VAT category and amount per line, including zero tax. Receipt-level discounts/charges require their corresponding stated totals. Missing facts stop issuance locally; matching metadata is never used to fill them in.
+
+### Local payload validation
+
+The JAR bundles the Rust WASM validator and its SHA-256/provenance manifest. Chicory compiles the pinned module to Java bytecode when the SDK is built. Consumers need only Java 11 and the SDK's normal Maven dependencies; there is no Rust installation, native library, runtime compiler or validator download.
+
+Required fields and field limits are defined by the backend contract and carried into the generated models as Bean Validation annotations such as `@NotNull`, `@Size` and `@Pattern`. Update them through `make fetch-spec` and `make generate`. Annotations describe individual fields; the automatic payload validator also checks conditional requirements and whether amounts agree. Some nested fields remain optional in the shared models to support older received receipts, but are required when issuing a new receipt as described above.
+
+Validation runs automatically for issuance, recovery, download issuance and local envelope generation, before the corresponding matching/encryption/submission. The SDK serializes BigDecimal amounts as exact decimal strings, preserving their values and scale. The exact validated JSON is used for encryption and fallback even if the caller subsequently mutates the payload.
+
+```java
+try {
+    sdk.getReceiptService().issueReceipt(identificationDetails, receiptPayload);
+} catch (com.cheqi.sdk.exceptions.CheqiSDKException error) {
+    if (error.getValidationReport() != null) {
+        error.getValidationReport().getIssues().forEach(issue ->
+            System.out.println(issue.getRuleId() + " — " + issue.getPath() + ": " + issue.getMessage()));
+    }
+    throw error;
+}
+```
+
+For an explicit preflight without matching or encryption:
+
+```java
+var report = sdk.getReceiptService().validate(receiptPayload);
+if (!report.isValid()) {
+    report.getIssues().forEach(issue ->
+        System.out.println(issue.getRuleId() + " — " + issue.getPath() + ": " + issue.getMessage()));
+}
+```
+
+`validate` returns a report for both valid and invalid receipt data without issuing a receipt or changing the payload. Null payloads, serialization errors and validator failures throw `CheqiSDKException`.
+
+A successful report has `completeDocument: false`: the wallet still validates resolved party context and the finished EN XML. A missing/corrupt validator or runtime failure stops issuance with `CONFIGURATION_ERROR`. Validation exceptions include every detected rule, field and explanation in both the message and structured report. Serialization and runtime failures preserve their underlying causes for local diagnostics. These errors are returned to the caller, not submitted to Cheqi.
+
+Run the offline example against the actual packaged JAR:
+
+```sh
+./scripts/run-validation-demo.sh
+```
+
+It checks a valid synthetic receipt, then deliberately omits amount due and rounding and calls normal issuance. Both findings are returned before any API request. See [validator provenance and updates](docs/receipt-validator.md).
 
 ### Embedded barcodes
 

@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -57,11 +59,11 @@ public class AuthorizedCompanyDTO {
 
   public static final String JSON_PROPERTY_IDENTIFIERS = "identifiers";
   @javax.annotation.Nullable
-  private List<CompanyIdentifierDTO> identifiers = new ArrayList<>();
+  private List<@Valid CompanyIdentifierDTO> identifiers = new ArrayList<>();
 
   public static final String JSON_PROPERTY_PAYMENT_ACCOUNTS = "paymentAccounts";
   @javax.annotation.Nullable
-  private List<AuthorizedPaymentAccountDTO> paymentAccounts = new ArrayList<>();
+  private List<@Valid AuthorizedPaymentAccountDTO> paymentAccounts = new ArrayList<>();
 
   public AuthorizedCompanyDTO() { 
   }
@@ -76,6 +78,8 @@ public class AuthorizedCompanyDTO {
    * @return id
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getId() {
@@ -100,6 +104,7 @@ public class AuthorizedCompanyDTO {
    * @return companyName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyName() {
@@ -124,6 +129,7 @@ public class AuthorizedCompanyDTO {
    * @return companyLegalName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_LEGAL_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyLegalName() {
@@ -138,7 +144,7 @@ public class AuthorizedCompanyDTO {
   }
 
 
-  public AuthorizedCompanyDTO identifiers(@javax.annotation.Nullable List<CompanyIdentifierDTO> identifiers) {
+  public AuthorizedCompanyDTO identifiers(@javax.annotation.Nullable List<@Valid CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
     return this;
   }
@@ -156,21 +162,23 @@ public class AuthorizedCompanyDTO {
    * @return identifiers
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<CompanyIdentifierDTO> getIdentifiers() {
+  public List<@Valid CompanyIdentifierDTO> getIdentifiers() {
     return identifiers;
   }
 
 
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setIdentifiers(@javax.annotation.Nullable List<CompanyIdentifierDTO> identifiers) {
+  public void setIdentifiers(@javax.annotation.Nullable List<@Valid CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
   }
 
 
-  public AuthorizedCompanyDTO paymentAccounts(@javax.annotation.Nullable List<AuthorizedPaymentAccountDTO> paymentAccounts) {
+  public AuthorizedCompanyDTO paymentAccounts(@javax.annotation.Nullable List<@Valid AuthorizedPaymentAccountDTO> paymentAccounts) {
     this.paymentAccounts = paymentAccounts;
     return this;
   }
@@ -188,16 +196,18 @@ public class AuthorizedCompanyDTO {
    * @return paymentAccounts
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_ACCOUNTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<AuthorizedPaymentAccountDTO> getPaymentAccounts() {
+  public List<@Valid AuthorizedPaymentAccountDTO> getPaymentAccounts() {
     return paymentAccounts;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PAYMENT_ACCOUNTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPaymentAccounts(@javax.annotation.Nullable List<AuthorizedPaymentAccountDTO> paymentAccounts) {
+  public void setPaymentAccounts(@javax.annotation.Nullable List<@Valid AuthorizedPaymentAccountDTO> paymentAccounts) {
     this.paymentAccounts = paymentAccounts;
   }
 

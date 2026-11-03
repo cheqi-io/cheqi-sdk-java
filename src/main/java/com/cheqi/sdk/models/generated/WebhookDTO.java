@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -87,6 +89,8 @@ public class WebhookDTO {
    * @return id
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getId() {
@@ -111,6 +115,7 @@ public class WebhookDTO {
    * @return name
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getName() {
@@ -135,6 +140,7 @@ public class WebhookDTO {
    * @return notificationUrl
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_NOTIFICATION_URL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getNotificationUrl() {
@@ -159,6 +165,7 @@ public class WebhookDTO {
    * @return event
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_EVENT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getEvent() {
@@ -183,6 +190,8 @@ public class WebhookDTO {
    * @return clientApplicationId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CLIENT_APPLICATION_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getClientApplicationId() {
@@ -207,6 +216,8 @@ public class WebhookDTO {
    * @return userId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_USER_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getUserId() {
@@ -231,6 +242,7 @@ public class WebhookDTO {
    * @return companyId
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyId() {
@@ -255,6 +267,8 @@ public class WebhookDTO {
    * @return destinationId
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_DESTINATION_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public UUID getDestinationId() {

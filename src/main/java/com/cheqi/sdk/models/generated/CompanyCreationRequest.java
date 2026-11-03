@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -76,11 +78,11 @@ public class CompanyCreationRequest {
 
   public static final String JSON_PROPERTY_CONTACT_DETAILS = "contactDetails";
   @javax.annotation.Nullable
-  private Set<ContactDetailDto> contactDetails = new LinkedHashSet<>();
+  private Set<@Valid ContactDetailDto> contactDetails = new LinkedHashSet<>();
 
   public static final String JSON_PROPERTY_IDENTIFIERS = "identifiers";
   @javax.annotation.Nullable
-  private Set<CompanyIdentifierDTO> identifiers = new LinkedHashSet<>();
+  private Set<@Valid CompanyIdentifierDTO> identifiers = new LinkedHashSet<>();
 
   public static final String JSON_PROPERTY_WEBSITE = "website";
   @javax.annotation.Nullable
@@ -123,6 +125,8 @@ public class CompanyCreationRequest {
    * @return companyName
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_COMPANY_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCompanyName() {
@@ -147,6 +151,8 @@ public class CompanyCreationRequest {
    * @return companyLegalName
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_COMPANY_LEGAL_NAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCompanyLegalName() {
@@ -171,6 +177,9 @@ public class CompanyCreationRequest {
    * @return address
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ADDRESS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public AddressDTO getAddress() {
@@ -195,6 +204,8 @@ public class CompanyCreationRequest {
    * @return companyEmail
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_COMPANY_EMAIL)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getCompanyEmail() {
@@ -219,6 +230,7 @@ public class CompanyCreationRequest {
    * @return phoneNumber
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PHONE_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPhoneNumber() {
@@ -233,7 +245,7 @@ public class CompanyCreationRequest {
   }
 
 
-  public CompanyCreationRequest contactDetails(@javax.annotation.Nullable Set<ContactDetailDto> contactDetails) {
+  public CompanyCreationRequest contactDetails(@javax.annotation.Nullable Set<@Valid ContactDetailDto> contactDetails) {
     this.contactDetails = contactDetails;
     return this;
   }
@@ -251,9 +263,11 @@ public class CompanyCreationRequest {
    * @return contactDetails
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CONTACT_DETAILS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Set<ContactDetailDto> getContactDetails() {
+  public Set<@Valid ContactDetailDto> getContactDetails() {
     return contactDetails;
   }
 
@@ -261,12 +275,12 @@ public class CompanyCreationRequest {
   @JsonDeserialize(as = LinkedHashSet.class)
   @JsonProperty(JSON_PROPERTY_CONTACT_DETAILS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setContactDetails(@javax.annotation.Nullable Set<ContactDetailDto> contactDetails) {
+  public void setContactDetails(@javax.annotation.Nullable Set<@Valid ContactDetailDto> contactDetails) {
     this.contactDetails = contactDetails;
   }
 
 
-  public CompanyCreationRequest identifiers(@javax.annotation.Nullable Set<CompanyIdentifierDTO> identifiers) {
+  public CompanyCreationRequest identifiers(@javax.annotation.Nullable Set<@Valid CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
     return this;
   }
@@ -284,9 +298,11 @@ public class CompanyCreationRequest {
    * @return identifiers
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Set<CompanyIdentifierDTO> getIdentifiers() {
+  public Set<@Valid CompanyIdentifierDTO> getIdentifiers() {
     return identifiers;
   }
 
@@ -294,7 +310,7 @@ public class CompanyCreationRequest {
   @JsonDeserialize(as = LinkedHashSet.class)
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setIdentifiers(@javax.annotation.Nullable Set<CompanyIdentifierDTO> identifiers) {
+  public void setIdentifiers(@javax.annotation.Nullable Set<@Valid CompanyIdentifierDTO> identifiers) {
     this.identifiers = identifiers;
   }
 
@@ -309,6 +325,7 @@ public class CompanyCreationRequest {
    * @return website
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_WEBSITE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getWebsite() {
@@ -333,6 +350,7 @@ public class CompanyCreationRequest {
    * @return returnDays
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_RETURN_DAYS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Integer getReturnDays() {
@@ -357,6 +375,7 @@ public class CompanyCreationRequest {
    * @return companyReceiptText
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_COMPANY_RECEIPT_TEXT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCompanyReceiptText() {
@@ -381,6 +400,8 @@ public class CompanyCreationRequest {
    * @return returnProcessingMode
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_RETURN_PROCESSING_MODE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public ReturnProcessingMode getReturnProcessingMode() {
@@ -405,6 +426,7 @@ public class CompanyCreationRequest {
    * @return notificationCodeEnabled
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_NOTIFICATION_CODE_ENABLED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getNotificationCodeEnabled() {
@@ -429,6 +451,7 @@ public class CompanyCreationRequest {
    * @return emailFallbackEnabled
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_EMAIL_FALLBACK_ENABLED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getEmailFallbackEnabled() {
@@ -453,6 +476,7 @@ public class CompanyCreationRequest {
    * @return downloadFallbackEnabled
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DOWNLOAD_FALLBACK_ENABLED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getDownloadFallbackEnabled() {

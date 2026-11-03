@@ -25,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -68,6 +70,7 @@ public class PublicKeyResponse {
    * @return publicKey
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_PUBLIC_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getPublicKey() {
@@ -92,6 +95,8 @@ public class PublicKeyResponse {
    * @return keyAlgorithm
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_KEY_ALGORITHM)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public KeyAlgorithm getKeyAlgorithm() {
@@ -116,6 +121,8 @@ public class PublicKeyResponse {
    * @return keyCreatedAt
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_KEY_CREATED_AT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getKeyCreatedAt() {
@@ -140,6 +147,7 @@ public class PublicKeyResponse {
    * @return hasKey
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_HAS_KEY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Boolean getHasKey() {

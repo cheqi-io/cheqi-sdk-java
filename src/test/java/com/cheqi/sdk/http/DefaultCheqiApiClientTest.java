@@ -289,11 +289,8 @@ class DefaultCheqiApiClientTest {
             };
             var service = new com.cheqi.sdk.receipt.ReceiptService(client, encryption,
                     new com.cheqi.sdk.matching.MatchingService(client));
-            var payload = new ReceiptPayload().documentNumber("R-100").currency("EUR")
-                    .issueDate(java.time.OffsetDateTime.parse("2026-09-27T08:00:00Z"))
-                    .receiptSubtotal(java.math.BigDecimal.TEN).totalBeforeTax(java.math.BigDecimal.TEN)
-                    .totalTaxAmount(java.math.BigDecimal.ZERO).totalAmount(java.math.BigDecimal.TEN)
-                    .taxesApplied(false).products(List.of(new Product().name("Coffee")));
+            var payload = com.cheqi.sdk.config.ObjectMapperConfig.getInstance().readValue(
+                    DefaultCheqiApiClientTest.class.getResource("/validation/receipt-payload.json"), ReceiptPayload.class);
             var pending = service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), payload);
             assertEquals(com.cheqi.sdk.receipt.ReceiptIssueState.DIGITAL_PENDING, pending.getState());
             assertNotNull(pending.getDownloadUrl());
@@ -328,11 +325,8 @@ class DefaultCheqiApiClientTest {
                 };
                 var service = new com.cheqi.sdk.receipt.ReceiptService(client, encryption,
                         new com.cheqi.sdk.matching.MatchingService(client));
-                var payload = new ReceiptPayload().documentNumber("R-100").currency("EUR")
-                        .issueDate(java.time.OffsetDateTime.parse("2026-09-27T08:00:00Z"))
-                        .receiptSubtotal(java.math.BigDecimal.TEN).totalBeforeTax(java.math.BigDecimal.TEN)
-                        .totalTaxAmount(java.math.BigDecimal.ZERO).totalAmount(java.math.BigDecimal.TEN)
-                        .taxesApplied(false).products(List.of(new Product().name("Coffee")));
+                var payload = com.cheqi.sdk.config.ObjectMapperConfig.getInstance().readValue(
+                    DefaultCheqiApiClientTest.class.getResource("/validation/receipt-payload.json"), ReceiptPayload.class);
                 var result = service.issueReceipt(new IdentificationDetails().recipientEmail("buyer@example.com"), payload);
                 assertEquals(com.cheqi.sdk.receipt.ReceiptIssueState.DIGITAL_PENDING, result.getState());
                 assertEquals("match-123", result.getMatchId());

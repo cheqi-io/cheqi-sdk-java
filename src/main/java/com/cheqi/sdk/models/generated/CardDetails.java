@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -102,6 +104,7 @@ public class CardDetails {
    * @return cardProvider
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CARD_PROVIDER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public CardProviderEnum getCardProvider() {
@@ -126,6 +129,8 @@ public class CardDetails {
    * @return paymentAccountReference
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_ACCOUNT_REFERENCE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getPaymentAccountReference() {
@@ -150,6 +155,7 @@ public class CardDetails {
    * @return lastFourDigits
    */
   @javax.annotation.Nullable
+ @Pattern(regexp="^\\d{4}$")
   @JsonProperty(JSON_PROPERTY_LAST_FOUR_DIGITS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getLastFourDigits() {

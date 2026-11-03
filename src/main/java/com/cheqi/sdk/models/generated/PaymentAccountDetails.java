@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -72,6 +74,8 @@ public class PaymentAccountDetails {
    * @return identifier
    */
   @javax.annotation.Nonnull
+  @NotNull
+
   @JsonProperty(JSON_PROPERTY_IDENTIFIER)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public String getIdentifier() {
@@ -96,6 +100,9 @@ public class PaymentAccountDetails {
    * @return accountIdentifierType
    */
   @javax.annotation.Nonnull
+  @NotNull
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_IDENTIFIER_TYPE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public AccountIdentifierType getAccountIdentifierType() {
@@ -120,6 +127,7 @@ public class PaymentAccountDetails {
    * @return bic
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_BIC)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getBic() {
@@ -144,6 +152,7 @@ public class PaymentAccountDetails {
    * @return bankName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_BANK_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getBankName() {
@@ -168,6 +177,7 @@ public class PaymentAccountDetails {
    * @return accountHolderName
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_ACCOUNT_HOLDER_NAME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getAccountHolderName() {

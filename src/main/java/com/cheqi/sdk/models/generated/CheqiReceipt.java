@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
 
 /**
@@ -46,6 +48,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonPropertyOrder({
   CheqiReceipt.JSON_PROPERTY_TOTAL_AMOUNT,
+  CheqiReceipt.JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT,
+  CheqiReceipt.JSON_PROPERTY_TOTAL_CHARGE_AMOUNT,
   CheqiReceipt.JSON_PROPERTY_DOCUMENT_NUMBER,
   CheqiReceipt.JSON_PROPERTY_IDENTIFIERS,
   CheqiReceipt.JSON_PROPERTY_ISSUE_DATE,
@@ -76,13 +80,21 @@ public class CheqiReceipt {
   @javax.annotation.Nullable
   private BigDecimal totalAmount;
 
+  public static final String JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT = "totalDiscountAmount";
+  @javax.annotation.Nullable
+  private BigDecimal totalDiscountAmount;
+
+  public static final String JSON_PROPERTY_TOTAL_CHARGE_AMOUNT = "totalChargeAmount";
+  @javax.annotation.Nullable
+  private BigDecimal totalChargeAmount;
+
   public static final String JSON_PROPERTY_DOCUMENT_NUMBER = "documentNumber";
   @javax.annotation.Nullable
   private String documentNumber;
 
   public static final String JSON_PROPERTY_IDENTIFIERS = "identifiers";
   @javax.annotation.Nullable
-  private List<Identifier> identifiers = new ArrayList<>();
+  private List<@Valid Identifier> identifiers = new ArrayList<>();
 
   public static final String JSON_PROPERTY_ISSUE_DATE = "issueDate";
   @javax.annotation.Nullable
@@ -106,19 +118,19 @@ public class CheqiReceipt {
 
   public static final String JSON_PROPERTY_PRODUCTS = "products";
   @javax.annotation.Nullable
-  private List<Product> products = new ArrayList<>();
+  private List<@Valid Product> products = new ArrayList<>();
 
   public static final String JSON_PROPERTY_DISCOUNTS = "discounts";
   @javax.annotation.Nullable
-  private List<Discount> discounts = new ArrayList<>();
+  private List<@Valid Discount> discounts = new ArrayList<>();
 
   public static final String JSON_PROPERTY_CHARGES = "charges";
   @javax.annotation.Nullable
-  private List<Charge> charges = new ArrayList<>();
+  private List<@Valid Charge> charges = new ArrayList<>();
 
   public static final String JSON_PROPERTY_TAXES = "taxes";
   @javax.annotation.Nullable
-  private List<Tax> taxes = new ArrayList<>();
+  private List<@Valid Tax> taxes = new ArrayList<>();
 
   public static final String JSON_PROPERTY_TRANSACTION_DATE = "transactionDate";
   @javax.annotation.Nullable
@@ -154,7 +166,7 @@ public class CheqiReceipt {
 
   public static final String JSON_PROPERTY_BARCODES = "barcodes";
   @javax.annotation.Nullable
-  private List<Barcode> barcodes = new ArrayList<>();
+  private List<@Valid Barcode> barcodes = new ArrayList<>();
 
   public static final String JSON_PROPERTY_JURISDICTIONAL_DATA = "jurisdictionalData";
   @javax.annotation.Nullable
@@ -177,6 +189,8 @@ public class CheqiReceipt {
    * @return totalAmount
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TOTAL_AMOUNT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public BigDecimal getTotalAmount() {
@@ -191,6 +205,58 @@ public class CheqiReceipt {
   }
 
 
+  public CheqiReceipt totalDiscountAmount(@javax.annotation.Nullable BigDecimal totalDiscountAmount) {
+    this.totalDiscountAmount = totalDiscountAmount;
+    return this;
+  }
+
+  /**
+   * Issuer-supplied sum of the receipt-level discounts.
+   * @return totalDiscountAmount
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public BigDecimal getTotalDiscountAmount() {
+    return totalDiscountAmount;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TOTAL_DISCOUNT_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTotalDiscountAmount(@javax.annotation.Nullable BigDecimal totalDiscountAmount) {
+    this.totalDiscountAmount = totalDiscountAmount;
+  }
+
+
+  public CheqiReceipt totalChargeAmount(@javax.annotation.Nullable BigDecimal totalChargeAmount) {
+    this.totalChargeAmount = totalChargeAmount;
+    return this;
+  }
+
+  /**
+   * Issuer-supplied sum of the receipt-level charges.
+   * @return totalChargeAmount
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_TOTAL_CHARGE_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public BigDecimal getTotalChargeAmount() {
+    return totalChargeAmount;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TOTAL_CHARGE_AMOUNT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTotalChargeAmount(@javax.annotation.Nullable BigDecimal totalChargeAmount) {
+    this.totalChargeAmount = totalChargeAmount;
+  }
+
+
   public CheqiReceipt documentNumber(@javax.annotation.Nullable String documentNumber) {
     this.documentNumber = documentNumber;
     return this;
@@ -201,6 +267,7 @@ public class CheqiReceipt {
    * @return documentNumber
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_DOCUMENT_NUMBER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getDocumentNumber() {
@@ -215,7 +282,7 @@ public class CheqiReceipt {
   }
 
 
-  public CheqiReceipt identifiers(@javax.annotation.Nullable List<Identifier> identifiers) {
+  public CheqiReceipt identifiers(@javax.annotation.Nullable List<@Valid Identifier> identifiers) {
     this.identifiers = identifiers;
     return this;
   }
@@ -233,16 +300,18 @@ public class CheqiReceipt {
    * @return identifiers
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Identifier> getIdentifiers() {
+  public List<@Valid Identifier> getIdentifiers() {
     return identifiers;
   }
 
 
   @JsonProperty(JSON_PROPERTY_IDENTIFIERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setIdentifiers(@javax.annotation.Nullable List<Identifier> identifiers) {
+  public void setIdentifiers(@javax.annotation.Nullable List<@Valid Identifier> identifiers) {
     this.identifiers = identifiers;
   }
 
@@ -257,6 +326,8 @@ public class CheqiReceipt {
    * @return issueDate
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_ISSUE_DATE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getIssueDate() {
@@ -281,6 +352,7 @@ public class CheqiReceipt {
    * @return currency
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_CURRENCY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getCurrency() {
@@ -305,6 +377,8 @@ public class CheqiReceipt {
    * @return receiptSubtotal
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_RECEIPT_SUBTOTAL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public BigDecimal getReceiptSubtotal() {
@@ -329,6 +403,8 @@ public class CheqiReceipt {
    * @return totalBeforeTax
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TOTAL_BEFORE_TAX)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public BigDecimal getTotalBeforeTax() {
@@ -353,6 +429,8 @@ public class CheqiReceipt {
    * @return totalTaxAmount
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TOTAL_TAX_AMOUNT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public BigDecimal getTotalTaxAmount() {
@@ -367,7 +445,7 @@ public class CheqiReceipt {
   }
 
 
-  public CheqiReceipt products(@javax.annotation.Nullable List<Product> products) {
+  public CheqiReceipt products(@javax.annotation.Nullable List<@Valid Product> products) {
     this.products = products;
     return this;
   }
@@ -385,21 +463,23 @@ public class CheqiReceipt {
    * @return products
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PRODUCTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Product> getProducts() {
+  public List<@Valid Product> getProducts() {
     return products;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PRODUCTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setProducts(@javax.annotation.Nullable List<Product> products) {
+  public void setProducts(@javax.annotation.Nullable List<@Valid Product> products) {
     this.products = products;
   }
 
 
-  public CheqiReceipt discounts(@javax.annotation.Nullable List<Discount> discounts) {
+  public CheqiReceipt discounts(@javax.annotation.Nullable List<@Valid Discount> discounts) {
     this.discounts = discounts;
     return this;
   }
@@ -417,21 +497,23 @@ public class CheqiReceipt {
    * @return discounts
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_DISCOUNTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Discount> getDiscounts() {
+  public List<@Valid Discount> getDiscounts() {
     return discounts;
   }
 
 
   @JsonProperty(JSON_PROPERTY_DISCOUNTS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setDiscounts(@javax.annotation.Nullable List<Discount> discounts) {
+  public void setDiscounts(@javax.annotation.Nullable List<@Valid Discount> discounts) {
     this.discounts = discounts;
   }
 
 
-  public CheqiReceipt charges(@javax.annotation.Nullable List<Charge> charges) {
+  public CheqiReceipt charges(@javax.annotation.Nullable List<@Valid Charge> charges) {
     this.charges = charges;
     return this;
   }
@@ -449,21 +531,23 @@ public class CheqiReceipt {
    * @return charges
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_CHARGES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Charge> getCharges() {
+  public List<@Valid Charge> getCharges() {
     return charges;
   }
 
 
   @JsonProperty(JSON_PROPERTY_CHARGES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCharges(@javax.annotation.Nullable List<Charge> charges) {
+  public void setCharges(@javax.annotation.Nullable List<@Valid Charge> charges) {
     this.charges = charges;
   }
 
 
-  public CheqiReceipt taxes(@javax.annotation.Nullable List<Tax> taxes) {
+  public CheqiReceipt taxes(@javax.annotation.Nullable List<@Valid Tax> taxes) {
     this.taxes = taxes;
     return this;
   }
@@ -481,16 +565,18 @@ public class CheqiReceipt {
    * @return taxes
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TAXES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Tax> getTaxes() {
+  public List<@Valid Tax> getTaxes() {
     return taxes;
   }
 
 
   @JsonProperty(JSON_PROPERTY_TAXES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTaxes(@javax.annotation.Nullable List<Tax> taxes) {
+  public void setTaxes(@javax.annotation.Nullable List<@Valid Tax> taxes) {
     this.taxes = taxes;
   }
 
@@ -505,6 +591,8 @@ public class CheqiReceipt {
    * @return transactionDate
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_TRANSACTION_DATE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getTransactionDate() {
@@ -529,6 +617,8 @@ public class CheqiReceipt {
    * @return purchaseDate
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PURCHASE_DATE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public OffsetDateTime getPurchaseDate() {
@@ -553,6 +643,8 @@ public class CheqiReceipt {
    * @return period
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PERIOD)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Period getPeriod() {
@@ -577,6 +669,7 @@ public class CheqiReceipt {
    * @return note
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_NOTE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getNote() {
@@ -601,6 +694,8 @@ public class CheqiReceipt {
    * @return sellingParty
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_SELLING_PARTY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public SellingParty getSellingParty() {
@@ -625,6 +720,8 @@ public class CheqiReceipt {
    * @return store
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_STORE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public StoreDTO getStore() {
@@ -649,6 +746,8 @@ public class CheqiReceipt {
    * @return receivingParty
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_RECEIVING_PARTY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public ReceivingParty getReceivingParty() {
@@ -673,6 +772,8 @@ public class CheqiReceipt {
    * @return paymentMeans
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_PAYMENT_MEANS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public PaymentDetails getPaymentMeans() {
@@ -687,7 +788,7 @@ public class CheqiReceipt {
   }
 
 
-  public CheqiReceipt barcodes(@javax.annotation.Nullable List<Barcode> barcodes) {
+  public CheqiReceipt barcodes(@javax.annotation.Nullable List<@Valid Barcode> barcodes) {
     this.barcodes = barcodes;
     return this;
   }
@@ -705,16 +806,18 @@ public class CheqiReceipt {
    * @return barcodes
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_BARCODES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public List<Barcode> getBarcodes() {
+  public List<@Valid Barcode> getBarcodes() {
     return barcodes;
   }
 
 
   @JsonProperty(JSON_PROPERTY_BARCODES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setBarcodes(@javax.annotation.Nullable List<Barcode> barcodes) {
+  public void setBarcodes(@javax.annotation.Nullable List<@Valid Barcode> barcodes) {
     this.barcodes = barcodes;
   }
 
@@ -729,6 +832,8 @@ public class CheqiReceipt {
    * @return jurisdictionalData
    */
   @javax.annotation.Nullable
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_JURISDICTIONAL_DATA)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public JurisdictionalData getJurisdictionalData() {
@@ -753,6 +858,7 @@ public class CheqiReceipt {
    * @return receiptUuid
    */
   @javax.annotation.Nullable
+
   @JsonProperty(JSON_PROPERTY_RECEIPT_UUID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public String getReceiptUuid() {
@@ -780,6 +886,8 @@ public class CheqiReceipt {
     }
     CheqiReceipt cheqiReceipt = (CheqiReceipt) o;
     return Objects.equals(this.totalAmount, cheqiReceipt.totalAmount) &&
+        Objects.equals(this.totalDiscountAmount, cheqiReceipt.totalDiscountAmount) &&
+        Objects.equals(this.totalChargeAmount, cheqiReceipt.totalChargeAmount) &&
         Objects.equals(this.documentNumber, cheqiReceipt.documentNumber) &&
         Objects.equals(this.identifiers, cheqiReceipt.identifiers) &&
         Objects.equals(this.issueDate, cheqiReceipt.issueDate) &&
@@ -806,7 +914,7 @@ public class CheqiReceipt {
 
   @Override
   public int hashCode() {
-    return Objects.hash(totalAmount, documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, products, discounts, charges, taxes, transactionDate, purchaseDate, period, note, sellingParty, store, receivingParty, paymentMeans, barcodes, jurisdictionalData, receiptUuid);
+    return Objects.hash(totalAmount, totalDiscountAmount, totalChargeAmount, documentNumber, identifiers, issueDate, currency, receiptSubtotal, totalBeforeTax, totalTaxAmount, products, discounts, charges, taxes, transactionDate, purchaseDate, period, note, sellingParty, store, receivingParty, paymentMeans, barcodes, jurisdictionalData, receiptUuid);
   }
 
   @Override
@@ -814,6 +922,8 @@ public class CheqiReceipt {
     StringBuilder sb = new StringBuilder();
     sb.append("class CheqiReceipt {\n");
     sb.append("    totalAmount: ").append(toIndentedString(totalAmount)).append("\n");
+    sb.append("    totalDiscountAmount: ").append(toIndentedString(totalDiscountAmount)).append("\n");
+    sb.append("    totalChargeAmount: ").append(toIndentedString(totalChargeAmount)).append("\n");
     sb.append("    documentNumber: ").append(toIndentedString(documentNumber)).append("\n");
     sb.append("    identifiers: ").append(toIndentedString(identifiers)).append("\n");
     sb.append("    issueDate: ").append(toIndentedString(issueDate)).append("\n");
