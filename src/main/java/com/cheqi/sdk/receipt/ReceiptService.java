@@ -23,6 +23,7 @@ import com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument;
 import com.cheqi.sdk.models.generated.ReceiptSubmissionResponse;
 import com.cheqi.sdk.models.generated.RecipientResolutionResponse;
 import com.cheqi.sdk.verification.VerificationService;
+import com.cheqi.sdk.validation.InvoiceValidationReport;
 import com.cheqi.sdk.validation.ReceiptPayloadValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -81,6 +82,16 @@ public class ReceiptService {
         this.downloadService = Objects.requireNonNull(downloadService, "downloadService cannot be null");
         this.verificationService = new VerificationService();
         this.downloadBaseUrl = downloadBaseUrl;
+    }
+
+    /**
+     * Checks receipt data and returns all detected issues without issuing a receipt.
+     *
+     * <p>Invalid receipt data is returned in the report. A null payload, serialization
+     * error or unavailable validator throws {@link CheqiSDKException}.</p>
+     */
+    public InvoiceValidationReport validate(ReceiptPayload receiptPayload) throws CheqiSDKException {
+        return payloadValidator.validate(receiptPayload);
     }
 
     public ReceiptResult issueReceipt(

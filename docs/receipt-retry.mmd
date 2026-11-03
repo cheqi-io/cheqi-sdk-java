@@ -4,6 +4,12 @@ sequenceDiagram
     participant Validator as Bundled WASM validator
     participant API as Cheqi API
     participant Worker as Integration recovery worker
+    opt Explicit preflight
+        POS->>SDK: validate(payload)
+        SDK->>Validator: Validate issuer payload locally
+        Validator-->>SDK: All detected rules and field paths
+        SDK-->>POS: Validation report, no issuance or payload changes
+    end
     POS->>SDK: issueReceipt(identification, payload, storeId)
     SDK->>Validator: Validate issuer payload locally
     Validator-->>SDK: All detected rules and field paths

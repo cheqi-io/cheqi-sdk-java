@@ -8,6 +8,12 @@ runtime is a consumer dependency; its compiler and ASM stay in the build tools.
 The loader verifies the bundled binary checksum and ABI before use. Each call
 owns independent memory, and failures stop issuance.
 
+Call `sdk.getReceiptService().validate(receiptPayload)` to check receipt data
+without issuing a receipt. It returns an `InvoiceValidationReport` with every
+detected issue, including rule ID, field path and explanation. Invalid receipt
+data is returned in the report; a null payload, serialization error or validator
+failure throws `CheqiSDKException`. The payload is not modified.
+
 The Java `InvoiceValidationReport` and `InvoiceValidationIssue` classes bind the
 existing Rust report contract. Invalid input is attached to the existing
 `CheqiSDKException.getValidationReport()`. The SDK contains no copies of the EN

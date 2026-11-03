@@ -243,8 +243,14 @@ try {
 For an explicit preflight without matching or encryption:
 
 ```java
-var report = new com.cheqi.sdk.validation.ReceiptPayloadValidator().validate(receiptPayload);
+var report = sdk.getReceiptService().validate(receiptPayload);
+if (!report.isValid()) {
+    report.getIssues().forEach(issue ->
+        System.out.println(issue.getRuleId() + " — " + issue.getPath() + ": " + issue.getMessage()));
+}
 ```
+
+`validate` returns a report for both valid and invalid receipt data without issuing a receipt or changing the payload. Null payloads, serialization errors and validator failures throw `CheqiSDKException`.
 
 A successful report has `completeDocument: false`: the wallet still validates resolved party context and the finished EN XML. A missing/corrupt validator or runtime failure stops issuance with `CONFIGURATION_ERROR`. Validation exceptions include every detected rule, field and explanation in both the message and structured report. Serialization and runtime failures preserve their underlying causes for local diagnostics. These errors are returned to the caller, not submitted to Cheqi.
 

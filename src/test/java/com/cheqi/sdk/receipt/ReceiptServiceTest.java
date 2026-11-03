@@ -53,6 +53,47 @@ class ReceiptServiceTest {
     }
 
     @Test
+    void validateAcceptsValidPayloadWithoutIssuingOrChangingIt() throws Exception {
+        ReceiptPayload payload = receipt();
+        String before = ObjectMapperConfig.getInstance().writeValueAsString(payload);
+
+        var report = service.validate(payload);
+
+        assertTrue(report.isValid());
+        assertFalse(report.isCompleteDocument());
+        assertTrue(report.getIssues().isEmpty());
+        assertEquals(before, ObjectMapperConfig.getInstance().writeValueAsString(payload));
+        org.mockito.Mockito.verifyNoInteractions(apiClient);
+        assertTrue(encryptionService.plaintexts.isEmpty());
+    }
+
+    @Test
+    void validateReturnsAllMissingFactsWithoutIssuingOrChangingThePayload() throws Exception {
+        ReceiptPayload payload = receipt();
+        payload.getPaymentDetails().setAmountDue(null);
+        payload.getPaymentDetails().setRoundingAmount(null);
+        payload.getProducts().get(0).getTaxes().get(0).setCategory(null);
+        String before = ObjectMapperConfig.getInstance().writeValueAsString(payload);
+
+        var report = service.validate(payload);
+
+        assertFalse(report.isValid());
+        assertFalse(report.isCompleteDocument());
+        List<String> paths = new ArrayList<>();
+        report.getIssues().forEach(issue -> {
+            paths.add(issue.getPath());
+            assertFalse(issue.getRuleId().isEmpty());
+            assertFalse(issue.getMessage().isEmpty());
+        });
+        assertTrue(paths.contains("paymentDetails.amountDue"));
+        assertTrue(paths.contains("paymentDetails.roundingAmount"));
+        assertTrue(paths.contains("products[0].taxes[0].category"));
+        assertEquals(before, ObjectMapperConfig.getInstance().writeValueAsString(payload));
+        org.mockito.Mockito.verifyNoInteractions(apiClient);
+        assertTrue(encryptionService.plaintexts.isEmpty());
+    }
+
+    @Test
     void invalidSourceFactsStopBeforeMatchingOrEncryption() throws Exception {
         ReceiptPayload payload = receipt();
         payload.getPaymentDetails().setAmountDue(null);
