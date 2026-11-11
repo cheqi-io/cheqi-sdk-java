@@ -186,9 +186,9 @@ public class AuthorizationCodeExchangeRequest {
     StringBuilder sb = new StringBuilder();
     sb.append("class AuthorizationCodeExchangeRequest {\n");
     sb.append("    clientId: ").append(toIndentedString(clientId)).append("\n");
-    sb.append("    clientSecret: ").append(toIndentedString(clientSecret)).append("\n");
-    sb.append("    code: ").append(toIndentedString(code)).append("\n");
-    sb.append("    codeVerifier: ").append(toIndentedString(codeVerifier)).append("\n");
+    sb.append("    clientSecret: ").append("<redacted>").append("\n");
+    sb.append("    code: ").append("<redacted>").append("\n");
+    sb.append("    codeVerifier: ").append("<redacted>").append("\n");
     sb.append("}");
     return sb.toString();
   }

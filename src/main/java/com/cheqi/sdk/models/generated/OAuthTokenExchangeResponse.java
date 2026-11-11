@@ -226,7 +226,7 @@ public class OAuthTokenExchangeResponse {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class OAuthTokenExchangeResponse {\n");
-    sb.append("    accessToken: ").append(toIndentedString(accessToken)).append("\n");
+    sb.append("    accessToken: ").append("<redacted>").append("\n");
     sb.append("    tokenType: ").append(toIndentedString(tokenType)).append("\n");
     sb.append("    expiresIn: ").append(toIndentedString(expiresIn)).append("\n");
     sb.append("    scope: ").append(toIndentedString(scope)).append("\n");

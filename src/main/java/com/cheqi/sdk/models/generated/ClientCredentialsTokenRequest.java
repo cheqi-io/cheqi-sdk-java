@@ -254,7 +254,7 @@ public class ClientCredentialsTokenRequest {
     sb.append("    scope: ").append(toIndentedString(scope)).append("\n");
     sb.append("    grantType: ").append(toIndentedString(grantType)).append("\n");
     sb.append("    clientId: ").append(toIndentedString(clientId)).append("\n");
-    sb.append("    clientSecret: ").append(toIndentedString(clientSecret)).append("\n");
+    sb.append("    clientSecret: ").append("<redacted>").append("\n");
     sb.append("    grantId: ").append(toIndentedString(grantId)).append("\n");
     sb.append("}");
     return sb.toString();
