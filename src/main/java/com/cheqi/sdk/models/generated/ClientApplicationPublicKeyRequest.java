@@ -190,7 +190,7 @@ public class ClientApplicationPublicKeyRequest {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ClientApplicationPublicKeyRequest {\n");
-    sb.append("    clientSecret: ").append("<redacted>").append("\n");
+    sb.append("    clientSecret: ").append(toIndentedString(clientSecret)).append("\n");
     sb.append("    publicKey: ").append(toIndentedString(publicKey)).append("\n");
     sb.append("    keyAlgorithm: ").append(toIndentedString(keyAlgorithm)).append("\n");
     sb.append("    clientId: ").append(toIndentedString(clientId)).append("\n");

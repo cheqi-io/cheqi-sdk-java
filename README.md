@@ -533,11 +533,10 @@ An empty or malformed successful digital submission acknowledgement is ambiguous
 match has expired, including expiry between retrieval and submission. Keep any previously
 prepared download separately; expiry cannot revive the digital match.
 
-### OAuth diagnostic redaction
+### OAuth response handling
 
-OAuth client secrets, access tokens, authorization codes, and PKCE verifiers are
-redacted in SDK model diagnostic strings. Token-endpoint errors omit response
-bodies and parser details that could contain credentials. Explicit JSON
-serialization and credential properties retain their values for authentication.
+Token-endpoint errors omit response bodies and parser details that could contain
+credentials. HTTP error logs omit raw response bodies. Generated model methods,
+including `toString()` and JSON serialization, use the generator's output unchanged.
 Model regeneration preserves retired public DTOs for source compatibility while
 refreshing models still present in the production OpenAPI contract.

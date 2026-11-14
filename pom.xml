@@ -219,26 +219,6 @@
                 </executions>
             </plugin>
 
-            <!-- Keep diagnostic redaction after every OpenAPI generation, including CI. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions><execution>
-                    <id>redact-generated-credentials</id>
-                    <phase>generate-sources</phase>
-                    <goals><goal>run</goal></goals>
-                    <configuration><target>
-                        <replaceregexp match="toIndentedString\((clientSecret|accessToken|refreshToken|idToken|codeVerifier)\)" replace="&quot;&lt;redacted&gt;&quot;" flags="g">
-                            <fileset dir="${project.basedir}/src/main/java/com/cheqi/sdk/models/generated" includes="*.java" />
-                        </replaceregexp>
-                        <replaceregexp match="toIndentedString\(code\)" replace="&quot;&lt;redacted&gt;&quot;" flags="g">
-                            <fileset dir="${project.basedir}/src/main/java/com/cheqi/sdk/models/generated" includes="AuthorizationCodeExchangeRequest.java" />
-                        </replaceregexp>
-                    </target></configuration>
-                </execution></executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
