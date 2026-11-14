@@ -533,10 +533,9 @@ An empty or malformed successful digital submission acknowledgement is ambiguous
 match has expired, including expiry between retrieval and submission. Keep any previously
 prepared download separately; expiry cannot revive the digital match.
 
-### OAuth response handling
+### HTTP error logging and model generation
 
-Token-endpoint errors omit response bodies and parser details that could contain
-credentials. HTTP error logs omit raw response bodies. Generated model methods,
+HTTP error logs omit raw response bodies. Generated model methods,
 including `toString()` and JSON serialization, use the generator's output unchanged.
 Model regeneration preserves retired public DTOs for source compatibility while
 refreshing models still present in the production OpenAPI contract.

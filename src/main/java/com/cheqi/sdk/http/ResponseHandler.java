@@ -88,16 +88,11 @@ public class ResponseHandler {
                 }
                 return result;
             } else {
-                throw buildApiException(response.code(), responseType == com.cheqi.sdk.models.generated.OAuthTokenExchangeResponse.class ? "" : responseJson, correlationId, operationName);
+                throw buildApiException(response.code(), responseJson, correlationId, operationName);
             }
         } catch (CheqiApiException e) {
             throw e;
         } catch (IOException e) {
-            // Parser exceptions can include response fragments containing access tokens.
-            if (responseType == com.cheqi.sdk.models.generated.OAuthTokenExchangeResponse.class) {
-                throw new CheqiApiException("Invalid token response", response.code(),
-                        CheqiApiException.ErrorCodes.INVALID_RESPONSE, response.header("X-Correlation-ID"));
-            }
             throw new CheqiApiException(
                     "Failed to parse response: " + e.getMessage(),
                     e,
