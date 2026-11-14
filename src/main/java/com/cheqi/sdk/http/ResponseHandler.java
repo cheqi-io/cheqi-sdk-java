@@ -159,7 +159,7 @@ public class ResponseHandler {
     }
 
     private CheqiApiException buildApiException(int statusCode, String responseContent, String correlationId, String operationName) {
-        logger.error("{} failed. Status: {}, Response: {}", operationName, statusCode, responseContent);
+        logger.error("{} failed. Status: {}", operationName, statusCode);
 
         if (statusCode == 401) {
             return new CheqiApiException(
