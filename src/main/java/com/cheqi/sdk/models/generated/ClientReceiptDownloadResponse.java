@@ -111,9 +111,11 @@ public class ClientReceiptDownloadResponse {
   }
 
   /**
-   * Timestamp after which the download link stops resolving.
+   * Always null: client-encrypted download links do not expire.
    * @return expiresAt
+   * @deprecated
    */
+  @Deprecated
   @javax.annotation.Nullable
   @Valid
 
