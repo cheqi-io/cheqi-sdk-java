@@ -26,7 +26,7 @@ fetch-spec-local:
 	$(MAKE) fetch-spec ENV=local
 
 generate:
-	# Preserve retired public DTOs used by existing integrations.
+	rm -rf $(GENERATED_DIR)
 	mvn generate-sources -pl .
 	@echo "Models generated in $(GENERATED_DIR)/"
 

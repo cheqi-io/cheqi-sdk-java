@@ -28,7 +28,7 @@ import javax.validation.Valid;
 
 
 /**
- * Encrypted credit note initiation request
+ * Encrypted credit note initiation request from a customer&#39;s device
  */
 @JsonPropertyOrder({
   EncryptedCreditNoteInitiationRequest.JSON_PROPERTY_CHEQI_RECEIPT_ID,
