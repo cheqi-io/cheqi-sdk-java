@@ -38,11 +38,11 @@ import javax.validation.Valid;
 @JsonPropertyOrder({
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_TOTAL_ELEMENTS,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_TOTAL_PAGES,
-  PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_PAGEABLE,
-  PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_SORT,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_FIRST,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_LAST,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_NUMBER_OF_ELEMENTS,
+  PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_PAGEABLE,
+  PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_SORT,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_SIZE,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_CONTENT,
   PageWebhookCompanyInvitationAccepted.JSON_PROPERTY_NUMBER,
@@ -59,14 +59,6 @@ public class PageWebhookCompanyInvitationAccepted {
   @javax.annotation.Nullable
   private Integer totalPages;
 
-  public static final String JSON_PROPERTY_PAGEABLE = "pageable";
-  @javax.annotation.Nullable
-  private PageableObject pageable;
-
-  public static final String JSON_PROPERTY_SORT = "sort";
-  @javax.annotation.Nullable
-  private SortObject sort;
-
   public static final String JSON_PROPERTY_FIRST = "first";
   @javax.annotation.Nullable
   private Boolean first;
@@ -78,6 +70,14 @@ public class PageWebhookCompanyInvitationAccepted {
   public static final String JSON_PROPERTY_NUMBER_OF_ELEMENTS = "numberOfElements";
   @javax.annotation.Nullable
   private Integer numberOfElements;
+
+  public static final String JSON_PROPERTY_PAGEABLE = "pageable";
+  @javax.annotation.Nullable
+  private PageableObject pageable;
+
+  public static final String JSON_PROPERTY_SORT = "sort";
+  @javax.annotation.Nullable
+  private SortObject sort;
 
   public static final String JSON_PROPERTY_SIZE = "size";
   @javax.annotation.Nullable
@@ -145,58 +145,6 @@ public class PageWebhookCompanyInvitationAccepted {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setTotalPages(@javax.annotation.Nullable Integer totalPages) {
     this.totalPages = totalPages;
-  }
-
-
-  public PageWebhookCompanyInvitationAccepted pageable(@javax.annotation.Nullable PageableObject pageable) {
-    this.pageable = pageable;
-    return this;
-  }
-
-  /**
-   * Get pageable
-   * @return pageable
-   */
-  @javax.annotation.Nullable
-  @Valid
-
-  @JsonProperty(JSON_PROPERTY_PAGEABLE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public PageableObject getPageable() {
-    return pageable;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_PAGEABLE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPageable(@javax.annotation.Nullable PageableObject pageable) {
-    this.pageable = pageable;
-  }
-
-
-  public PageWebhookCompanyInvitationAccepted sort(@javax.annotation.Nullable SortObject sort) {
-    this.sort = sort;
-    return this;
-  }
-
-  /**
-   * Get sort
-   * @return sort
-   */
-  @javax.annotation.Nullable
-  @Valid
-
-  @JsonProperty(JSON_PROPERTY_SORT)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public SortObject getSort() {
-    return sort;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_SORT)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setSort(@javax.annotation.Nullable SortObject sort) {
-    this.sort = sort;
   }
 
 
@@ -272,6 +220,58 @@ public class PageWebhookCompanyInvitationAccepted {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setNumberOfElements(@javax.annotation.Nullable Integer numberOfElements) {
     this.numberOfElements = numberOfElements;
+  }
+
+
+  public PageWebhookCompanyInvitationAccepted pageable(@javax.annotation.Nullable PageableObject pageable) {
+    this.pageable = pageable;
+    return this;
+  }
+
+  /**
+   * Get pageable
+   * @return pageable
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_PAGEABLE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public PageableObject getPageable() {
+    return pageable;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PAGEABLE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setPageable(@javax.annotation.Nullable PageableObject pageable) {
+    this.pageable = pageable;
+  }
+
+
+  public PageWebhookCompanyInvitationAccepted sort(@javax.annotation.Nullable SortObject sort) {
+    this.sort = sort;
+    return this;
+  }
+
+  /**
+   * Get sort
+   * @return sort
+   */
+  @javax.annotation.Nullable
+  @Valid
+
+  @JsonProperty(JSON_PROPERTY_SORT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public SortObject getSort() {
+    return sort;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_SORT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setSort(@javax.annotation.Nullable SortObject sort) {
+    this.sort = sort;
   }
 
 
@@ -398,11 +398,11 @@ public class PageWebhookCompanyInvitationAccepted {
     PageWebhookCompanyInvitationAccepted pageWebhookCompanyInvitationAccepted = (PageWebhookCompanyInvitationAccepted) o;
     return Objects.equals(this.totalElements, pageWebhookCompanyInvitationAccepted.totalElements) &&
         Objects.equals(this.totalPages, pageWebhookCompanyInvitationAccepted.totalPages) &&
-        Objects.equals(this.pageable, pageWebhookCompanyInvitationAccepted.pageable) &&
-        Objects.equals(this.sort, pageWebhookCompanyInvitationAccepted.sort) &&
         Objects.equals(this.first, pageWebhookCompanyInvitationAccepted.first) &&
         Objects.equals(this.last, pageWebhookCompanyInvitationAccepted.last) &&
         Objects.equals(this.numberOfElements, pageWebhookCompanyInvitationAccepted.numberOfElements) &&
+        Objects.equals(this.pageable, pageWebhookCompanyInvitationAccepted.pageable) &&
+        Objects.equals(this.sort, pageWebhookCompanyInvitationAccepted.sort) &&
         Objects.equals(this.size, pageWebhookCompanyInvitationAccepted.size) &&
         Objects.equals(this.content, pageWebhookCompanyInvitationAccepted.content) &&
         Objects.equals(this.number, pageWebhookCompanyInvitationAccepted.number) &&
@@ -411,7 +411,7 @@ public class PageWebhookCompanyInvitationAccepted {
 
   @Override
   public int hashCode() {
-    return Objects.hash(totalElements, totalPages, pageable, sort, first, last, numberOfElements, size, content, number, empty);
+    return Objects.hash(totalElements, totalPages, first, last, numberOfElements, pageable, sort, size, content, number, empty);
   }
 
   @Override
@@ -420,11 +420,11 @@ public class PageWebhookCompanyInvitationAccepted {
     sb.append("class PageWebhookCompanyInvitationAccepted {\n");
     sb.append("    totalElements: ").append(toIndentedString(totalElements)).append("\n");
     sb.append("    totalPages: ").append(toIndentedString(totalPages)).append("\n");
-    sb.append("    pageable: ").append(toIndentedString(pageable)).append("\n");
-    sb.append("    sort: ").append(toIndentedString(sort)).append("\n");
     sb.append("    first: ").append(toIndentedString(first)).append("\n");
     sb.append("    last: ").append(toIndentedString(last)).append("\n");
     sb.append("    numberOfElements: ").append(toIndentedString(numberOfElements)).append("\n");
+    sb.append("    pageable: ").append(toIndentedString(pageable)).append("\n");
+    sb.append("    sort: ").append(toIndentedString(sort)).append("\n");
     sb.append("    size: ").append(toIndentedString(size)).append("\n");
     sb.append("    content: ").append(toIndentedString(content)).append("\n");
     sb.append("    number: ").append(toIndentedString(number)).append("\n");

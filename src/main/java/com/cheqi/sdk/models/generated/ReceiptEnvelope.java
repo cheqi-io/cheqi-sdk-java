@@ -121,7 +121,7 @@ public class ReceiptEnvelope {
   }
 
   /**
-   * Version 1 holds generated CHEQI/UBL documents. Version 2 download envelopes hold RECEIPT_PAYLOAD generation input and optional IDENTIFICATION_DETAILS. Each document&#39;s content is serialized JSON or XML, not a nested parsed document.
+   * Version 1 holds generated CHEQI/UBL documents. Version 2 download envelopes hold RECEIPT_PAYLOAD or CREDIT_NOTE_PAYLOAD generation input and optional IDENTIFICATION_DETAILS. Each document&#39;s content is serialized JSON or XML, not a nested parsed document.
    * @return documents
    */
   @javax.annotation.Nonnull
@@ -148,7 +148,7 @@ public class ReceiptEnvelope {
   }
 
   /**
-   * Schema version of this encrypted plaintext envelope. Version 2 download envelopes carry RECEIPT_PAYLOAD generation input instead of a generated CHEQI document.
+   * Schema version of this encrypted plaintext envelope. Version 2 download envelopes carry RECEIPT_PAYLOAD or CREDIT_NOTE_PAYLOAD generation input instead of a generated CHEQI document.
    * minimum: 1
    * maximum: 2
    * @return envelopeVersion

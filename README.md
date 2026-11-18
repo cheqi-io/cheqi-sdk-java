@@ -533,23 +533,30 @@ An empty or malformed successful digital submission acknowledgement is ambiguous
 match has expired, including expiry between retrieval and submission. Keep any previously
 prepared download separately; expiry cannot revive the digital match.
 
-## Credit notes by invoice number
+## Credit notes in the web wallet
 
-With the 3.2 development SDK, issue the original receipt normally with your own
-`documentNumber`. Put that exact number in the credit note's
-`originatorDocumentReference`; no Cheqi ID or original URL/key is required.
+For the web wallet, issue the credit note through an ordinary encrypted receipt
+link. Include its own `documentNumber`, the original invoice's exact number in
+`originatorDocumentReference`, and the normal `taxesApplied` boolean. The helper
+also accepts the existing generation wrapper with `taxesApplied` at its root and
+`creditNoteTemplateRequest` as its body. Amounts are preserved without calculations.
+
+The reference stays inside the ciphertext. There is no backend invoice lookup,
+reference hash, parent Cheqi ID or encrypted parent-link field. Once the customer
+opens the credit note's link, the wallet matches the decrypted reference to one
+local invoice with that exact document number from the same issuer. If no unique
+invoice is available, the note remains visible on its own and can link later.
+The original invoice is unchanged, and both documents support ordinary PDF/XML
+export and independent removal.
+
+Preparation is local and reuses the existing `PreparedReceiptDownload` result and
+backend-generated envelope/upload models. Persist it before upload; retry the same
+prepared ciphertext after uncertain outcomes. For a custom receipt host, supply
+`baseUrl` (`base_url` in Python) to preparation. The browser needs the updated
+credit-note envelope support; no new backend routing endpoint or migration is needed.
 
 ```java
-var prepared = sdk.getCreditNoteService().prepareCreditNote(creditNotePayload);
-// Persist prepared before submission. Reuse it unchanged after uncertain outcomes.
-var accepted = sdk.getCreditNoteService().submitPreparedCreditNote(prepared);
+var prepared = sdk.getCreditNoteService().prepareDownload(creditNotePayload);
+// Persist prepared and show prepared.getDownloadUrl() as the normal receipt link/QR.
+sdk.getReceiptService().uploadPreparedDownload(prepared);
 ```
-
-Resolution is scoped to the authenticated issuing company. Unknown references
-fail with 404 and ambiguous numbers with 409; do not guess or generate a new
-submission on retry. Both device and browser routes are supported. Supply the normal `taxesApplied`
-boolean in the payload or generation wrapper for either route. Browser
-originals issued by older SDKs lack the reference index and receiving key;
-they cannot be automatically upgraded from encrypted contents. Deploy the updated
-backend reference API before using this SDK. Publish the development snapshot as
-a release and update backend consumers together before production deployment.

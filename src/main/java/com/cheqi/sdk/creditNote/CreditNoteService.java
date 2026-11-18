@@ -1,7 +1,5 @@
 package com.cheqi.sdk.creditNote;
 
-import com.cheqi.sdk.models.generated.PreparedCreditNote;
-
 import com.cheqi.sdk.config.ObjectMapperConfig;
 import com.cheqi.sdk.encryption.EncryptionService;
 import com.cheqi.sdk.exceptions.CheqiSDKException;
@@ -122,104 +120,34 @@ public class CreditNoteService {
                 RequestOptions.defaults());
     }
 
-    /** Resolve the payload's originatorDocumentReference, then encrypt for the original route.
-     * Persist the returned object and replay submitPreparedCreditNote after uncertain outcomes.
-     */
-    public PreparedCreditNote prepareCreditNote(Object payload, UUID storeId, RequestOptions options) throws CheqiSDKException {
+    /** Prepare a normal encrypted receipt link. Invoice matching happens only in the receiving wallet. */
+    public com.cheqi.sdk.receipt.PreparedReceiptDownload prepareDownload(Object payload, String baseUrl) throws CheqiSDKException {
         requireNonNull(payload, "creditNotePayload");
         try {
             var node = payload instanceof String ? objectMapper.readTree((String) payload) : objectMapper.valueToTree(payload);
-            var body = node.has("creditNoteTemplateRequest") ? node.get("creditNoteTemplateRequest") : node;
-            if (body == null || !body.isObject() || !body.path("originatorDocumentReference").isTextual())
-                throw validationError("originatorDocumentReference must contain the original documentNumber");
-            String hash = com.cheqi.sdk.receipt.DocumentReferences.hash(body.path("originatorDocumentReference").asText());
-            var original = apiClient.resolveCreditNoteReference(new com.cheqi.sdk.models.generated.CreditNoteDocumentReference()
-                    .documentReferenceHash(hash), options);
-            if (original == null) throw validationError("Missing document-reference resolution");
-            String parent = original.getParentCheqiReceiptId();
-            requireText(parent, "resolved parentCheqiReceiptId");
-            if (!node.path("taxesApplied").isBoolean())
-                throw validationError("taxesApplied must be supplied as a boolean");
-            if ("DIGITAL".equals(original.getDeliveryRoute())) {
-                var resolution = matchingService.matchCustomer(new IdentificationDetails().cheqiReceiptId(parent), options);
-                validateDeviceRoute(resolution);
-                if (resolution.getDeliveryRouteType() != RecipientResolutionResponse.DeliveryRouteTypeEnum.DIGITAL)
-                    throw validationError("Original owner-device route is unavailable");
-                var generation = node.has("creditNoteTemplateRequest") ? node : objectMapper.createObjectNode()
-                        .put("taxesApplied", node.path("taxesApplied").asBoolean()).set("creditNoteTemplateRequest", body);
-                List<EncryptedReceiptPayload> deliveries = new ArrayList<>();
-                for (var recipient : resolution.getRecipients()) deliveries.add(encryptionService.encryptCreditNoteForRecipient(
-                        objectMapper.writeValueAsString(generation), recipient));
-                return new PreparedCreditNote().parentCheqiReceiptId(parent).deviceSubmission(new EncryptedCreditNoteEnvelope().matchId(resolution.getMatchId())
-                        .parentCheqiReceiptId(parent).storeId(storeId == null ? original.getStoreId() : storeId).deviceDeliveries(deliveries));
-            }
-            if (!"DOWNLOAD".equals(original.getDeliveryRoute())) throw validationError("Unsupported original document route");
-            if (storeId != null) throw validationError("Download delivery does not support store-scoped issuance");
-            requireText(original.getCreditNotePublicKey(), "creditNotePublicKey");
-            var downloadPayload = ((com.fasterxml.jackson.databind.node.ObjectNode) body).deepCopy()
+            var body = node.path("creditNoteTemplateRequest").isMissingNode() ? node : node.get("creditNoteTemplateRequest");
+            if (!body.isObject() || !body.path("documentNumber").isTextual() || !body.path("originatorDocumentReference").isTextual())
+                throw validationError("documentNumber and originatorDocumentReference are required");
+            requireText(body.path("documentNumber").asText(), "documentNumber");
+            requireText(body.path("originatorDocumentReference").asText(), "originatorDocumentReference");
+            if (!node.path("taxesApplied").isBoolean()) throw validationError("taxesApplied must be a boolean");
+            var document = ((com.fasterxml.jackson.databind.node.ObjectNode) body).deepCopy()
                     .put("taxesApplied", node.path("taxesApplied").asBoolean());
             var downloads = new com.cheqi.sdk.download.DownloadService();
-            // Only the randomly generated ID and key are used; no URL is exposed or requested.
-            var child = downloads.generateDownloadLink("https://receipt.cheqi.io");
+            var link = downloads.generateDownloadLink(baseUrl);
             var envelope = new com.cheqi.sdk.models.generated.ReceiptEnvelope().envelopeVersion(2)
-                    .cheqiReceiptId(child.getDownloadId()).receiptUuid(UUID.randomUUID()).receiptGeneratorVersion("credit-note-payload-v1")
+                    .cheqiReceiptId(link.getDownloadId()).receiptUuid(UUID.randomUUID()).receiptGeneratorVersion("credit-note-payload-v1")
                     .putDocumentsItem("CREDIT_NOTE_PAYLOAD", new com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument()
                             .mediaType(com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument.MediaTypeEnum.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(downloadPayload)));
-            String link = objectMapper.writeValueAsString(java.util.Map.of("version", 2, "parentCheqiReceiptId", parent,
-                    "downloadId", child.getDownloadId(), "contentKey", child.getContentKey()));
-            var encryptedLink = encryptionService.encryptForDevice(link, new MatchedRecipient().id(parent).publicKey(original.getCreditNotePublicKey()));
-            var request = new com.cheqi.sdk.models.generated.ClientReceiptDownloadRequest().downloadId(child.getDownloadId())
-                    .ciphertext(downloads.encryptDownloadEnvelope(envelope, child.getContentKey()))
-                    .parentCheqiReceiptId(parent).encryptedParentLink(encryptedLink.getEncryptedContent())
-                    .encryptedParentLinkKey(encryptedLink.getEncryptedAesKey());
-            return new PreparedCreditNote().parentCheqiReceiptId(parent).downloadSubmission(request);
+                            .content(objectMapper.writeValueAsString(document)));
+            return new com.cheqi.sdk.receipt.PreparedReceiptDownload(link.getUrl(), link.getDownloadId(),
+                    downloads.encryptDownloadEnvelope(envelope, link.getContentKey()), null);
         } catch (CheqiSDKException e) { throw e; }
-        catch (CheqiApiException e) {
-            throw new CheqiSDKException("Credit-note reference preparation failed: " + e.getMessage(), e,
-                    e.getErrorCode(), e.getHttpStatusCode(), e.getCorrelationId());
-        }
-        catch (IllegalArgumentException e) { throw validationError("originatorDocumentReference must contain a nonblank original documentNumber"); }
-        catch (Exception e) { throw new CheqiSDKException("Credit-note preparation failed", e); }
+        catch (Exception e) { throw new CheqiSDKException("Credit-note download preparation failed", e); }
     }
 
-    public PreparedCreditNote prepareCreditNote(Object payload) throws CheqiSDKException {
-        return prepareCreditNote(payload, null, RequestOptions.defaults());
-    }
-
-    /** Submits the exact persisted ciphertext; never re-resolves or regenerates on retry. */
-    public CreditNoteResult submitPreparedCreditNote(PreparedCreditNote prepared, RequestOptions options) throws CheqiSDKException {
-        requireNonNull(prepared, "preparedCreditNote");
-        requireText(prepared.getParentCheqiReceiptId(), "parentCheqiReceiptId");
-        if ((prepared.getDeviceSubmission() == null) == (prepared.getDownloadSubmission() == null))
-            throw validationError("Exactly one prepared submission is required");
-        String parent = prepared.getDeviceSubmission() != null ? prepared.getDeviceSubmission().getParentCheqiReceiptId()
-                : prepared.getDownloadSubmission().getParentCheqiReceiptId();
-        if (!prepared.getParentCheqiReceiptId().equals(parent)) throw validationError("Credit-note parent mismatch");
-        try {
-            if (prepared.getDeviceSubmission() != null) {
-                var response = apiClient.submitEncryptedCreditNote(prepared.getDeviceSubmission(), options);
-                if (response == null || !prepared.getDeviceSubmission().getMatchId().equals(response.getMatchId()))
-                    throw validationError("Credit-note acceptance is not confirmed");
-                requireText(response.getCheqiReceiptId(), "accepted cheqiReceiptId");
-                return CreditNoteResult.accepted(prepared.getParentCheqiReceiptId(), response);
-            }
-            var response = apiClient.uploadEncryptedDownloadReceipt(prepared.getDownloadSubmission(), options);
-            if (response == null) throw validationError("Credit-note acceptance is not confirmed");
-            requireText(response.getCheqiReceiptId(), "accepted cheqiReceiptId");
-            return CreditNoteResult.accepted(prepared.getParentCheqiReceiptId(), new ReceiptSubmissionResponse()
-                    .cheqiReceiptId(response.getCheqiReceiptId()).createdAt(response.getCreatedAt())
-                    .status(ReceiptSubmissionResponse.StatusEnum.COMPLETED));
-        } catch (CheqiSDKException e) { throw e; }
-        catch (CheqiApiException e) {
-            throw new CheqiSDKException("Credit-note submission failed; retain the prepared submission: " + e.getMessage(), e,
-                    e.getErrorCode(), e.getHttpStatusCode(), e.getCorrelationId());
-        }
-        catch (Exception e) { throw new CheqiSDKException("Credit-note submission failed; retain the prepared submission", e); }
-    }
-
-    public CreditNoteResult submitPreparedCreditNote(PreparedCreditNote prepared) throws CheqiSDKException {
-        return submitPreparedCreditNote(prepared, RequestOptions.defaults());
+    public com.cheqi.sdk.receipt.PreparedReceiptDownload prepareDownload(Object payload) throws CheqiSDKException {
+        return prepareDownload(payload, "https://receipt.cheqi.io");
     }
 
     private static void validateDeviceRoute(RecipientResolutionResponse resolution)

@@ -28,18 +28,12 @@ import javax.validation.Valid;
 
 
 /**
- * ClientReceiptDownloadRequest
+ * Client-encrypted receipt payload
  */
 @JsonPropertyOrder({
   ClientReceiptDownloadRequest.JSON_PROPERTY_DOWNLOAD_ID,
   ClientReceiptDownloadRequest.JSON_PROPERTY_CIPHERTEXT,
-  ClientReceiptDownloadRequest.JSON_PROPERTY_TEMPLATE_HASH,
-  ClientReceiptDownloadRequest.JSON_PROPERTY_PARENT_DOWNLOAD_ID,
-  ClientReceiptDownloadRequest.JSON_PROPERTY_ENCRYPTED_PARENT_LINK,
-  ClientReceiptDownloadRequest.JSON_PROPERTY_DOCUMENT_REFERENCE_HASH,
-  ClientReceiptDownloadRequest.JSON_PROPERTY_CREDIT_NOTE_PUBLIC_KEY,
-  ClientReceiptDownloadRequest.JSON_PROPERTY_PARENT_CHEQI_RECEIPT_ID,
-  ClientReceiptDownloadRequest.JSON_PROPERTY_ENCRYPTED_PARENT_LINK_KEY
+  ClientReceiptDownloadRequest.JSON_PROPERTY_TEMPLATE_HASH
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
@@ -55,30 +49,6 @@ public class ClientReceiptDownloadRequest {
   public static final String JSON_PROPERTY_TEMPLATE_HASH = "templateHash";
   @javax.annotation.Nullable
   private String templateHash;
-
-  public static final String JSON_PROPERTY_PARENT_DOWNLOAD_ID = "parentDownloadId";
-  @javax.annotation.Nullable
-  private String parentDownloadId;
-
-  public static final String JSON_PROPERTY_ENCRYPTED_PARENT_LINK = "encryptedParentLink";
-  @javax.annotation.Nullable
-  private String encryptedParentLink;
-
-  public static final String JSON_PROPERTY_DOCUMENT_REFERENCE_HASH = "documentReferenceHash";
-  @javax.annotation.Nullable
-  private String documentReferenceHash;
-
-  public static final String JSON_PROPERTY_CREDIT_NOTE_PUBLIC_KEY = "creditNotePublicKey";
-  @javax.annotation.Nullable
-  private String creditNotePublicKey;
-
-  public static final String JSON_PROPERTY_PARENT_CHEQI_RECEIPT_ID = "parentCheqiReceiptId";
-  @javax.annotation.Nullable
-  private String parentCheqiReceiptId;
-
-  public static final String JSON_PROPERTY_ENCRYPTED_PARENT_LINK_KEY = "encryptedParentLinkKey";
-  @javax.annotation.Nullable
-  private String encryptedParentLinkKey;
 
   public ClientReceiptDownloadRequest() { 
   }
@@ -160,158 +130,6 @@ public class ClientReceiptDownloadRequest {
   }
 
 
-  public ClientReceiptDownloadRequest parentDownloadId(@javax.annotation.Nullable String parentDownloadId) {
-    this.parentDownloadId = parentDownloadId;
-    return this;
-  }
-
-  /**
-   * Legacy symmetric-link protocol. For a credit note, the original invoice download ID. Must belong to the same issuing company and application. Supply together with encryptedParentLink; never include a URL fragment or key.
-   * @return parentDownloadId
-   * @deprecated
-   */
-  @Deprecated
-  @javax.annotation.Nullable
- @Pattern(regexp="^[A-Za-z0-9_-]{22,64}$")
-  @JsonProperty(JSON_PROPERTY_PARENT_DOWNLOAD_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getParentDownloadId() {
-    return parentDownloadId;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_PARENT_DOWNLOAD_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setParentDownloadId(@javax.annotation.Nullable String parentDownloadId) {
-    this.parentDownloadId = parentDownloadId;
-  }
-
-
-  public ClientReceiptDownloadRequest encryptedParentLink(@javax.annotation.Nullable String encryptedParentLink) {
-    this.encryptedParentLink = encryptedParentLink;
-    return this;
-  }
-
-  /**
-   * SDK-generated AES-GCM encrypted child link. Version 2 plaintext: {version:2,parentCheqiReceiptId,downloadId,contentKey}; its fresh AES key is wrapped in encryptedParentLinkKey. Never supply keys manually.
-   * @return encryptedParentLink
-   */
-  @javax.annotation.Nullable
- @Size(min=0,max=22000)
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_PARENT_LINK)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getEncryptedParentLink() {
-    return encryptedParentLink;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_PARENT_LINK)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedParentLink(@javax.annotation.Nullable String encryptedParentLink) {
-    this.encryptedParentLink = encryptedParentLink;
-  }
-
-
-  public ClientReceiptDownloadRequest documentReferenceHash(@javax.annotation.Nullable String documentReferenceHash) {
-    this.documentReferenceHash = documentReferenceHash;
-    return this;
-  }
-
-  /**
-   * SDK-computed SHA-256 hex of UTF-8 cheqi:issuer-document:v1: followed by the exact documentNumber. Indexed within the authenticated issuing company for later credit-note resolution. This is a routing identifier, not encryption.
-   * @return documentReferenceHash
-   */
-  @javax.annotation.Nullable
- @Pattern(regexp="^[0-9a-f]{64}$")
-  @JsonProperty(JSON_PROPERTY_DOCUMENT_REFERENCE_HASH)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getDocumentReferenceHash() {
-    return documentReferenceHash;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_DOCUMENT_REFERENCE_HASH)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setDocumentReferenceHash(@javax.annotation.Nullable String documentReferenceHash) {
-    this.documentReferenceHash = documentReferenceHash;
-  }
-
-
-  public ClientReceiptDownloadRequest creditNotePublicKey(@javax.annotation.Nullable String creditNotePublicKey) {
-    this.creditNotePublicKey = creditNotePublicKey;
-    return this;
-  }
-
-  /**
-   * SDK-generated RSA public receiving key, base64 SPKI, 2048-4096 bits, RSA-OAEP SHA-256/MGF1 SHA-256. The corresponding PKCS8 private key is only inside the encrypted original envelope.
-   * @return creditNotePublicKey
-   */
-  @javax.annotation.Nullable
- @Size(min=0,max=2048)
-  @JsonProperty(JSON_PROPERTY_CREDIT_NOTE_PUBLIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getCreditNotePublicKey() {
-    return creditNotePublicKey;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_CREDIT_NOTE_PUBLIC_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setCreditNotePublicKey(@javax.annotation.Nullable String creditNotePublicKey) {
-    this.creditNotePublicKey = creditNotePublicKey;
-  }
-
-
-  public ClientReceiptDownloadRequest parentCheqiReceiptId(@javax.annotation.Nullable String parentCheqiReceiptId) {
-    this.parentCheqiReceiptId = parentCheqiReceiptId;
-    return this;
-  }
-
-  /**
-   * SDK-internal original identifier returned by POST /credit-note/resolve. Merchants supply originatorDocumentReference in their encrypted credit-note payload.
-   * @return parentCheqiReceiptId
-   */
-  @javax.annotation.Nullable
- @Size(min=0,max=255)
-  @JsonProperty(JSON_PROPERTY_PARENT_CHEQI_RECEIPT_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getParentCheqiReceiptId() {
-    return parentCheqiReceiptId;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_PARENT_CHEQI_RECEIPT_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setParentCheqiReceiptId(@javax.annotation.Nullable String parentCheqiReceiptId) {
-    this.parentCheqiReceiptId = parentCheqiReceiptId;
-  }
-
-
-  public ClientReceiptDownloadRequest encryptedParentLinkKey(@javax.annotation.Nullable String encryptedParentLinkKey) {
-    this.encryptedParentLinkKey = encryptedParentLinkKey;
-    return this;
-  }
-
-  /**
-   * SDK-generated base64 RSA-OAEP SHA-256/MGF1 SHA-256 wrapped AES key for encryptedParentLink. Supply with parentCheqiReceiptId and encryptedParentLink.
-   * @return encryptedParentLinkKey
-   */
-  @javax.annotation.Nullable
- @Size(min=0,max=1024)
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_PARENT_LINK_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getEncryptedParentLinkKey() {
-    return encryptedParentLinkKey;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_ENCRYPTED_PARENT_LINK_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEncryptedParentLinkKey(@javax.annotation.Nullable String encryptedParentLinkKey) {
-    this.encryptedParentLinkKey = encryptedParentLinkKey;
-  }
-
-
   /**
    * Return true if this ClientReceiptDownloadRequest object is equal to o.
    */
@@ -326,18 +144,12 @@ public class ClientReceiptDownloadRequest {
     ClientReceiptDownloadRequest clientReceiptDownloadRequest = (ClientReceiptDownloadRequest) o;
     return Objects.equals(this.downloadId, clientReceiptDownloadRequest.downloadId) &&
         Objects.equals(this.ciphertext, clientReceiptDownloadRequest.ciphertext) &&
-        Objects.equals(this.templateHash, clientReceiptDownloadRequest.templateHash) &&
-        Objects.equals(this.parentDownloadId, clientReceiptDownloadRequest.parentDownloadId) &&
-        Objects.equals(this.encryptedParentLink, clientReceiptDownloadRequest.encryptedParentLink) &&
-        Objects.equals(this.documentReferenceHash, clientReceiptDownloadRequest.documentReferenceHash) &&
-        Objects.equals(this.creditNotePublicKey, clientReceiptDownloadRequest.creditNotePublicKey) &&
-        Objects.equals(this.parentCheqiReceiptId, clientReceiptDownloadRequest.parentCheqiReceiptId) &&
-        Objects.equals(this.encryptedParentLinkKey, clientReceiptDownloadRequest.encryptedParentLinkKey);
+        Objects.equals(this.templateHash, clientReceiptDownloadRequest.templateHash);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(downloadId, ciphertext, templateHash, parentDownloadId, encryptedParentLink, documentReferenceHash, creditNotePublicKey, parentCheqiReceiptId, encryptedParentLinkKey);
+    return Objects.hash(downloadId, ciphertext, templateHash);
   }
 
   @Override
@@ -347,12 +159,6 @@ public class ClientReceiptDownloadRequest {
     sb.append("    downloadId: ").append(toIndentedString(downloadId)).append("\n");
     sb.append("    ciphertext: ").append(toIndentedString(ciphertext)).append("\n");
     sb.append("    templateHash: ").append(toIndentedString(templateHash)).append("\n");
-    sb.append("    parentDownloadId: ").append(toIndentedString(parentDownloadId)).append("\n");
-    sb.append("    encryptedParentLink: ").append(toIndentedString(encryptedParentLink)).append("\n");
-    sb.append("    documentReferenceHash: ").append(toIndentedString(documentReferenceHash)).append("\n");
-    sb.append("    creditNotePublicKey: ").append(toIndentedString(creditNotePublicKey)).append("\n");
-    sb.append("    parentCheqiReceiptId: ").append(toIndentedString(parentCheqiReceiptId)).append("\n");
-    sb.append("    encryptedParentLinkKey: ").append(toIndentedString(encryptedParentLinkKey)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -32,7 +32,7 @@ import javax.validation.Valid;
 
 
 /**
- * Encrypted definitive credit-note payloads submitted for on-device formatting.
+ * Independently encrypted credit-note generation request for every owner device
  */
 @JsonPropertyOrder({
   EncryptedCreditNoteEnvelope.JSON_PROPERTY_MATCH_ID,
