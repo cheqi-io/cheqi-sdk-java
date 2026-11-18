@@ -32,16 +32,20 @@ import javax.validation.Valid;
  * PageableObject
  */
 @JsonPropertyOrder({
+  PageableObject.JSON_PROPERTY_OFFSET,
   PageableObject.JSON_PROPERTY_PAGED,
   PageableObject.JSON_PROPERTY_PAGE_NUMBER,
   PageableObject.JSON_PROPERTY_PAGE_SIZE,
   PageableObject.JSON_PROPERTY_SORT,
-  PageableObject.JSON_PROPERTY_UNPAGED,
-  PageableObject.JSON_PROPERTY_OFFSET
+  PageableObject.JSON_PROPERTY_UNPAGED
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class PageableObject {
+  public static final String JSON_PROPERTY_OFFSET = "offset";
+  @javax.annotation.Nullable
+  private Long offset;
+
   public static final String JSON_PROPERTY_PAGED = "paged";
   @javax.annotation.Nullable
   private Boolean paged;
@@ -62,12 +66,33 @@ public class PageableObject {
   @javax.annotation.Nullable
   private Boolean unpaged;
 
-  public static final String JSON_PROPERTY_OFFSET = "offset";
-  @javax.annotation.Nullable
-  private Long offset;
-
   public PageableObject() { 
   }
+
+  public PageableObject offset(@javax.annotation.Nullable Long offset) {
+    this.offset = offset;
+    return this;
+  }
+
+  /**
+   * Get offset
+   * @return offset
+   */
+  @javax.annotation.Nullable
+
+  @JsonProperty(JSON_PROPERTY_OFFSET)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Long getOffset() {
+    return offset;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_OFFSET)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setOffset(@javax.annotation.Nullable Long offset) {
+    this.offset = offset;
+  }
+
 
   public PageableObject paged(@javax.annotation.Nullable Boolean paged) {
     this.paged = paged;
@@ -195,31 +220,6 @@ public class PageableObject {
   }
 
 
-  public PageableObject offset(@javax.annotation.Nullable Long offset) {
-    this.offset = offset;
-    return this;
-  }
-
-  /**
-   * Get offset
-   * @return offset
-   */
-  @javax.annotation.Nullable
-
-  @JsonProperty(JSON_PROPERTY_OFFSET)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Long getOffset() {
-    return offset;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_OFFSET)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setOffset(@javax.annotation.Nullable Long offset) {
-    this.offset = offset;
-  }
-
-
   /**
    * Return true if this PageableObject object is equal to o.
    */
@@ -232,29 +232,29 @@ public class PageableObject {
       return false;
     }
     PageableObject pageableObject = (PageableObject) o;
-    return Objects.equals(this.paged, pageableObject.paged) &&
+    return Objects.equals(this.offset, pageableObject.offset) &&
+        Objects.equals(this.paged, pageableObject.paged) &&
         Objects.equals(this.pageNumber, pageableObject.pageNumber) &&
         Objects.equals(this.pageSize, pageableObject.pageSize) &&
         Objects.equals(this.sort, pageableObject.sort) &&
-        Objects.equals(this.unpaged, pageableObject.unpaged) &&
-        Objects.equals(this.offset, pageableObject.offset);
+        Objects.equals(this.unpaged, pageableObject.unpaged);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(paged, pageNumber, pageSize, sort, unpaged, offset);
+    return Objects.hash(offset, paged, pageNumber, pageSize, sort, unpaged);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class PageableObject {\n");
+    sb.append("    offset: ").append(toIndentedString(offset)).append("\n");
     sb.append("    paged: ").append(toIndentedString(paged)).append("\n");
     sb.append("    pageNumber: ").append(toIndentedString(pageNumber)).append("\n");
     sb.append("    pageSize: ").append(toIndentedString(pageSize)).append("\n");
     sb.append("    sort: ").append(toIndentedString(sort)).append("\n");
     sb.append("    unpaged: ").append(toIndentedString(unpaged)).append("\n");
-    sb.append("    offset: ").append(toIndentedString(offset)).append("\n");
     sb.append("}");
     return sb.toString();
   }
