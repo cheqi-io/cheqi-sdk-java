@@ -29,7 +29,7 @@ class CreditNoteReferenceTest {
         String publicKey = DownloadCreditNoteRecipient.addTo(envelope);
         when(api.resolveCreditNoteReference(any(), any())).thenReturn(new CreditNoteReferenceResolution()
                 .deliveryRoute("DOWNLOAD").parentCheqiReceiptId("original").creditNotePublicKey(publicKey));
-        var prepared = service.prepareCreditNote(Map.of("originatorDocumentReference", "INV-123", "documentNumber", "CN-123"));
+        var prepared = service.prepareCreditNote(Map.of("originatorDocumentReference", "INV-123", "documentNumber", "CN-123", "taxesApplied", true));
         var mapper = ObjectMapperConfig.getInstance();
         String saved = mapper.writeValueAsString(prepared);
         assertFalse(saved.contains("INV-123")); assertFalse(saved.contains("CN-123"));

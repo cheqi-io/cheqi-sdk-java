@@ -138,9 +138,9 @@ public class CreditNoteService {
             if (original == null) throw validationError("Missing document-reference resolution");
             String parent = original.getParentCheqiReceiptId();
             requireText(parent, "resolved parentCheqiReceiptId");
+            if (!node.path("taxesApplied").isBoolean())
+                throw validationError("taxesApplied must be supplied as a boolean");
             if ("DIGITAL".equals(original.getDeliveryRoute())) {
-                if (!node.path("taxesApplied").isBoolean())
-                    throw validationError("taxesApplied must be supplied as a boolean for device generation");
                 var resolution = matchingService.matchCustomer(new IdentificationDetails().cheqiReceiptId(parent), options);
                 validateDeviceRoute(resolution);
                 if (resolution.getDeliveryRouteType() != RecipientResolutionResponse.DeliveryRouteTypeEnum.DIGITAL)
@@ -156,6 +156,8 @@ public class CreditNoteService {
             if (!"DOWNLOAD".equals(original.getDeliveryRoute())) throw validationError("Unsupported original document route");
             if (storeId != null) throw validationError("Download delivery does not support store-scoped issuance");
             requireText(original.getCreditNotePublicKey(), "creditNotePublicKey");
+            var downloadPayload = ((com.fasterxml.jackson.databind.node.ObjectNode) body).deepCopy()
+                    .put("taxesApplied", node.path("taxesApplied").asBoolean());
             var downloads = new com.cheqi.sdk.download.DownloadService();
             // Only the randomly generated ID and key are used; no URL is exposed or requested.
             var child = downloads.generateDownloadLink("https://receipt.cheqi.io");
@@ -163,7 +165,7 @@ public class CreditNoteService {
                     .cheqiReceiptId(child.getDownloadId()).receiptUuid(UUID.randomUUID()).receiptGeneratorVersion("credit-note-payload-v1")
                     .putDocumentsItem("CREDIT_NOTE_PAYLOAD", new com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument()
                             .mediaType(com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument.MediaTypeEnum.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(body)));
+                            .content(objectMapper.writeValueAsString(downloadPayload)));
             String link = objectMapper.writeValueAsString(java.util.Map.of("version", 2, "parentCheqiReceiptId", parent,
                     "downloadId", child.getDownloadId(), "contentKey", child.getContentKey()));
             var encryptedLink = encryptionService.encryptForDevice(link, new MatchedRecipient().id(parent).publicKey(original.getCreditNotePublicKey()));

@@ -547,8 +547,8 @@ var accepted = sdk.getCreditNoteService().submitPreparedCreditNote(prepared);
 
 Resolution is scoped to the authenticated issuing company. Unknown references
 fail with 404 and ambiguous numbers with 409; do not guess or generate a new
-submission on retry. Both device and browser routes are supported. For device generation, retain the
-normal `taxesApplied` boolean in the payload or generation wrapper. Browser
+submission on retry. Both device and browser routes are supported. Supply the normal `taxesApplied`
+boolean in the payload or generation wrapper for either route. Browser
 originals issued by older SDKs lack the reference index and receiving key;
 they cannot be automatically upgraded from encrypted contents. Deploy the updated
 backend reference API before using this SDK. Publish the development snapshot as
