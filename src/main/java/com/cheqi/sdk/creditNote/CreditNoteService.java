@@ -120,6 +120,36 @@ public class CreditNoteService {
                 RequestOptions.defaults());
     }
 
+    /** Prepare a normal encrypted receipt link. Invoice matching happens only in the receiving wallet. */
+    public com.cheqi.sdk.receipt.PreparedReceiptDownload prepareDownload(Object payload, String baseUrl) throws CheqiSDKException {
+        requireNonNull(payload, "creditNotePayload");
+        try {
+            var node = payload instanceof String ? objectMapper.readTree((String) payload) : objectMapper.valueToTree(payload);
+            var body = node.path("creditNoteTemplateRequest").isMissingNode() ? node : node.get("creditNoteTemplateRequest");
+            if (!body.isObject() || !body.path("documentNumber").isTextual() || !body.path("originatorDocumentReference").isTextual())
+                throw validationError("documentNumber and originatorDocumentReference are required");
+            requireText(body.path("documentNumber").asText(), "documentNumber");
+            requireText(body.path("originatorDocumentReference").asText(), "originatorDocumentReference");
+            if (!node.path("taxesApplied").isBoolean()) throw validationError("taxesApplied must be a boolean");
+            var document = ((com.fasterxml.jackson.databind.node.ObjectNode) body).deepCopy()
+                    .put("taxesApplied", node.path("taxesApplied").asBoolean());
+            var downloads = new com.cheqi.sdk.download.DownloadService();
+            var link = downloads.generateDownloadLink(baseUrl);
+            var envelope = new com.cheqi.sdk.models.generated.ReceiptEnvelope().envelopeVersion(2)
+                    .cheqiReceiptId(link.getDownloadId()).receiptUuid(UUID.randomUUID()).receiptGeneratorVersion("credit-note-payload-v1")
+                    .putDocumentsItem("CREDIT_NOTE_PAYLOAD", new com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument()
+                            .mediaType(com.cheqi.sdk.models.generated.ReceiptEnvelopeDocument.MediaTypeEnum.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(document)));
+            return new com.cheqi.sdk.receipt.PreparedReceiptDownload(link.getUrl(), link.getDownloadId(),
+                    downloads.encryptDownloadEnvelope(envelope, link.getContentKey()), null);
+        } catch (CheqiSDKException e) { throw e; }
+        catch (Exception e) { throw new CheqiSDKException("Credit-note download preparation failed", e); }
+    }
+
+    public com.cheqi.sdk.receipt.PreparedReceiptDownload prepareDownload(Object payload) throws CheqiSDKException {
+        return prepareDownload(payload, "https://receipt.cheqi.io");
+    }
+
     private static void validateDeviceRoute(RecipientResolutionResponse resolution)
             throws CheqiSDKException {
         if (resolution == null || !Boolean.TRUE.equals(resolution.getRouteFound())) {
