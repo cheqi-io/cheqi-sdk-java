@@ -12,6 +12,13 @@ import java.util.UUID;
  * <p>Every call takes {@link RequestOptions}; {@code null} means {@link RequestOptions#defaults()}.</p>
  */
 public interface CheqiApiClient {
+    /** Resolves an SDK-hashed merchant document reference within the authenticated company. */
+    default com.cheqi.sdk.models.generated.CreditNoteReferenceResolution resolveCreditNoteReference(
+            com.cheqi.sdk.models.generated.CreditNoteDocumentReference reference, RequestOptions options)
+            throws CheqiApiException {
+        throw new UnsupportedOperationException("This API client does not support document-reference resolution");
+    }
+
 
     /** Exchanges client credentials for a short-lived Company token bound to one Grant. */
     OAuthTokenExchangeResponse requestAccessToken(ClientCredentialsTokenRequest request, RequestOptions options)

@@ -301,6 +301,7 @@ public class ReceiptService {
         }
         try {
             return new EncryptedReceiptEnvelope().matchId(matchId).storeId(storeId)
+                    .documentReferenceHash(DocumentReferences.receiptHash(validatedPayloadJson))
                     .deviceDeliveries(encryptForDevices(validatedPayloadJson, recipients));
         } catch (Exception exception) {
             throw new CheqiSDKException("Receipt encryption failed", exception);
@@ -521,9 +522,13 @@ public class ReceiptService {
                     .content(objectMapper.writeValueAsString(identificationDetails)));
         }
         // Recovery fallbacks omit identification details, so matching identifiers are not retained.
-        return new PreparedReceiptDownload(link.getUrl(), link.getDownloadId(),
-                downloadService.encryptDownloadEnvelope(envelope, link.getContentKey()),
-                verificationService.calculateCheqiReceiptHash(payloadDocument));
+        String publicKey = com.cheqi.sdk.creditNote.DownloadCreditNoteRecipient.addTo(envelope);
+        return new PreparedReceiptDownload(link.getUrl(), new com.cheqi.sdk.models.generated.ClientReceiptDownloadRequest()
+                .downloadId(link.getDownloadId())
+                .ciphertext(downloadService.encryptDownloadEnvelope(envelope, link.getContentKey()))
+                .templateHash(verificationService.calculateCheqiReceiptHash(payloadDocument))
+                .documentReferenceHash(DocumentReferences.receiptHash(payloadDocument))
+                .creditNotePublicKey(publicKey));
     }
 
     private static void validateResolvedRoute(RecipientResolutionResponse resolution)

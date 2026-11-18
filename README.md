@@ -532,3 +532,24 @@ An empty or malformed successful digital submission acknowledgement is ambiguous
 `resumeReceipt` returns `DIGITAL_EXPIRED` (not accepted, `retryable=false`) when an unsubmitted
 match has expired, including expiry between retrieval and submission. Keep any previously
 prepared download separately; expiry cannot revive the digital match.
+
+## Credit notes by invoice number
+
+With the 3.2 development SDK, issue the original receipt normally with your own
+`documentNumber`. Put that exact number in the credit note's
+`originatorDocumentReference`; no Cheqi ID or original URL/key is required.
+
+```java
+var prepared = sdk.getCreditNoteService().prepareCreditNote(creditNotePayload);
+// Persist prepared before submission. Reuse it unchanged after uncertain outcomes.
+var accepted = sdk.getCreditNoteService().submitPreparedCreditNote(prepared);
+```
+
+Resolution is scoped to the authenticated issuing company. Unknown references
+fail with 404 and ambiguous numbers with 409; do not guess or generate a new
+submission on retry. Both device and browser routes are supported. For device generation, retain the
+normal `taxesApplied` boolean in the payload or generation wrapper. Browser
+originals issued by older SDKs lack the reference index and receiving key;
+they cannot be automatically upgraded from encrypted contents. Deploy the updated
+backend reference API before using this SDK. Publish the development snapshot as
+a release and update backend consumers together before production deployment.

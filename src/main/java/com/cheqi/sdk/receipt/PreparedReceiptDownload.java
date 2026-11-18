@@ -47,7 +47,10 @@ public final class PreparedReceiptDownload {
 
     private static ClientReceiptDownloadRequest copy(ClientReceiptDownloadRequest request) {
         return new ClientReceiptDownloadRequest().downloadId(request.getDownloadId())
-                .ciphertext(request.getCiphertext()).templateHash(request.getTemplateHash());
+                .ciphertext(request.getCiphertext()).templateHash(request.getTemplateHash())
+                .documentReferenceHash(request.getDocumentReferenceHash()).creditNotePublicKey(request.getCreditNotePublicKey())
+                .parentDownloadId(request.getParentDownloadId()).parentCheqiReceiptId(request.getParentCheqiReceiptId())
+                .encryptedParentLink(request.getEncryptedParentLink()).encryptedParentLinkKey(request.getEncryptedParentLinkKey());
     }
 
     @Override

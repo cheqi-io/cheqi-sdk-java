@@ -35,6 +35,7 @@ import javax.validation.Valid;
  * Encrypted definitive receipt payloads submitted for on-device formatting.
  */
 @JsonPropertyOrder({
+  EncryptedReceiptEnvelope.JSON_PROPERTY_DOCUMENT_REFERENCE_HASH,
   EncryptedReceiptEnvelope.JSON_PROPERTY_MATCH_ID,
   EncryptedReceiptEnvelope.JSON_PROPERTY_CHILD_COMPANY_ID,
   EncryptedReceiptEnvelope.JSON_PROPERTY_STORE_ID,
@@ -43,6 +44,10 @@ import javax.validation.Valid;
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class EncryptedReceiptEnvelope {
+  public static final String JSON_PROPERTY_DOCUMENT_REFERENCE_HASH = "documentReferenceHash";
+  @javax.annotation.Nullable
+  private String documentReferenceHash;
+
   public static final String JSON_PROPERTY_MATCH_ID = "matchId";
   @javax.annotation.Nonnull
   private String matchId;
@@ -61,6 +66,31 @@ public class EncryptedReceiptEnvelope {
 
   public EncryptedReceiptEnvelope() { 
   }
+
+  public EncryptedReceiptEnvelope documentReferenceHash(@javax.annotation.Nullable String documentReferenceHash) {
+    this.documentReferenceHash = documentReferenceHash;
+    return this;
+  }
+
+  /**
+   * SDK-computed SHA-256 hex of UTF-8 cheqi:issuer-document:v1: followed by the exact documentNumber; scoped to the authenticated issuer for credit-note resolution.
+   * @return documentReferenceHash
+   */
+  @javax.annotation.Nullable
+ @Pattern(regexp="^[0-9a-f]{64}$")
+  @JsonProperty(JSON_PROPERTY_DOCUMENT_REFERENCE_HASH)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getDocumentReferenceHash() {
+    return documentReferenceHash;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DOCUMENT_REFERENCE_HASH)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDocumentReferenceHash(@javax.annotation.Nullable String documentReferenceHash) {
+    this.documentReferenceHash = documentReferenceHash;
+  }
+
 
   public EncryptedReceiptEnvelope matchId(@javax.annotation.Nonnull String matchId) {
     this.matchId = matchId;
@@ -189,7 +219,8 @@ public class EncryptedReceiptEnvelope {
       return false;
     }
     EncryptedReceiptEnvelope encryptedReceiptEnvelope = (EncryptedReceiptEnvelope) o;
-    return Objects.equals(this.matchId, encryptedReceiptEnvelope.matchId) &&
+    return Objects.equals(this.documentReferenceHash, encryptedReceiptEnvelope.documentReferenceHash) &&
+        Objects.equals(this.matchId, encryptedReceiptEnvelope.matchId) &&
         Objects.equals(this.childCompanyId, encryptedReceiptEnvelope.childCompanyId) &&
         Objects.equals(this.storeId, encryptedReceiptEnvelope.storeId) &&
         Objects.equals(this.deviceDeliveries, encryptedReceiptEnvelope.deviceDeliveries);
@@ -197,13 +228,14 @@ public class EncryptedReceiptEnvelope {
 
   @Override
   public int hashCode() {
-    return Objects.hash(matchId, childCompanyId, storeId, deviceDeliveries);
+    return Objects.hash(documentReferenceHash, matchId, childCompanyId, storeId, deviceDeliveries);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class EncryptedReceiptEnvelope {\n");
+    sb.append("    documentReferenceHash: ").append(toIndentedString(documentReferenceHash)).append("\n");
     sb.append("    matchId: ").append(toIndentedString(matchId)).append("\n");
     sb.append("    childCompanyId: ").append(toIndentedString(childCompanyId)).append("\n");
     sb.append("    storeId: ").append(toIndentedString(storeId)).append("\n");

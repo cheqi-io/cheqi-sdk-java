@@ -31,50 +31,50 @@ import javax.validation.Valid;
  * SortObject
  */
 @JsonPropertyOrder({
-  SortObject.JSON_PROPERTY_EMPTY,
+  SortObject.JSON_PROPERTY_UNSORTED,
   SortObject.JSON_PROPERTY_SORTED,
-  SortObject.JSON_PROPERTY_UNSORTED
+  SortObject.JSON_PROPERTY_EMPTY
 })
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.12.0")
 public class SortObject {
-  public static final String JSON_PROPERTY_EMPTY = "empty";
+  public static final String JSON_PROPERTY_UNSORTED = "unsorted";
   @javax.annotation.Nullable
-  private Boolean empty;
+  private Boolean unsorted;
 
   public static final String JSON_PROPERTY_SORTED = "sorted";
   @javax.annotation.Nullable
   private Boolean sorted;
 
-  public static final String JSON_PROPERTY_UNSORTED = "unsorted";
+  public static final String JSON_PROPERTY_EMPTY = "empty";
   @javax.annotation.Nullable
-  private Boolean unsorted;
+  private Boolean empty;
 
   public SortObject() { 
   }
 
-  public SortObject empty(@javax.annotation.Nullable Boolean empty) {
-    this.empty = empty;
+  public SortObject unsorted(@javax.annotation.Nullable Boolean unsorted) {
+    this.unsorted = unsorted;
     return this;
   }
 
   /**
-   * Get empty
-   * @return empty
+   * Get unsorted
+   * @return unsorted
    */
   @javax.annotation.Nullable
 
-  @JsonProperty(JSON_PROPERTY_EMPTY)
+  @JsonProperty(JSON_PROPERTY_UNSORTED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Boolean getEmpty() {
-    return empty;
+  public Boolean getUnsorted() {
+    return unsorted;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_EMPTY)
+  @JsonProperty(JSON_PROPERTY_UNSORTED)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEmpty(@javax.annotation.Nullable Boolean empty) {
-    this.empty = empty;
+  public void setUnsorted(@javax.annotation.Nullable Boolean unsorted) {
+    this.unsorted = unsorted;
   }
 
 
@@ -103,28 +103,28 @@ public class SortObject {
   }
 
 
-  public SortObject unsorted(@javax.annotation.Nullable Boolean unsorted) {
-    this.unsorted = unsorted;
+  public SortObject empty(@javax.annotation.Nullable Boolean empty) {
+    this.empty = empty;
     return this;
   }
 
   /**
-   * Get unsorted
-   * @return unsorted
+   * Get empty
+   * @return empty
    */
   @javax.annotation.Nullable
 
-  @JsonProperty(JSON_PROPERTY_UNSORTED)
+  @JsonProperty(JSON_PROPERTY_EMPTY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public Boolean getUnsorted() {
-    return unsorted;
+  public Boolean getEmpty() {
+    return empty;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_UNSORTED)
+  @JsonProperty(JSON_PROPERTY_EMPTY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setUnsorted(@javax.annotation.Nullable Boolean unsorted) {
-    this.unsorted = unsorted;
+  public void setEmpty(@javax.annotation.Nullable Boolean empty) {
+    this.empty = empty;
   }
 
 
@@ -140,23 +140,23 @@ public class SortObject {
       return false;
     }
     SortObject sortObject = (SortObject) o;
-    return Objects.equals(this.empty, sortObject.empty) &&
+    return Objects.equals(this.unsorted, sortObject.unsorted) &&
         Objects.equals(this.sorted, sortObject.sorted) &&
-        Objects.equals(this.unsorted, sortObject.unsorted);
+        Objects.equals(this.empty, sortObject.empty);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(empty, sorted, unsorted);
+    return Objects.hash(unsorted, sorted, empty);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SortObject {\n");
-    sb.append("    empty: ").append(toIndentedString(empty)).append("\n");
-    sb.append("    sorted: ").append(toIndentedString(sorted)).append("\n");
     sb.append("    unsorted: ").append(toIndentedString(unsorted)).append("\n");
+    sb.append("    sorted: ").append(toIndentedString(sorted)).append("\n");
+    sb.append("    empty: ").append(toIndentedString(empty)).append("\n");
     sb.append("}");
     return sb.toString();
   }

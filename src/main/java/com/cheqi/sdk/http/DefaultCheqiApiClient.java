@@ -217,6 +217,22 @@ public class DefaultCheqiApiClient implements CheqiApiClient {
     }
 
     @Override
+    public com.cheqi.sdk.models.generated.CreditNoteReferenceResolution resolveCreditNoteReference(
+            com.cheqi.sdk.models.generated.CreditNoteDocumentReference reference, RequestOptions options)
+            throws CheqiApiException {
+        options = RequestOptions.orDefaults(options);
+        try {
+            Request request = buildPostRequest(buildUrl("/credit-note/resolve"), objectMapper.writeValueAsString(reference), options);
+            return responseHandler.handleJsonResponse(clientFor(options).newCall(request).execute(),
+                    com.cheqi.sdk.models.generated.CreditNoteReferenceResolution.class, "Resolve credit-note document reference");
+        } catch (CheqiApiException e) { throw e; }
+        catch (IOException e) {
+            throw new CheqiApiException("Network error during document-reference resolution", e, 0,
+                    CheqiApiException.ErrorCodes.NETWORK_ERROR, null);
+        }
+    }
+
+    @Override
     public ClientReceiptDownloadResponse uploadEncryptedDownloadReceipt(
             ClientReceiptDownloadRequest request, RequestOptions options) throws CheqiApiException {
         if (request == null
